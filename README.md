@@ -6,6 +6,9 @@ The idea is for Crystal applications and libraries to have a `shard.yml` file
 at their root looking like this:
 
 ```yaml
+name: shards
+version: 0.1.0
+
 sources:
   - https://shards.crystal-lang.org/
   - https://shards.example.com/
@@ -28,16 +31,17 @@ folder, ready to be required.
 
 ## Development Plan
 
-- [ ] step 1: install/update dependencies
-  - [ ] clone from Git repositories (with github shortener)
+- [x] step 1: install/update dependencies
+  - [x] clone from Git repositories (with github shortener)
   - [ ] clone from Mercurial repositories (optional)
-  - [ ] copy/link from local path
+  - [x] copy/link from local path
 
 - [ ] step 2: resolve dependencies
   - [ ] recursively install dependencies
-  - [ ] list versions using git tags (v0.0.0-{pre,rc}0)
+  - [x] list versions using git tags (v0.0.0-{pre,rc}0)
   - [ ] checkout specified versions (defaults to the latest one)
-  - [ ] resolve versions, applying requirements (`*`, `>=`, `<=`, `<`, `>`, `~>`), recursively
+  - [x] resolve versions, applying requirements (`*`, `>=`, `<=`, `<`, `>`, `~>`), recursively
+  - [ ] resolve conflicts (when possible)
 
 - [ ] step 3: central registry (dumb)
   - [ ] resolve dependencies by name => repository URL
