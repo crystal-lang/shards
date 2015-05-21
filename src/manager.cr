@@ -30,6 +30,10 @@ module Shards
       resolver.spec(version)
     end
 
+    def install
+      resolver.install(version)
+    end
+
     private def resolver
       @resolver ||= Shards.find_resolver(@dependency)
     end

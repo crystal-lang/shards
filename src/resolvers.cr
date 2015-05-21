@@ -13,6 +13,27 @@ module Shards
 
     abstract def read_spec(version = nil)
     abstract def available_versions
+
+    protected def install_path
+      File.join(INSTALL_PATH, dependency.name)
+    end
+
+    protected def cleanup_install_directory
+      if File.exists?(install_path)
+        Shards.logger.debug "rm -rf #{escape install_path}"
+
+        if Dir.exists?(install_path)
+          #FileUtils.rm_rf(install_path)
+          system("rm -rf #{escape install_path}")
+        else
+          File.delete(install_path)
+        end
+      end
+    end
+
+    protected def escape(arg)
+      "'#{arg.gsub(/'/, "\\'")}'"
+    end
   end
 
   @@resolver_classes = {} of String => Resolver.class

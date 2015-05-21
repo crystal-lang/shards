@@ -1,10 +1,11 @@
 module Shards
   SPEC_FILENAME = "shard.yml"
-  CACHE_DIRECTORY = File.join(Dir.working_directory, ".shards")
 
-  unless Dir.exists?(CACHE_DIRECTORY)
-    Dir.mkdir(CACHE_DIRECTORY)
-  end
+  CACHE_DIRECTORY = File.join(Dir.working_directory, ".shards")
+  Dir.mkdir(CACHE_DIRECTORY) unless Dir.exists?(CACHE_DIRECTORY)
+
+  INSTALL_PATH = File.join(Dir.working_directory, "libs")
+  Dir.mkdir(INSTALL_PATH) unless Dir.exists?(INSTALL_PATH)
 end
 
 require "./logger"
@@ -16,11 +17,7 @@ begin
   spec = Shards::Spec.from_file(Dir.working_directory)
   manager = Shards::Manager.new(spec)
   manager.resolve
-
-  # TODO: install packages into the libs/ folder
-  manager.packages.each do |package|
-    p [package.name, package.version]
-  end
+  manager.packages.each(&.install)
 rescue ex : Shards::Error
   Shards.logger.error ex.message
   exit -1

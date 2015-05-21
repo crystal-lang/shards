@@ -3,15 +3,7 @@ module Shards
 
   class GitResolver < Resolver
     def read_spec(version = "*")
-      refs = case version
-      when RELEASE_VERSION
-        "v#{version}"
-      when "*"
-        "HEAD"
-      else
-        version
-      end
-
+      refs = git_refs(version)
       update_local_cache
 
       if file_exists?(refs, SPEC_FILENAME)
@@ -36,12 +28,34 @@ module Shards
       end
     end
 
+    # OPTIMIZE: don't clean/install if the installed version is the expected one (ie. don't be dumb!)
+    def install(version = nil)
+      refs = git_refs(version)
+      Shards.logger.info "Installing #{dependency.name} (#{version})"
+
+      cleanup_install_directory
+      Dir.mkdir(install_path)
+
+      run "git archive --format=tar #{refs} | tar x -C #{escape install_path}"
+    end
+
     def local_path
       File.join(CACHE_DIRECTORY, dependency.name)
     end
 
     def git_url
       dependency["git"].to_s
+    end
+
+    private def git_refs(version)
+      case version
+      when RELEASE_VERSION
+        "v#{version}"
+      when "*"
+        "HEAD"
+      else
+        version
+      end
     end
 
     private def update_local_cache
@@ -58,7 +72,7 @@ module Shards
     end
 
     private def clone_repository
-      run "git clone --mirror --quiet -- '#{git_url.gsub(/'/, "\\'")}' #{dependency.name}",
+      run "git clone --mirror --quiet -- #{escape git_url} #{dependency.name}",
         path: File.dirname(local_path)
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
