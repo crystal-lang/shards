@@ -26,29 +26,30 @@ shards:
     branch: master
 ```
 
-Dependencies would then be resolved, downloaded and installed into the `libs`
-folder, ready to be required.
+Dependencies are then resolved, downloaded and installed into the `libs` folder,
+ready to be required.
 
 ## Development Plan
 
 - [x] step 1: install/update dependencies
   - [x] clone from Git repositories (with github shortener)
-  - [ ] clone from Mercurial repositories (optional)
   - [x] copy/link from local path
 
-- [ ] step 2: resolve dependencies
-  - [ ] recursively install dependencies
-  - [x] list versions using git tags (v0.0.0-{pre,rc}0)
-  - [ ] checkout specified versions (defaults to the latest one)
+- [ ] step 2: resolve dependencies (dumb)
+  - [x] recursively install dependencies
+  - [x] list versions using Git tags (v0.0.0-{pre,rc}0)
+  - [x] checkout specified versions (defaults to: latest version, then HEAD)
+  - [ ] checkout specified Git branch/tag (limiting available versions)
   - [x] resolve versions, applying requirements (`*`, `>=`, `<=`, `<`, `>`, `~>`), recursively
+  - [ ] lock resolved dependencies in `shards.yml.lock` (or `.shards/lock` or `.shards.lock`?)
+
+- [ ] step 3: smarter resolver
   - [ ] resolve conflicts (when possible)
 
-- [ ] step 3: central registry (dumb)
-  - [ ] resolve dependencies by name => repository URL
+- [ ] step 4: central registry
   - [ ] multiple registries for private packages / mirrors
-
-- [ ] step 4: central registry (smarter)
-  - [ ] resolve dependencies by name => repository URL + versions (with dependencies)
+  - [ ] resolve dependencies by name => repository URL
+  - [ ] list package versions (and their dependencies?)
 
 ## FAQ
 
@@ -61,7 +62,7 @@ folder, ready to be required.
 
 - Why YAML and not JSON or TOML?
 
-  JSON is too verbose. TOML's spec is unstable. YAML does the job.
+  JSON is too noisy. TOML's spec is unstable. YAML did the job.
 
 - Why eventually have a central registry?
 
