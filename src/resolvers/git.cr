@@ -7,7 +7,7 @@ module Shards
       update_local_cache
 
       if file_exists?(refs, SPEC_FILENAME)
-        run("git cat-file #{refs} #{SPEC_FILENAME}", capture: true).not_nil!
+        capture("git show #{refs}:#{SPEC_FILENAME}")
       else
         "name: #{dependency.name}\nversion: 0.0.0\n"
       end
@@ -16,7 +16,7 @@ module Shards
     def available_versions
       update_local_cache
 
-      versions = run("git tag --list --no-column", capture: true).not_nil!
+      versions = capture("git tag --list --no-column")
         .split("\n")
         .map { |version| $1 if version.strip =~ RELEASE_VERSION }
         .compact
@@ -89,11 +89,15 @@ module Shards
     end
 
     private def file_exists?(refs, path)
-      files = run "git ls-tree -r --full-tree --name-only #{refs} -- #{path}", capture: true
-      !files.to_s.strip.empty?
+      files = capture("git ls-tree -r --full-tree --name-only #{refs} -- #{path}")
+      !files.strip.empty?
     end
 
-    private def run(command, capture = false, path = local_path)
+    private def capture(command, path = local_path)
+      run(command, capture: true, path: local_path).not_nil!
+    end
+
+    private def run(command, path = local_path, capture = false)
       Shards.logger.debug { "cd #{path}" }
 
       Dir.chdir(path) do
