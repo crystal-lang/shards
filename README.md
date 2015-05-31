@@ -70,6 +70,10 @@ ready to be required.
   their repository URL. Also it would speed things up drastically —no more need
   to clone all repositories to resolve dependencies for example.
 
+## Requirements
+
+* Crystal > 0.7.2
+
 ## License
 
 Licensed under the Apache License, Version 2.0. See LICENSE for details.
