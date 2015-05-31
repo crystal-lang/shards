@@ -13,7 +13,7 @@ sources:
   - https://shards.crystal-lang.org/
   - https://shards.example.com/
 
-shards:
+dependencies:
   pg: >= 1.2.3
   memcached: *
 
@@ -26,8 +26,11 @@ shards:
     branch: master
 ```
 
+Repositories are expected to have version tags, using the `v1.2.3` format, the
+example matching version 1.2.3 of a library.
+
 Dependencies are then resolved, downloaded and installed into the `libs` folder,
-ready to be required.
+ready to be required. 
 
 ## Development Plan
 
