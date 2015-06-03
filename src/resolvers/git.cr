@@ -36,7 +36,16 @@ module Shards
       cleanup_install_directory
       Dir.mkdir(install_path)
 
-      run "git archive --format=tar #{refs} | tar x -C #{escape install_path}"
+      if file_exists?(refs, SPEC_FILENAME)
+        run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{escape install_path}"
+      end
+
+      # TODO: search for LICENSE* files
+      if file_exists?(refs, "LICENSE")
+        run "git archive --format=tar #{refs} 'LICENSE' | tar x -C #{escape install_path}"
+      end
+
+      run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{escape install_path}"
     end
 
     def local_path
