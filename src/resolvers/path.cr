@@ -27,7 +27,7 @@ module Shards
     def install(version = nil)
       Shards.logger.info "Using #{dependency.name} (#{local_path})"
       cleanup_install_directory
-      File.symlink(local_path, install_path)
+      File.symlink(File.join(local_path, "src"), install_path)
     end
   end
 
