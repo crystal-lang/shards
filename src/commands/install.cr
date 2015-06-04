@@ -14,7 +14,14 @@ module Shards
 
       def run
         manager.resolve
-        manager.packages.each(&.install)
+        manager.packages.each do |package|
+          if package.installed?
+            Shards.logger.info "Using #{package.name} (#{package.version})"
+          else
+            Shards.logger.info "Installing #{package.name} (#{package.version})"
+            package.install
+          end
+        end
       end
     end
 

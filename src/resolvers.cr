@@ -8,7 +8,20 @@ module Shards
     end
 
     def spec(version = nil)
-      Spec.new(read_spec(version))
+      if version == :installed
+        path = File.join(install_path, SPEC_FILENAME)
+        if File.exists?(path)
+          Spec.from_file(path)
+        else
+          Spec.new("name: #{dependency.name}\nversion: 0.0.0\n")
+        end
+      else
+        Spec.new(read_spec(version))
+      end
+    end
+
+    def installed?(version)
+      spec(:installed).version == version
     end
 
     abstract def read_spec(version = nil)

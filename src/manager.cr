@@ -17,7 +17,7 @@ module Shards
     end
 
     def version
-      versions = resolve_versions(resolver.available_versions, requirements)
+      versions = resolve_versions(available_versions, requirements)
 
       if versions.any?
         versions.first
@@ -30,12 +30,20 @@ module Shards
       resolver.spec(version)
     end
 
+    def installed?
+      resolver.installed?(version)
+    end
+
     def install
       resolver.install(version)
     end
 
     private def resolver
       @resolver ||= Shards.find_resolver(@dependency)
+    end
+
+    private def available_versions
+      @available_versions ||= resolver.available_versions
     end
   end
 

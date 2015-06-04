@@ -28,10 +28,8 @@ module Shards
       end
     end
 
-    # OPTIMIZE: don't clean/install if the installed version is the expected one (ie. don't be dumb!)
     def install(version = nil)
       refs = git_refs(version)
-      Shards.logger.info "Installing #{dependency.name} (#{version})"
 
       cleanup_install_directory
       Dir.mkdir(install_path)
