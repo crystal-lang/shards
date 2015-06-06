@@ -29,6 +29,7 @@ module Shards
     end
 
     def install(version = nil)
+      update_local_cache
       refs = git_refs(version)
 
       cleanup_install_directory
@@ -66,7 +67,7 @@ module Shards
     end
 
     private def update_local_cache
-      return if @updated_cache
+      return if !@update_cache || @updated_cache
       Shards.logger.info "Updating #{git_url}"
 
       if cloned_repository?

@@ -5,8 +5,8 @@ module Shards
     getter :spec
     getter :packages
 
-    def initialize(@spec)
-      @packages = Set.new
+    def initialize(@spec, update_cache = true)
+      @packages = Set.new(update_cache: update_cache)
     end
 
     def resolve

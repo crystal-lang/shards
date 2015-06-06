@@ -23,14 +23,6 @@ module Shards
       @dependencies = to_dependencies(config["dependencies"]?)
     end
 
-    def resolve
-      Shards.logger.debug { "resolving #{name}" }
-
-      dependencies.each do |dependency|
-        dependency.spec.resolve
-      end
-    end
-
     private def to_authors(ary)
       if ary.is_a?(Array)
         ary.map(&.to_s.strip)

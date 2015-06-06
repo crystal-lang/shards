@@ -6,7 +6,7 @@ module Shards
     puts "shards [options] <command>"
     puts
     puts "Commands:"
-    #puts "    check"
+    puts "    check"
     #puts "    info <package>"
     puts "    install"
     #puts "    search <query>"
@@ -29,8 +29,8 @@ begin
 
     opts.unknown_args do |args, options|
       case args[0]? || Shards::DEFAULT_COMMAND
-      #when "check"
-      #  Shards::Commands.check
+      when "check"
+        Shards::Commands.check
       #when "info"
       #  Shards.display_help_and_exit(opts) unless args[1]?
       #  Shards::Commands.info(args[1])
