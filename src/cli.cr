@@ -10,6 +10,8 @@ module Shards
     #puts "    info <package>"
     puts "    install"
     #puts "    search <query>"
+    puts "    update"
+    #puts "    update [package package ...]"
     puts
     puts "Options:"
     puts opts
@@ -34,6 +36,9 @@ begin
       #  Shards::Commands.info(args[1])
       when "install"
         Shards::Commands.install
+      when "update"
+        Shards::Commands.update
+        #Shards::Commands.update(*args[1 .. -1])
       #when "search"
       #  Shards.display_help_and_exit(opts) unless args[1]?
       #  Shards::Commands.search(args[1])

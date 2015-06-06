@@ -4,7 +4,7 @@ require "./command"
 
 module Shards
   module Commands
-    class Install < Command
+    class Update < Command
       getter :spec, :manager
 
       def initialize(path)
@@ -12,13 +12,14 @@ module Shards
         @manager = Shards::Manager.new(spec)
       end
 
-      # TODO: load dependencies from shards.lock if present,
-      #       otherwise resolve dependencies and save shards.lock
+      # TODO: force manager to resolver dependencies (again)
+      # TODO: save shards.lock with new resolved dependencies
+      # TODO: only update specified dependencies
       def run
         manager.resolve
 
         manager.packages.each do |package|
-          if package.installed?(loose: true)
+          if package.installed?(loose: false)
             Shards.logger.info "Using #{package.name} (#{package.version})"
           else
             Shards.logger.info "Installing #{package.name} (#{package.version})"
@@ -28,8 +29,8 @@ module Shards
       end
     end
 
-    def self.install(path = Dir.working_directory)
-      Install.new(path).run
+    def self.update(path = Dir.working_directory)
+      Update.new(path).run
     end
   end
 end

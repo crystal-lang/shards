@@ -16,21 +16,27 @@ module Shards
     end
 
     def version
-      versions = resolve_versions(available_versions, requirements)
-
-      if versions.any?
-        versions.first
+      if matching_versions.any?
+        matching_versions.first
       else
         raise Conflict.new(self)
       end
+    end
+
+    def matching_versions
+      resolve_versions(available_versions, requirements)
     end
 
     def spec
       resolver.spec(version)
     end
 
-    def installed?
-      resolver.installed?(version)
+    def installed?(loose = false)
+      if loose
+        matching_versions.includes?(resolver.spec(:installed).version)
+      else
+        version == resolver.spec(:installed).version
+      end
     end
 
     def install
