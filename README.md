@@ -26,11 +26,11 @@ dependencies:
     branch: master
 ```
 
-Repositories are expected to have version tags, using the `v1.2.3` format, the
+Repositories are expected to have version tags, using the `v1.2.3` format, this
 example matching version 1.2.3 of a library.
 
 Dependencies are then resolved, downloaded and installed into the `libs` folder,
-ready to be required. 
+ready to be required.
 
 ## Development Plan
 
@@ -42,7 +42,7 @@ ready to be required.
   - [x] recursively install dependencies
   - [x] list versions using Git tags (v0.0.0-{pre,rc}0)
   - [x] checkout specified versions (defaults to: latest version, then HEAD)
-  - [ ] checkout specified Git branch/tag (limiting available versions)
+  - [x] checkout specified Git branch/tag (limiting available versions)
   - [x] resolve versions, applying requirements (`*`, `>=`, `<=`, `<`, `>`, `~>`), recursively
   - [ ] lock resolved dependencies in `shards.yml.lock` (or `.shards/lock` or `.shards.lock`?)
 
@@ -75,7 +75,7 @@ ready to be required.
 
 ## Requirements
 
-* Crystal > 0.7.2
+* Crystal >= 0.7.3
 
 ## License
 
