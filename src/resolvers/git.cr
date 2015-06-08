@@ -9,22 +9,30 @@ module Shards
       if file_exists?(refs, SPEC_FILENAME)
         capture("git show #{refs}:#{SPEC_FILENAME}")
       else
-        "name: #{dependency.name}\nversion: 0.0.0\n"
+        "name: #{dependency.name}\nversion: #{version_at(refs)}\n"
       end
     end
 
     def available_versions
       update_local_cache
 
-      versions = capture("git tag --list --no-column")
-        .split("\n")
-        .map { |version| $1 if version.strip =~ RELEASE_VERSION }
-        .compact
+      versions = if commit = dependency["commit"]?
+                   [version_at(commit)]
+                 elsif tag = dependency["tag"]?
+                   [version_at(tag)]
+                 elsif branch = dependency["branch"]?
+                   [version_at(branch)]
+                 else
+                   capture("git tag --list --no-column")
+                     .split("\n")
+                     .map { |version| $1 if version.strip =~ RELEASE_VERSION }
+                     .compact
+                 end
 
       if versions.any?
         versions
       else
-        ["HEAD"]
+        [] of String
       end
     end
 
@@ -33,7 +41,7 @@ module Shards
       refs = git_refs(version)
 
       cleanup_install_directory
-      Dir.mkdir(install_path)
+      Dir.mkdir_p(install_path)
 
       if file_exists?(refs, SPEC_FILENAME)
         run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{escape install_path}"
@@ -65,8 +73,18 @@ module Shards
       when "*"
         "HEAD"
       else
-        version
+        version || "HEAD"
       end
+    end
+
+    # TODO: first try and load shard.yml and get version from it, and eventually
+    #       fallback to asking Git for release tags at commit/tag/branch.
+    private def version_at(refs)
+      tags = capture("git tag --list --contains #{refs}")
+        .split("\n")
+        .map { |tag| $1 if tag =~ RELEASE_VERSION }
+        .compact
+      tags.first? || "0"
     end
 
     private def update_local_cache

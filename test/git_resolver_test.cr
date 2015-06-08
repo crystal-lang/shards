@@ -1,0 +1,69 @@
+require "./test_helper"
+
+module Shards
+  class GitResolverTest < Minitest::Test
+    def setup
+      create_git_repository "empty"
+      create_git_commit "empty", "initial release"
+
+      create_git_repository "legacy"
+      create_git_release "legacy", "1.0.0", shard: false
+
+      create_git_repository "library", "0.0.1", "0.1.0", "0.1.1", "0.1.2"
+      create_git_release "library", "0.2.0", shard: "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>"
+    end
+
+    def test_available_versions
+      assert_empty resolver("empty").available_versions
+      assert_equal ["1.0.0"], resolver("legacy").available_versions
+      assert_equal ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"], resolver("library").available_versions
+
+      refs = git_commits("library")
+      assert_equal ["0.0.1"], resolver("library", { "commit" => refs.last }).available_versions
+      assert_equal ["0.2.0"], resolver("library", { "commit" => refs.first }).available_versions
+      assert_equal ["0.1.2"], resolver("library", { "tag" => "v0.1.2" }).available_versions
+      assert_equal ["0.2.0"], resolver("library", { "branch" => "master" }).available_versions
+    end
+
+    def test_read_spec
+      assert_equal "name: empty\nversion: 0\n", resolver("empty").read_spec
+      assert_equal "name: legacy\nversion: 1.0.0\n", resolver("legacy").read_spec
+      assert_equal "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>", resolver("library").read_spec
+      assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
+      assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
+    end
+
+    # TODO: test that LICENSE was installed
+    def test_install
+      library, legacy, empty = resolver("library"), resolver("legacy"), resolver("empty")
+
+      library.install("0.1.2")
+      assert File.exists?(install_path("library", "library.cr"))
+      assert File.exists?(install_path("library", "shard.yml"))
+      assert_equal "0.1.2", library.spec(:installed).version
+      #assert File.exists?(install_path("library", "LICENSE"))
+
+      library.install
+      assert_equal "0.2.0", library.spec(:installed).version
+
+      legacy.install
+      assert File.exists?(install_path("legacy", "legacy.cr"))
+      refute File.exists?(install_path("legacy", "shard.yml"))
+
+      legacy.install("1.0.0")
+      assert File.exists?(install_path("legacy", "legacy.cr"))
+      assert File.exists?(install_path("legacy", "shard.yml"))
+      assert_equal "1.0.0", legacy.spec(:installed).version
+
+      empty.install
+      assert File.exists?(install_path("empty", "empty.cr"))
+      refute File.exists?(install_path("empty", "shard.yml"))
+    end
+
+    private def resolver(name, config = {} of String => String)
+      config = config.merge({ "git" => git_url(name) })
+      dependency = Dependency.new(name, config)
+      GitResolver.new(dependency)
+    end
+  end
+end

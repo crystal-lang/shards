@@ -1,4 +1,6 @@
 require "./spec"
+require "./dependency"
+require "./errors"
 
 module Shards
   abstract class Resolver
@@ -13,10 +15,10 @@ module Shards
         if File.exists?(path)
           Spec.from_file(path)
         else
-          Spec.new("name: #{dependency.name}\nversion: 0.0.0\n")
+          Spec.from_yaml("name: #{dependency.name}\nversion: 0\n")
         end
       else
-        Spec.new(read_spec(version))
+        Spec.from_yaml(read_spec(version))
       end
     end
 
