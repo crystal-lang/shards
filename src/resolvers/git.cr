@@ -63,7 +63,7 @@ module Shards
     end
 
     def git_url
-      dependency["git"].to_s
+      dependency["git"].to_s.strip
     end
 
     private def git_refs(version)
@@ -88,6 +88,11 @@ module Shards
     end
 
     private def update_local_cache
+      if origin_changed?
+        delete_repository
+        @updated_cache = false
+      end
+
       return if !@update_cache || @updated_cache
       Shards.logger.info "Updating #{git_url}"
 
@@ -113,8 +118,16 @@ module Shards
       raise Error.new("Failed to update #{git_url}")
     end
 
+    private def delete_repository
+      run "rm -rf #{local_path}"
+    end
+
     private def cloned_repository?
       Dir.exists?(local_path)
+    end
+
+    private def origin_changed?
+      capture("git ls-remote --get-url origin").strip != git_url
     end
 
     private def file_exists?(refs, path)
