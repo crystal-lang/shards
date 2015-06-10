@@ -1,5 +1,8 @@
 require "minitest/autorun"
 
+ENV["SHARDS_CACHE_PATH"] = File.expand_path("../.shards", __FILE__)
+ENV["SHARDS_INSTALL_PATH"] = File.expand_path("../.libs", __FILE__)
+
 require "../src/config"
 require "../src/logger"
 require "../src/resolvers"
@@ -7,10 +10,4 @@ require "./support/factories"
 
 module Shards
   logger.level = Logger::Severity::WARN
-
-  class Resolver
-    protected def install_path
-      File.join(File.expand_path("../tmp/libs", __FILE__), dependency.name)
-    end
-  end
 end

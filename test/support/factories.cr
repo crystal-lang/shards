@@ -29,13 +29,8 @@ module Shards
     def create_git_release(project, version, shard = true)
       Dir.chdir(git_path(project)) do
         if shard
-          contents = if shard.is_a?(String)
-                       shard
-                     else
-                       "name: #{project}\nversion: #{version}\n"
-                     end
+          contents = shard.is_a?(String) ? shard : "name: #{project}\nversion: #{version}\n"
           create_shard project, contents
-          run "git add shard.yml"
         end
         create_git_commit project, "release: v#{version}"
         run "git tag v#{version}"
@@ -44,18 +39,25 @@ module Shards
 
     def create_git_commit(project, message = "new commit")
       Dir.chdir(git_path(project)) do
+        run "git add ."
         run "git commit --allow-empty -m '#{message}'"
       end
     end
 
     def create_shard(project, contents)
+      create_file project, "shard.yml", contents
+    end
+
+    def create_file(project, filename, contents)
       Dir.chdir(git_path(project)) do
-        File.write "shard.yml", contents
+        File.write filename, contents
       end
     end
 
     def clear_repositories
       run "rm -rf #{tmp_path}/*"
+      run "rm -rf #{CACHE_DIRECTORY}/*"
+      run "rm -rf #{INSTALL_PATH}/*"
     end
 
     def git_commits(project)
@@ -73,12 +75,12 @@ module Shards
     end
 
     def install_path(project, *path_names)
-      File.join(tmp_path, "libs", project, *path_names)
+      File.join(INSTALL_PATH, project, *path_names)
     end
 
     def tmp_path
       @@tmp_path ||= begin
-                       path = File.expand_path("../../tmp", __FILE__)
+                       path = File.expand_path("../../.repositories", __FILE__)
                        Dir.mkdir(path) unless Dir.exists?(path)
                        path
                      end
