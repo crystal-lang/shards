@@ -88,7 +88,7 @@ module Shards
     end
 
     private def update_local_cache
-      if origin_changed?
+      if cloned_repository? && origin_changed?
         delete_repository
         @updated_cache = false
       end
