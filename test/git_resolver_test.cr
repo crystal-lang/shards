@@ -60,6 +60,24 @@ module Shards
       refute File.exists?(install_path("empty", "shard.yml"))
     end
 
+    def test_parses_dependencies_from_projectfile
+      create_file "legacy", "Projectfile",
+        "deps do\n  github \"user/project\"\n  github \"other/library\", branch: \"1-0-stable\"\nend"
+      create_git_release "legacy", "1.0.1", shard: false
+
+      spec = resolver("legacy").spec("1.0.1")
+      assert_equal 2, spec.dependencies.size
+
+      project, library = spec.dependencies
+      assert_equal "project", project.name
+      assert_equal "user/project", project["github"]
+      refute project["branch"]?
+
+      assert_equal "library", library.name
+      assert_equal "other/library", library["github"]
+      assert_equal "1-0-stable", library["branch"]
+    end
+
     private def resolver(name, config = {} of String => String)
       config = config.merge({ "git" => git_url(name) })
       dependency = Dependency.new(name, config)

@@ -3,13 +3,31 @@ module Shards
 
   class GitResolver < Resolver
     def read_spec(version = "*")
-      refs = git_refs(version)
       update_local_cache
+      refs = git_refs(version)
 
       if file_exists?(refs, SPEC_FILENAME)
         capture("git show #{refs}:#{SPEC_FILENAME}")
       else
-        "name: #{dependency.name}\nversion: #{version_at(refs)}\n"
+        if file_exists?(refs, "Projectfile")
+          contents = capture("git show #{refs}:Projectfile")
+
+          dependencies = Shards::Resolver
+            .parse_dependencies_from_projectfile(contents)
+            .map do |d|
+              if d.has_key?("branch")
+                "  #{d["name"]}:\n    github: #{d["github"]}\n    branch: #{d["branch"]}"
+              else
+                "  #{d["name"]}:\n    github: #{d["github"]}"
+                end
+            end
+
+          if dependencies.any?
+            dependencies = "dependencies:\n#{dependencies.join("\n")}"
+          end
+        end
+
+        "name: #{dependency.name}\nversion: #{version_at(refs)}\n#{dependencies}"
       end
     end
 
