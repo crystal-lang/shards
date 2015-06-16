@@ -7,6 +7,9 @@ module Shards
 
     def self.from_file(path)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
+      unless File.exists?(path)
+        raise Error.new("Error: Could not locate #{SPEC_FILENAME}")
+      end
       from_yaml(File.read(path))
     end
 
