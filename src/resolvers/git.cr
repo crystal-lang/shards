@@ -50,7 +50,7 @@ module Shards
         Shards.logger.debug { "versions: #{versions.reverse.join(", ")}" }
         versions
       else
-        [] of String
+        ["HEAD"]
       end
     end
 

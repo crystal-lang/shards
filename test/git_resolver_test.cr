@@ -14,7 +14,7 @@ module Shards
     end
 
     def test_available_versions
-      assert_empty resolver("empty").available_versions
+      assert_equal ["HEAD"], resolver("empty").available_versions
       assert_equal ["1.0.0"], resolver("legacy").available_versions
       assert_equal ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"], resolver("library").available_versions
 
