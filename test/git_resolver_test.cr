@@ -26,7 +26,7 @@ module Shards
     end
 
     def test_read_spec
-      assert_equal "name: empty\nversion: 0\n", resolver("empty").read_spec
+      assert_equal "name: empty\n", resolver("empty").read_spec
       assert_equal "name: legacy\nversion: 1.0.0\n", resolver("legacy").read_spec
       assert_equal "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>", resolver("library").read_spec
       assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
@@ -55,9 +55,15 @@ module Shards
       assert File.exists?(install_path("legacy", "shard.yml"))
       assert_equal "1.0.0", legacy.spec(:installed).version
 
-      empty.install
+      empty.install # HEAD
       assert File.exists?(install_path("empty", "empty.cr"))
       refute File.exists?(install_path("empty", "shard.yml"))
+    end
+
+    def test_install_refs
+      skip "TODO: install commit (whatever the version)"
+      skip "TODO: install branch (whatever the version)"
+      skip "TODO: install tag (whatever the version)"
     end
 
     def test_parses_dependencies_from_projectfile

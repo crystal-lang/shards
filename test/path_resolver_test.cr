@@ -29,7 +29,7 @@ module Shards
         legacy.install
         assert File.exists?(install_path("legacy", "legacy.cr"))
         refute File.exists?(install_path("legacy", "shard.yml"))
-        assert_equal "0", legacy.spec(:installed).version
+        assert_empty legacy.spec(:installed).version
       end
     end
 

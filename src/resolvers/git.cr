@@ -27,7 +27,11 @@ module Shards
           end
         end
 
-        "name: #{dependency.name}\nversion: #{version_at(refs)}\n#{dependencies}"
+        if version = version_at(refs)
+          "name: #{dependency.name}\nversion: #{version}\n#{dependencies}"
+        else
+          "name: #{dependency.name}\n#{dependencies}"
+        end
       end
     end
 
@@ -102,7 +106,7 @@ module Shards
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
-      tags.first? || "0"
+      tags.first?
     end
 
     private def update_local_cache

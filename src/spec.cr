@@ -21,7 +21,7 @@ module Shards
 
     def initialize(@config)
       @name = config["name"].to_s.strip
-      @version = config["version"].to_s.strip
+      @version = config["version"]?.to_s.strip
       @authors = to_authors(config["authors"]?)
       @dependencies = to_dependencies(config["dependencies"]?)
     end

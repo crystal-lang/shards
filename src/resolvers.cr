@@ -18,7 +18,7 @@ module Shards
         if File.exists?(path)
           Spec.from_file(path)
         else
-          Spec.from_yaml("name: #{dependency.name}\nversion: 0\n")
+          Spec.from_yaml("name: #{dependency.name}\n")
         end
       else
         Spec.from_yaml(read_spec(version))
