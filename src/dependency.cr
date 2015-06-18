@@ -11,6 +11,10 @@ module Shards
       self["version"]? || "*"
     end
 
+    def refs
+      self["commit"]? || self["tag"]? || self["branch"]?
+    end
+
     def inspect(io)
       io << "#<" << self.class.name << " {\"" << name << "\" => "
       super

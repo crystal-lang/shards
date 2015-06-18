@@ -38,12 +38,8 @@ module Shards
     def available_versions
       update_local_cache
 
-      versions = if commit = dependency["commit"]?
-                   [version_at(commit)]
-                 elsif tag = dependency["tag"]?
-                   [version_at(tag)]
-                 elsif branch = dependency["branch"]?
-                   [version_at(branch)]
+      versions = if refs = dependency.refs
+                   [version_at(refs), refs]
                  else
                    capture("git tag --list --no-column")
                      .split("\n")
@@ -58,9 +54,11 @@ module Shards
       end
     end
 
+    # FIXME: dependency.refs always take precedence when the manager should
+    #        actually deal with that (?)
     def install(version = nil)
       update_local_cache
-      refs = git_refs(version)
+      refs = dependency.refs || git_refs(version)
 
       cleanup_install_directory
       Dir.mkdir_p(install_path)
@@ -101,6 +99,9 @@ module Shards
 
     # TODO: first try and load shard.yml and get version from it, and eventually
     #       fallback to asking Git for release tags at commit/tag/branch.
+    #
+    # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
+    #        never release tags AFTER the refs
     private def version_at(refs)
       tags = capture("git tag --list --contains #{refs}")
         .split("\n")
