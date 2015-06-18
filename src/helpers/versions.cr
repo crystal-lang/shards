@@ -6,9 +6,10 @@ module Shards
       include NaturalSort
 
       def resolve_versions(versions, requirements)
-        matches = requirements
+        requirements
           .map { |requirement| resolve_requirement(versions, requirement) }
           .inject(versions) { |a, e| a & e }
+          .sort { |a, b| natural_sort(a, b) }
       end
 
       def resolve_requirement(versions, requirement)

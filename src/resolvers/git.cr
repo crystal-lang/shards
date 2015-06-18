@@ -44,10 +44,10 @@ module Shards
                    capture("git tag --list --no-column")
                      .split("\n")
                      .map { |version| $1 if version.strip =~ RELEASE_VERSION }
-                     .compact
-                 end
+                 end.compact
 
       if versions.any?
+        Shards.logger.debug { "versions: #{versions.reverse.join(", ")}" }
         versions
       else
         [] of String
