@@ -6,12 +6,15 @@ module Shards
 
       def natural_sort(a, b)
         ia = ib = 0
+        la, lb = a.length, b.length
 
         loop do
+          return 0 if ia > la
           return 0 unless a[ia .. -1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
           aaa = $1
           ia += $1.size + 1
 
+          return 0 if ib > lb
           return 0 unless b[ib .. -1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
           bbb = $1
           ib += $1.size + 1
