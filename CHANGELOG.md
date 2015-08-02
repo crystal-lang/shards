@@ -3,6 +3,11 @@
 ## UNRELEASED
 
 Features:
+Fixes:
+
+## v0.3.0
+
+Features:
 
 - optional groups of dependencies, see #8
 - generates default `shard.yml` from Git tags and `Projectfile` dependencies, see #6
