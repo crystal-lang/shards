@@ -42,7 +42,6 @@ begin
       #  Shards.display_help_and_exit(opts) unless args[1]?
       #  Shards::Commands.info(args[1])
       when "install"
-        p groups
         Shards::Commands.install(groups: groups)
       when "update"
         Shards::Commands.update(groups: groups)
