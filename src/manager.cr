@@ -10,9 +10,9 @@ module Shards
 
     def resolve
       resolve(spec)
-    rescue ex : Conflict
-      Shards.logger.error ex.message
-      exit -1
+    #rescue ex : Conflict
+    #  Shards.logger.error ex.message
+    #  exit -1
     end
 
     def resolve(spec : Spec)
