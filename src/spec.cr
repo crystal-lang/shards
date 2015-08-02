@@ -26,6 +26,14 @@ module Shards
       @dependencies = to_dependencies(config["dependencies"]?)
     end
 
+    def [](key)
+      if key.ends_with?("_dependencies")
+        if hsh = @config[key]?
+          to_dependencies(hsh)
+        end
+      end
+    end
+
     private def to_authors(ary)
       if ary.is_a?(Array)
         ary.map(&.to_s.strip)

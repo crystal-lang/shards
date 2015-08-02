@@ -4,7 +4,7 @@ version: 0.2.0
 authors:
   - Julien Portalier <julien@portalier.com>
 
-dependencies:
+development_dependencies:
   minitest:
     git: https://github.com/ysbaddaden/minitest.cr.git
     version: 0.1.1

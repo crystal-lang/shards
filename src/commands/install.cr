@@ -7,9 +7,9 @@ module Shards
     class Install < Command
       getter :spec, :manager
 
-      def initialize(path)
+      def initialize(path, groups)
         @spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec)
+        @manager = Shards::Manager.new(spec, groups)
       end
 
       # TODO: load dependencies from shards.lock if present,
@@ -28,8 +28,8 @@ module Shards
       end
     end
 
-    def self.install(path = Dir.working_directory)
-      Install.new(path).run
+    def self.install(path = Dir.working_directory, groups = DEFAULT_GROUPS)
+      Install.new(path, groups).run
     end
   end
 end

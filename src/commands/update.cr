@@ -7,9 +7,9 @@ module Shards
     class Update < Command
       getter :spec, :manager
 
-      def initialize(path)
+      def initialize(path, groups)
         @spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec)
+        @manager = Shards::Manager.new(spec, groups)
       end
 
       # TODO: force manager to resolver dependencies (again)
@@ -29,8 +29,8 @@ module Shards
       end
     end
 
-    def self.update(path = Dir.working_directory)
-      Update.new(path).run
+    def self.update(path = Dir.working_directory, groups = DEFAULT_GROUPS)
+      Update.new(path, groups).run
     end
   end
 end

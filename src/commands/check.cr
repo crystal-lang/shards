@@ -7,9 +7,9 @@ module Shards
     class Check < Command
       getter :spec, :manager
 
-      def initialize(path)
+      def initialize(path, groups)
         @spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec, update_cache: false)
+        @manager = Shards::Manager.new(spec, groups, update_cache: false)
       end
 
       def run
@@ -20,11 +20,13 @@ module Shards
             raise Error.new("Missing #{package.name} (#{package.version})")
           end
         end
+
+        Shards.logger.info "Dependencies are satisfied"
       end
     end
 
-    def self.check(path = Dir.working_directory)
-      Check.new(path).run
+    def self.check(path = Dir.working_directory, groups = DEFAULT_GROUPS)
+      Check.new(path, groups).run
     end
   end
 end
