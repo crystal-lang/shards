@@ -1,3 +1,5 @@
+require "./resolver"
+
 module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 

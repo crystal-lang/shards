@@ -5,7 +5,6 @@ ENV["SHARDS_INSTALL_PATH"] = File.expand_path("../.libs", __FILE__)
 
 require "../src/config"
 require "../src/logger"
-require "../src/resolvers"
 require "../src/manager"
 
 require "./support/factories"

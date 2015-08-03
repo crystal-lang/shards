@@ -1,3 +1,5 @@
+require "./git"
+
 module Shards
   class BitbucketResolver < GitResolver
     def git_url

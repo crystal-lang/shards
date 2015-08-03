@@ -1,6 +1,6 @@
-require "./spec"
-require "./dependency"
-require "./errors"
+require "../spec"
+require "../dependency"
+require "../errors"
 
 module Shards
   abstract class Resolver
@@ -93,8 +93,3 @@ module Shards
     nil
   end
 end
-
-require "./resolvers/git"
-require "./resolvers/github"
-require "./resolvers/bitbucket"
-require "./resolvers/path"

@@ -1,4 +1,4 @@
-require "./resolvers"
+require "./resolvers/*"
 require "./helpers/versions"
 
 module Shards
