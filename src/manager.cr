@@ -10,13 +10,6 @@ module Shards
 
     def resolve
       resolve(spec)
-    #rescue ex : Conflict
-    #  Shards.logger.error ex.message
-    #  exit -1
-    end
-
-    def resolve(spec : Spec)
-      resolve(spec.dependencies, recursive: true)
 
       if groups = @groups
         groups.each do |group|
@@ -25,6 +18,13 @@ module Shards
           end
         end
       end
+    #rescue ex : Conflict
+    #  Shards.logger.error ex.message
+    #  exit -1
+    end
+
+    def resolve(spec : Spec)
+      resolve(spec.dependencies, recursive: true)
     end
 
     # TODO: handle conflicts

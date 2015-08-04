@@ -23,7 +23,9 @@ module Shards
 
       MockResolver.register_spec("failing", version: "0.1.0", dependencies: %w(legacy collection))
 
-      MockResolver.register_spec("framework", dependencies: %w(base), development: %w(minitest legacy))
+      MockResolver.register_spec("webmock", version: "0.1.0")
+      MockResolver.register_spec("framework", dependencies: %w(base), development: %w(legacy))
+      MockResolver.register_spec("ide", dependencies: %w(framework), development: %w(minitest))
     end
 
     def teardown
@@ -77,17 +79,16 @@ module Shards
       manager = manager_for({
         "name" => "test",
         "dependencies" => {
-          "framework" => { "mock" => "" }
+          "ide" => { "mock" => "" }
         },
         "development_dependencies" => {
-          "minitest" => { "mock" => "" },
-          "base" => { "mock" => "" },
+          "webmock" => { "mock" => "" },
         }
       }, ["development"])
       manager.resolve
 
-      assert_equal 3, manager.packages.size
-      assert_equal %w(base framework minitest), manager.packages.map(&.name).sort
+      assert_equal 4, manager.packages.size
+      assert_equal %w(base framework ide webmock), manager.packages.map(&.name).sort
     end
 
     private def manager_for(config, groups = DEFAULT_GROUPS)

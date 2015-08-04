@@ -27,17 +27,11 @@ module Shards
       spec += "version: #{ version.inspect }\n" if version
 
       if dependencies
-        yaml = dependencies.map do |dep|
-          ary = dep.split(":", 2)
+        spec += "dependencies:\n#{ to_yaml(dependencies) }\n"
+      end
 
-          if ary.size == 2
-            "  #{ ary[0] }:\n    mock: \"\"\n    version: #{ ary[1].inspect }"
-          else
-            "  #{ ary[0] }:\n    mock: \"\""
-          end
-        end
-
-        spec += "dependencies:\n#{ yaml.join("\n") }\n"
+      if development
+        spec += "development_dependencies:\n#{ to_yaml(development) }\n"
       end
 
       specs = @@specs[name] ||= {} of String => String
@@ -48,6 +42,20 @@ module Shards
 
     def self.clear_specs
       @@specs.clear
+    end
+
+    private def self.to_yaml(dependencies)
+      yaml = dependencies.map do |dep|
+        ary = dep.split(":", 2)
+
+        if ary.size == 2
+          "  #{ ary[0] }:\n    mock: \"\"\n    version: #{ ary[1].inspect }"
+        else
+          "  #{ ary[0] }:\n    mock: \"\""
+        end
+      end
+
+      yaml.join("\n")
     end
   end
 
