@@ -32,10 +32,14 @@ module Shards
     end
 
     def installed?(loose = false)
-      if loose
-        matching_versions.includes?(resolver.spec(:installed).version)
+      if spec = resolver.installed_spec
+        if loose
+          matching_versions.includes?(spec.version)
+        else
+          version == spec.version
+        end
       else
-        version == resolver.spec(:installed).version
+        false
       end
     end
 

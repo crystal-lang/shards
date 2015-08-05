@@ -13,20 +13,20 @@ module Shards
     end
 
     def spec(version = nil)
-      if version == :installed
-        path = File.join(install_path, SPEC_FILENAME)
-        if File.exists?(path)
-          Spec.from_file(path)
-        else
-          Spec.from_yaml("name: #{dependency.name}\n")
-        end
-      else
-        Spec.from_yaml(read_spec(version))
-      end
+      Spec.from_yaml(read_spec(version))
     end
 
-    def installed?(version)
-      spec(:installed).version == version
+    def installed_spec
+      return unless installed?
+
+      path = File.join(install_path, SPEC_FILENAME)
+      return Spec.from_file(path) if File.exists?(path)
+
+      Spec.from_yaml("name: #{dependency.name}\n")
+    end
+
+    def installed?
+      File.exists?(install_path)
     end
 
     abstract def read_spec(version = nil)

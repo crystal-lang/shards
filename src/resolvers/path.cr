@@ -1,5 +1,5 @@
 require "./resolver"
-require "../core_ext/file"
+#require "../core_ext/file"
 
 module Shards
   class PathResolver < Resolver
@@ -13,13 +13,17 @@ module Shards
       end
     end
 
-    def spec(version = nil)
-      if version == :installed
-        path = File.join(local_path, SPEC_FILENAME)
-        return Spec.from_file(path) if File.exists?(path)
-      end
+    def installed_spec
+      return unless installed?
 
-      super
+      path = File.join(local_path, SPEC_FILENAME)
+      return Spec.from_file(path) if File.exists?(path)
+
+      Spec.from_yaml("name: #{dependency.name}\n")
+    end
+
+    def installed?
+      File.symlink?(install_path)
     end
 
     def available_versions

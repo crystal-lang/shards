@@ -40,11 +40,11 @@ module Shards
       library.install("0.1.2")
       assert File.exists?(install_path("library", "library.cr"))
       assert File.exists?(install_path("library", "shard.yml"))
-      assert_equal "0.1.2", library.spec(:installed).version
+      assert_equal "0.1.2", library.installed_spec.not_nil!.version
       #assert File.exists?(install_path("library", "LICENSE"))
 
       library.install
-      assert_equal "0.2.0", library.spec(:installed).version
+      assert_equal "0.2.0", library.installed_spec.not_nil!.version
 
       legacy.install
       assert File.exists?(install_path("legacy", "legacy.cr"))
@@ -53,7 +53,7 @@ module Shards
       legacy.install("1.0.0")
       assert File.exists?(install_path("legacy", "legacy.cr"))
       assert File.exists?(install_path("legacy", "shard.yml"))
-      assert_equal "1.0.0", legacy.spec(:installed).version
+      assert_equal "1.0.0", legacy.installed_spec.not_nil!.version
 
       empty.install # HEAD
       assert File.exists?(install_path("empty", "empty.cr"))
