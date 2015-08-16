@@ -2,8 +2,12 @@
 
 ## UNRELEASED
 
-Features:
+## v0.3.1
+
 Fixes:
+
+- don't install dependencies from optional groups recursively
+- manager didn't install path dependencies anymore
 
 ## v0.3.0
 
