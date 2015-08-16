@@ -13,5 +13,5 @@ release:
 
 .PHONY: test
 test:
-	$(CRYSTAL_BIN) run --debug test/*_test.cr
+	$(CRYSTAL_BIN) run test/*_test.cr
 
