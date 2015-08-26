@@ -169,10 +169,15 @@ module Shards
 
       Dir.chdir(path) do
         Shards.logger.debug command
-        status = Process.run("/bin/sh", input: command, output: capture)
+        output = nil
+        error = nil
+        Process.run("/bin/sh", ["-c", command]) do |process|
+          output = process.output.read
+          error = process.error.read
+        end
 
-        if status.success?
-          status.output if capture
+        if $?.success?
+          return output if capture
         else
           raise Error.new("git command failed: #{command}")
         end
