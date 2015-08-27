@@ -19,7 +19,11 @@ module Shards
 
         when /~>(.+)/
           ver = $1.strip
-          vver = ver[0 ... ver.rindex(".").to_i]
+          vver = if idx = ver.rindex(".")
+                   ver[0 ... idx]
+                 else
+                   ver
+                 end
           versions.select { |v| v.starts_with?(vver) && (natural_sort(v, ver) <= 0) }
 
         when />=(.+)/
