@@ -44,7 +44,7 @@ module Shards
 
     def script(name)
       if scripts = self.scripts
-        scripts[name]?
+        scripts[name]? as String
       end
     end
 
