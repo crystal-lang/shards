@@ -169,10 +169,12 @@ module Shards
 
       Dir.chdir(path) do
         Shards.logger.debug command
-        status = Process.run("/bin/sh", input: command, output: capture)
+
+        output = capture ? StringIO.new : false
+        status = Process.run("/bin/sh", input: StringIO.new(command), output: output)
 
         if status.success?
-          status.output if capture
+          output.to_s if capture
         else
           raise Error.new("git command failed: #{command}")
         end
