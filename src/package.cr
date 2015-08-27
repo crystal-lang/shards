@@ -45,6 +45,7 @@ module Shards
 
     def install
       resolver.install(version)
+      resolver.run_script("postinstall")
     end
 
     private def resolver

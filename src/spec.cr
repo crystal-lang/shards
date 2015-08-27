@@ -34,6 +34,20 @@ module Shards
       end
     end
 
+    def scripts
+      if scripts = @config["scripts"]?
+        if scripts.is_a?(Hash)
+          scripts
+        end
+      end
+    end
+
+    def script(name)
+      if scripts = self.scripts
+        scripts[name]?
+      end
+    end
+
     private def to_authors(ary)
       if ary.is_a?(Array)
         ary.map(&.to_s.strip)

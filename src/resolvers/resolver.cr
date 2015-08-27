@@ -1,6 +1,7 @@
 require "../spec"
 require "../dependency"
 require "../errors"
+require "../script"
 
 module Shards
   abstract class Resolver
@@ -31,6 +32,13 @@ module Shards
 
     abstract def read_spec(version = nil)
     abstract def available_versions
+    abstract def install(version = nil)
+
+    def run_script(name)
+      if installed? && (command = spec.script(name))
+        Script.run(install_path, command)
+      end
+    end
 
     protected def install_path
       File.join(INSTALL_PATH, dependency.name)
