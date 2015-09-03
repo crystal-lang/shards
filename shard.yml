@@ -7,4 +7,5 @@ authors:
 development_dependencies:
   minitest:
     git: https://github.com/ysbaddaden/minitest.cr.git
-    version: 0.1.1
+    branch: master
+    #version: 0.1.2

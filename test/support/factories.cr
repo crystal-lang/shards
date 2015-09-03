@@ -87,11 +87,12 @@ module Shards
     end
 
     def run(command, capture = false)
-      #puts command
-      status = Process.run("/bin/sh", input: command, output: capture)
+      # puts command
+      output = capture ? StringIO.new : false
+      status = Process.run("/bin/sh", input: StringIO.new(command), output: output)
 
       if status.success?
-        status.output
+        output.to_s if capture
       else
         raise Exception.new("git command failed: #{command}")
       end
