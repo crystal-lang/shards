@@ -3,6 +3,10 @@ require "./resolver"
 
 module Shards
   class PathResolver < Resolver
+    def self.key
+      "path"
+    end
+
     def read_spec(version = nil)
       path = File.join(local_path, SPEC_FILENAME)
 
@@ -20,6 +24,9 @@ module Shards
       return Spec.from_file(path) if File.exists?(path)
 
       Spec.from_yaml("name: #{dependency.name}\n")
+    end
+
+    def installed_commit_hash
     end
 
     def installed?
@@ -41,5 +48,5 @@ module Shards
     end
   end
 
-  register_resolver :path, PathResolver
+  register_resolver PathResolver
 end

@@ -2,7 +2,7 @@ require "./package"
 
 module Shards
   class Manager
-    getter :spec, :packages
+    getter :spec, :packages, :locks
 
     def initialize(@spec, @groups = nil, update_cache = true)
       @packages = Set.new(update_cache: update_cache)
@@ -33,6 +33,16 @@ module Shards
         package = packages.add(dependency)
         resolve(package.spec) if recursive
       end
+    end
+
+    def to_lock(io : IO)
+      packages
+        .sort { |a, b| a.name <=> b.name }
+        .each do |package|
+          io << package.name << ":\n"
+          package.to_lock(io)
+          io << "\n"
+        end
     end
   end
 end

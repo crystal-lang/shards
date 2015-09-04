@@ -5,16 +5,14 @@ require "./command"
 module Shards
   module Commands
     class Update < Command
-      getter :spec, :manager
+      getter :manager, :path
 
-      def initialize(path, groups)
-        @spec = Spec.from_file(path)
+      def initialize(@path, groups)
+        spec = Spec.from_file(path)
         @manager = Manager.new(spec, groups)
       end
 
-      # TODO: force manager to resolver dependencies (again)
-      # TODO: save shards.lock with new resolved dependencies
-      # TODO: only update specified dependencies
+      # TODO: only update specified dependencies (ie. load locked versions, but don't enforce them)
       def run
         manager.resolve
 
@@ -26,6 +24,12 @@ module Shards
             package.install
           end
         end
+
+        File.open(lock_file_path, "w") { |file| manager.to_lock(file) }
+      end
+
+      private def lock_file_path
+        File.join(path, LOCK_FILENAME)
       end
     end
 

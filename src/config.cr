@@ -1,5 +1,6 @@
 module Shards
   SPEC_FILENAME = "shard.yml"
+  LOCK_FILENAME = "shard.lock"
 
   CACHE_DIRECTORY = ENV["SHARDS_CACHE_PATH"]? || File.join(Dir.working_directory, ".shards")
   Dir.mkdir_p(CACHE_DIRECTORY) unless Dir.exists?(CACHE_DIRECTORY)
