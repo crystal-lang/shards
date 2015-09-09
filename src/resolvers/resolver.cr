@@ -36,6 +36,7 @@ module Shards
 
     def run_script(name)
       if installed? && (command = spec.script(name))
+        Shards.logger.info "#{name.capitalize} #{command}"
         Script.run(install_path, command)
       end
     end
