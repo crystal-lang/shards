@@ -36,10 +36,13 @@ module Shards
     end
 
     def to_lock(io : IO)
+      io << "version: 1.0\n"
+      io << "shards:\n"
+
       packages
         .sort { |a, b| a.name <=> b.name }
         .each do |package|
-          io << package.name << ":\n"
+          io << "  " << package.name << ":\n"
           package.to_lock(io)
           io << "\n"
         end
