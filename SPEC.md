@@ -66,18 +66,17 @@ The version number of the library (String, required).
 - It must contain digits.
 - It may contain dots and dashes but not consecutive ones.
 
-Example: `0.0.1`, `1.2.3` or `2.0.0-rc1`.
+Examples: `0.0.1`, `1.2.3` or `2.0.0-rc1`.
 
 While Shards doesn't enforce it, following a rational versioning scheme like
-[Semantic Versioning](http://semver.org/) is highly recommended to avoid
-frustrating the developers that use your library.
+[Semantic Versioning](http://semver.org/) is highly recommended.
 
 ### authors
 
-A list of authors, along with their contact email (Array or String).
+A list of authors, along with their contact email (Array of String).
 
-- It must have an author name.
-- It may have an email address between lower than (`<`) and greater than (`>`) chars.
+- Each author must have a name.
+- Each author may have an email address, within lower than (`<`) and greater than (`>`) chars.
 
 Example:
 
@@ -93,7 +92,7 @@ A single line description of the library (String).
 
 ### license
 
-An [OSI license](http://opensource.org/) or an URL to a license file (String,
+An [OSI license](http://opensource.org/) name or an URL to a license file (String,
 recommended).
 
 ### dependencies
@@ -101,8 +100,8 @@ recommended).
 A list of required dependencies (Hash).
 
 Each dependency begins with the name of the dependency as a key (String) then
-a list of attributes (Hash) which depend on the resolver to use to download the
-dependency.
+a list of attributes (Hash) that depend on where the dependency is located
+(eg: local path, Git repository).
 
 Example:
 ```yaml
@@ -112,23 +111,22 @@ dependencies:
     version: 0.1.0
 ```
 
-
 #### version
 
 A version requirement (String).
 
-- It must be a version number.
-- It may be prefixed by an operator: `<`, `<=`, `>`, `>=`, `~>`.
-- If prefixed by an operator, it may be only a fragment of the version number.
+- It may be a version number.
+- It may be `*` if any version will do.
+- The version number may be prefixed by an operator: `<`, `<=`, `>`, `>=` or `~>`.
 
-Examples: `1.0.0`, `> 1.0` or `~> 1.0.0`.
+Examples: `1.2.3`, `>= 1.0.0` or `~> 2.0`.
 
 #### path
 
 A local path (String).
 
 The library will be linked from the local path. The `version` attribute
-isn't required but will be used if present.
+isn't required but will be used if present to validate the dependency.
 
 #### git
 
@@ -176,11 +174,16 @@ Install a Git dependency at the specified branch (String).
 
 #### Grouped Dependencies
 
-Dependencies may be grouped. Those dependencies are installed in order to work
-on the project or library itself. When the library is installed as a dependency
-for another project or library, grouped dependencies will never be installed.
+Dependencies may be grouped together as optional dependencies. Those
+dependencies will be installed for the main project or library itself. When
+the library is installed as a dependency for another project or library,
+the grouped dependencies will never be installed.
 
 Grouped dependencies follow the same scheme than dependencies, but prefixed with
-the group name followed by `_dependencies`.
+the group name followed by `_dependencies`. Example:
 
-Example: `development_dependencies`.
+```yaml
+development_dependencies:
+  minitest:
+    github: ysbaddaden/minitest.cr
+```
