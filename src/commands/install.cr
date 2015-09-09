@@ -11,7 +11,7 @@ module Shards
 
       def initialize(@path, groups)
         spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec, groups)
+        @manager = Manager.new(spec, groups)
         @locks = Lock.from_file(lock_file_path) if lock_file?
       end
 
@@ -24,8 +24,14 @@ module Shards
           install(manager.packages)
         end
 
-        unless lock_file?
+        if !lock_file? || outdated_lock_file?
           File.open(lock_file_path, "w") { |file| manager.to_lock(file) }
+        end
+      end
+
+      private def outdated_lock_file?
+        if locks = @locks
+          locks.size != manager.packages.size
         end
       end
 
@@ -45,8 +51,6 @@ module Shards
             else
               raise InvalidLock.new # unknown lock resolver
             end
-          else
-            raise LockConflict.new("unknown #{package.name} dependency")
           end
 
           install(package, version)
