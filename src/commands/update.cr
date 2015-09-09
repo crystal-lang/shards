@@ -9,7 +9,7 @@ module Shards
 
       def initialize(path, groups)
         @spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec, groups)
+        @manager = Manager.new(spec, groups)
       end
 
       # TODO: force manager to resolver dependencies (again)

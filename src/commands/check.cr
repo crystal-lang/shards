@@ -9,7 +9,7 @@ module Shards
 
       def initialize(path, groups)
         @spec = Spec.from_file(path)
-        @manager = Shards::Manager.new(spec, groups, update_cache: false)
+        @manager = Manager.new(spec, groups, update_cache: false)
       end
 
       def run

@@ -14,7 +14,7 @@ module Shards
         if file_exists?(refs, "Projectfile")
           contents = capture("git show #{refs}:Projectfile")
 
-          dependencies = Shards::Resolver
+          dependencies = Resolver
             .parse_dependencies_from_projectfile(contents)
             .map do |d|
               if d.has_key?("branch")

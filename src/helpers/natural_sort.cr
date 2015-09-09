@@ -6,7 +6,7 @@ module Shards
 
       def natural_sort(a, b)
         ia = ib = 0
-        la, lb = a.length, b.length
+        la, lb = a.size, b.size
 
         loop do
           return 0 if ia > la
