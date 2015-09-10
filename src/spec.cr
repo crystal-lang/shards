@@ -1,5 +1,6 @@
 require "yaml"
 require "./dependency"
+require "./errors"
 
 module Shards
   class Spec

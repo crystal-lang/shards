@@ -5,6 +5,8 @@ require "./command"
 
 module Shards
   module Commands
+    # FIXME: always resolve dependencies from all groups (not recursively)
+    # FIXME: lock all resolved dependencies
     # OPTIMIZE: avoid updating GIT caches until required
     class Install < Command
       getter :path, :manager
@@ -41,7 +43,7 @@ module Shards
 
           if lock = locks.find { |dependency| dependency.name == package.name }
             if version = lock["version"]?
-              unless version == package.version
+              unless package.matching_versions.includes?(version)
                 raise LockConflict.new("#{package.name} requirements changed")
               end
             elsif version = lock["commit"]?

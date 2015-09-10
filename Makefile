@@ -12,6 +12,13 @@ release:
 	tar zcf shards-$(VERSION)_linux_amd64.tar.gz -C bin shards
 
 .PHONY: test
-test:
+test: test_unit test_integration
+
+.PHONY: test_unit
+test_unit:
 	$(CRYSTAL_BIN) run test/*_test.cr
+
+.PHONY: test_integration
+test_integration: all
+	$(CRYSTAL_BIN) run test/integration/*_test.cr
 
