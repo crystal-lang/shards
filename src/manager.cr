@@ -4,19 +4,15 @@ module Shards
   class Manager
     getter :spec, :packages, :locks
 
-    def initialize(@spec, @groups = nil, update_cache = true)
+    def initialize(@spec, update_cache = true)
       @packages = Set.new(update_cache: update_cache)
     end
 
     def resolve
       resolve(spec)
 
-      if groups = @groups
-        groups.each do |group|
-          if dependencies = spec["#{ group }_dependencies"]
-            resolve(dependencies, recursive: false)
-          end
-        end
+      unless Shards.production?
+        resolve(spec.development_dependencies, recursive: false)
       end
     #rescue ex : Conflict
     #  Shards.logger.error ex.message

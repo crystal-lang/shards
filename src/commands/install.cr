@@ -5,15 +5,13 @@ require "./command"
 
 module Shards
   module Commands
-    # FIXME: always resolve dependencies from all groups (not recursively)
-    # FIXME: lock all resolved dependencies
     # OPTIMIZE: avoid updating GIT caches until required
     class Install < Command
-      getter :path, :manager
+      getter :manager, :path
 
-      def initialize(@path, groups)
+      def initialize(@path)
         spec = Spec.from_file(path)
-        @manager = Manager.new(spec, groups)
+        @manager = Manager.new(spec)
         @locks = Lock.from_file(lock_file_path) if lock_file?
       end
 
@@ -26,17 +24,12 @@ module Shards
           install(manager.packages)
         end
 
-        if !lock_file? || outdated_lock_file?
+        if generate_lock_file?
           File.open(lock_file_path, "w") { |file| manager.to_lock(file) }
         end
       end
 
-      private def outdated_lock_file?
-        if locks = @locks
-          locks.size != manager.packages.size
-        end
-      end
-
+      # TODO: add locks as additional version requirements
       private def install(packages : Set, locks : Array(Dependency))
         packages.each do |package|
           version = nil
@@ -53,6 +46,8 @@ module Shards
             else
               raise InvalidLock.new # unknown lock resolver
             end
+          elsif Shards.production?
+            raise LockConflict.new("can't install new dependency #{package.name} in production")
           end
 
           install(package, version)
@@ -81,10 +76,22 @@ module Shards
       private def lock_file_path
         File.join(path, LOCK_FILENAME)
       end
+
+      private def generate_lock_file?
+        !Shards.production? && (!lock_file? || outdated_lock_file?)
+      end
+
+      private def outdated_lock_file?
+        if locks = @locks
+          locks.size != manager.packages.size
+        else
+          false
+        end
+      end
     end
 
-    def self.install(path = Dir.working_directory, groups = DEFAULT_GROUPS)
-      Install.new(path, groups).run
+    def self.install(path = Dir.working_directory)
+      Install.new(path).run
     end
   end
 end

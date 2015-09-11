@@ -100,15 +100,14 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_specified_group_dependencies
+  def test_production_doesnt_install_development_dependencies
     metadata = {
       dependencies: { web: "*", orm: "*", },
       development_dependencies: { mock: "*" },
-      custom_dependencies: { release: "*" },
     }
 
     with_shard(metadata) do
-      run "shards install --without development --with custom"
+      run "shards install --production"
 
       # it installed dependencies (recursively)
       assert_installed "web"
@@ -119,21 +118,23 @@ class InstallCommandTest < Minitest::Test
       refute_installed "mock"
       refute_installed "minitest"
 
-      # it installed custom dependencies (not recursively)
-      assert_installed "release"
-      refute_installed "optional"
+      # it didn't generate lock file
+      refute File.exists?(File.join(application_path, "shard.lock")),
+        "expected lock file to not have been generated"
+    end
+  end
 
-      # it locked dependencies
-      assert_locked "web"
-      assert_locked "orm"
-      assert_locked "pg"
+  def test_production_doesnt_install_new_dependencies
+    metadata = {
+      dependencies: {
+        web: "~> 1.0.0",
+        orm: "*"
+      }
+    }
+    lock = { web: "1.0.0" }
 
-      # it didn't lock development dependencies
-      refute_locked "mock"
-      refute_locked "minitest"
-
-      # it locked custom dependencies
-      assert_locked "release"
+    with_shard(metadata, lock) do
+      assert_raises(FailedCommand) { run "shards install --production" }
     end
   end
 end
