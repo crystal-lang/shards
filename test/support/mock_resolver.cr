@@ -4,6 +4,10 @@ module Shards
   class MockResolver < Resolver
     include Helpers::NaturalSort
 
+    def self.key
+      "mock"
+    end
+
     def read_spec(version = nil)
       specs = @@specs[dependency.name].not_nil!
       unless version
@@ -59,5 +63,5 @@ module Shards
     end
   end
 
-  register_resolver :mock, MockResolver
+  register_resolver MockResolver
 end

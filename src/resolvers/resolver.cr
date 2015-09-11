@@ -33,6 +33,7 @@ module Shards
     abstract def read_spec(version = nil)
     abstract def available_versions
     abstract def install(version = nil)
+    abstract def installed_commit_hash
 
     def run_script(name)
       if installed? && (command = spec.script(name))
@@ -80,8 +81,8 @@ module Shards
   @@resolver_classes = {} of String => Resolver.class
   @@resolvers = {} of String => Resolver
 
-  def self.register_resolver(name, resolver)
-    @@resolver_classes[name.to_s] = resolver
+  def self.register_resolver(resolver)
+    @@resolver_classes[resolver.key] = resolver
   end
 
   def self.find_resolver(dependency, update_cache = true)

@@ -4,6 +4,10 @@ module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 
   class GitResolver < Resolver
+    def self.key
+      "git"
+    end
+
     def read_spec(version = "*")
       update_local_cache
       refs = git_refs(version)
@@ -80,6 +84,11 @@ module Shards
       run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{escape install_path}"
     end
 
+    def installed_commit_hash
+      return unless installed?
+      run("git log -n 1 --pretty=%H", capture: true).not_nil!.strip
+    end
+
     def local_path
       File.join(CACHE_DIRECTORY, dependency.name)
     end
@@ -104,12 +113,20 @@ module Shards
     #
     # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
     #        never release tags AFTER the refs
-    private def version_at(refs)
+    def version_at(refs)
       tags = capture("git tag --list --contains #{refs}")
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
       tags.first?
+    end
+
+    def refs_at(commit)
+      refs = [] of String?
+      refs << commit
+      refs += capture("git tag --list --contains #{commit}").split("\n")
+      refs += capture("git branch --list --contains #{commit}").split(" ")
+      refs.compact.uniq
     end
 
     private def update_local_cache
@@ -182,5 +199,5 @@ module Shards
     end
   end
 
-  register_resolver :git, GitResolver
+  register_resolver GitResolver
 end

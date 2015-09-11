@@ -13,3 +13,20 @@ require "./support/mock_resolver"
 module Shards
   logger.level = Logger::Severity::WARN
 end
+
+class Minitest::Test
+  def before_setup
+    clear_repositories
+    super
+  end
+
+  def clear_repositories
+    run "rm -rf #{ tmp_path }/*"
+    run "rm -rf #{ Shards::CACHE_DIRECTORY }/*"
+    run "rm -rf #{ Shards::INSTALL_PATH }/*"
+  end
+
+  def install_path(project, *path_names)
+    File.join(Shards::INSTALL_PATH, project, *path_names)
+  end
+end

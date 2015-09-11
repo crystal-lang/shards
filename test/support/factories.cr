@@ -1,10 +1,8 @@
+class FailedCommand < Exception
+end
+
 module Shards
   module Factories
-    def before_setup
-      clear_repositories
-      super
-    end
-
     def create_path_repository(project, version = nil)
       Dir.mkdir_p(File.join(git_path(project), "src"))
       File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
@@ -54,12 +52,6 @@ module Shards
       end
     end
 
-    def clear_repositories
-      run "rm -rf #{tmp_path}/*"
-      run "rm -rf #{CACHE_DIRECTORY}/*"
-      run "rm -rf #{INSTALL_PATH}/*"
-    end
-
     def git_commits(project)
       Dir.chdir(git_path(project)) do
         run("git log --format='%H'", capture: true).not_nil!.split("\n")
@@ -72,10 +64,6 @@ module Shards
 
     def git_path(project)
       File.join(tmp_path, project.to_s)
-    end
-
-    def install_path(project, *path_names)
-      File.join(INSTALL_PATH, project, *path_names)
     end
 
     def tmp_path
@@ -94,7 +82,7 @@ module Shards
       if status.success?
         output.to_s if capture
       else
-        raise Exception.new("git command failed: #{command}")
+        raise FailedCommand.new("command failed: #{command}")
       end
     end
   end

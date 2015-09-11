@@ -7,9 +7,9 @@ module Shards
     class Check < Command
       getter :spec, :manager
 
-      def initialize(path, groups)
+      def initialize(path)
         @spec = Spec.from_file(path)
-        @manager = Manager.new(spec, groups, update_cache: false)
+        @manager = Manager.new(spec, update_cache: false)
       end
 
       def run
@@ -25,8 +25,8 @@ module Shards
       end
     end
 
-    def self.check(path = Dir.working_directory, groups = DEFAULT_GROUPS)
-      Check.new(path, groups).run
+    def self.check(path = Dir.working_directory)
+      Check.new(path).run
     end
   end
 end

@@ -75,7 +75,7 @@ module Shards
       assert_equal "Error resolving base (~>0.1.0, >0.2.0)", ex.message
     end
 
-    def test_resolves_optional_groups
+    def test_resolves_development_dependencies
       manager = manager_for({
         "name" => "test",
         "dependencies" => {
@@ -84,15 +84,15 @@ module Shards
         "development_dependencies" => {
           "webmock" => { "mock" => "" },
         }
-      }, ["development"])
+      })
       manager.resolve
 
       assert_equal 4, manager.packages.size
       assert_equal %w(base framework ide webmock), manager.packages.map(&.name).sort
     end
 
-    private def manager_for(config, groups = DEFAULT_GROUPS)
-      Manager.new(Spec.new(config), groups)
+    private def manager_for(config)
+      Manager.new(Spec.new(config))
     end
 
     private def assert_resolves(version, requirement, dependency = "library")

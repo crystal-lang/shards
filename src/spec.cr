@@ -1,9 +1,10 @@
 require "yaml"
 require "./dependency"
+require "./errors"
 
 module Shards
   class Spec
-    getter :name, :version, :authors, :dependencies
+    getter :name, :version
 
     def self.from_file(path)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
@@ -22,16 +23,18 @@ module Shards
     def initialize(@config)
       @name = config["name"].to_s.strip
       @version = config["version"]?.to_s.strip
-      @authors = to_authors(config["authors"]?)
-      @dependencies = to_dependencies(config["dependencies"]?)
     end
 
-    def [](key)
-      if key.ends_with?("_dependencies")
-        if hsh = @config[key]?
-          to_dependencies(hsh)
-        end
-      end
+    def authors
+      to_authors(@config["authors"]?)
+    end
+
+    def dependencies
+      to_dependencies(@config["dependencies"]?)
+    end
+
+    def development_dependencies
+      to_dependencies(@config["development_dependencies"]?)
     end
 
     def scripts

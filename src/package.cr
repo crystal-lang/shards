@@ -31,24 +31,53 @@ module Shards
       resolver.spec(version)
     end
 
-    def installed?(loose = false)
+    def matches?(commit)
+      resolver = self.resolver
+
+      unless resolver.responds_to?(:version_at) && resolver.responds_to?(:refs_at)
+        raise LockConflict.new("wrong resolver")
+      end
+
+      if version = resolver.version_at(commit)
+        matching_versions.includes?(version)
+      else
+        resolver.refs_at(commit).any? { |ref| matching_versions.includes?(ref) }
+      end
+    end
+
+    def installed?(version = nil, loose = false)
       if spec = resolver.installed_spec
-        if loose
-          matching_versions.includes?(spec.version)
+        version ||= spec.version
+
+        if resolver.installed_commit_hash == version
+          true
+        elsif loose
+          matching_versions.includes?(version)
         else
-          version == spec.version
+          self.version == version
         end
       else
         false
       end
     end
 
-    def install
-      resolver.install(version)
+    def install(version = nil)
+      resolver.install(version || self.version)
       resolver.run_script("postinstall")
     end
 
-    private def resolver
+    def to_lock(io : IO)
+      key = resolver.class.key
+      io << "    " << key << ": " << @dependency[key] << "\n"
+
+      if refs = @dependency.refs
+        io << "    commit: " << resolver.installed_commit_hash.to_s << "\n"
+      else
+        io << "    version: " << version << "\n"
+      end
+    end
+
+    def resolver
       @resolver ||= Shards.find_resolver(@dependency, update_cache: @update_cache)
     end
 
