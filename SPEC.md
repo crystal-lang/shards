@@ -172,18 +172,19 @@ Install a Git dependency at the specified tag (String).
 
 Install a Git dependency at the specified branch (String).
 
-#### Grouped Dependencies
+### development_dependencies
 
-Dependencies may be grouped together as optional dependencies. Those
-dependencies will be installed for the main project or library itself. When
-the library is installed as a dependency for another project or library,
-the grouped dependencies will never be installed.
+Dependencies may be grouped together as a set of optional development
+dependencies. Those will be installed for the main project or library
+itself. When the library is installed as a dependency for another
+project the development dependencies will never be installed.
 
-Grouped dependencies follow the same scheme than dependencies, but prefixed with
-the group name followed by `_dependencies`. Example:
+Development dependencies follow the same scheme than dependencies.
+Example:
 
 ```yaml
 development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
+    version: ~> 0.1.3
 ```
