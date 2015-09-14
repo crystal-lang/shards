@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  minitest:
+    github: ysbaddaden/minitest.cr
+    version: 0.1.3
+

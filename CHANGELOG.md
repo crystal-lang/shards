@@ -2,9 +2,12 @@
 
 ## UNRELEASED
 
+## v0.4.0
+
 Features:
 - lock resolved versions for indempotent installs across computers, see #27
 - `--production` parameter to skip development dependencies
+- postintall hook to run a command after installing a dependency, see #19
 
 Breaking Changes:
 - dropped support for custom dependency groups (but kept `development_dependencies`), see #27
