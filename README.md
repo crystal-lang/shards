@@ -39,6 +39,28 @@ undergoing to generate a lock file for indempotent installs across different
 computers. Shards doesn't yet resolve conflicts when a nested dependency
 version is incompatible with the requirement of a top dependency.
 
+## Install
+
+First of all, you need a recent Crystal compiler. Please refer to
+<http://crystal-lang.org/docs/installation> for instructions for your
+operating system.
+
+You can download a statically compiled 64bit executable of Shards from the
+[releases](https://github.com/ysbaddaden/shards/releases) page.
+
+Alternatively you may download a source tarball from the same page (or
+clone the repository) then run `make` —or `make release` for an optimized
+build— and copy the newly generated `bin/shards` somewhere into your PATH.
+A good place is `/usr/local/bin` for example.
+
+You are now ready to create a `shard.yml` for your projects (see the
+[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)).
+
+Simply run `shards install` to install your dependencies, or
+`shards --help` to list the other commands and their options.
+
+Happy Hacking!
+
 ## Requirements
 
 * Crystal >= 0.7.7
