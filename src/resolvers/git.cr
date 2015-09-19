@@ -114,6 +114,8 @@ module Shards
     # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
     #        never release tags AFTER the refs
     def version_at(refs)
+      update_local_cache
+
       tags = capture("git tag --list --contains #{refs}")
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
@@ -122,6 +124,8 @@ module Shards
     end
 
     def refs_at(commit)
+      update_local_cache
+
       refs = [] of String?
       refs << commit
       refs += capture("git tag --list --contains #{commit}").split("\n")
