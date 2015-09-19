@@ -28,12 +28,17 @@ module Shards
 
         metadata.each do |key, value|
           if key.to_s.ends_with?("dependencies")
-            yml << key << ":\n"
+            yml << key << ":"
 
-            value.each do |name, version|
-              yml << "  " << name << ":\n"
-              yml << "    git: " << git_url(name).inspect << "\n"
-              yml << "    version: " << version.inspect << "\n"
+            if value.responds_to?(:each)
+              yml << "\n"
+              value.each do |name, version|
+                yml << "  " << name << ":\n"
+                yml << "    git: " << git_url(name).inspect << "\n"
+                yml << "    version: " << version.inspect << "\n"
+              end
+            else
+              yml << value
             end
           end
         end

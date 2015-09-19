@@ -78,7 +78,9 @@ module Shards
       end
 
       private def generate_lock_file?
-        !Shards.production? && (!lock_file? || outdated_lock_file?)
+        !Shards.production? &&
+          manager.packages.any? &&
+          (!lock_file? || outdated_lock_file?)
       end
 
       private def outdated_lock_file?

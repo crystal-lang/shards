@@ -137,4 +137,13 @@ class InstallCommandTest < Minitest::Test
       assert_raises(FailedCommand) { run "shards install --production" }
     end
   end
+
+  def test_doesnt_generate_lockfile_when_project_has_no_dependencies
+    with_shard({ name: "test" }) do
+      run "shards install"
+
+      refute File.exists?(File.join(application_path, "shard.lock")),
+        "expected shard.lock to not have been generated"
+    end
+  end
 end
