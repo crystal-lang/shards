@@ -3,28 +3,24 @@ require "./dependency"
 
 module Shards
   module Lock
-    INVALID_FORMAT_MESSAGE = "Invalid #{ LOCK_FILENAME }. Please delete it and run install again."
-
     def self.from_file(path)
+      raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
       from_yaml(File.read(path))
     end
 
     def self.from_yaml(str : String)
-      data = YAML.load(str)
-      raise Error.new(INVALID_FORMAT_MESSAGE) unless data.is_a?(Hash)
+      data = YAML.load(str) as Hash
 
       case data["version"] as String
       when "1.0"
-        dependencies = data["shards"]
-        raise Error.new(INVALID_FORMAT_MESSAGE) unless dependencies.is_a?(Hash)
-
-        dependencies.map do |name, config|
-          raise Error.new(INVALID_FORMAT_MESSAGE) unless config.is_a?(Hash)
-          Dependency.new(name.to_s, config)
+        (data["shards"] as Hash).map do |name, config|
+          Dependency.new(name.to_s, config as Hash)
         end
       else
         raise InvalidLock.new # unknown lock version
       end
+    rescue TypeCastError
+      raise Error.new("Invalid #{ LOCK_FILENAME }. Please delete it and run install again.")
     end
   end
 end
