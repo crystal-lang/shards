@@ -30,6 +30,8 @@ module Shards
 
           if dependencies.any?
             dependencies = "dependencies:\n#{dependencies.join("\n")}"
+          else
+            dependencies = ""
           end
         end
 
