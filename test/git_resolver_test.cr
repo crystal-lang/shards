@@ -84,6 +84,15 @@ module Shards
       assert_equal "1-0-stable", library["branch"]
     end
 
+    def test_parses_empty_dependencies_from_projectfile
+      create_file "legacy", "Projectfile",
+        "deps do\nend"
+      create_git_release "legacy", "1.0.1", shard: false
+
+      spec = resolver("legacy").spec("1.0.1")
+      assert_equal 0, spec.dependencies.size
+    end
+
     private def resolver(name, config = {} of String => String)
       config = config.merge({ "git" => git_url(name) })
       dependency = Dependency.new(name, config)
