@@ -19,7 +19,7 @@ module Shards
       else
         raise InvalidLock.new # unknown lock version
       end
-    rescue TypeCastError
+    rescue TypeCastError | KeyError
       raise Error.new("Invalid #{ LOCK_FILENAME }. Please delete it and run install again.")
     end
   end
