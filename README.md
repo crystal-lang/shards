@@ -35,8 +35,8 @@ for more details about the `shard.yml` format.
 
 ## Install
 
-You can download a statically compiled 64bit executable of Shards for Linux
-from the [releases](https://github.com/ysbaddaden/shards/releases) page.
+You can download a statically compiled 64bit executable of Shards for Linux or
+OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page.
 
 Alternatively you may download a source tarball from the same page (or clone the
 repository) then run `make` —or `make release` for an optimized build— and copy
@@ -66,8 +66,9 @@ These requirements are only for compiling Shards.
   On Debian/Ubuntu Linux you may install the `libyaml-dev` package.
   
   On Mac OS X you may install it using homebrew with `brew install libyaml`
-  then make sure to have `/opt/homebrew/lib` in your `LIBRARY_PATH` environment
-  variable (eg: `export LIBRARY_PATH="/opt/homebrew/lib:$LIBRARY_PATH"`).
+  then make sure to have `/usr/local/lib` in your `LIBRARY_PATH` environment
+  variable (eg: `export LIBRARY_PATH="/usr/local/lib/lib:$LIBRARY_PATH"`).
+  Please adjust the path per your Homebrew installation.
 
 
 ## License
