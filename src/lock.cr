@@ -2,6 +2,7 @@ require "yaml"
 require "./dependency"
 
 module Shards
+  # TODO: use yaml_mapping or YAML::PullParser directly
   module Lock
     def self.from_file(path)
       raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)

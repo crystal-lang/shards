@@ -4,7 +4,39 @@ require "./errors"
 
 module Shards
   class Spec
-    getter :name, :version
+    class Author
+      property :name
+      property :email
+
+      def self.new(pull : YAML::PullParser)
+        new(pull.read_scalar)
+      end
+
+      def initialize(name)
+        if name =~ /\A\s*(.+?)\s*<(\s*.+?\s*)>/
+          @name, @email = $1, $2
+        else
+          @name = name
+        end
+      end
+    end
+
+    # :nodoc:
+    class Dependencies < Array(Dependency)
+      def self.new(pull : YAML::PullParser)
+        pull.read_mapping_start
+        dependencies = new
+
+        while pull.kind != YAML::EventKind::MAPPING_END
+          dependencies << Dependency.new(pull)
+        end
+
+        pull.read_next
+        dependencies
+      #rescue ex : YAML::ParseException
+      #  raise Exception.new("Invalid dependencies definition at #{ ex.line_number }:#{ ex.column_number }")
+      end
+    end
 
     def self.from_file(path)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
@@ -12,68 +44,48 @@ module Shards
       from_yaml(File.read(path))
     end
 
-    def self.from_yaml(data : String)
-      config = YAML.load(data) as Hash
-      spec = new(config)
-    rescue TypeCastError
-      if spec
-        raise Error.new("Invalid #{ SPEC_FILENAME } for #{ spec.name }@#{ spec.version }.")
-      else
-        raise Error.new("Invalid #{ SPEC_FILENAME }.")
-      end
-    end
+    yaml_mapping({
+      name: { type: String },
+      version: { type: String },
+      description: { type: String, nilable: true },
+      license: { type: String, nilable: true },
+      authors: { type: Array(Author), nilable: true },
+      scripts: { type: Hash(String, String), nilable: true },
+      dependencies: { type: Dependencies, nilable: true },
+      development_dependencies: { type: Dependencies, nilable: true },
+    })
 
-    def initialize(@config)
-      @name = (config["name"] as String).strip
-      @version = config["version"]?.to_s.strip
+    getter! :version
+
+    def initialize(@name : String)
     end
 
     def authors
-      to_authors(@config["authors"]?)
+      @authors ||= [] of Author
     end
 
     def dependencies
-      to_dependencies(@config["dependencies"]?)
+      @dependencies ||= Dependencies.new
     end
 
     def development_dependencies
-      to_dependencies(@config["development_dependencies"]?)
-    end
-
-    def scripts
-      if scripts = @config["scripts"]?
-        if scripts.is_a?(Hash)
-          scripts
-        end
-      end
+      @development_dependencies ||= Dependencies.new
     end
 
     def script(name)
       if scripts = self.scripts
-        scripts[name]? as String
+        scripts[name]?
       end
     end
 
-    private def to_authors(ary)
-      if ary.is_a?(Array)
-        ary.map(&.to_s.strip)
-      else
-        [] of String
-      end
-    end
-
-    private def to_dependencies(hsh)
-      dependencies = [] of Dependency
-
-      if hsh.is_a?(Hash)
-        hsh.map do |name, h|
-          config = {} of String => String
-          (h as Hash).each { |k, v| config[k.to_s.strip] = v.to_s.strip }
-          dependencies << Dependency.new(name.to_s.strip, config)
+    def license_url
+      if license = self.license
+        if license =~ %r(https?://)
+          license
+        else
+          "http://opensource.org/licenses/#{ license }"
         end
       end
-
-      dependencies
     end
   end
 end

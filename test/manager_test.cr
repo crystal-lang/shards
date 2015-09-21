@@ -34,18 +34,24 @@ module Shards
     end
 
     def test_resolve
-      manager = manager_for({ "name" => "test", "dependencies" => {
-        "base" => { "mock" => "" }
-      }})
+      manager = manager_for({
+        "name" => "test",
+        "dependencies" => {
+          "base" => { "mock" => "test" }
+        }
+      })
       manager.resolve
       assert_equal 1, manager.packages.size
       assert_equal "base", manager.packages.first.name
     end
 
     def test_resolves_recursively
-      manager = manager_for({ "name" => "test", "dependencies" => {
-        "library" => { "mock" => "", version: "0.2.0" }
-      }})
+      manager = manager_for({
+        "name" => "test",
+        "dependencies" => {
+          "library" => { "mock" => "test", version: "0.2.0" }
+        }
+      })
       manager.resolve
       assert_equal 4, manager.packages.size
       assert_equal %w(base legacy library minitest), manager.packages.map(&.name).sort
@@ -68,9 +74,12 @@ module Shards
     end
 
     def test_fails_to_resolve_with_incompatible_version_requirements
-      manager = manager_for({ "name" => "test", "dependencies" => {
-        "failing" => { "mock" => "" }
-      }})
+      manager = manager_for({
+        "name" => "test",
+        "dependencies" => {
+          "failing" => { "mock" => "test" }
+        }
+      })
       ex = assert_raises(Shards::Conflict) { manager.resolve }
       assert_equal "Error resolving base (~>0.1.0, >0.2.0)", ex.message
     end
@@ -79,10 +88,10 @@ module Shards
       manager = manager_for({
         "name" => "test",
         "dependencies" => {
-          "ide" => { "mock" => "" }
+          "ide" => { "mock" => "test" }
         },
         "development_dependencies" => {
-          "webmock" => { "mock" => "" },
+          "webmock" => { "mock" => "test" },
         }
       })
       manager.resolve
@@ -92,14 +101,39 @@ module Shards
     end
 
     private def manager_for(config)
-      Manager.new(Spec.new(config))
+      yaml = String.build do |yml|
+        yml << "name: " << config["name"] << "\n"
+        yml << "version: " << config.fetch("version", "0.0.0") << "\n"
+
+        if dependencies = config["dependencies"]?
+          yml << "dependencies:\n"
+
+          (dependencies as Hash).each do |name, hsh|
+            yml << "  " << name << ": " << "\n"
+            (hsh as Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+          end
+        end
+
+        if dependencies = config["development_dependencies"]?
+          yml << "development_dependencies:\n"
+
+          (dependencies as Hash).each do |name, hsh|
+            yml << "  " << name << ": " << "\n"
+            (hsh as Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+          end
+        end
+      end
+
+      spec = Spec.from_yaml(yaml)
+      Manager.new(spec)
     end
+
 
     private def assert_resolves(version, requirement, dependency = "library")
       manager = manager_for({
         "name" => "test",
         "dependencies" => {
-          dependency => { "mock" => "", version: requirement }
+          dependency => { "mock" => "test", "version" => requirement }
         }
       })
       manager.resolve

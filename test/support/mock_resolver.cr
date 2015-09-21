@@ -26,9 +26,9 @@ module Shards
 
     @@specs = {} of String => Hash(String, String)
 
-    def self.register_spec(name, version = nil, as = nil, dependencies = nil, development = nil)
+    def self.register_spec(name, version = "0.0.0", as = nil, dependencies = nil, development = nil)
       spec = "name: #{ name.inspect }\n"
-      spec += "version: #{ version.inspect }\n" if version
+      spec += "version: #{ version.inspect }\n"
 
       if dependencies
         spec += "dependencies:\n#{ to_yaml(dependencies) }\n"
@@ -53,9 +53,9 @@ module Shards
         ary = dep.split(":", 2)
 
         if ary.size == 2
-          "  #{ ary[0] }:\n    mock: \"\"\n    version: #{ ary[1].inspect }"
+          "  #{ ary[0] }:\n    mock: \"test\"\n    version: #{ ary[1].inspect }"
         else
-          "  #{ ary[0] }:\n    mock: \"\""
+          "  #{ ary[0] }:\n    mock: \"test\""
         end
       end
 
