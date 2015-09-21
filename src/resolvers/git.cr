@@ -1,18 +1,15 @@
 require "./resolver"
+require "../helpers/natural_sort"
 
 module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 
   class GitResolver < Resolver
     # :nodoc:
-    GIT_VERSION = `git --version`.strip[12 .. -1].split('.')
+    GIT_VERSION = `git --version`.strip[12 .. -1]
 
     # :nodoc:
-    GIT_COLUMN_NEVER = begin
-                         GIT_VERSION[0] >= "1" &&
-                         GIT_VERSION[0] >= "7" &&
-                         GIT_VERSION[0] >= "11" ? "--column=never" : ""
-                       end
+    GIT_COLUMN_NEVER = Helpers::NaturalSort.sort(GIT_VERSION, "1.7.11") < 0 ? "--column=never" : ""
 
     def self.key
       "git"

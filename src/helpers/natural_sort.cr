@@ -5,6 +5,10 @@ module Shards
       IS_NUMBER_STRING = /\A\d+\Z/
 
       def natural_sort(a, b)
+        NaturalSort.sort(a, b)
+      end
+
+      def self.sort(a, b)
         ia = ib = 0
         la, lb = a.size, b.size
 
