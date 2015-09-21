@@ -17,7 +17,7 @@ module Shards
 
         manager.packages.each do |package|
           unless package.installed?(loose: true)
-            raise Error.new("Missing #{package.name} (#{package.version})")
+            raise Error.new("Missing #{package.name}")
           end
         end
 

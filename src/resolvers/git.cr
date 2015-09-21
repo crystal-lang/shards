@@ -4,6 +4,9 @@ module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 
   class GitResolver < Resolver
+    # :nodoc:
+    GIT_COLUMN_NEVER = `git --version` >= "git version 1.7.11" ?  "--column=never" : ""
+
     def self.key
       "git"
     end
@@ -49,7 +52,7 @@ module Shards
       versions = if refs = dependency.refs
                    [version_at(refs), refs]
                  else
-                   capture("git tag --list --no-column")
+                   capture("git tag --list #{ GIT_COLUMN_NEVER }")
                      .split("\n")
                      .map { |version| $1 if version.strip =~ RELEASE_VERSION }
                  end.compact
@@ -118,7 +121,7 @@ module Shards
     def version_at(refs)
       update_local_cache
 
-      tags = capture("git tag --list --contains #{refs}")
+      tags = capture("git tag --list --contains #{refs} #{ GIT_COLUMN_NEVER }")
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
@@ -130,8 +133,8 @@ module Shards
 
       refs = [] of String?
       refs << commit
-      refs += capture("git tag --list --contains #{commit}").split("\n")
-      refs += capture("git branch --list --contains #{commit}").split(" ")
+      refs += capture("git tag --list --contains #{commit} #{ GIT_COLUMN_NEVER }").split("\n")
+      refs += capture("git branch --list --contains #{commit} #{ GIT_COLUMN_NEVER }").split(" ")
       refs.compact.uniq
     end
 
