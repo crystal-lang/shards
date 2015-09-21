@@ -3,13 +3,24 @@ ifndef CRYSTAL_BIN
 endif
 
 VERSION := $(shell cat VERSION)
+OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ARCH := $(shell uname -m)
+
+ifeq ($(OS),linux)
+	CRFLAGS := --link-flags "-static -L/opt/crystal/embedded/lib"
+endif
+ifeq ($(OS),darwin)
+	CRFLAGS := --link-flags "-static -L/opt/homebrew/lib"
+endif
 
 all:
 	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
 
 release:
-	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr --link-flags "-static -L/opt/crystal/embedded/lib"
-	tar zcf shards-$(VERSION)_linux_amd64.tar.gz -C bin shards
+	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(CRFLAGS)
+
+tarball: release
+	tar zcf shards-$(VERSION)_$(OS)_$(ARCH).tar.gz -C bin shards
 
 .PHONY: test
 test: test_unit test_integration
