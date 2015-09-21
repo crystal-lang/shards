@@ -5,7 +5,14 @@ module Shards
 
   class GitResolver < Resolver
     # :nodoc:
-    GIT_COLUMN_NEVER = `git --version` >= "git version 1.7.11" ?  "--column=never" : ""
+    GIT_VERSION = `git --version`.strip[12 .. -1].split('.')
+
+    # :nodoc:
+    GIT_COLUMN_NEVER = begin
+                         GIT_VERSION[0] >= "1" &&
+                         GIT_VERSION[0] >= "7" &&
+                         GIT_VERSION[0] >= "11" ? "--column=never" : ""
+                       end
 
     def self.key
       "git"
@@ -197,12 +204,17 @@ module Shards
         Shards.logger.debug command
 
         output = capture ? StringIO.new : false
-        status = Process.run("/bin/sh", input: StringIO.new(command), output: output)
+        error = StringIO.new
+        status = Process.run("/bin/sh", input: StringIO.new(command), output: output, error: error)
 
         if status.success?
           output.to_s if capture
         else
-          raise Error.new("git command failed: #{command}")
+          str = error.to_s
+          if str.starts_with?("error: ") && (idx = str.index('\n'))
+            message = str[7 ... idx]
+          end
+          raise Error.new("git command failed: #{ command } (#{ message })")
         end
       end
     end
