@@ -7,17 +7,23 @@ OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH := $(shell uname -m)
 
 ifeq ($(OS),linux)
-	RELEASE_CRFLAGS  --link-flags "-static -L/opt/crystal/embedded/lib"
+	CRFLAGS := --link-flags "-static -L/opt/crystal/embedded/lib"
 endif
+
 ifeq ($(OS),darwin)
-	CRFLAGS := --link-flags "-L/usr/local/lib"
+	CRFLAGS := --link-flags "-L."
 endif
 
 all:
-	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr $(CRFLAGS)
+	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
 
 release:
-	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(RELEASE_CRFLAGS) $(CRFLAGS)
+	if [ "$(OS)" = "darwin" ] ; then \
+	  cp /usr/local/lib/libyaml.a . ;\
+	  chmod 644 libyaml.a ;\
+	  export LIBRARY_PATH= ;\
+	fi
+	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(CRFLAGS)
 
 tarball: release
 	tar zcf shards-$(VERSION)_$(OS)_$(ARCH).tar.gz -C bin shards
