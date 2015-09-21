@@ -7,17 +7,17 @@ OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH := $(shell uname -m)
 
 ifeq ($(OS),linux)
-	CRFLAGS := --link-flags "-static -L/opt/crystal/embedded/lib"
+	RELEASE_CRFLAGS  --link-flags "-static -L/opt/crystal/embedded/lib"
 endif
 ifeq ($(OS),darwin)
-	CRFLAGS := --link-flags "-static -L/opt/homebrew/lib"
+	CRFLAGS := --link-flags "-L/usr/local/lib"
 endif
 
 all:
-	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
+	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr $(CRFLAGS)
 
 release:
-	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(CRFLAGS)
+	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(RELEASE_CRFLAGS) $(CRFLAGS)
 
 tarball: release
 	tar zcf shards-$(VERSION)_$(OS)_$(ARCH).tar.gz -C bin shards
