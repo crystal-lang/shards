@@ -25,6 +25,9 @@ development_dependencies:
     git: https://github.com/ysbaddaden/minitest.cr.git
     version: "~> 0.1.0"
 
+scripts:
+  postinstall: make ext
+
 license: MIT
 ```
 
@@ -187,4 +190,17 @@ development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
     version: ~> 0.1.3
+```
+
+### scripts
+
+Shards may run scripts automatically after certain actions. Scripts are mere
+shell commands, and can either download and/or compile a library for example.
+
+Only the `postinstall` hook is supported, and is run after installing or
+upgrading a dependency. More hooks may be added later on.
+
+```yaml
+scripts:
+  postinstall: cd src/scrypt && make
 ```
