@@ -32,6 +32,7 @@ before_script: |
   bin/shards install
   git config --global user.email "you@example.com"
   git config --global user.name "Your Name"
+  git config --global column.ui always
 
 script:
   - make test
