@@ -23,7 +23,7 @@ module Shards
       path = File.join(local_path, SPEC_FILENAME)
       return Spec.from_file(path) if File.exists?(path)
 
-      Spec.from_yaml("name: #{dependency.name}\n")
+      Spec.from_yaml("name: #{dependency.name}\nversion: 0\n")
     end
 
     def installed_commit_hash

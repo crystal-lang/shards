@@ -1,79 +1,152 @@
+require "colorize"
 require "yaml"
+require "./config"
 require "./dependency"
 require "./errors"
 
 module Shards
   class Spec
-    getter :name, :version
+    class Author
+      property :name
+      property :email
 
-    def self.from_file(path)
-      path = File.join(path, SPEC_FILENAME) if File.directory?(path)
-      raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
-      from_yaml(File.read(path))
-    end
+      def self.new(pull : YAML::PullParser)
+        new(pull.read_scalar)
+      end
 
-    def self.from_yaml(data : String)
-      config = YAML.load(data) as Hash
-      spec = new(config)
-    rescue TypeCastError
-      if spec
-        raise Error.new("Invalid #{ SPEC_FILENAME } for #{ spec.name }@#{ spec.version }.")
-      else
-        raise Error.new("Invalid #{ SPEC_FILENAME }.")
+      def initialize(name)
+        if name =~ /\A\s*(.+?)\s*<(\s*.+?\s*)>/
+          @name, @email = $1, $2
+        else
+          @name = name
+        end
       end
     end
 
-    def initialize(@config)
-      @name = (config["name"] as String).strip
-      @version = config["version"]?.to_s.strip
+    def self.from_file(path, validate = false)
+      path = File.join(path, SPEC_FILENAME) if File.directory?(path)
+      raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
+      from_yaml(File.read(path), path, validate)
+    end
+
+    def self.from_yaml(input, filename = SPEC_FILENAME, validate = false)
+      parser = YAML::PullParser.new(input)
+      parser.read_stream do
+        parser.read_document do
+          new(parser, validate)
+        end
+      end
+    rescue ex : YAML::ParseException
+      raise ParseError.new(ex.message, input, filename, ex.line_number, ex.column_number)
+    ensure
+      parser.close if parser
+    end
+
+    getter! :name
+    getter! :version
+    getter :description
+    getter :license
+
+    # :nodoc:
+    def initialize(pull : YAML::PullParser, validate = false)
+      read_mapping(pull) do
+        case key = pull.read_scalar
+        when "name"
+          @name = pull.read_scalar
+        when "version"
+          @version = pull.read_scalar
+        when "description"
+          @description = pull.read_scalar
+        when "license"
+          @license = pull.read_scalar
+        when "authors"
+          read_sequence(pull) do
+            authors << Author.new(pull.read_scalar)
+          end
+        when "dependencies"
+          read_mapping(pull) do
+            dependency = Dependency.new(pull.read_scalar)
+            read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
+            dependencies << dependency
+          end
+        when "development_dependencies"
+          read_mapping(pull) do
+            dependency = Dependency.new(pull.read_scalar)
+            read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
+            development_dependencies << dependency
+          end
+        when "scripts"
+          read_mapping(pull) do
+            scripts[pull.read_scalar] = pull.read_scalar
+          end
+        else
+          if validate
+            raise YAML::ParseException.new("unknown attribute: #{ key }", pull.line_number, pull.column_number)
+          else
+            pull.skip
+          end
+        end
+      end
+
+      {% for attr in %w(name version) %}
+        unless @{{ attr.id }}
+          raise YAML::ParseException.new(
+            "missing required attribute: {{ attr.id }}",
+            pull.line_number,
+            pull.column_number
+          )
+        end
+      {% end %}
+    end
+
+    def name=(@name : String)
+    end
+
+    def version=(@version : String)
     end
 
     def authors
-      to_authors(@config["authors"]?)
+      @authors ||= [] of Author
     end
 
     def dependencies
-      to_dependencies(@config["dependencies"]?)
+      @dependencies ||= [] of Dependency
     end
 
     def development_dependencies
-      to_dependencies(@config["development_dependencies"]?)
+      @development_dependencies ||= [] of Dependency
     end
 
     def scripts
-      if scripts = @config["scripts"]?
-        if scripts.is_a?(Hash)
-          scripts
+      @scripts ||= {} of String => String
+    end
+
+    def license_url
+      if license = @license
+        if license =~ %r(https?://)
+          license
+        else
+          "http://opensource.org/licenses/#{ license }"
         end
       end
     end
 
-    def script(name)
-      if scripts = self.scripts
-        scripts[name]? as String
+    private def read_sequence(pull)
+      pull.read_sequence_start
+      until pull.kind == YAML::EventKind::SEQUENCE_END
+        yield
       end
+      pull.read_next
+      nil
     end
 
-    private def to_authors(ary)
-      if ary.is_a?(Array)
-        ary.map(&.to_s.strip)
-      else
-        [] of String
+    private def read_mapping(pull)
+      pull.read_mapping_start
+      until pull.kind == YAML::EventKind::MAPPING_END
+        yield
       end
-    end
-
-    private def to_dependencies(hsh)
-      dependencies = [] of Dependency
-
-      if hsh.is_a?(Hash)
-        hsh.map do |name, h|
-          config = {} of String => String
-          (h as Hash).each { |k, v| config[k.to_s.strip] = v.to_s.strip }
-          dependencies << Dependency.new(name.to_s.strip, config)
-        end
-      end
-
-      dependencies
+      pull.read_next
+      nil
     end
   end
 end

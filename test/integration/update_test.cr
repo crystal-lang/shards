@@ -5,7 +5,6 @@ class UpdateCommandTest < Minitest::Test
     metadata = {
       dependencies: { web: "*", orm: "*", },
       development_dependencies: { mock: "*" },
-      custom_dependencies: { release: "*" },
     }
 
     with_shard(metadata) do

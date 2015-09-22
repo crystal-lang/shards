@@ -29,12 +29,12 @@ module Shards
         legacy.install
         assert File.exists?(install_path("legacy", "legacy.cr"))
         refute File.exists?(install_path("legacy", "shard.yml"))
-        assert_empty legacy.installed_spec.not_nil!.version
+        assert_equal "0", legacy.installed_spec.not_nil!.version
       end
     end
 
     private def resolver(name, config = {} of String => String)
-      config = config.merge({ "path" => git_path(name) })
+      config["path"] = git_path(name)
       dependency = Dependency.new(name, config)
       PathResolver.new(dependency)
     end
