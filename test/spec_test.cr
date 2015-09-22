@@ -1,5 +1,5 @@
 require "minitest/autorun"
-require "../src/spec"
+require "./test_helper"
 
 module Shards
   class SpecTest < Minitest::Test
@@ -99,15 +99,38 @@ module Shards
       assert_equal "master", spec.development_dependencies[1].refs
     end
 
-  #  def test_fails_to_parse_dependencies
-  #    str = <<-YAML
-  #name: amethyst
-  #version: 0.1.7
-  #dependencies:
-  #  github: spalger/crystal-mime
-  #  branch: master
-  #YAML
-  #    Spec.from_yaml(str)
-  #  end
+    def test_skips_unknown_attributes
+      spec = Spec.from_yaml("\nanme: test\ncustom:\n  test: more\nname: test\nversion: 1\n")
+      assert_equal "test", spec.name
+      assert_equal "1", spec.version
+
+      spec = Spec.from_yaml("\nanme:\nname: test\nversion: 1\n")
+      assert_equal "test", spec.name
+      assert_equal "1", spec.version
+    end
+
+    def test_raises_on_unknown_attributes_if_validating
+      ex = assert_raises(ParseError) { Spec.from_yaml("anme:", validate: true) }
+      assert_match "unknown attribute: anme", ex.message
+    end
+
+    def test_raises_when_required_attributes_are_missing
+      ex = assert_raises(ParseError) { Spec.from_yaml("license: MIT") }
+      assert_match "missing required attribute: name", ex.message
+
+      ex = assert_raises(ParseError) { Spec.from_yaml("name: test") }
+      assert_match "missing required attribute: version", ex.message
+    end
+
+    def test_fails_to_parse_dependencies
+      str = <<-YAML
+name: amethyst
+version: 0.1.7
+dependencies:
+  github: spalger/crystal-mime
+  branch: master
+YAML
+      ex = assert_raises(ParseError) { Spec.from_yaml(str) }
+    end
   end
 end
