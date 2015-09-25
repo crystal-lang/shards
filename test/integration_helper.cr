@@ -63,8 +63,13 @@ class Minitest::Test
     assert File.exists?(path), "expected shard.lock to have been generated"
     locks = Shards::Lock.from_file(path)
     assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked"
+
     if lock && version
-      assert_equal version, lock.version, "expected #{name} dependency to have been locked at version #{version}"
+      if version =~ /^[\d.]+$/
+        assert_equal version, lock.version, "expected #{name} dependency to have been locked at version #{version}"
+      else
+        assert_equal version, lock.refs, "expected #{name} dependency to have been locked at commit #{version}"
+      end
     end
   end
 

@@ -35,7 +35,14 @@ module Shards
               value.each do |name, version|
                 yml << "  " << name << ":\n"
                 yml << "    git: " << git_url(name).inspect << "\n"
-                yml << "    version: " << version.inspect << "\n"
+
+                if version.is_a?(String)
+                  yml << "    version: " << version.inspect << "\n"
+                else
+                  version.each do |k, v|
+                    yml << "    " << k << ": " << v << "\n"
+                  end
+                end
               end
             else
               yml << value

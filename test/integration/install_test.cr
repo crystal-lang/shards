@@ -103,6 +103,13 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_locks_commit_when_installing_git_refs
+    with_shard({ dependencies: { web: { branch: "master" } } }) do
+      run "shards install"
+      assert_locked "web", git_commits(:web).first
+    end
+  end
+
   def test_production_doesnt_install_development_dependencies
     metadata = {
       dependencies: { web: "*", orm: "*", },
