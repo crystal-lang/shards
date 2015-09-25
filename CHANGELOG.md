@@ -2,6 +2,22 @@
 
 ## UNRELEASED
 
+Features:
+- nice error messages for invalid `shard.yml` files
+
+Enhancements:
+- upgraded to Crystal 0.8.0
+- custom YAML parser for shard.yml compliant to the spec
+- binary releases for OS X and Linux 32 bits
+
+Fixes:
+- install command fails to install dependencies on fresh projects
+- check command breaks whenever a dependency is missing
+- manager doesn't resolve dependencies of development dependencies recursively
+- support for Git < 1.7.11 (eg: Ubuntu Precise and Debian Wheezy)
+- don't generate lockfile for projects without dependencies
+- don't fail when loading empty Projectfile
+
 ## v0.4.0
 
 Features:
