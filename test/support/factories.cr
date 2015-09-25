@@ -1,4 +1,9 @@
 class FailedCommand < Exception
+  getter :stdout, :stderr
+
+  def initialize(message, @stdout, @stderr)
+    super message
+  end
 end
 
 module Shards
@@ -76,13 +81,13 @@ module Shards
 
     def run(command, capture = false)
       # puts command
-      output = capture ? StringIO.new : false
-      status = Process.run("/bin/sh", input: StringIO.new(command), output: output)
+      output, error = StringIO.new, StringIO.new
+      status = Process.run("/bin/sh", input: StringIO.new(command), output: output, error: error)
 
       if status.success?
         output.to_s if capture
       else
-        raise FailedCommand.new("command failed: #{command}")
+        raise FailedCommand.new("command failed: #{command}", output.to_s, error.to_s)
       end
     end
   end

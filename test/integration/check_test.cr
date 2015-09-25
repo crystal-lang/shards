@@ -13,47 +13,48 @@ class CheckCommandTest < Minitest::Test
   end
 
   def test_succeeds_when_dependencies_match_loose_requirements
-    metadata = {
-      dependencies: { web: "1.2.0" },
-    }
-    with_shard(metadata) do
+    with_shard({ dependencies: { web: "1.2.0" } }) do
       run "shards install"
     end
 
-    metadata = {
-      dependencies: { web: "~> 1.1" },
-    }
-    with_shard(metadata) do
+    with_shard({ dependencies: { web: "~> 1.1" } }) do
       run "shards check"
     end
   end
 
+  def test_fails_without_lockfile
+    with_shard({ dependencies: { web: "*" } }) do
+      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      assert_match "Missing #{ Shards::LOCK_FILENAME }", ex.stdout
+      assert_empty ex.stderr
+    end
+  end
+
   def test_fails_when_dependencies_are_missing
-    metadata = {
-      dependencies: { web: "*" }
-    }
-    with_shard(metadata) { run "shards install" }
+    with_shard({ dependencies: { web: "*" } }) do
+      run "shards install"
+    end
 
     metadata = {
       dependencies: { web: "*", orm: "*", },
       development_dependencies: { mock: "*" }
     }
     with_shard(metadata) do
-      assert_raises(FailedCommand) { run "shards check" }
+      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      assert_match "Dependencies aren't satisfied", ex.stdout
+      assert_empty ex.stderr
     end
   end
 
   def test_fails_when_wrong_versions_are_installed
-    metadata = {
-      dependencies: { web: "1.0.0" }
-    }
-    with_shard(metadata) { run "shards install" }
+    with_shard({ dependencies: { web: "1.0.0" } }) do
+      run "shards install"
+    end
 
-    metadata = {
-      dependencies: { web: "2.0.0" }
-    }
-    with_shard(metadata) do
-      assert_raises(FailedCommand) { run "shards check" }
+    with_shard({ dependencies: { web: "2.0.0" } }) do
+      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      assert_match "Dependencies aren't satisfied", ex.stdout
+      assert_empty ex.stderr
     end
   end
 end
