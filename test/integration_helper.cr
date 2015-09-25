@@ -19,10 +19,13 @@ class Minitest::Test
     create_git_repository "web", "1.0.0", "1.1.0", "1.1.1", "1.1.2", "1.2.0", "2.0.0", "2.1.0"
     create_git_repository "pg", "0.1.0", "0.2.0", "0.2.1", "0.3.0"
     create_git_repository "optional", "0.2.0", "0.2.1", "0.2.2"
+    create_git_repository "shoulda", "0.1.0"
     create_git_repository "minitest", "0.1.0", "0.1.1", "0.1.2", "0.1.3"
 
     create_git_repository "mock"
-    create_git_release "mock", "0.1.0", "name: mock\nversion: 0.1.0\ndependencies:\n  minitest:\n    git: #{ git_path("minitest") }\n    version: < 0.3.0\n"
+    create_git_release "mock", "0.1.0", "name: mock\nversion: 0.1.0\n" +
+      "dependencies:\n  shoulda:\n    git: #{ git_path("shoulda") }\n    version: < 0.3.0\n" +
+      "development_dependencies:\n  minitest:\n    git: #{ git_path("minitest") }\n"
 
     create_git_repository "orm", "0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.3.2", "0.4.0"
     create_git_release "orm", "0.5.0", "name: orm\nversion: 0.5.0\ndependencies:\n  pg:\n    git: #{ git_path("pg") }\n    version: < 0.3.0\n"

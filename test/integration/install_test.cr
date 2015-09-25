@@ -15,9 +15,11 @@ class InstallCommandTest < Minitest::Test
       assert_installed "orm", "0.5.0"
       assert_installed "pg", "0.2.1"
 
-      # it installed development dependencies (not recursively)
+      # it installed development dependencies (recursively, except their
+      # development dependencies)
       assert_installed "mock"
-      refute_installed "minitest", "0.1.3"
+      assert_installed "shoulda", "0.1.0"
+      refute_installed "minitest"
 
       # it didn't install custom dependencies
       refute_installed "release"

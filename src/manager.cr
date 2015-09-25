@@ -9,25 +9,18 @@ module Shards
     end
 
     def resolve
-      resolve(spec)
-
-      unless Shards.production?
-        resolve(spec.development_dependencies, recursive: false)
-      end
+      resolve(spec.dependencies)
+      resolve(spec.development_dependencies) unless Shards.production?
     #rescue ex : Conflict
     #  Shards.logger.error ex.message
     #  exit -1
     end
 
-    def resolve(spec : Spec)
-      resolve(spec.dependencies, recursive: true)
-    end
-
     # TODO: handle conflicts
-    def resolve(dependencies, recursive = true)
+    def resolve(dependencies)
       dependencies.each do |dependency|
         package = packages.add(dependency)
-        resolve(package.spec) if recursive
+        resolve(package.spec.dependencies)
       end
     end
 
