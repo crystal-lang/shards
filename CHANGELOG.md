@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## UNRELEASED
+## v0.5.0
+
+Breaking Change:
+- renamed `--no-colors` option as `--no-color` to match crystal
 
 Features:
 - nice error messages for invalid `shard.yml` files

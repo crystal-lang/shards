@@ -24,7 +24,7 @@ class CheckCommandTest < Minitest::Test
 
   def test_fails_without_lockfile
     with_shard({ dependencies: { web: "*" } }) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
       assert_match "Missing #{ Shards::LOCK_FILENAME }", ex.stdout
       assert_empty ex.stderr
     end
@@ -40,7 +40,7 @@ class CheckCommandTest < Minitest::Test
       development_dependencies: { mock: "*" }
     }
     with_shard(metadata) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
       assert_match "Dependencies aren't satisfied", ex.stdout
       assert_empty ex.stderr
     end
@@ -52,7 +52,7 @@ class CheckCommandTest < Minitest::Test
     end
 
     with_shard({ dependencies: { web: "2.0.0" } }) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-colors" }
+      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
       assert_match "Dependencies aren't satisfied", ex.stdout
       assert_empty ex.stderr
     end

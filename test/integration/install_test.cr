@@ -61,7 +61,7 @@ class InstallCommandTest < Minitest::Test
     lock = { web: "1.0.0" }
 
     with_shard(metadata, lock) do
-      ex = assert_raises(FailedCommand) { run "shards install --no-colors" }
+      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
       assert_match "Outdated shard.lock", ex.stdout
       assert_empty ex.stderr
       refute_installed "web"
@@ -144,7 +144,7 @@ class InstallCommandTest < Minitest::Test
     lock = { web: "1.0.0" }
 
     with_shard(metadata, lock) do
-      ex = assert_raises(FailedCommand) { run "shards install --production --no-colors" }
+      ex = assert_raises(FailedCommand) { run "shards install --production --no-color" }
       assert_match "Outdated shard.lock", ex.stdout
       assert_empty ex.stderr
     end

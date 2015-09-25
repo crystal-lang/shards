@@ -21,7 +21,7 @@ end
 
 begin
   OptionParser.parse! do |opts|
-    opts.on("--no-colors", "") { Shards.colors = false }
+    opts.on("--no-color", "") { Shards.colors = false }
     opts.on("--version", "") { puts Shards.version_string; exit }
     opts.on("--production", "") { Shards.production = true }
     opts.on("-v", "--verbose", "") { Shards.logger.level = Logger::Severity::DEBUG }
