@@ -1,6 +1,6 @@
 # Shards
 
-Dependency manager for the [Crystal language](https://crystal-lang.org).
+Dependency manager for the [Crystal language](http://crystal-lang.org).
 
 
 ## Usage
