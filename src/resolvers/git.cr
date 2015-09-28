@@ -24,29 +24,11 @@ module Shards
       else
         if file_exists?(refs, "Projectfile")
           contents = capture("git show #{refs}:Projectfile")
-
-          dependencies = Resolver
-            .parse_dependencies_from_projectfile(contents)
-            .map do |d|
-              if d.has_key?("branch")
-                "  #{d["name"]}:\n    github: #{d["github"]}\n    branch: #{d["branch"]}"
-              else
-                "  #{d["name"]}:\n    github: #{d["github"]}"
-                end
-            end
-
-          if dependencies.any?
-            dependencies = "dependencies:\n#{dependencies.join("\n")}"
-          else
-            dependencies = ""
-          end
+          dependencies = parse_legacy_projectfile_to_yaml(contents)
         end
 
-        if version = version_at(refs)
-          "name: #{dependency.name}\nversion: #{version}\n#{dependencies}"
-        else
-          "name: #{dependency.name}\n#{dependencies}"
-        end
+        version = version_at(refs) || DEFAULT_VERSION
+        "name: #{dependency.name}\nversion: #{version}\n#{dependencies}"
       end
     end
 

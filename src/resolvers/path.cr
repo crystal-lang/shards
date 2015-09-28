@@ -8,22 +8,24 @@ module Shards
     end
 
     def read_spec(version = nil)
-      path = File.join(local_path, SPEC_FILENAME)
+      spec_path = File.join(local_path, SPEC_FILENAME)
 
-      if File.exists?(path)
-        File.read(path)
+      if File.exists?(spec_path)
+        File.read(spec_path)
       else
-        "name: #{dependency.name}\nversion: 0\n"
+        projectfile_path = File.join(local_path, "Projectfile")
+
+        if File.exists?(projectfile_path)
+          contents = File.read(projectfile_path)
+          dependencies = parse_legacy_projectfile_to_yaml(contents)
+        end
+
+        "name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n#{dependencies}"
       end
     end
 
     def installed_spec
-      return unless installed?
-
-      path = File.join(local_path, SPEC_FILENAME)
-      return Spec.from_file(path) if File.exists?(path)
-
-      Spec.from_yaml("name: #{dependency.name}\nversion: 0\n")
+      Spec.from_yaml(read_spec) if installed?
     end
 
     def installed_commit_hash

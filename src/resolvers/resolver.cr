@@ -59,7 +59,22 @@ module Shards
       end
     end
 
-    def self.parse_dependencies_from_projectfile(contents)
+    protected def parse_legacy_projectfile_to_yaml(contents)
+      dependencies = parse_dependencies_from_projectfile(contents)
+        .map do |d|
+          if d.has_key?("branch")
+            "  #{d["name"]}:\n    github: #{d["github"]}\n    branch: #{d["branch"]}"
+          else
+            "  #{d["name"]}:\n    github: #{d["github"]}"
+          end
+        end
+
+      if dependencies.any?
+        "dependencies:\n#{dependencies.join("\n")}"
+      end
+    end
+
+    protected def parse_dependencies_from_projectfile(contents)
       dependencies = Array(Hash(String, String)).new
 
       contents.scan(PROJECTFILE_GITHUB_RE) do |m|

@@ -9,6 +9,7 @@ module Shards
   Dir.mkdir_p(INSTALL_PATH) unless Dir.exists?(INSTALL_PATH)
 
   DEFAULT_COMMAND = "install"
+  DEFAULT_VERSION = "0"
 
   @@production = false
 

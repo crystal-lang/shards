@@ -26,7 +26,7 @@ module Shards
     end
 
     def test_read_spec
-      assert_equal "name: empty\n", resolver("empty").read_spec
+      assert_equal "name: empty\nversion: #{DEFAULT_VERSION}\n", resolver("empty").read_spec
       assert_equal "name: legacy\nversion: 1.0.0\n", resolver("legacy").read_spec
       assert_equal "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>", resolver("library").read_spec
       assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
@@ -66,12 +66,14 @@ module Shards
       skip "TODO: install tag (whatever the version)"
     end
 
-    def test_parses_dependencies_from_projectfile
+    def test_parses_dependencies_from_legacy_projectfile
       create_file "legacy", "Projectfile",
         "deps do\n  github \"user/project\"\n  github \"other/library\", branch: \"1-0-stable\"\nend"
       create_git_release "legacy", "1.0.1", shard: false
 
       spec = resolver("legacy").spec("1.0.1")
+
+      assert_equal "1.0.1", spec.version
       assert_equal 2, spec.dependencies.size
 
       project, library = spec.dependencies
@@ -82,15 +84,6 @@ module Shards
       assert_equal "library", library.name
       assert_equal "other/library", library["github"]
       assert_equal "1-0-stable", library["branch"]
-    end
-
-    def test_parses_empty_dependencies_from_projectfile
-      create_file "legacy", "Projectfile",
-        "deps do\nend"
-      create_git_release "legacy", "1.0.1", shard: false
-
-      spec = resolver("legacy").spec("1.0.1")
-      assert_equal 0, spec.dependencies.size
     end
 
     private def resolver(name, config = {} of String => String)
