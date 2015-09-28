@@ -23,7 +23,7 @@ install: |
     sudo apt-get install crystal
     ;;
   osx)
-    brew install crystal-lang --with-llvm
+    brew install crystal-lang
     ;;
   esac
 
