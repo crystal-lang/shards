@@ -177,7 +177,7 @@ module Shards
     end
 
     private def run(command, path = local_path, capture = false)
-      Shards.logger.debug { "cd #{path}" }
+      # Shards.logger.debug { "cd #{path}" }
 
       Dir.chdir(path) do
         Shards.logger.debug command
