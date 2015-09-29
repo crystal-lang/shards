@@ -157,6 +157,7 @@ module Shards
 
     private def delete_repository
       run "rm -rf #{local_path}"
+      @origin_url = nil
     end
 
     private def cloned_repository?
@@ -164,7 +165,7 @@ module Shards
     end
 
     private def origin_changed?
-      capture("git ls-remote --get-url origin").strip != git_url
+      (@origin_url ||= capture("git ls-remote --get-url origin").strip) != git_url
     end
 
     private def file_exists?(refs, path)
