@@ -62,9 +62,8 @@ module Shards
 
       if file_exists?(refs, SPEC_FILENAME)
         run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{escape install_path}"
-      elsif version =~ RELEASE_VERSION
-        shard_path = File.join(install_path, "shard.yml")
-        File.write(shard_path, "name: #{dependency.name}\nversion: #{version}\n")
+      else
+        File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
       # TODO: search for LICENSE* files

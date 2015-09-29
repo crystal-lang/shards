@@ -35,7 +35,7 @@ module Shards
 
     # TODO: test that LICENSE was installed
     def test_install
-      library, legacy, empty = resolver("library"), resolver("legacy"), resolver("empty")
+      library, legacy = resolver("library"), resolver("legacy")
 
       library.install("0.1.2")
       assert File.exists?(install_path("library", "library.cr"))
@@ -48,16 +48,37 @@ module Shards
 
       legacy.install
       assert File.exists?(install_path("legacy", "legacy.cr"))
-      refute File.exists?(install_path("legacy", "shard.yml"))
+      assert File.exists?(install_path("legacy", "shard.yml"))
 
       legacy.install("1.0.0")
       assert File.exists?(install_path("legacy", "legacy.cr"))
       assert File.exists?(install_path("legacy", "shard.yml"))
       assert_equal "1.0.0", legacy.installed_spec.not_nil!.version
+    end
+
+    def test_install_generates_missing_shard_yml
+      create_file "empty", "Projectfile",
+        "deps do\n  github \"user/repo\"\n  github \"other/book\", branch: \"unstable\"\nend"
+      create_git_commit "empty"
+
+      empty = resolver("empty")
 
       empty.install # HEAD
       assert File.exists?(install_path("empty", "empty.cr"))
-      refute File.exists?(install_path("empty", "shard.yml"))
+      assert File.exists?(install_path("empty", "shard.yml"))
+
+      spec = empty.installed_spec.not_nil!
+      assert_equal DEFAULT_VERSION, spec.version
+      assert_equal 2, spec.dependencies.size
+      repo, book = spec.dependencies
+
+      assert_equal "repo", repo.name
+      assert_equal "user/repo", repo["github"]
+      refute repo["branch"]?
+
+      assert_equal "book", book.name
+      assert_equal "other/book", book["github"]
+      assert_equal "unstable", book["branch"]
     end
 
     def test_install_refs
