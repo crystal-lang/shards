@@ -142,6 +142,7 @@ module Shards
     end
 
     private def clone_repository
+      Dir.mkdir_p(CACHE_DIRECTORY) unless Dir.exists?(CACHE_DIRECTORY)
       run "git clone --mirror --quiet -- #{escape git_url} #{dependency.name}",
         path: File.dirname(local_path)
     rescue Error
