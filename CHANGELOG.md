@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## UNRELEASED (v0.5.1)
+
+Fixes:
+- always generate a `shard.yml` when installing legacy dependencies, see #60
+- only create `libs` and `.shards` folders when required
+
 ## v0.5.0
 
 Breaking Change:
