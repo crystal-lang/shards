@@ -44,7 +44,6 @@ module Shards
     end
 
     protected def install_path
-      #Dir.mkdir_p(INSTALL_PATH) unless Dir.exists?(INSTALL_PATH)
       File.join(INSTALL_PATH, dependency.name)
     end
 
