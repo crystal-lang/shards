@@ -1,31 +1,20 @@
-require "../spec"
-require "../lock"
-require "../manager"
 require "./command"
 
 module Shards
   module Commands
     # OPTIMIZE: avoid updating GIT caches until required
     class Install < Command
-      getter :manager, :path
-
-      def initialize(@path)
-        spec = Spec.from_file(path)
-        @manager = Manager.new(spec)
-        @locks = Lock.from_file(lock_file_path) if lock_file?
-      end
-
       def run
         manager.resolve
 
-        if locks = @locks
+        if lockfile?
           install(manager.packages, locks)
         else
           install(manager.packages)
         end
 
-        if generate_lock_file?
-          File.open(lock_file_path, "w") { |file| manager.to_lock(file) }
+        if generate_lockfile?
+          manager.to_lock(lockfile_path)
         end
       end
 
@@ -69,31 +58,13 @@ module Shards
         end
       end
 
-      private def lock_file?
-        File.exists?(lock_file_path)
+      private def generate_lockfile?
+        !Shards.production? && manager.packages.any? && (!lockfile? || outdated_lockfile?)
       end
 
-      private def lock_file_path
-        File.join(path, LOCK_FILENAME)
+      private def outdated_lockfile?
+        locks.size != manager.packages.size
       end
-
-      private def generate_lock_file?
-        !Shards.production? &&
-          manager.packages.any? &&
-          (!lock_file? || outdated_lock_file?)
-      end
-
-      private def outdated_lock_file?
-        if locks = @locks
-          locks.size != manager.packages.size
-        else
-          false
-        end
-      end
-    end
-
-    def self.install(path = Dir.working_directory)
-      Install.new(path).run
     end
   end
 end

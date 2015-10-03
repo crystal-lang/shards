@@ -1,5 +1,3 @@
-require "../spec"
-require "../manager"
 require "../helpers/versions"
 require "./command"
 
@@ -7,12 +5,6 @@ module Shards
   module Commands
     class Check < Command
       include Helpers::Versions
-
-      getter :spec, :manager
-
-      def initialize(@path)
-        @spec = Spec.from_file(@path)
-      end
 
       def run
         if has_dependencies?
@@ -76,26 +68,6 @@ module Shards
 
         true
       end
-
-      private def locks
-        @locks ||= begin
-                     lock_path = if File.directory?(@path)
-                                   File.expand_path(LOCK_FILENAME, @path)
-                                 else
-                                   File.expand_path(File.join("..", LOCK_FILENAME), @path)
-                                 end
-
-                     unless File.exists?(lock_path)
-                       raise Error.new("Missing #{ LOCK_FILENAME }. Please run 'shards install'")
-                     end
-
-                     Lock.from_file(lock_path)
-                   end
-      end
-    end
-
-    def self.check(path = Dir.working_directory)
-      Check.new(path).run
     end
   end
 end

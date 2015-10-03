@@ -36,5 +36,9 @@ module Shards
           io << "\n"
         end
     end
+
+    def to_lock(path : String)
+      File.open(path, "w") { |file| to_lock(file) }
+    end
   end
 end
