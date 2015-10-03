@@ -9,6 +9,7 @@ module Shards
     puts "    check"
     #puts "    info <package>"
     puts "    install"
+    puts "    list"
     #puts "    search <query>"
     puts "    update"
     #puts "    update [package package ...]"
@@ -38,6 +39,8 @@ module Shards
         #  Commands::Info.run(args[1])
         when "install"
           Commands::Install.run(path)
+        when "list"
+          Commands::List.run(path)
         #when "search"
         #  display_help_and_exit(opts) unless args[1]?
         #  Commands::Search.run(args[1])
