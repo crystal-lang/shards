@@ -15,14 +15,14 @@ module Shards
     end
 
     def create_git_repository(project, *versions)
-      Dir.chdir(tmp_path) do
+      Dir.cd(tmp_path) do
         run "git init #{project}"
       end
 
       Dir.mkdir(File.join(git_path(project), "src"))
       File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
 
-      Dir.chdir(git_path(project)) do
+      Dir.cd(git_path(project)) do
         run "git add src/#{project}.cr"
       end
 
@@ -30,7 +30,7 @@ module Shards
     end
 
     def create_git_release(project, version, shard = true)
-      Dir.chdir(git_path(project)) do
+      Dir.cd(git_path(project)) do
         if shard
           contents = shard.is_a?(String) ? shard : "name: #{project}\nversion: #{version}\n"
           create_shard project, contents
@@ -41,7 +41,7 @@ module Shards
     end
 
     def create_git_commit(project, message = "new commit")
-      Dir.chdir(git_path(project)) do
+      Dir.cd(git_path(project)) do
         run "git add ."
         run "git commit --allow-empty -m '#{message}'"
       end
@@ -52,13 +52,13 @@ module Shards
     end
 
     def create_file(project, filename, contents)
-      Dir.chdir(git_path(project)) do
+      Dir.cd(git_path(project)) do
         File.write filename, contents
       end
     end
 
     def git_commits(project)
-      Dir.chdir(git_path(project)) do
+      Dir.cd(git_path(project)) do
         run("git log --format='%H'", capture: true).not_nil!.split("\n")
       end
     end
@@ -81,8 +81,8 @@ module Shards
 
     def run(command, capture = false)
       # puts command
-      output, error = StringIO.new, StringIO.new
-      status = Process.run("/bin/sh", input: StringIO.new(command), output: output, error: error)
+      output, error = MemoryIO.new, MemoryIO.new
+      status = Process.run("/bin/sh", input: MemoryIO.new(command), output: output, error: error)
 
       if status.success?
         output.to_s if capture

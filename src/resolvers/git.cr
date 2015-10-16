@@ -180,12 +180,12 @@ module Shards
     private def run(command, path = local_path, capture = false)
       # Shards.logger.debug { "cd #{path}" }
 
-      Dir.chdir(path) do
+      Dir.cd(path) do
         Shards.logger.debug command
 
-        output = capture ? StringIO.new : false
-        error = StringIO.new
-        status = Process.run("/bin/sh", input: StringIO.new(command), output: output, error: error)
+        output = capture ? MemoryIO.new : false
+        error = MemoryIO.new
+        status = Process.run("/bin/sh", input: MemoryIO.new(command), output: output, error: error)
 
         if status.success?
           output.to_s if capture

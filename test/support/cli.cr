@@ -14,7 +14,7 @@ module Shards
     end
 
     def with_shard(metadata, lock = nil)
-      Dir.chdir(application_path) do
+      Dir.cd(application_path) do
         File.write "shard.yml", to_shard_yaml(metadata)
         File.write "shard.lock", to_lock_yaml(lock) if lock
         yield
