@@ -32,10 +32,15 @@ prefixed with a `v`. Examples: `v1.2.3` or `v2.0.0-rc1`.
 Please see the [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)
 for more details about the `shard.yml` format.
 
+Run `shards` afterwards to install dependencies.
 
 ## Install
 
-You can download a statically compiled 64bit executable of Shards for Linux or
+Shards comes with the official Crystal packages since Crystal 0.9.0. 
+Check [releases](https://github.com/manastech/crystal/releases) for the latest versions.
+Once you've installed Crystal, run `shards --version` or `shards --help` and it should be there.
+
+For manual installation, you can download a statically compiled 64bit executable of Shards for Linux or
 OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page.
 
 Alternatively you may download a source tarball from the same page (or clone the
