@@ -34,14 +34,10 @@ module Shards
     def matches?(commit)
       resolver = self.resolver
 
-      unless resolver.responds_to?(:version_at) && resolver.responds_to?(:refs_at)
-        raise LockConflict.new("wrong resolver")
-      end
-
-      if version = resolver.version_at(commit)
-        matching_versions.includes?(version)
+      if resolver.responds_to?(:matches?)
+        resolver.matches?(commit)
       else
-        resolver.refs_at(commit).any? { |ref| matching_versions.includes?(ref) }
+        raise LockConflict.new("wrong resolver")
       end
     end
 

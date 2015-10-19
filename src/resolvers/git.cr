@@ -51,11 +51,24 @@ module Shards
       end
     end
 
-    # FIXME: dependency.refs always take precedence when the manager should
-    #        actually deal with that (?)
+    def matches?(commit)
+      if branch = dependency["branch"]?
+        capture("git branch --list #{ GIT_COLUMN_NEVER } --contains #{ commit }")
+          .split("\n")
+          .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
+          .includes?(branch)
+      elsif tag = dependency["tag"]?
+        capture("git tag --list #{ GIT_COLUMN_NEVER } --contains #{ commit }")
+          .split("\n")
+          .includes?(tag)
+      else
+        !capture("git log -n 1 #{ commit }").strip.empty?
+      end
+    end
+
     def install(version = nil)
       update_local_cache
-      refs = dependency.refs || git_refs(version)
+      refs = version && git_refs(version) || dependency.refs || "HEAD"
 
       cleanup_install_directory
       Dir.mkdir_p(install_path)
@@ -90,7 +103,11 @@ module Shards
     private def git_refs(version)
       case version
       when RELEASE_VERSION
-        "v#{version}"
+        if version && version.starts_with?('v')
+          version
+        else
+          "v#{version}"
+        end
       when "*"
         "HEAD"
       else
@@ -103,7 +120,7 @@ module Shards
     #
     # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
     #        never release tags AFTER the refs
-    def version_at(refs)
+    private def version_at(refs)
       update_local_cache
 
       tags = capture("git tag --list --contains #{refs} #{ GIT_COLUMN_NEVER }")
@@ -113,7 +130,7 @@ module Shards
       tags.first?
     end
 
-    def refs_at(commit)
+    private def refs_at(commit)
       update_local_cache
 
       refs = [] of String?

@@ -62,7 +62,12 @@ module Shards
         lock.each do |name, version|
           yml << "  " << name << ":\n"
           yml << "    git: " << git_url(name).inspect << "\n"
-          yml << "    version: " << version.inspect << "\n"
+
+          if version =~ /^[\d\.]+$/
+            yml << "    version: " << version.inspect << "\n"
+          else
+            yml << "    commit: " << version.inspect << "\n"
+          end
         end
       end
     end
