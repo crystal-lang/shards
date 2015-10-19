@@ -15,8 +15,12 @@ ifeq ($(OS),darwin)
 	CRFLAGS := --link-flags "-L."
 endif
 
+SOURCES := $(shell find src -iname "*.cr")
+
 # Builds an unoptimized binary.
-all:
+all: bin/shards
+
+bin/shards: $(SOURCES)
 	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
 
 # Builds an optimized static binary ready for distribution.
