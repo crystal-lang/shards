@@ -36,11 +36,16 @@ release:
 clean:
 	rm -rf .crystal bin/shards
 
-test: test_unit test_integration
+.PHONY: test
+test:
+	make test_unit
+	make test_integration
 
+.PHONY: test_unit
 test_unit:
 	$(CRYSTAL_BIN) run test/*_test.cr -- --parallel=1
 
+.PHONY: test_integration
 test_integration: all
 	$(CRYSTAL_BIN) run test/integration/*_test.cr -- --parallel=1
 
