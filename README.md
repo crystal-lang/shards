@@ -56,7 +56,7 @@ Happy Hacking!
 
 These requirements are only for compiling Shards.
 
-* Crystal >= 0.8.0.
+* Crystal >= 0.9.0.
 
   Please refer to <http://crystal-lang.org/docs/installation> for
   instructions for your operating system.
@@ -64,7 +64,7 @@ These requirements are only for compiling Shards.
 * libyaml
 
   On Debian/Ubuntu Linux you may install the `libyaml-dev` package.
-  
+
   On Mac OS X you may install it using homebrew with `brew install libyaml`
   then make sure to have `/usr/local/lib` in your `LIBRARY_PATH` environment
   variable (eg: `export LIBRARY_PATH="/usr/local/lib/lib:$LIBRARY_PATH"`).

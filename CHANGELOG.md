@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.5.2
+
+Fixes:
+- compilation on Crystal 0.9.0
+
 ## v0.5.1
 
 Fixes:
