@@ -80,6 +80,22 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_updates_locked_commit
+    metadata = {
+      dependencies: { web: { branch: "master" } }
+    }
+
+    with_shard(metadata, { web: git_commits(:web)[-5] }) do
+      debug "shards install"
+      assert_installed "web", "1.2.0"
+    end
+
+    with_shard(metadata, { web: git_commits(:web)[0] }) do
+      debug "shards install"
+      assert_installed "web", "2.1.0"
+    end
+  end
+
   def test_fails_to_install_when_dependency_requirement_changed
     metadata = { dependencies: { web: "2.0.0" }, }
     lock = { web: "1.0.0" }

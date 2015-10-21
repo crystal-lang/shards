@@ -6,6 +6,9 @@ module Shards
 
   class GitResolver < Resolver
     # :nodoc:
+    GIT_SHA1 = /\A[0-9a-f]{40}\Z/
+
+    # :nodoc:
     GIT_VERSION = `git --version`.strip[12 .. -1]
 
     # :nodoc:
@@ -85,11 +88,20 @@ module Shards
       end
 
       run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{escape install_path}"
+
+      if version =~ GIT_SHA1
+        File.write(sha1_path, version)
+      elsif File.exists?(sha1_path)
+        File.delete(sha1_path)
+      end
     end
 
     def installed_commit_hash
-      return unless installed?
-      run("git log -n 1 --pretty=%H", capture: true).not_nil!.strip
+      File.read(sha1_path).strip if installed? && File.exists?(sha1_path)
+    end
+
+    def sha1_path
+      File.join(CACHE_DIRECTORY, "#{ dependency.name }.sha1")
     end
 
     def local_path

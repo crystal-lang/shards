@@ -54,6 +54,18 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_updates_locked_commit
+    metadata = {
+      dependencies: { web: { branch: "master" } }
+    }
+    lock = { web: git_commits(:web)[-5] }
+
+    with_shard(metadata, ) do
+      run "shards update"
+      assert_installed "web", "2.1.0"
+    end
+  end
+
   def test_installs_new_dependencies
     metadata = {
       dependencies: {
