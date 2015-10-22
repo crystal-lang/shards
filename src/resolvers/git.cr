@@ -89,10 +89,11 @@ module Shards
 
       run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{escape install_path}"
 
-      if version =~ GIT_SHA1
-        File.write(sha1_path, version)
-      elsif File.exists?(sha1_path)
-        File.delete(sha1_path)
+      if version =~ RELEASE_VERSION
+        File.delete(sha1_path) if File.exists?(sha1_path)
+      else
+        commit = capture("git log -n 1 --pretty=%H #{ version }").strip
+        File.write(sha1_path, commit)
       end
     end
 

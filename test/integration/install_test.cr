@@ -86,12 +86,12 @@ class InstallCommandTest < Minitest::Test
     }
 
     with_shard(metadata, { web: git_commits(:web)[-5] }) do
-      debug "shards install"
+      run "shards install"
       assert_installed "web", "1.2.0"
     end
 
     with_shard(metadata, { web: git_commits(:web)[0] }) do
-      debug "shards install"
+      run "shards install"
       assert_installed "web", "2.1.0"
     end
   end
