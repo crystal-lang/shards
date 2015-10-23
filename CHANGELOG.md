@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.5.3
+
+Fixes:
+- Git resolver didn't install the locked commit when using branch, tag or
+  commit or just failed to install the dependency, see #65 and #67
+
 ## v0.5.2
 
 Fixes:
