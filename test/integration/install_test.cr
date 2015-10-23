@@ -38,6 +38,16 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_falls_back_to_install_and_lock_current_head
+    commit = git_commits(:empty).first
+
+    with_shard({ dependencies: { empty: nil } }, nil) do
+      run "shards install"
+      assert_installed "empty", commit
+      assert_locked "empty", commit
+    end
+  end
+
   def test_installs_dependencies_at_locked_version
     metadata = {
       dependencies: { web: "1.0.0" },

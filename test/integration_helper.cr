@@ -33,6 +33,9 @@ class Minitest::Test
     create_git_repository "release", "0.2.0", "0.2.1", "0.2.2"
     create_git_release "release", "0.3.0", "name: release\nversion: 0.3.0\ncustom_dependencies:\n  pg:\n    git: #{ git_path("optional") }\n"
 
+    create_git_repository "empty"
+    create_git_commit "empty", "initial release"
+
     @created_repositories = true
   end
 
@@ -42,7 +45,12 @@ class Minitest::Test
     if version
       assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found"
       spec = Shards::Spec.from_file(install_path(name, "shard.yml"))
-      assert_equal version, spec.version
+
+      if spec.version == "0" && File.exists?(cache_path("#{ name }.sha1"))
+        assert_equal version, File.read(cache_path("#{ name }.sha1"))
+      else
+        assert_equal version, spec.version
+      end
     end
   end
 
@@ -80,7 +88,19 @@ class Minitest::Test
     refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked"
   end
 
+  def cache_path(*path_names)
+    File.join(application_path, ".shards", *path_names)
+  end
+
   def install_path(project, *path_names)
     File.join(application_path, "libs", project, *path_names)
+  end
+
+  def debug(command)
+    run "#{ command } --verbose"
+  rescue ex : FailedCommand
+    puts
+    puts ex.stdout
+    puts ex.stderr
   end
 end

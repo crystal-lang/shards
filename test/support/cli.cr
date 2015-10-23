@@ -38,7 +38,7 @@ module Shards
 
                 if version.is_a?(String)
                   yml << "    version: " << version.inspect << "\n"
-                else
+                elsif version
                   version.each do |k, v|
                     yml << "    " << k << ": " << v << "\n"
                   end

@@ -66,7 +66,7 @@ module Shards
       key = resolver.class.key
       io << "    " << key << ": " << @dependency[key] << "\n"
 
-      if refs = @dependency.refs
+      if @dependency.refs || !(version =~ RELEASE_VERSION)
         io << "    commit: " << resolver.installed_commit_hash.to_s << "\n"
       else
         io << "    version: " << version << "\n"
