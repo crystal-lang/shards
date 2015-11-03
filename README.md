@@ -38,6 +38,8 @@ for more details about the `shard.yml` format.
 You can download a statically compiled 64bit executable of Shards for Linux or
 OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page.
 
+Shards is already distributed with the Homebrew formula [`crystal-lang`](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/crystal-lang.rb) on OS X.
+
 Alternatively you may download a source tarball from the same page (or clone the
 repository) then run `make` —or `make release` for an optimized build— and copy
 the newly generated `bin/shards` somewhere into your PATH. A good place is
