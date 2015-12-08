@@ -1,7 +1,4 @@
-#ifndef CRYSTAL_BIN
-#	CRYSTAL_BIN := $(shell which crystal)
-#endif
-CRYSTAL_BIN := $(shell which crystal)
+CRYSTAL_BIN ?= $(shell which crystal)
 
 VERSION := $(shell cat VERSION)
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')

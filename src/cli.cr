@@ -21,7 +21,7 @@ module Shards
 
   def self.run
     OptionParser.parse! do |opts|
-      path = Dir.working_directory
+      path = Dir.current
 
       opts.on("--no-color", "") { self.colors = false }
       opts.on("--version", "") { puts self.version_string; exit }
