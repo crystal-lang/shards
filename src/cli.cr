@@ -7,7 +7,7 @@ module Shards
     puts
     puts "Commands:"
     puts "    check"
-    #puts "    info <package>"
+    puts "    info <package>"
     puts "    init"
     puts "    install"
     puts "    list"
@@ -36,9 +36,9 @@ module Shards
         case args[0]? || DEFAULT_COMMAND
         when "check"
           Commands::Check.run(path)
-        #when "info"
-        #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Info.run(args[1])
+        when "info"
+          display_help_and_exit(opts) unless args[1]?
+          Commands::Info.run(path, args[1])
         when "init"
           Commands::Init.run(path)
         when "install"
