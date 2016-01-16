@@ -9,7 +9,7 @@ require "./support/cli"
 
 class Minitest::Test
   def setup
-    unless @created_repositories
+    unless @@created_repositories
       run "rm -rf #{tmp_path}/*"
       setup_repositories
     end
@@ -36,7 +36,7 @@ class Minitest::Test
     create_git_repository "empty"
     create_git_commit "empty", "initial release"
 
-    @created_repositories = true
+    @@created_repositories = true
   end
 
   def assert_installed(name, version = nil)

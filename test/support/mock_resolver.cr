@@ -48,6 +48,10 @@ module Shards
       @@specs.clear
     end
 
+    def installed_commit_hash
+      raise ArgumentError.new("abstract")
+    end
+
     private def self.to_yaml(dependencies)
       yaml = dependencies.map do |dep|
         ary = dep.split(":", 2)
