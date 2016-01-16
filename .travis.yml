@@ -13,7 +13,6 @@ before_install: |
     ;;
   osx)
     brew update
-    brew tap manastech/crystal
     ;;
   esac
 
