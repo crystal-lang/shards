@@ -35,8 +35,13 @@ for more details about the `shard.yml` format.
 
 ## Install
 
-You can download a statically compiled 64bit executable of Shards for Linux or
-OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page.
+Shards is now distributed with Crystal itself (at least in the Homebrew and
+Debian/Ubuntu packages). You can invoke it with `crystal deps`.
+
+You may download a statically compiled 64bit executable of Shards for Linux or
+OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page and
+install it somewhere into your PATH, this version will take precedence over the
+bundled version.
 
 Alternatively you may download a source tarball from the same page (or clone the
 repository) then run `make` —or `make release` for an optimized build— and copy
@@ -56,7 +61,7 @@ Happy Hacking!
 
 These requirements are only for compiling Shards.
 
-* Crystal >= 0.9.0.
+* Crystal >= 0.10.0.
 
   Please refer to <http://crystal-lang.org/docs/installation> for
   instructions for your operating system.
