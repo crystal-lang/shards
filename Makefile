@@ -12,7 +12,7 @@ ifeq ($(OS),darwin)
 	CRFLAGS := --link-flags "-L."
 endif
 
-SOURCES := $(shell find src -iname "*.cr")
+SOURCES := $(shell find src -iname "*.cr") $(shell find src -iname "*.ecr")
 
 # Builds an unoptimized binary.
 all: bin/shards

@@ -8,6 +8,7 @@ module Shards
     puts "Commands:"
     puts "    check"
     #puts "    info <package>"
+    puts "    init"
     puts "    install"
     puts "    list"
     #puts "    search <query>"
@@ -37,6 +38,8 @@ module Shards
         #when "info"
         #  display_help_and_exit(opts) unless args[1]?
         #  Commands::Info.run(args[1])
+        when "init"
+          Commands::Init.run(path)
         when "install"
           Commands::Install.run(path)
         when "list"
