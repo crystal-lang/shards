@@ -1,9 +1,13 @@
 module Shards
   module Script
+    class Error < Error
+    end
+
     def self.run(path, command)
       Dir.cd(path) do
-        status = Process.run("/bin/sh", input: MemoryIO.new(command))
-        raise Error.new("#{name} script failed: #{command}") unless status.success?
+        output = MemoryIO.new
+        status = Process.run("/bin/sh", input: MemoryIO.new(command), output: output, error: output)
+        raise Error.new("Failed #{command}:\n#{output.to_s.rstrip}") unless status.success?
       end
     end
   end

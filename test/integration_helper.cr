@@ -36,6 +36,14 @@ class Minitest::Test
     create_git_repository "empty"
     create_git_commit "empty", "initial release"
 
+    create_git_repository "post"
+    create_file "post", "src/Makefile", "all:\n\ttouch made.txt\n"
+    create_git_release "post", "0.1.0", "name: post\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
+
+    create_git_repository "fails"
+    create_file "fails", "src/Makefile", "all:\n\ttest -n ''\n"
+    create_git_release "fails", "0.1.0", "name: fails\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
+
     @@created_repositories = true
   end
 

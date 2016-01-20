@@ -52,9 +52,7 @@ module Shards
     end
 
     def create_file(project, filename, contents)
-      Dir.cd(git_path(project)) do
-        File.write filename, contents
-      end
+      File.write File.join(git_path(project), filename), contents
     end
 
     def git_commits(project)
