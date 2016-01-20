@@ -49,6 +49,10 @@ module Shards
       end
     end
 
+    def test_install_fails_when_path_doesnt_exist
+      assert_raises(Error) { resolver("unknown").install }
+    end
+
     private def resolver(name, config = {} of String => String)
       config["path"] = git_path(name)
       dependency = Dependency.new(name, config)
