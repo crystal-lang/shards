@@ -77,17 +77,17 @@ module Shards
       Dir.mkdir_p(install_path)
 
       if file_exists?(refs, SPEC_FILENAME)
-        run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{escape install_path}"
+        run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{FileUtils.escape install_path}"
       else
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
       # TODO: search for LICENSE* files
       if file_exists?(refs, "LICENSE")
-        run "git archive --format=tar #{refs} 'LICENSE' | tar x -C #{escape install_path}"
+        run "git archive --format=tar #{refs} 'LICENSE' | tar x -C #{FileUtils.escape install_path}"
       end
 
-      run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{escape install_path}"
+      run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{FileUtils.escape install_path}"
 
       if version =~ RELEASE_VERSION
         File.delete(sha1_path) if File.exists?(sha1_path)
@@ -173,7 +173,7 @@ module Shards
 
     private def clone_repository
       Dir.mkdir_p(CACHE_DIRECTORY) unless Dir.exists?(CACHE_DIRECTORY)
-      run "git clone --mirror --quiet -- #{escape git_url} #{dependency.name}",
+      run "git clone --mirror --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
         path: File.dirname(local_path)
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
@@ -186,7 +186,7 @@ module Shards
     end
 
     private def delete_repository
-      run "rm -rf #{local_path}"
+      FileUtils.rm_rf(local_path)
       @origin_url = nil
     end
 

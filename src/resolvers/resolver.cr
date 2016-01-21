@@ -2,6 +2,7 @@ require "../spec"
 require "../dependency"
 require "../errors"
 require "../script"
+require "../file_utils"
 
 module Shards
   abstract class Resolver
@@ -48,16 +49,7 @@ module Shards
     end
 
     protected def cleanup_install_directory
-      if File.exists?(install_path)
-        Shards.logger.debug "rm -rf #{escape install_path}"
-
-        if Dir.exists?(install_path)
-          #FileUtils.rm_rf(install_path)
-          system("rm -rf #{escape install_path}")
-        else
-          File.delete(install_path)
-        end
-      end
+      FileUtils.rm_rf(install_path)
     end
 
     protected def parse_legacy_projectfile_to_yaml(contents)
@@ -87,10 +79,6 @@ module Shards
       end
 
       dependencies
-    end
-
-    protected def escape(arg)
-      "'#{arg.gsub(/'/, "\\'")}'"
     end
   end
 
