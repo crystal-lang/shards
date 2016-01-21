@@ -12,12 +12,13 @@ ifeq ($(OS),darwin)
 	CRFLAGS := --link-flags "-L."
 endif
 
-SOURCES := $(shell find src -iname "*.cr") $(shell find src -iname "*.ecr")
+SOURCES := $(wildcard src/*.cr src/**/*.cr)
+TEMPLATES := $(wildcard src/templates/*.ecr)
 
 # Builds an unoptimized binary.
 all: bin/shards
 
-bin/shards: $(SOURCES)
+bin/shards: $(SOURCES) $(TEMPLATES)
 	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
 
 # Builds an optimized static binary ready for distribution.
