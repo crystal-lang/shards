@@ -11,6 +11,7 @@ module Shards
     puts "    init"
     puts "    install"
     puts "    list"
+    puts "    prune"
     #puts "    search <query>"
     puts "    update"
     #puts "    update [package package ...]"
@@ -44,6 +45,8 @@ module Shards
           Commands::Install.run(path)
         when "list"
           Commands::List.run(path)
+        when "prune"
+          Commands::Prune.run(path)
         #when "search"
         #  display_help_and_exit(opts) unless args[1]?
         #  Commands::Search.run(args[1])
