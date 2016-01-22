@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.6.0
+
+Features:
+- prune command to remove extraneous libs
+- init command to create an initial shard.yml
+
+Fixes:
+- print details when postinstall script fails, see #84
+- path resolver didn't verify the path actually existed, see #77
+- recursion when shard name doesn't match dependency name, see #72
+
 ## v0.5.4
 
 Fixes:
