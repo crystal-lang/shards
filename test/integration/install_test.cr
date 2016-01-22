@@ -224,4 +224,16 @@ class InstallCommandTest < Minitest::Test
       refute Dir.exists?(File.join(application_path, "libs", "fails"))
     end
   end
+
+  def test_fails_when_shard_name_doesnt_match
+    metadata = {
+      dependencies: {
+        typo: { git: git_url(:mock), version: "*" }
+      }
+    }
+    with_shard(metadata) do
+      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
+      assert_match "Error shard name (mock) doesn't match dependency name (typo)", ex.stdout
+    end
+  end
 end

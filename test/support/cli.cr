@@ -34,14 +34,20 @@ module Shards
               yml << "\n"
               value.each do |name, version|
                 yml << "  " << name << ":\n"
-                yml << "    git: " << git_url(name).inspect << "\n"
 
-                if version.is_a?(String)
+                case version
+                when String
+                  yml << "    git: " << git_url(name).inspect << "\n"
                   yml << "    version: " << version.inspect << "\n"
-                elsif version
-                  version.each do |k, v|
-                    yml << "    " << k << ": " << v << "\n"
+                when Hash
+                  unless version.keys.includes?(:git)
+                    yml << "    git: " << git_url(name).inspect << "\n"
                   end
+                  version.each do |k, v|
+                    yml << "    " << k << ": " << v.inspect << "\n"
+                  end
+                else
+                  yml << "    git: " << git_url(name).inspect << "\n"
                 end
               end
             else

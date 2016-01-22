@@ -98,6 +98,10 @@ module Shards
         self << package
       end
 
+      if dependency.name != package.spec.name
+        raise Error.new("Error shard name (#{package.spec.name}) doesn't match dependency name (#{dependency.name})")
+      end
+
       package.requirements << dependency.version
       package
     end
