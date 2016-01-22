@@ -17,8 +17,11 @@ module Shards
       end
 
       private def name
-        # TODO: validate shard name
         File.basename(path)
+          .gsub(/[^-_a-zA-Z0-9]+/, '-')
+          .gsub("crystal", "")
+          .gsub(/[-_]{2,}/, '-')
+          .gsub(/^[-_]|[-_]$/, "")
       end
 
       private def version
