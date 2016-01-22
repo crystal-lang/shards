@@ -8,7 +8,7 @@ module Shards
       def resolve_versions(versions, requirements)
         requirements
           .map { |requirement| resolve_requirement(versions, requirement) }
-          .inject(versions) { |a, e| a & e }
+          .reduce(versions) { |a, e| a & e }
           .sort { |a, b| natural_sort(a, b) }
       end
 
