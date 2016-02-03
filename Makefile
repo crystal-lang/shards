@@ -35,6 +35,13 @@ release:
 	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(CRFLAGS)
 	gzip -c bin/shards > shards-$(VERSION)_$(OS)_$(ARCH).gz
 
+# Builds the different releases in Vagrant boxes.
+releases:
+	vagrant up --provision
+	vagrant ssh precise64 --command "cd /vagrant && make release"
+	vagrant ssh precise32 --command "cd /vagrant && linux32 make release"
+	vagrant halt
+
 clean:
 	rm -rf .crystal bin/shards
 
