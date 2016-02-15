@@ -10,7 +10,7 @@ module Shards
     end
 
     def self.from_yaml(str : String)
-      data = YAML.load(str) as Hash
+      data = YAML.parse(str).raw as Hash
 
       case data["version"] as String
       when "1.0"
