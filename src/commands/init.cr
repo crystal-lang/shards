@@ -10,7 +10,7 @@ module Shards
         end
 
         File.write(shard_path, String.build do |__str__|
-          embed_ecr "#{ __DIR__ }/../templates/shard.yml.ecr", "__str__"
+          ECR.embed "#{ __DIR__ }/../templates/shard.yml.ecr", "__str__"
         end)
 
         Shards.logger.info "Created #{ SPEC_FILENAME }"
