@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.6.1
+
+Fixes:
+- Compatibility with Crystal > 0.11.1
+
 ## v0.6.0
 
 Features:
