@@ -72,7 +72,7 @@ These requirements are only for compiling Shards.
 
   On Mac OS X you may install it using homebrew with `brew install libyaml`
   then make sure to have `/usr/local/lib` in your `LIBRARY_PATH` environment
-  variable (eg: `export LIBRARY_PATH="/usr/local/lib/lib:$LIBRARY_PATH"`).
+  variable (eg: `export LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"`).
   Please adjust the path per your Homebrew installation.
 
 
