@@ -42,7 +42,7 @@ class InstallCommandTest < Minitest::Test
     Dir.cd(application_path) do
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
       assert_match "Missing #{Shards::SPEC_FILENAME}", ex.stdout
-      assert_match "Please run 'shards install'", ex.stdout
+      assert_match "Please run 'shards init'", ex.stdout
     end
   end
 
