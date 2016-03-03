@@ -8,7 +8,9 @@ require "./support/factories"
 require "./support/cli"
 
 class Minitest::Test
-  def setup
+  def before_setup
+    super
+
     unless @@created_repositories
       run "rm -rf #{tmp_path}/*"
       setup_repositories
