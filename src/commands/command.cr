@@ -29,7 +29,7 @@ module Shards
       @spec ||= if File.exists?(spec_path)
                   Spec.from_file(spec_path)
                 else
-                  raise Error.new("Missing #{ spec_filename }. Please run 'shards install'")
+                  raise Error.new("Missing #{ spec_filename }. Please run 'shards init'")
                 end
     end
 

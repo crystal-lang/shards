@@ -38,6 +38,14 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_fails_when_spec_is_missing
+    Dir.cd(application_path) do
+      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
+      assert_match "Missing #{Shards::SPEC_FILENAME}", ex.stdout
+      assert_match "Please run 'shards install'", ex.stdout
+    end
+  end
+
   def test_falls_back_to_install_and_lock_current_head
     commit = git_commits(:empty).first
 
