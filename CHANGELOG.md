@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased
+
+Fixes:
+- Don't crash when git binary is missing.
+
 ## v0.6.1
 
 Fixes:

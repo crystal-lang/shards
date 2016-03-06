@@ -6,13 +6,14 @@ module Shards
 
   class GitResolver < Resolver
     # :nodoc:
-    GIT_SHA1 = /\A[0-9a-f]{40}\Z/
+    def self.git_version
+      @@git_version ||= `git --version`.strip[12 .. -1]
+    end
 
     # :nodoc:
-    GIT_VERSION = `git --version`.strip[12 .. -1]
-
-    # :nodoc:
-    GIT_COLUMN_NEVER = Helpers::NaturalSort.sort(GIT_VERSION, "1.7.11") < 0 ? "--column=never" : ""
+    def self.git_column_never
+      @@git_column_never ||= Helpers::NaturalSort.sort(git_version, "1.7.11") < 0 ? "--column=never" : ""
+    end
 
     def self.key
       "git"
@@ -41,7 +42,7 @@ module Shards
       versions = if refs = dependency.refs
                    [version_at(refs), refs]
                  else
-                   capture("git tag --list #{ GIT_COLUMN_NEVER }")
+                   capture("git tag --list #{ GitResolver.git_column_never }")
                      .split("\n")
                      .map { |version| $1 if version.strip =~ RELEASE_VERSION }
                  end.compact
@@ -56,12 +57,12 @@ module Shards
 
     def matches?(commit)
       if branch = dependency["branch"]?
-        capture("git branch --list #{ GIT_COLUMN_NEVER } --contains #{ commit }")
+        capture("git branch --list #{ GitResolver.git_column_never } --contains #{ commit }")
           .split("\n")
           .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
           .includes?(branch)
       elsif tag = dependency["tag"]?
-        capture("git tag --list #{ GIT_COLUMN_NEVER } --contains #{ commit }")
+        capture("git tag --list #{ GitResolver.git_column_never } --contains #{ commit }")
           .split("\n")
           .includes?(tag)
       else
@@ -136,7 +137,7 @@ module Shards
     private def version_at(refs)
       update_local_cache
 
-      tags = capture("git tag --list --contains #{refs} #{ GIT_COLUMN_NEVER }")
+      tags = capture("git tag --list --contains #{refs} #{ GitResolver.git_column_never }")
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
@@ -148,8 +149,8 @@ module Shards
 
       refs = [] of String?
       refs << commit
-      refs += capture("git tag --list --contains #{commit} #{ GIT_COLUMN_NEVER }").split("\n")
-      refs += capture("git branch --list --contains #{commit} #{ GIT_COLUMN_NEVER }").split(" ")
+      refs += capture("git tag --list --contains #{commit} #{ GitResolver.git_column_never }").split("\n")
+      refs += capture("git branch --list --contains #{commit} #{ GitResolver.git_column_never }").split(" ")
       refs.compact.uniq
     end
 
@@ -224,7 +225,7 @@ module Shards
           if str.starts_with?("error: ") && (idx = str.index('\n'))
             message = str[7 ... idx]
           end
-          raise Error.new("git command failed: #{ command } (#{ message })")
+          raise Error.new("git command failed: #{ command } (#{ message }). Maybe you didn't install git?")
         end
       end
     end
