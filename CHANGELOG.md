@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## v0.6.2
 
 Fixes:
 - Don't crash when git binary is missing.
