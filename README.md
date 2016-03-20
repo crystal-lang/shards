@@ -20,7 +20,7 @@ dependencies:
 development_dependencies:
   minitest:
     git: https://github.com/ysbaddaden/minitest.cr.git
-    version: ~> 1.0.0
+    version: ~> 0.3.1
 
 license: MIT
 ```
