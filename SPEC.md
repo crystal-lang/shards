@@ -44,7 +44,7 @@ dependencies.
 
 - It must be a valid YAML file.
 - It must be UTF-8 encoded.
-- It should be intended with 2 spaces.
+- It should be indented with 2 spaces.
 - It should not use advanced YAML features, only simple hashes, arrays and strings.
 
 ### name
