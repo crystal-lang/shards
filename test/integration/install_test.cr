@@ -3,7 +3,7 @@ require "../integration_helper"
 class InstallCommandTest < Minitest::Test
   def test_installs_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", },
+      dependencies: { web: "*", orm: "*", foo: { path: rel_path(:foo) }, },
       development_dependencies: { mock: "*" },
     }
 
@@ -14,6 +14,9 @@ class InstallCommandTest < Minitest::Test
       assert_installed "web", "2.1.0"
       assert_installed "orm", "0.5.0"
       assert_installed "pg", "0.2.1"
+
+      # it installed the path dependency
+      assert_installed "foo"
 
       # it installed development dependencies (recursively, except their
       # development dependencies)
@@ -76,7 +79,7 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
     metadata = {
-      dependencies: { web: { branch: "master" } }
+      dependencies: { web: { git: git_url(:web), branch: "master" } }
     }
     lock = { web: git_commits(:web)[-5] }
 
@@ -88,7 +91,7 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependency_at_locked_commit_when_refs_is_a_version_tag
     metadata = {
-      dependencies: { web: { tag: "v1.1.1" } }
+      dependencies: { web: { git: git_url(:web), tag: "v1.1.1" } }
     }
     lock = { web: git_commits(:web)[-3] }
 
@@ -100,7 +103,7 @@ class InstallCommandTest < Minitest::Test
 
   def test_updates_locked_commit
     metadata = {
-      dependencies: { web: { branch: "master" } }
+      dependencies: { web: { git: git_url(:web), branch: "master" } }
     }
 
     with_shard(metadata, { web: git_commits(:web)[-5] }) do
@@ -162,7 +165,9 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_locks_commit_when_installing_git_refs
-    with_shard({ dependencies: { web: { branch: "master" } } }) do
+    metadata = { dependencies: { web: { git: git_url(:web), branch: "master" } } }
+
+    with_shard(metadata) do
       run "shards install"
       assert_locked "web", git_commits(:web).first
     end
