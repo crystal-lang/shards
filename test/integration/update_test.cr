@@ -56,7 +56,7 @@ class UpdateCommandTest < Minitest::Test
 
   def test_updates_locked_commit
     metadata = {
-      dependencies: { web: { branch: "master" } }
+      dependencies: { web: { git: git_url(:web), branch: "master" } }
     }
     lock = { web: git_commits(:web)[-5] }
 

@@ -47,7 +47,7 @@ module Shards
       cleanup_install_directory
       Dir.mkdir_p(File.dirname(install_path))
 
-      src_path = File.join(local_path, "src")
+      src_path = File.expand_path(File.join(local_path, "src"))
       raise Error.new("Failed no such path: #{local_path}") unless Dir.exists?(src_path)
 
       File.symlink(src_path, install_path)

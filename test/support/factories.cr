@@ -69,6 +69,10 @@ module Shards
       File.join(tmp_path, project.to_s)
     end
 
+    def rel_path(project)
+      "../../test/.repositories/#{project}"
+    end
+
     def tmp_path
       @@tmp_path ||= begin
                        path = File.expand_path("../../.repositories", __FILE__)

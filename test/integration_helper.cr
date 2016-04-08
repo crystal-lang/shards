@@ -46,6 +46,8 @@ class Minitest::Test
     create_file "fails", "src/Makefile", "all:\n\ttest -n ''\n"
     create_git_release "fails", "0.1.0", "name: fails\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
 
+    create_path_repository "foo"
+
     @@created_repositories = true
   end
 

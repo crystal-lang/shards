@@ -40,9 +40,6 @@ module Shards
                   yml << "    git: " << git_url(name).inspect << "\n"
                   yml << "    version: " << version.inspect << "\n"
                 when Hash
-                  unless version.keys.includes?(:git)
-                    yml << "    git: " << git_url(name).inspect << "\n"
-                  end
                   version.each do |k, v|
                     yml << "    " << k << ": " << v.inspect << "\n"
                   end
