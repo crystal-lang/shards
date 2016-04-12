@@ -2,7 +2,9 @@ require "./package"
 
 module Shards
   class Manager
-    getter :spec, :packages, :locks
+    getter spec : Spec
+    getter packages : Set
+    #getter locks : Array(Dependency)
 
     def initialize(@spec, update_cache = true)
       @packages = Set.new(update_cache: update_cache)

@@ -5,9 +5,11 @@ module Shards
   class Package
     include Helpers::Versions
 
-    getter :requirements
+    getter requirements : Array(String)
+    @resolver : Resolver?
+    @available_versions : Array(String)?
 
-    def initialize(@dependency, @update_cache = false)
+    def initialize(@dependency : Dependency, @update_cache = false)
       @requirements = [] of String
     end
 

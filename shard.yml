@@ -7,6 +7,5 @@ authors:
 development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
-    version: ">= 0.2.0"
 
 license: Apache-2.0

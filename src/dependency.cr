@@ -1,6 +1,6 @@
 module Shards
   class Dependency < Hash(String, String)
-    property :name
+    property name : String
 
     def initialize(@name)
       super()

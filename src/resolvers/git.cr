@@ -5,6 +5,10 @@ module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 
   class GitResolver < Resolver
+    @@git_column_never : String?
+    @@git_version : String?
+    @origin_url : String?
+
     # :nodoc:
     def self.git_version
       @@git_version ||= `git --version`.strip[12 .. -1]

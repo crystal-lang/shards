@@ -4,9 +4,12 @@ require "../spec"
 
 module Shards
   abstract class Command
-    getter :path
-    getter :spec_path
-    getter :lockfile_path
+    getter path : String
+    getter spec_path : String
+    getter lockfile_path : String
+
+    @spec : Spec?
+    @locks : Array(Dependency)?
 
     def initialize(path)
       if File.directory?(path)

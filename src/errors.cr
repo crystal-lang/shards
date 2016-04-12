@@ -3,9 +3,9 @@ module Shards
   end
 
   class Conflict < Error
-    getter :package
+    getter package
 
-    def initialize(@package)
+    def initialize(@package : Package)
       super "Error resolving #{package.name} (#{package.requirements.join(", ")})"
     end
   end
@@ -23,10 +23,10 @@ module Shards
   end
 
   class ParseError < Error
-    getter :input
-    getter :filename
-    getter :line_number
-    getter :column_number
+    getter input : String
+    getter filename : String
+    getter line_number : Int32
+    getter column_number : Int32
 
     def initialize(message, @input, @filename, line_number, column_number)
       @line_number = line_number.to_i

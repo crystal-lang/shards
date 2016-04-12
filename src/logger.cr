@@ -79,6 +79,8 @@ module Shards
     @@colors = value
   end
 
+  @@logger : Logger(IO::FileDescriptor)?
+
   def self.logger
     @@logger ||= Logger.new(STDOUT).tap do |logger|
       logger.progname = "shards"

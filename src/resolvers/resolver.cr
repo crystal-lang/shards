@@ -9,7 +9,7 @@ module Shards
     PROJECTFILE_GITHUB_RE = /github\s+"(.+?\/(.+?))"(.*)/
     PROJECTFILE_GITHUB_BRANCH_RE = /"(.+?)"/
 
-    getter :dependency
+    getter dependency : Dependency
 
     def initialize(@dependency, @update_cache = true)
     end

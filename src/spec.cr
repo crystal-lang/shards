@@ -7,8 +7,8 @@ require "./errors"
 module Shards
   class Spec
     class Author
-      property :name
-      property :email
+      property name : String
+      property email : String?
 
       def self.new(pull : YAML::PullParser)
         new(pull.read_scalar)
@@ -42,10 +42,10 @@ module Shards
       parser.close if parser
     end
 
-    getter! :name
-    getter! :version
-    getter :description
-    getter :license
+    getter! name : String?
+    getter! version : String?
+    getter description : String?
+    getter license : String?
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
