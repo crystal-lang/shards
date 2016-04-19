@@ -7,12 +7,12 @@ module Shards
     puts
     puts "Commands:"
     puts "    check"
-    #puts "    info <package>"
+    puts "    info <package>"
     puts "    init"
     puts "    install"
     puts "    list"
     puts "    prune"
-    #puts "    search <query>"
+    puts "    search <query>"
     puts "    update"
     #puts "    update [package package ...]"
     puts
@@ -36,9 +36,9 @@ module Shards
         case args[0]? || DEFAULT_COMMAND
         when "check"
           Commands::Check.run(path)
-        #when "info"
-        #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Info.run(args[1])
+        when "info"
+          display_help_and_exit(opts) unless args[1]?
+          Commands::Info.run(path, args[1])
         when "init"
           Commands::Init.run(path)
         when "install"
@@ -47,9 +47,9 @@ module Shards
           Commands::List.run(path)
         when "prune"
           Commands::Prune.run(path)
-        #when "search"
-        #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Search.run(args[1])
+        when "search"
+          display_help_and_exit(opts) unless args[1]?
+          Commands::Search.run(path, args[1])
         when "update"
           Commands::Update.run(path)
           #Commands.update(*args[1 .. -1])
