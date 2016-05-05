@@ -107,11 +107,11 @@ module Shards
     end
 
     def sha1_path
-      File.join(CACHE_DIRECTORY, "#{ dependency.name }.sha1")
+      File.join(Shards.cache_path, "#{ dependency.name }.sha1")
     end
 
     def local_path
-      File.join(CACHE_DIRECTORY, dependency.name)
+      File.join(Shards.cache_path, dependency.name)
     end
 
     def git_url
@@ -177,7 +177,7 @@ module Shards
     end
 
     private def clone_repository
-      Dir.mkdir_p(CACHE_DIRECTORY) unless Dir.exists?(CACHE_DIRECTORY)
+      Dir.mkdir_p(Shards.cache_path) unless Dir.exists?(Shards.cache_path)
       run "git clone --mirror --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
         path: File.dirname(local_path)
     rescue Error

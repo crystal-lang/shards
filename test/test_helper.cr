@@ -1,11 +1,10 @@
 require "minitest/autorun"
-
-ENV["SHARDS_CACHE_PATH"] = File.expand_path("../.shards", __FILE__)
-ENV["SHARDS_INSTALL_PATH"] = File.expand_path("../.libs", __FILE__)
-
 require "../src/config"
 require "../src/logger"
 require "../src/manager"
+
+Shards.cache_path = File.join(__DIR__, ".shards")
+Shards.install_path = File.join(__DIR__, ".libs")
 
 require "./support/factories"
 require "./support/mock_resolver"
@@ -22,11 +21,11 @@ class Minitest::Test
 
   def clear_repositories
     run "rm -rf #{ tmp_path }/*"
-    run "rm -rf #{ Shards::CACHE_DIRECTORY }/*"
-    run "rm -rf #{ Shards::INSTALL_PATH }/*"
+    run "rm -rf #{ Shards.cache_path }/*"
+    run "rm -rf #{ Shards.install_path }/*"
   end
 
   def install_path(project, *path_names)
-    File.join(Shards::INSTALL_PATH, project, *path_names)
+    File.join(Shards.install_path, project, *path_names)
   end
 end
