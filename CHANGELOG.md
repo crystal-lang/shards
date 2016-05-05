@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.6.3
+
+Fixes:
+- Compatibility with Crystal > 0.15.0
+- Relative paths for path dependencies, see #99
+
 ## v0.6.2
 
 Fixes:
