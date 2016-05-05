@@ -8,13 +8,13 @@ module Shards
         return unless lockfile?
         locks = Lock.from_file(lockfile_path)
 
-        Dir[File.join(INSTALL_PATH, "*")].each do |path|
+        Dir[File.join(Shards.install_path, "*")].each do |path|
           next unless Dir.exists?(path)
           name = File.basename(path)
 
           if locks.none? { |d| d.name == name }
             FileUtils.rm_rf(path)
-            Shards.logger.info "Pruned #{File.join(File.basename(INSTALL_PATH), name)}"
+            Shards.logger.info "Pruned #{File.join(File.basename(Shards.install_path), name)}"
           end
         end
       end
