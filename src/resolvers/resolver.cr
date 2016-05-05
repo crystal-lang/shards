@@ -45,7 +45,7 @@ module Shards
     end
 
     protected def install_path
-      File.join(INSTALL_PATH, dependency.name)
+      File.join(Shards.install_path, dependency.name)
     end
 
     protected def cleanup_install_directory
