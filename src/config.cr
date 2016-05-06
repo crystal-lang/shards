@@ -6,14 +6,14 @@ module Shards
   DEFAULT_VERSION = "0"
 
   def self.cache_path
-    @@cache_path ||= ENV.fetch("SHARDS_CACHE_PATH", File.join(Dir.current, ".shards"))
+    @@cache_path ||= ENV.fetch("SHARDS_CACHE_PATH") { File.join(Dir.current, ".shards") }
   end
 
   def self.cache_path=(@@cache_path : String)
   end
 
   def self.install_path
-    @@install_path ||= ENV.fetch("SHARDS_INSTALL_PATH", File.join(Dir.current, "libs"))
+    @@install_path ||= ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "libs") }
   end
 
   def self.install_path=(@@install_path : String)
