@@ -49,7 +49,7 @@ module Shards
       manager = manager_for({
         "name" => "test",
         "dependencies" => {
-          "library" => { "mock" => "test", version: "0.2.0" }
+          "library" => { "mock" => "test", "version" => "0.2.0" }
         }
       })
       manager.resolve

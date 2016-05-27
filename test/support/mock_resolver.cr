@@ -26,7 +26,7 @@ module Shards
 
     @@specs = {} of String => Hash(String, String)
 
-    def self.register_spec(name, version = "0.0.0", as = nil, dependencies = nil, development = nil)
+    def self.register_spec(name, version = "0.0.0", dependencies = nil, development = nil)
       spec = "name: #{ name.inspect }\n"
       spec += "version: #{ version.inspect }\n"
 
@@ -39,7 +39,7 @@ module Shards
       end
 
       specs = @@specs[name] ||= {} of String => String
-      specs[(as || version).to_s] = spec
+      specs[version.to_s] = spec
 
       nil
     end
