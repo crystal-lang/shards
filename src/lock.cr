@@ -10,12 +10,12 @@ module Shards
     end
 
     def self.from_yaml(str : String)
-      data = YAML.parse(str).raw as Hash
+      data = YAML.parse(str).raw.as(Hash)
 
-      case data["version"] as String
+      case data["version"].as(String)
       when "1.0"
-        (data["shards"] as Hash).map do |name, config|
-          Dependency.new(name.to_s, config as Hash)
+        data["shards"].as(Hash).map do |name, config|
+          Dependency.new(name.to_s, config.as(Hash))
         end
       else
         raise InvalidLock.new # unknown lock version

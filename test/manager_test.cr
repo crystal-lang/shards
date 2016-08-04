@@ -108,18 +108,18 @@ module Shards
         if dependencies = config["dependencies"]?
           yml << "dependencies:\n"
 
-          (dependencies as Hash).each do |name, hsh|
+          dependencies.as(Hash).each do |name, hsh|
             yml << "  " << name << ": " << "\n"
-            (hsh as Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
           end
         end
 
         if dependencies = config["development_dependencies"]?
           yml << "development_dependencies:\n"
 
-          (dependencies as Hash).each do |name, hsh|
+          dependencies.as(Hash).each do |name, hsh|
             yml << "  " << name << ": " << "\n"
-            (hsh as Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
           end
         end
       end
