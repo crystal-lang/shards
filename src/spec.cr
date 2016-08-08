@@ -23,6 +23,25 @@ module Shards
       end
     end
 
+    class Library
+      property soname : String
+      property version : String
+
+      def self.new(pull : YAML::PullParser)
+        name = pull.read_scalar
+        version = pull.read_scalar.strip if pull.kind.scalar?
+
+        if version && !version.empty?
+          new(name, version)
+        else
+          raise Error.new("library version of #{name} can't be empty, use * for any version.")
+        end
+      end
+
+      def initialize(@soname, @version)
+      end
+    end
+
     def self.from_file(path, validate = false)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
       raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
@@ -75,6 +94,10 @@ module Shards
             read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
             development_dependencies << dependency
           end
+        when "libraries"
+          read_mapping(pull) do
+            libraries << Library.new(pull)
+          end
         when "scripts"
           read_mapping(pull) do
             scripts[pull.read_scalar] = pull.read_scalar
@@ -115,6 +138,10 @@ module Shards
 
     def development_dependencies
       @development_dependencies ||= [] of Dependency
+    end
+
+    def libraries
+      @libraries ||= [] of Library
     end
 
     def scripts

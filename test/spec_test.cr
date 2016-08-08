@@ -99,6 +99,44 @@ module Shards
       assert_equal "master", spec.development_dependencies[1].refs
     end
 
+    def test_parse_libraries
+      spec = Spec.from_yaml <<-YAML
+  name: sqlite3
+  version: 1.0.0
+  libraries:
+    libsqlite3: 3.8.0
+    libfoo: "*"
+  YAML
+
+      assert_equal 2, spec.libraries.size
+      assert_equal "libsqlite3", spec.libraries[0].soname
+      assert_equal "3.8.0", spec.libraries[0].version
+
+      assert_equal "libfoo", spec.libraries[1].soname
+      assert_equal "*", spec.libraries[1].version
+    end
+
+    def test_fails_to_parse_invalid_library
+      empty_version = <<-YAML
+  name: sqlite3
+  version: 1.0.0
+  libraries:
+    libsqlite3:
+  YAML
+
+      assert_raises(Error) { Spec.from_yaml(empty_version) }
+
+      list = <<-YAML
+  name: sqlite3
+  version: 1.0.0
+  libraries:
+    - libsqlite3
+    - libfoo
+  YAML
+
+      assert_raises(ParseError) { Spec.from_yaml(list) }
+    end
+
     def test_skips_unknown_attributes
       spec = Spec.from_yaml("\nanme: test\ncustom:\n  test: more\nname: test\nversion: 1\n")
       assert_equal "test", spec.name
