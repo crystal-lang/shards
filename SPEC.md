@@ -199,9 +199,9 @@ shell commands, and can either download and/or compile a library for example.
 
 #### postinstall
 
-The `postinstall` option is for running a command after your project is installed as a dependency of another project. This command does not run at the top level of your project. You should also note that the directory the script is ran from is `libs/some_shard/` directory of the project installing your shard. You should use this to compile additional extensions needed such as C libs, etc...
+The `postinstall` option is for running a command after your project is installed as a dependency of another project. This command does not run when running `shards install` inside the project specifying the hook. Note that the directory the script is ran from is `libs/some_shard/` of the project installing your shard as a dependency. You can use this to compile additional extensions needed, such as C libs.
 
-As an example, if `guardian` was a dependency of a blog project, then running shards install in that blog project would execute the postinstall script right after the `guardian` dependency was installed. It would not run for the blog project itself.
+As an example, if `guardian` was a dependency of a project called blog, then running `shards install` in that project would execute the postinstall script right after the `guardian` dependency was installed. It would not run for that project itself.
 
 ```yaml
 name: some_shard
