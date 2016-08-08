@@ -197,10 +197,16 @@ development_dependencies:
 Shards may run scripts automatically after certain actions. Scripts are mere
 shell commands, and can either download and/or compile a library for example.
 
-Only the `postinstall` hook is supported, and is run after installing or
-upgrading a dependency. More hooks may be added later on.
+#### postinstall
+
+The `postinstall` option is for running a command after your project is installed as a dependency of another project. This command does not run when running `shards install` inside the project specifying the hook. Note that the directory the script is ran from is `libs/some_shard/` of the project installing your shard as a dependency. You can use this to compile additional extensions needed, such as C libs.
+
+As an example, if `guardian` was a dependency of a project called blog, then running `shards install` in that project would execute the postinstall script right after the `guardian` dependency was installed. It would not run for that project itself.
 
 ```yaml
+name: some_shard
+version: 0.0.1
+
 scripts:
-  postinstall: cd src/scrypt && make
+  postinstall: ./configure && make install
 ```
