@@ -145,7 +145,7 @@ Example: `git: git://git.example.org/crystal-library.git`
 
 #### github
 
-A GitHub repository (String).
+A [GitHub](https://github.com) repository (String).
 
 The value is the `user/repository` sheme. Extends the `git` resolver, and acts
 exactly like it. One of the other attributes (`version`, `tag`, `branch` o
@@ -155,13 +155,23 @@ Example: `github: ysbaddaden/minitest.cr`
 
 #### bitbucket
 
-A Bitbucket repository (String).
+A [Bitbucket](https://bitbucket.org) repository (String).
 
 The value is the `user/repository` sheme. Extends the `git` resolver, and acts
 exactly like it. One of the other attributes (`version`, `tag`, `branch` o
 r `commit`) is required. When missing Shards will install the HEAD refs.
 
 Example: `bitbucket: tom/library`
+
+#### gitlab
+
+A [GitLab](https://gitlab.com) repository (String).
+
+The value is the `user/repository` scheme. Extends the `git` resolver, and acts
+exactly like it. One of the other attributes (`version`, `tag`, `branch` or
+`commit`) is required. When missing, Shards will install the HEAD refs.
+
+Example: `gitlab: thelonlyghost/minitest.cr`
 
 #### commit
 
