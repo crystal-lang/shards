@@ -180,6 +180,19 @@ r `commit`) is required. When missing Shards will install the HEAD refs.
 
 Example: `bitbucket: tom/library`
 
+#### gitlab
+
+A GitLab repository (String).
+
+The value is the `user/repository` scheme. Extends the `git` resolver, and acts
+exactly like it. One of the other attributes (`version`, `tag`, `branch` or
+`commit`) is required. When missing, Shards will install the HEAD refs.
+
+Only matches dependencies hosted on `gitlab.com`. For personal GitLab
+installations, you must use the generic `git` resolver.
+
+Example: `gitlab: thelonlyghost/minitest.cr`
+
 #### commit
 
 Install a Git dependency at the specified commit (String).
