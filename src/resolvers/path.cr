@@ -1,5 +1,4 @@
 require "./resolver"
-#require "../core_ext/file"
 
 module Shards
   class PathResolver < Resolver
