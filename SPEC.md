@@ -25,6 +25,9 @@ development_dependencies:
     git: https://github.com/ysbaddaden/minitest.cr.git
     version: "~> 0.1.0"
 
+libraries:
+  libgit2: ~> 0.24
+
 scripts:
   postinstall: make ext
 
@@ -119,7 +122,7 @@ dependencies:
 A version requirement (String).
 
 - It may be a version number.
-- It may be `*` if any version will do.
+- It may be `"*"` if any version will do.
 - The version number may be prefixed by an operator: `<`, `<=`, `>`, `>=` or `~>`.
 
 Examples: `1.2.3`, `>= 1.0.0` or `~> 2.0`.
@@ -190,6 +193,34 @@ development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
     version: ~> 0.1.3
+```
+
+### libraries
+
+A list of shared libraries the shard tries to link to (Hash).
+
+This field is purely informational. It serves as a canonical way to discover
+non Crystal dependencies in shards, both for tools as well as humans.
+
+A shard must only list libraries it directly links to, it must not include
+libraries that are only referenced by dependencies. It must include all libraries
+it directly links to, regardless of a dependency doing it too.
+
+It should map from the soname without any extension, path or version,
+for example `libsqlite3` for `/usr/lib/libsqlite3.so.0.8.6`, to a version
+constraint.
+
+The version constraint has the following format:
+
+- It may be a version number.
+- It may be `"*"` if any version will do.
+- The version number may be prefixed by an operator: `<`, `<=`, `>`, `>=` or `~>`.
+
+```yaml
+libraries:
+  libQt5Gui: "*"
+  libQt5Help: ~> 5.7
+  libQtBus: >= 4.8
 ```
 
 ### scripts
