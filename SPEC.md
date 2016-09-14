@@ -65,14 +65,11 @@ Examples: `minitest`, `mysql2`, `battery-horse`.
 
 The version number of the library (String, required).
 
-- It should follow the [Semantic Versioning 2.0](http://semver.org/spec/v2.0.0.html) format.
+- It should follow the [Semantic Versioning](http://semver.org/) format.
 - It must contain digits.
 - It may contain dots and dashes but not consecutive ones.
 
 Examples: `0.0.1`, `1.2.3` or `2.0.0-rc1`.
-
-While Shards doesn't enforce it, following a rational versioning scheme like
-[Semantic Versioning](http://semver.org/spec/v2.0.0.html) is highly recommended.
 
 ### authors
 
@@ -138,19 +135,9 @@ required but will be used if present to validate the dependency.
 
 A Git repository URL (String).
 
-The URL may be of [any protocol supported by the git command line client](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a),
-which may include:
-
-- `ssh://`
-- `git://`
-- `https://`
-- `http://`
-- `ftps://`
-- `ftp://`
-- implied ssh protocol (e.g., `user@example.com:subdir/repo.git`)
-
-Just the same as the local git command line client, `ssh_config` and associated
-`netrc` settings will be honored for authentication-protected repositories.
+The URL may be of [any protocol](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a)
+supported by the git command line client, which includes `ssh`, `git`, and
+`https`.
 
 The Git repository will be cloned, the list of versions (and associated
 `shard.yml`) will be extracted from Git tags (e.g., `v1.2.3`).
