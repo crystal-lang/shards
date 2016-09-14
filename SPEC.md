@@ -68,14 +68,14 @@ Examples: `minitest`, `mysql2`, `battery-horse`.
 
 The version number of the library (String, required).
 
-- It should follow the [Semantic Versioning](http://semver.org/) format.
 - It must contain digits.
 - It may contain dots and dashes but not consecutive ones.
 
-Examples: `0.0.1`, `1.2.3` or `2.0.0-rc1`.
+Examples: `1.2.3`, `2.0.0-rc1` or `2016.09`.
 
 While Shards doesn't enforce it, following a rational versioning scheme like
-[Semantic Versioning](http://semver.org/) is highly recommended.
+[Semantic Versioning](http://semver.org/) or [Calendar Versioning](http://calver.org/)
+is highly recommended.
 
 ### authors
 
