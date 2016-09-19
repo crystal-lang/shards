@@ -99,7 +99,7 @@ module Shards
 
   private def self.get_resolver_class(names)
     names.each do |name|
-      if resolver = @@resolver_classes[name.to_s]
+      if resolver = @@resolver_classes[name.to_s]?
         return resolver
       end
     end
