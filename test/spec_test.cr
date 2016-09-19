@@ -43,19 +43,19 @@ module Shards
 
     def test_parse_dependencies
       spec = Spec.from_yaml <<-YAML
-  name: orm
-  version: 1.0.0
-  dependencies:
-    repo:
-      github: user/repo
-      version: 1.2.3
-    example:
-      git: https://example.com/example-crystal.git
-      branch: master
-    local:
-      path: /var/clones/local
-      tag: unreleased
-  YAML
+      name: orm
+      version: 1.0.0
+      dependencies:
+        repo:
+          github: user/repo
+          version: 1.2.3
+        example:
+          git: https://example.com/example-crystal.git
+          branch: master
+        local:
+          path: /var/clones/local
+          tag: unreleased
+      YAML
 
       assert_equal 3, spec.dependencies.size
 
@@ -77,16 +77,16 @@ module Shards
 
     def test_parse_development_dependencies
       spec = Spec.from_yaml <<-YAML
-  name: orm
-  version: 1.0.0
-  development_dependencies:
-    minitest:
-      github: ysbaddaden/minitest.cr
-      version: 0.1.4
-    webmock:
-      git: https://github.com/manastech/webcmok-crystal.git
-      branch: master
-  YAML
+      name: orm
+      version: 1.0.0
+      development_dependencies:
+        minitest:
+          github: ysbaddaden/minitest.cr
+          version: 0.1.4
+        webmock:
+          git: https://github.com/manastech/webcmok-crystal.git
+          branch: master
+      YAML
 
       assert_equal 2, spec.development_dependencies.size
 
@@ -101,12 +101,12 @@ module Shards
 
     def test_parse_libraries
       spec = Spec.from_yaml <<-YAML
-  name: sqlite3
-  version: 1.0.0
-  libraries:
-    libsqlite3: 3.8.0
-    libfoo: "*"
-  YAML
+      name: sqlite3
+      version: 1.0.0
+      libraries:
+        libsqlite3: 3.8.0
+        libfoo: "*"
+      YAML
 
       assert_equal 2, spec.libraries.size
       assert_equal "libsqlite3", spec.libraries[0].soname
@@ -118,21 +118,21 @@ module Shards
 
     def test_fails_to_parse_invalid_library
       empty_version = <<-YAML
-  name: sqlite3
-  version: 1.0.0
-  libraries:
-    libsqlite3:
-  YAML
+      name: sqlite3
+      version: 1.0.0
+      libraries:
+        libsqlite3:
+      YAML
 
       assert_raises(Error) { Spec.from_yaml(empty_version) }
 
       list = <<-YAML
-  name: sqlite3
-  version: 1.0.0
-  libraries:
-    - libsqlite3
-    - libfoo
-  YAML
+      name: sqlite3
+      version: 1.0.0
+      libraries:
+        - libsqlite3
+        - libfoo
+      YAML
 
       assert_raises(ParseError) { Spec.from_yaml(list) }
     end
@@ -162,12 +162,12 @@ module Shards
 
     def test_fails_to_parse_dependencies
       str = <<-YAML
-name: amethyst
-version: 0.1.7
-dependencies:
-  github: spalger/crystal-mime
-  branch: master
-YAML
+      name: amethyst
+      version: 0.1.7
+      dependencies:
+        github: spalger/crystal-mime
+        branch: master
+      YAML
       ex = assert_raises(ParseError) { Spec.from_yaml(str) }
     end
   end
