@@ -82,17 +82,17 @@ module Shards
       Dir.mkdir_p(install_path)
 
       if file_exists?(refs, SPEC_FILENAME)
-        run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar x -C #{FileUtils.escape install_path}"
+        run "git archive --format=tar #{refs} #{SPEC_FILENAME} | tar -x -f - -C #{FileUtils.escape install_path}"
       else
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
       # TODO: search for LICENSE* files
       if file_exists?(refs, "LICENSE")
-        run "git archive --format=tar #{refs} 'LICENSE' | tar x -C #{FileUtils.escape install_path}"
+        run "git archive --format=tar #{refs} 'LICENSE' | tar -x -f - -C #{FileUtils.escape install_path}"
       end
 
-      run "git archive --format=tar --prefix= #{refs}:src/ | tar x -C #{FileUtils.escape install_path}"
+      run "git archive --format=tar --prefix= #{refs}:src/ | tar -x -f - -C #{FileUtils.escape install_path}"
 
       if version =~ RELEASE_VERSION
         File.delete(sha1_path) if File.exists?(sha1_path)
