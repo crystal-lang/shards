@@ -30,6 +30,11 @@ module Shards
       assert_equal "http://example.com/LICENSE", spec.license_url
     end
 
+    def test_parse_crystal
+      spec = Spec.from_yaml("name: shards\nversion: 0.7.0\ncrystal: 0.20.0")
+      assert_equal "0.20.0", spec.crystal
+    end
+
     def test_parse_authors
       spec = Spec.from_yaml("name: shards\nversion: 0.1.0\nauthors:\n  - Julien Portalier <julien@portalier.com>\n  - Ary")
       assert_equal 2, spec.authors.size
