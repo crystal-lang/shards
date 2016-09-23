@@ -44,7 +44,7 @@ module Shards
       end
     end
 
-    protected def install_path
+    def install_path
       File.join(Shards.install_path, dependency.name)
     end
 

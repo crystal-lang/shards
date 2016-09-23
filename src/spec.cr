@@ -102,6 +102,10 @@ module Shards
           pull.each_in_mapping do
             targets << Target.new(pull)
           end
+        when "executables"
+          pull.each_in_sequence do
+            executables << pull.read_scalar
+          end
         when "libraries"
           pull.each_in_mapping do
             libraries << Library.new(pull)
@@ -146,6 +150,10 @@ module Shards
 
     def targets
       @targets ||= [] of Target
+    end
+
+    def executables
+      @executables ||= [] of String
     end
 
     def libraries

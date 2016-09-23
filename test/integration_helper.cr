@@ -57,6 +57,11 @@ class Minitest::Test
 
     create_path_repository "foo"
 
+    create_path_repository "binary"
+    create_shard "binary", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
+    create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755
+    create_file "binary", "bin/baz", "#! /usr/bin/env sh\necho 'KO'", perm: 0o755
+
     Minitest::Test.created_repositories!
   end
 
@@ -85,6 +90,10 @@ class Minitest::Test
     else
       refute Dir.exists?(install_path(name)), "expected #{name} dependency to not have been installed", file, line
     end
+  end
+
+  def assert_installed_file(path, file = __FILE__, line = __LINE__)
+    assert File.exists?(File.join(install_path(name), path)), "Expected #{path} to have been installed", file, line
   end
 
   def assert_locked(name, version = nil, file = __FILE__, line = __LINE__)
