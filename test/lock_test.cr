@@ -5,15 +5,15 @@ module Shards
   class LockTest < Minitest::Test
     def test_parses
       shards = Lock.from_yaml <<-YAML
-version: 1.0
-shards:
-  repo:
-    github: user/repo
-    version: 1.2.3
-  example:
-    git: https://example.com/example-crystal.git
-    commit: 0d246ee6c52d4e758651b8669a303f04be9a2a96
-YAML
+      version: 1.0
+      shards:
+        repo:
+          github: user/repo
+          version: 1.2.3
+        example:
+          git: https://example.com/example-crystal.git
+          commit: 0d246ee6c52d4e758651b8669a303f04be9a2a96
+      YAML
 
       assert_equal 2, shards.size
 
