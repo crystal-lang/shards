@@ -113,7 +113,7 @@ class Minitest::Test
   end
 
   def install_path(project, *path_names)
-    File.join(application_path, "libs", project, *path_names)
+    File.join(application_path, "lib", project, *path_names)
   end
 
   def debug(command)

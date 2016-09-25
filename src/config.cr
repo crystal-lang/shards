@@ -13,7 +13,7 @@ module Shards
   end
 
   def self.install_path
-    @@install_path ||= ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "libs") }
+    @@install_path ||= ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
   end
 
   def self.install_path=(@@install_path : String)

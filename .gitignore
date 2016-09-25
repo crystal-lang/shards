@@ -1,8 +1,8 @@
 /.crystal
 /.shards
-/libs
+/lib
 /bin/shards
 /test/.repositories
 /test/.shards
-/test/.libs
+/test/.lib
 /tmp
