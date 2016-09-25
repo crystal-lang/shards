@@ -43,13 +43,12 @@ module Shards
     end
 
     def install(version = nil)
+      path = File.expand_path(local_path)
+      raise Error.new("Failed no such path: #{path}") unless Dir.exists?(path)
+
       cleanup_install_directory
       Dir.mkdir_p(File.dirname(install_path))
-
-      src_path = File.expand_path(File.join(local_path, "src"))
-      raise Error.new("Failed no such path: #{local_path}") unless Dir.exists?(src_path)
-
-      File.symlink(src_path, install_path)
+      File.symlink(path, install_path)
     end
   end
 
