@@ -5,22 +5,29 @@ module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
 
   class GitResolver < Resolver
+    @@has_git_command : Bool?
     @@git_column_never : String?
     @@git_version : String?
+
     @origin_url : String?
-
-    # :nodoc:
-    def self.git_version
-      @@git_version ||= `git --version`.strip[12 .. -1]
-    end
-
-    # :nodoc:
-    def self.git_column_never
-      @@git_column_never ||= Helpers::NaturalSort.sort(git_version, "1.7.11") < 0 ? "--column=never" : ""
-    end
 
     def self.key
       "git"
+    end
+
+    protected def self.has_git_command?
+      if @@has_git_command.nil?
+        @@has_git_command = Process.run("command -v git", shell: true).success?
+      end
+      @@has_git_command
+    end
+
+    protected def self.git_version
+      @@git_version ||= `git --version`.strip[12 .. -1]
+    end
+
+    protected def self.git_column_never
+      @@git_column_never ||= Helpers::NaturalSort.sort(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
     def read_spec(version = "*")
@@ -213,6 +220,10 @@ module Shards
     end
 
     private def run(command, path = local_path, capture = false)
+      unless GitResolver.has_git_command?
+        raise Error.new("Error: missing git command line tool. Please install Git first!")
+      end
+
       # Shards.logger.debug { "cd #{path}" }
 
       Dir.cd(path) do
@@ -229,7 +240,7 @@ module Shards
           if str.starts_with?("error: ") && (idx = str.index('\n'))
             message = str[7 ... idx]
           end
-          raise Error.new("git command failed: #{ command } (#{ message }). Maybe you didn't install git?")
+          raise Error.new("git command failed: #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
         end
       end
     end
