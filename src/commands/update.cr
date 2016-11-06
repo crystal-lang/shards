@@ -16,7 +16,13 @@ module Shards
           end
         end
 
-        manager.to_lock(lockfile_path)
+        if generate_lockfile?
+          manager.to_lock(lockfile_path)
+        end
+      end
+
+      private def generate_lockfile?
+        !Shards.production? && manager.packages.any?
       end
     end
   end
