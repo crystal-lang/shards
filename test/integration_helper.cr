@@ -108,6 +108,11 @@ class Minitest::Test
     refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked"
   end
 
+  def refute_lockfile
+    path = File.join(application_path, "shard.lock")
+    refute File.exists?(path)
+  end
+
   def cache_path(*path_names)
     File.join(application_path, ".shards", *path_names)
   end
