@@ -57,14 +57,6 @@ module Shards
           package.install(version)
         end
       end
-
-      private def generate_lockfile?
-        !Shards.production? && manager.packages.any? && (!lockfile? || outdated_lockfile?)
-      end
-
-      private def outdated_lockfile?
-        locks.size != manager.packages.size
-      end
     end
   end
 end

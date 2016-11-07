@@ -5,11 +5,6 @@ module Shards
     class Update < Command
       # TODO: only update specified dependencies (ie. load locked versions, but don't enforce them)
       def run
-        unless has_dependencies?
-          Shards.logger.info "Dependencies are satisifed"
-          return
-        end
-
         manager.resolve
 
         manager.packages.each do |package|
@@ -21,7 +16,9 @@ module Shards
           end
         end
 
-        manager.to_lock(lockfile_path)
+        if generate_lockfile?
+          manager.to_lock(lockfile_path)
+        end
       end
 
       private def has_dependencies?
