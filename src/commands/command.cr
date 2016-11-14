@@ -5,13 +5,14 @@ require "../spec"
 module Shards
   abstract class Command
     getter path : String
+    getter sub : String | Nil
     getter spec_path : String
     getter lockfile_path : String
 
     @spec : Spec?
     @locks : Array(Dependency)?
 
-    def initialize(path)
+    def initialize(path, @sub = nil)
       if File.directory?(path)
         @path = path
         @spec_path = File.join(path, SPEC_FILENAME)
@@ -24,8 +25,8 @@ module Shards
 
     abstract def run
 
-    def self.run(path)
-      new(path).run
+    def self.run(path, sub = nil)
+      new(path, sub).run
     end
 
     def spec
