@@ -10,6 +10,7 @@ module Shards
     #puts "    info <package>"
     puts "    init"
     puts "    install"
+    puts "    build [targets] [options]"
     puts "    list"
     puts "    prune"
     #puts "    search <query>"
@@ -52,7 +53,10 @@ module Shards
         #  Commands::Search.run(args[1])
         when "update"
           Commands::Update.run(path)
-          #Commands.update(*args[1 .. -1])
+        #Commands.update(*args[1 .. -1])
+        when  "build"
+          Commands::Build.set_args(args[1..(args.size-1)]) if args.size > 1
+          Commands::Build.run(path)
         else
           display_help_and_exit(opts)
         end

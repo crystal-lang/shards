@@ -3,6 +3,7 @@ require "yaml"
 require "./config"
 require "./dependency"
 require "./errors"
+require "./target"
 
 module Shards
   class Spec
@@ -97,6 +98,15 @@ module Shards
             read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
             development_dependencies << dependency
           end
+        when "targets"
+          read_mapping(pull) do
+            target_name = pull.read_scalar
+            read_mapping(pull) do
+              pull.read_next # main:
+              target = Target.new(target_name, pull.read_scalar)
+              targets << target
+            end
+          end
         when "libraries"
           read_mapping(pull) do
             libraries << Library.new(pull)
@@ -141,6 +151,10 @@ module Shards
 
     def development_dependencies
       @development_dependencies ||= [] of Dependency
+    end
+
+    def targets
+      @targets ||= [] of Target
     end
 
     def libraries
