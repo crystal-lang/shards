@@ -54,6 +54,25 @@ module Shards
             else
               yml << value
             end
+          elsif key.to_s == "targets"
+            yml << "targets:\n"
+            value.each do |target, info|
+              yml << "  " << target.to_s << ":\n"
+              info.each_key do |info_key|
+                case info_key
+                when :main
+                  yml << "    main: " << info[info_key].inspect << "\n"
+                when :options
+                  yml << "    options:\n"
+                  options = info[info_key]
+                  if options.is_a?(Array(String))
+                    options.each do |option|
+                      yml << "      - " << option.inspect << "\n"
+                    end
+                  end
+                end
+              end
+            end
           end
         end
       end
