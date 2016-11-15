@@ -5,29 +5,30 @@ module Shards
     class Build < Command
       def run
         # Return if 'crystal' command is not installed
-        return unless crystal_is_installed?
+        return unless has_crystal_command?
 
-        name = @sub.nil? ? "default" : @sub
+        @sub ||= "default"
 
-        if name == "all"
-          Shards.logger.info "Build all targets"
+        if @sub == "all"
           manager.spec.targets.each do |target|
             build target
           end
         else
-          target = manager.spec.targets.find{ |t| t.name == name }
-          raise Error.new("Target \'#{name}\' is not found") if target.nil?
+          target = manager.spec.targets.find{ |t| t.name == @sub }
+          raise Error.new("Target \'#{@sub}\' is not found") if target.nil?
           build target
         end
       end
 
       def build(target)
-        Shards.logger.info "Target: #{target.name}"
-        Shards.logger.info "   cmd: #{target.cmd}"
-        # git.cr L232
+        Shards.logger.info "Building: #{target.name}"
+
+        error = MemoryIO.new
+        status = Process.run("/bin/sh", input: MemoryIO.new(target.cmd), output: nil, error: error)
+        raise Error.new("#{error.to_s}") unless status.success?
       end
 
-      def crystal_is_installed?
+      def has_crystal_command?
         raise Error.new("\'crystal\' is not installed") unless system("which crystal > /dev/null 2>&1")
         true
       end
