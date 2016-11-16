@@ -1,17 +1,9 @@
 module Shards
   class Target
     getter name : String
-    property main : String
-    property options : Array(String)
+    getter main : String
 
-    def initialize(@name)
-      super()
-      @main = ""
-      @options = [] of String
-    end
-
-    def cmd
-      "crystal build #{@main} #{@options.join(" ")}"
+    def initialize(@name, @main)
     end
   end
 end

@@ -97,18 +97,12 @@ module Shards
           end
         when "targets"
           read_mapping(pull) do
-            target = Target.new(pull.read_scalar)
+            target_name = pull.read_scalar
             read_mapping(pull) do
-              case pull.read_scalar
-              when "main"
-                target.main = pull.read_scalar
-              when "options"
-                read_sequence(pull) do
-                  target.options.push(pull.read_scalar)
-                end
-              end
+              pull.read_next # main:
+              target = Target.new(target_name, pull.read_scalar)
+              targets << target
             end
-            targets << target
           end
         when "libraries"
           read_mapping(pull) do
