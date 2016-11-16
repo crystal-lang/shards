@@ -12,7 +12,7 @@ module Shards
     @spec : Spec?
     @locks : Array(Dependency)?
 
-    def initialize(path, @sub = nil)
+    def initialize(path)
       if File.directory?(path)
         @path = path
         @spec_path = File.join(path, SPEC_FILENAME)
