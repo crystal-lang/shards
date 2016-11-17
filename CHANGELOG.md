@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## UNRELEASED
+
+Features:
+- Build command for `targets` entry in SPEC
+- New Crystal search path algorithm (see breaking changes below)
+- Informational `crystal` entry in SPEC
+- Informational `libraries` entry in SPEC
+- Shorthand for gitlab.com dependencies
+
+Breaking Changes:
+- Dependencies are installed in the `lib` directory
+- Dependencies are now fully installed, instead of merely the `src` folder
+- `postinstall` scripts are now executed from the root of the dependency,
+  not the `src` directory
+
+Fixes:
+- crash when dependency keys were unordered
+- `tar` command usage on OpenBSD
+- correctly report git errors
+- the update command created a lockfile for empty dependencies
+
 ## v0.6.4
 
 Fixes:
