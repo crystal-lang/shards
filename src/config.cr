@@ -13,10 +13,27 @@ module Shards
   end
 
   def self.install_path
-    @@install_path ||= ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
+    @@install_path ||= begin
+      warn_about_legacy_libs_path
+      ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
+    end
   end
 
   def self.install_path=(@@install_path : String)
+  end
+
+  private def self.warn_about_legacy_libs_path
+    # TODO: drop me in a future release
+
+    legacy_install_path = if path = ENV["SHARDS_INSTALL_PATH"]?
+                            File.join(File.dirname(path), "libs")
+                          else
+                            File.join(Dir.current, "libs")
+                          end
+
+    if File.exists?(legacy_install_path)
+      Shards.logger.warn "Shards now installs dependencies into the 'lib' folder. You may delete the legacy 'libs' folder."
+    end
   end
 
   @@production = false
