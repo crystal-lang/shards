@@ -36,6 +36,13 @@ module Shards
     end
   end
 
+  def self.bin_path
+    @@bin_path ||= ENV.fetch("SHARDS_BIN_PATH") { File.join(Dir.current, "bin") }
+  end
+
+  def self.bin_path=(@@bin_path : String)
+  end
+
   @@production = false
 
   def self.production?

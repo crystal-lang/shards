@@ -104,6 +104,26 @@ module Shards
       assert_equal "master", spec.development_dependencies[1].refs
     end
 
+    def test_parse_targets
+      spec = Spec.from_yaml <<-YAML
+      name: shards
+      version: 0.7.0
+      targets:
+        shards:
+          main: src/shards.cr
+        cli:
+          main: src/command/cli.cr
+      YAML
+
+      assert_equal 2, spec.targets.size
+
+      assert_equal "shards", spec.targets[0].name
+      assert_equal "src/shards.cr", spec.targets[0].main
+
+      assert_equal "cli", spec.targets[1].name
+      assert_equal "src/command/cli.cr", spec.targets[1].main
+    end
+
     def test_parse_libraries
       spec = Spec.from_yaml <<-YAML
       name: sqlite3

@@ -4,7 +4,7 @@ require "./file_utils"
 module Shards
   module Commands
     class Prune < Command
-      def run
+      def run(*args)
         return unless lockfile?
         locks = Lock.from_file(lockfile_path)
 

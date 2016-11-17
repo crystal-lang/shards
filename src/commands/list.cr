@@ -4,7 +4,7 @@ require "./command"
 module Shards
   module Commands
     class List < Command
-      def run
+      def run(*args)
         return unless has_dependencies?
 
         puts "Shards installed:"

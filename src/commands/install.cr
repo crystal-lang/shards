@@ -4,7 +4,7 @@ module Shards
   module Commands
     # OPTIMIZE: avoid updating GIT caches until required
     class Install < Command
-      def run
+      def run(*args)
         manager.resolve
 
         if lockfile?

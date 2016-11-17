@@ -6,11 +6,11 @@ module Shards
     puts "shards [options] <command>"
     puts
     puts "Commands:"
+    puts "    build [targets] [options]"
     puts "    check"
     #puts "    info <package>"
     puts "    init"
     puts "    install"
-    puts "    build [targets] [options]"
     puts "    list"
     puts "    prune"
     #puts "    search <query>"
@@ -35,6 +35,8 @@ module Shards
 
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
+        when "build"
+          build(path, args[1..-1])
         when "check"
           Commands::Check.run(path)
         #when "info"
@@ -50,18 +52,38 @@ module Shards
           Commands::Prune.run(path)
         #when "search"
         #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Search.run(args[1])
+        #  Commands::Search.run(path, args[1])
         when "update"
           Commands::Update.run(path)
-        #Commands.update(*args[1 .. -1])
-        when  "build"
-          Commands::Build.set_args(args[1..(args.size-1)]) if args.size > 1
-          Commands::Build.run(path)
+          #Commands.update(path, *args[1..-1])
         else
           display_help_and_exit(opts)
         end
+
+        exit
       end
     end
+  end
+
+  def self.build(path, args)
+    targets = [] of String
+    options = [] of String
+
+    args.each do |arg|
+      if arg.starts_with?('-')
+        options << arg
+      else
+        targets << arg
+      end
+    end
+
+    begin
+      Commands::Check.run(path)
+    rescue
+      Commands::Install.run(path)
+    end
+
+    Commands::Build.run(path, targets, options)
   end
 end
 

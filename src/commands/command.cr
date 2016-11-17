@@ -5,7 +5,6 @@ require "../spec"
 module Shards
   abstract class Command
     getter path : String
-    getter sub : String | Nil
     getter spec_path : String
     getter lockfile_path : String
 
@@ -23,10 +22,10 @@ module Shards
       @lockfile_path = File.join(@path, LOCK_FILENAME)
     end
 
-    abstract def run
+    abstract def run(*args)
 
-    def self.run(path, sub = nil)
-      new(path, sub).run
+    def self.run(path, *args)
+      new(path).run(*args)
     end
 
     def spec

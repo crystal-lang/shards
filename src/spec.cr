@@ -100,12 +100,9 @@ module Shards
           end
         when "targets"
           read_mapping(pull) do
-            target_name = pull.read_scalar
-            read_mapping(pull) do
-              pull.read_next # main:
-              target = Target.new(target_name, pull.read_scalar)
-              targets << target
-            end
+            target = Target.new(pull.read_scalar)
+            read_mapping(pull) { target[pull.read_scalar] = pull.read_scalar }
+            targets << target
           end
         when "libraries"
           read_mapping(pull) do

@@ -6,7 +6,7 @@ module Shards
     class Check < Command
       include Helpers::Versions
 
-      def run
+      def run(*args)
         if has_dependencies?
           locks # ensures that lockfile exists
           verify(spec.dependencies)

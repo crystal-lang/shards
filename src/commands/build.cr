@@ -3,69 +3,39 @@ require "./command"
 module Shards
   module Commands
     class Build < Command
-
-      @@args = [] of String
-
-      # command line arguments
-      @targets = [] of String
-      @options = [] of String
-
-      def run
-        # Install dependencies before the build
-        Install.run(@path)
-        # Parse to find targets and options
-        parse_args
-        # mkdir bin
-        mkdir_bin
-        if @targets.size == 0
-          raise Error.new("Error: No target found in shard.yml") if manager.spec.targets.nil?
-          manager.spec.targets.each do |target|
-            build target
-          end
-        else
-          @targets.each do |name|
-            target = manager.spec.targets.find{ |t| t.name == name }
-            raise Error.new("Error: target \'#{name}\' is not found") if target.nil?
-            build target
-          end
+      def run(targets, options)
+        unless Dir.exists?(Shards.bin_path)
+          Shards.logger.debug "mkdir #{Shards.bin_path}"
+          Dir.mkdir(Shards.bin_path)
         end
-      end
 
-      def parse_args
-        is_option? = false
-        @@args.each do |arg|
-          is_option? = true if arg.starts_with?("-")
-          if is_option?
-            @options.push(arg)
+        if targets.empty?
+          targets = manager.spec.targets.map(&.name)
+        end
+
+        targets.each do |name|
+          if target = spec.targets.find { |t| t.name == name }
+            build(target, options)
           else
-            @targets.push(arg)
+            raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}.")
           end
         end
       end
 
-      def mkdir_bin
-        bin_path = File.join(@path, "bin")
-        Dir.mkdir bin_path unless Dir.exists?(bin_path)
-      end
-
-      def build(target)
+      private def build(target, options)
         Shards.logger.info "Building: #{target.name}"
 
-        args = ["build", target.main] + @options
-        unless @options.includes?("-o")
-          args.push("-o")
-          args.push(File.join("bin", target.name))
-        end
+        args = [
+          "build",
+          "-o", File.join(Shards.bin_path, target.name),
+          target.main,
+        ]
+        options.each { |option| args << option }
+        Shards.logger.debug "crystal #{args.join(' ')}"
 
         error = MemoryIO.new
-        status = Process.run("crystal",
-                             args: args,
-                             output: nil, error: error)
-        raise Error.new("#{error.to_s}") unless status.success?
-      end
-
-      def self.set_args(args : Array(String))
-        @@args = args
+        status = Process.run("crystal", args: args, output: error, error: error)
+        raise Error.new("Error target #{target.name} failed to compile:\n#{error}") unless status.success?
       end
     end
   end
