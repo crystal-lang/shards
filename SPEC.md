@@ -41,7 +41,7 @@ license: MIT
 
 Both libraries and applications will benefit from `shard.yml`.
 
-The metadata for libraries are expected to have more information (eg: list of
+The metadata for libraries are expected to have more information (e.g., list of
 authors, description, license) than applications that may only have a name and
 dependencies.
 
@@ -84,7 +84,8 @@ While Shards doesn't enforce it, following a rational versioning scheme like
 A list of authors, along with their contact email (Array of String).
 
 - Each author must have a name.
-- Each author may have an email address, within lower than (`<`) and greater than (`>`) chars.
+- Each author may have an email address, within angle bracket (`<` and `>`)
+  chars.
 
 Example:
 
@@ -100,8 +101,8 @@ A single line description of the library (String).
 
 ### license
 
-An [OSI license](http://opensource.org/) name or an URL to a license file (String,
-recommended).
+An [OSI license](http://opensource.org/) name or an URL to a license file
+(String, recommended).
 
 ### crystal
 
@@ -119,9 +120,9 @@ crystal: 0.19.2
 
 A list of required dependencies (Hash).
 
-Each dependency begins with the name of the dependency as a key (String) then
-a list of attributes (Hash) that depend on where the dependency is located
-(eg: local path, Git repository).
+Each dependency begins with the name of the dependency as a key (String) then a
+list of attributes (Hash) that depend on where the dependency is located (e.g.,
+local path, Git repository).
 
 Example:
 ```yaml
@@ -145,15 +146,18 @@ Examples: `1.2.3`, `>= 1.0.0` or `~> 2.0`.
 
 A local path (String).
 
-The library will be linked from the local path. The `version` attribute
-isn't required but will be used if present to validate the dependency.
+The library will be linked from the local path. The `version` attribute isn't
+required but will be used if present to validate the dependency.
 
 #### git
 
 A Git repository URL (String).
 
+The URL may be [any protocol](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a)
+supported by Git, which includes SSH, GIT and HTTPS.
+
 The Git repository will be cloned, the list of versions (and associated
-`shard.yml`) will be extracted from Git tags (eg: `v1.2.3`).
+`shard.yml`) will be extracted from Git tags (e.g., `v1.2.3`).
 
 One of the other attributes (`version`, `tag`, `branch` or `commit`) is
 required. When missing, Shards will install the HEAD refs.
@@ -164,9 +168,9 @@ Example: `git: git://git.example.org/crystal-library.git`
 
 A GitHub repository (String).
 
-The value is the `user/repository` sheme. Extends the `git` resolver, and acts
-exactly like it. One of the other attributes (`version`, `tag`, `branch` o
-r `commit`) is required. When missing Shards will install the HEAD refs.
+The value is the `user/repository` scheme. Extends the `git` resolver, and acts
+exactly like it. One of the other attributes (`version`, `tag`, `branch` or
+`commit`) is required. When missing, Shards will install the HEAD refs.
 
 Example: `github: ysbaddaden/minitest.cr`
 
@@ -208,11 +212,12 @@ Install a Git dependency at the specified branch (String).
 ### development_dependencies
 
 Dependencies may be grouped together as a set of optional development
-dependencies. Those will be installed for the main project or library
-itself. When the library is installed as a dependency for another
-project the development dependencies will never be installed.
+dependencies. Those will be installed for the main project or library itself.
+When the library is installed as a dependency for another project the
+development dependencies will never be installed.
 
 Development dependencies follow the same scheme than dependencies.
+
 Example:
 
 ```yaml
