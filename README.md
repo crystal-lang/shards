@@ -51,8 +51,13 @@ the newly generated `bin/shards` somewhere into your PATH. A good place is
 You are now ready to create a `shard.yml` for your projects (see the
 [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)).
 
-Simply run `shards install` to install your dependencies, or `shards --help` to
-list the other commands and their options.
+Simply run `shards install` to install your dependencies, which will lock your
+dependencies into `shard.lock`, which you should check into version control,
+because `install` will always install the locked versions, for reproducible
+intallations across computers.
+
+Last but not least, use `shards --help` to list the other commands and their
+options.
 
 Happy Hacking!
 
@@ -61,7 +66,7 @@ Happy Hacking!
 
 These requirements are only for compiling Shards.
 
-* Crystal >= 0.10.0.
+* Crystal
 
   Please refer to <http://crystal-lang.org/docs/installation> for
   instructions for your operating system.
