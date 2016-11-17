@@ -16,7 +16,13 @@ module Shards
           end
         end
 
-        manager.to_lock(lockfile_path)
+        if generate_lockfile?
+          manager.to_lock(lockfile_path)
+        end
+      end
+
+      private def has_dependencies?
+        spec.dependencies.any? || (!shards.production? && spec.development_dependencies.any?)
       end
     end
   end

@@ -55,5 +55,13 @@ module Shards
     def lockfile?
       File.exists?(lockfile_path)
     end
+
+    private def generate_lockfile?
+      !Shards.production? && manager.packages.any? && (!lockfile? || outdated_lockfile?)
+    end
+
+    private def outdated_lockfile?
+      locks.size != manager.packages.size
+    end
   end
 end

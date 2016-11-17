@@ -100,4 +100,12 @@ class UpdateCommandTest < Minitest::Test
       refute_locked "orm"
     end
   end
+
+  def test_empty_dependencies
+    metadata = { dependencies: {} of Symbol => String }
+    with_shard(metadata) do
+      path = File.join(application_path, "shard.lock")
+      refute File.exists?(path)
+    end
+  end
 end
