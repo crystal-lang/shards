@@ -15,6 +15,8 @@ authors:
 description: |
   Dependency manager for the Crystal Language
 
+crystal: 0.19.2
+
 dependencies:
   openssl:
     github: datanoise/openssl.cr
@@ -100,6 +102,18 @@ A single line description of the library (String).
 
 An [OSI license](http://opensource.org/) name or an URL to a license file (String,
 recommended).
+
+### crystal
+
+The last known Crystal version that is capable to compile the Shard (String).
+
+Purely informational, this may help developers to understand why a Shard is no
+longer compatible, or help tools to choose a compatible version of Crystal to
+work with the project (e.g., an automated documentation generator).
+
+```yaml
+crystal: 0.19.2
+```
 
 ### dependencies
 

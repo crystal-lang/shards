@@ -65,6 +65,7 @@ module Shards
     getter! version : String?
     getter description : String?
     getter license : String?
+    getter crystal : String?
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
@@ -78,6 +79,8 @@ module Shards
           @description = pull.read_scalar
         when "license"
           @license = pull.read_scalar
+        when "crystal"
+          @crystal = pull.read_scalar
         when "authors"
           read_sequence(pull) do
             authors << Author.new(pull.read_scalar)
