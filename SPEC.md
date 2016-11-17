@@ -33,6 +33,10 @@ libraries:
 scripts:
   postinstall: make ext
 
+targets:
+  shards:
+    main: src/shards.cr
+
 license: MIT
 ```
 
@@ -273,3 +277,28 @@ The script will be run from the dependency's installation directory, for example
 scripts:
   postinstall: cd src/libfoo && make
 ```
+
+### targets
+
+A list of targets to build (Hash).
+
+Each target begins with the name of the target as a key (String), then a list of
+attributes (Hash). The target name is the built binary name, created in the
+`bin` folder of the project.
+
+Example:
+
+```yaml
+targets:
+  server:
+    main: src/server/cli.cr
+  worker:
+    main: src/worker.cr
+```
+
+The above example will build `bin/server` from `src/server/cli.cr` and
+`bin/worker` from `src/worker.cr`.
+
+#### main
+
+A path to the source file to compile (String).
