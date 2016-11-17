@@ -17,7 +17,7 @@ module Shards
         parse_args
         # mkdir bin
         mkdir_bin
-        if @targets.size == 0
+        if @targets.empty?
           raise Error.new("Error: No target found in shard.yml") if manager.spec.targets.nil?
           manager.spec.targets.each do |target|
             build target
@@ -34,7 +34,7 @@ module Shards
       def parse_args
         is_option? = false
         @@args.each do |arg|
-          is_option? = true if arg.starts_with?("-")
+          is_option? = true if arg.starts_with?('-')
           if is_option?
             @options.push(arg)
           else

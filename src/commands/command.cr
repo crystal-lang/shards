@@ -5,7 +5,6 @@ require "../spec"
 module Shards
   abstract class Command
     getter path : String
-    getter sub : String | Nil
     getter spec_path : String
     getter lockfile_path : String
 
@@ -25,8 +24,8 @@ module Shards
 
     abstract def run
 
-    def self.run(path, sub = nil)
-      new(path, sub).run
+    def self.run(path)
+      new(path).run
     end
 
     def spec
