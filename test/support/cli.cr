@@ -54,6 +54,18 @@ module Shards
             else
               yml << value
             end
+          elsif key.to_s == "targets"
+            yml << "targets:\n"
+            if value.responds_to?(:each)
+              value.each do |target, info|
+                yml << "  " << target.to_s << ":\n"
+                if info.responds_to?(:each)
+                  info.each do |main, src|
+                    yml << "    main: " << src.inspect << "\n"
+                  end
+                end
+              end
+            end
           end
         end
       end
