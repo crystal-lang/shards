@@ -68,7 +68,7 @@ end
 module Shards
   LOGGER_COLORS = {
     "ERROR" => :red,
-    "WARN"  => :orange,
+    "WARN"  => :light_yellow,
     "INFO"  => :light_green,
     "DEBUG" => :light_gray,
   }

@@ -249,7 +249,7 @@ installed or upgraded in a project that requires it. This may be used to compile
 a C library, to build tools to help working on the project, or anything else.
 
 The script will be run from the dependency's installation directory, for example
-`libs/foo` for a Shard named `foo`.
+`lib/foo` for a Shard named `foo`.
 
 ```yaml
 scripts:

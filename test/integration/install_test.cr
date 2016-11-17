@@ -225,7 +225,7 @@ class InstallCommandTest < Minitest::Test
   def test_runs_postinstall_script
     with_shard({ dependencies: { post: "*" } }) do
       run "shards install"
-      assert File.exists?(File.join(application_path, "libs", "post", "made.txt"))
+      assert File.exists?(File.join(application_path, "lib", "post", "made.txt"))
     end
   end
 
@@ -234,7 +234,7 @@ class InstallCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
       assert_match "E: Failed make:\n", ex.stdout
       assert_match "test -n ''\n", ex.stdout
-      refute Dir.exists?(File.join(application_path, "libs", "fails"))
+      refute Dir.exists?(File.join(application_path, "lib", "fails"))
     end
   end
 

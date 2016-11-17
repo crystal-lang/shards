@@ -4,7 +4,7 @@ require "../src/logger"
 require "../src/manager"
 
 Shards.cache_path = File.join(__DIR__, ".shards")
-Shards.install_path = File.join(__DIR__, ".libs")
+Shards.install_path = File.join(__DIR__, ".lib")
 
 require "./support/factories"
 require "./support/mock_resolver"

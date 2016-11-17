@@ -36,14 +36,14 @@ module Shards
     def test_install
       resolver("library").tap do |library|
         library.install
-        assert File.exists?(install_path("library", "library.cr"))
-        refute File.exists?(install_path("library", "shard.yml"))
+        assert File.exists?(install_path("library", "src/library.cr"))
+        assert File.exists?(install_path("library", "shard.yml"))
         assert_equal "1.2.3", library.installed_spec.not_nil!.version
       end
 
       resolver("legacy").tap do |legacy|
         legacy.install
-        assert File.exists?(install_path("legacy", "legacy.cr"))
+        assert File.exists?(install_path("legacy", "src/legacy.cr"))
         refute File.exists?(install_path("legacy", "shard.yml"))
         assert_equal DEFAULT_VERSION, legacy.installed_spec.not_nil!.version
       end

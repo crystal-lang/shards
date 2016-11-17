@@ -33,12 +33,11 @@ module Shards
       assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
     end
 
-    # TODO: test that LICENSE was installed
     def test_install
       library, legacy = resolver("library"), resolver("legacy")
 
       library.install("0.1.2")
-      assert File.exists?(install_path("library", "library.cr"))
+      assert File.exists?(install_path("library", "src/library.cr"))
       assert File.exists?(install_path("library", "shard.yml"))
       assert_equal "0.1.2", library.installed_spec.not_nil!.version
       #assert File.exists?(install_path("library", "LICENSE"))
@@ -47,11 +46,11 @@ module Shards
       assert_equal "0.2.0", library.installed_spec.not_nil!.version
 
       legacy.install
-      assert File.exists?(install_path("legacy", "legacy.cr"))
+      assert File.exists?(install_path("legacy", "src/legacy.cr"))
       assert File.exists?(install_path("legacy", "shard.yml"))
 
       legacy.install("1.0.0")
-      assert File.exists?(install_path("legacy", "legacy.cr"))
+      assert File.exists?(install_path("legacy", "src/legacy.cr"))
       assert File.exists?(install_path("legacy", "shard.yml"))
       assert_equal "1.0.0", legacy.installed_spec.not_nil!.version
     end
@@ -64,7 +63,7 @@ module Shards
       empty = resolver("empty")
 
       empty.install # HEAD
-      assert File.exists?(install_path("empty", "empty.cr"))
+      assert File.exists?(install_path("empty", "src/empty.cr"))
       assert File.exists?(install_path("empty", "shard.yml"))
 
       spec = empty.installed_spec.not_nil!
