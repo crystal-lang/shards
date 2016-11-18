@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## UNRELEASED
+## v0.7.0
 
 Features:
 - Build command for `targets` entry in SPEC
