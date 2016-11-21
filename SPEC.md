@@ -60,7 +60,7 @@ dependencies.
 
 The name of library (String, required).
 
-- It must be unique.
+- It must be unique, in the context of the shards.yml file itself [1].
 - It must be 50 characters or less.
 - It should be lowercase (a-z).
 - It should not contain `crystal`.
@@ -69,6 +69,8 @@ The name of library (String, required).
 - It must not have consecutive underscores or dashes.
 
 Examples: `minitest`, `mysql2`, `battery-horse`.
+
+[1]: There is no global registry for crystal packages. The intention is for them to be descentralized.
 
 ### version
 
