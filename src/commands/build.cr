@@ -33,7 +33,7 @@ module Shards
         options.each { |option| args << option }
         Shards.logger.debug "crystal #{args.join(' ')}"
 
-        error = MemoryIO.new
+        error = IO::Memory.new
         status = Process.run("crystal", args: args, output: error, error: error)
         raise Error.new("Error target #{target.name} failed to compile:\n#{error}") unless status.success?
       end

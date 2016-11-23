@@ -86,8 +86,8 @@ module Shards
 
     def run(command, capture = false)
       # puts command
-      output, error = MemoryIO.new, MemoryIO.new
-      status = Process.run("/bin/sh", input: MemoryIO.new(command), output: output, error: error)
+      output, error = IO::Memory.new, IO::Memory.new
+      status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
 
       if status.success?
         output.to_s if capture

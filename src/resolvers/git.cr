@@ -222,9 +222,9 @@ module Shards
       Dir.cd(path) do
         Shards.logger.debug command
 
-        output = capture ? MemoryIO.new : false
-        error = MemoryIO.new
-        status = Process.run("/bin/sh", input: MemoryIO.new(command), output: output, error: error)
+        output = capture ? IO::Memory.new : false
+        error = IO::Memory.new
+        status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
 
         if status.success?
           output.to_s if capture
