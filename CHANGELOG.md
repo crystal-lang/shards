@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.7.1
+
+Fixes:
+- correctly updates or keeps dependencies, see #107, #141
+- upgrades minitest dependency so test do run
+
 ## v0.7.0
 
 Features:
