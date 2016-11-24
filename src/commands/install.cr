@@ -18,7 +18,6 @@ module Shards
         end
       end
 
-      # TODO: add locks as additional version requirements
       private def install(packages : Set, locks : Array(Dependency))
         packages.each do |package|
           version = nil
@@ -50,7 +49,7 @@ module Shards
       private def install(package : Package, version = nil)
         version ||= package.version
 
-        if package.installed?(version, loose: true)
+        if package.installed?(version)
           Shards.logger.info "Using #{package.name} (#{version})"
         else
           Shards.logger.info "Installing #{package.name} (#{version})"

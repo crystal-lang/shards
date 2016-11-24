@@ -43,17 +43,10 @@ module Shards
       end
     end
 
-    def installed?(version = nil, loose = false)
+    def installed?(version = self.version)
       if spec = resolver.installed_spec
-        version ||= spec.version
-
-        if resolver.installed_commit_hash == version
-          true
-        elsif loose
-          matching_versions.includes?(version)
-        else
-          self.version == version
-        end
+        resolver.installed_commit_hash == version ||
+          spec.version == version
       else
         false
       end
