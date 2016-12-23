@@ -30,6 +30,12 @@ class CheckCommandTest < Minitest::Test
     end
   end
 
+  def test_succeeds_without_dependencies_and_lockfile
+    with_shard({ name: "no_dependencies" }) do
+      run "shards check --no-color"
+    end
+  end
+
   def test_fails_when_dependencies_are_missing
     with_shard({ dependencies: { web: "*" } }) do
       run "shards install"

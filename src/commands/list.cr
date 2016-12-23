@@ -30,7 +30,7 @@ module Shards
 
       # FIXME: duplicates Check#has_dependencies?
       private def has_dependencies?
-        spec.dependencies.any? || !Shards.production? || spec.development_dependencies.any?
+        spec.dependencies.any? || (!Shards.production? && spec.development_dependencies.any?)
       end
     end
   end
