@@ -146,6 +146,11 @@ A version requirement (String).
 
 Examples: `1.2.3`, `>= 1.0.0` or `~> 2.0`.
 
+Most of the version operators, like `>= 1.0.0`, are self-explanatory, but
+the `~>` operator has a special meaning, best shown by example:
+- `~> 2.0.3` is identical to `>= 2.0.3 and < 2.1`;
+- `~> 2.1` is identical to `>= 2.1 and < 3.0`.
+
 #### path
 
 A local path (String).
