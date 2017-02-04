@@ -15,7 +15,8 @@ module Shards
     puts "    prune"
     #puts "    search <query>"
     puts "    update"
-    #puts "    update [package package ...]"
+    # puts "    update [package package ...]"
+    puts "    version [path]"
     puts
     puts "Options:"
     puts opts
@@ -50,12 +51,14 @@ module Shards
           Commands::List.run(path)
         when "prune"
           Commands::Prune.run(path)
-        #when "search"
-        #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Search.run(path, args[1])
+          # when "search"
+          #  display_help_and_exit(opts) unless args[1]?
+          #  Commands::Search.run(path, args[1])
         when "update"
           Commands::Update.run(path)
-          #Commands.update(path, *args[1..-1])
+          # Commands.update(path, *args[1..-1])
+        when "version"
+          Commands::Version.run(args[1]? || path)
         else
           display_help_and_exit(opts)
         end
