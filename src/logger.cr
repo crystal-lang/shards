@@ -1,69 +1,5 @@
-#require "logger"
+require "logger"
 require "colorize"
-
-# Custom Logger class until https://github.com/manastech/crystal/issues/1781 is fixed
-# :nodoc:
-class Logger(T)
-  property :level, :progname, :formatter
-
-  enum Severity
-    DEBUG
-    INFO
-    WARN
-    ERROR
-    FATAL
-    UNKNOWN
-  end
-
-  alias Formatter = String, Time, String, String, String::Builder -> String::Builder
-
-  # :nodoc:
-  DEFAULT_FORMATTER = Formatter.new do |severity, datetime, progname, message, io|
-    io << severity[0] << ", [" << datetime << " #" << Process.pid << "] "
-    io << severity.rjust(5) << " -- " << progname << ": " << message
-  end
-
-  def initialize(@io : T)
-    @level = Severity::INFO
-    @formatter = DEFAULT_FORMATTER
-    @progname = ""
-  end
-
-  def close
-    @io.close
-  end
-
-  {% for name in Severity.constants %}
-    {{name.id}} = Severity::{{name.id}}
-
-    def {{name.id.downcase}}?
-      level <= Severity::{{name.id}}
-    end
-
-    def {{name.id.downcase}}(message, progname = nil)
-      log(Severity::{{name.id}}, message, progname)
-    end
-
-    def {{name.id.downcase}}(progname = nil)
-      log(Severity::{{name.id}}, progname) { yield }
-    end
-  {% end %}
-
-  def log(severity, progname = nil)
-    log(severity, yield, progname)
-  end
-
-  def log(severity, message, progname = nil)
-    return if severity < level
-
-    @io << String.build do |str|
-      label = severity == Severity::UNKNOWN ? "ANY" : severity.to_s
-      formatter.call(label, Time.now, progname || @progname, message.to_s, str) << "\n"
-    end
-
-    @io.flush
-  end
-end
 
 module Shards
   LOGGER_COLORS = {
@@ -79,7 +15,7 @@ module Shards
     @@colors = value
   end
 
-  @@logger : Logger(IO::FileDescriptor)?
+  @@logger : Logger?
 
   def self.logger
     @@logger ||= Logger.new(STDOUT).tap do |logger|
