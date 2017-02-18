@@ -165,7 +165,7 @@ module Shards
       end
 
       return if !@update_cache || @updated_cache
-      Shards.logger.info "Updating #{git_url}"
+      Shards.logger.info "Fetching #{git_url}"
 
       if cloned_repository?
         fetch_repository
