@@ -43,6 +43,8 @@ OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page and
 install it somewhere into your PATH, this version will take precedence over the
 bundled version.
 
+Shards is already distributed with the Homebrew formula [`crystal-lang`](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/crystal-lang.rb) on OS X.
+
 Alternatively you may download a source tarball from the same page (or clone the
 repository) then run `make` —or `make release` for an optimized build— and copy
 the newly generated `bin/shards` somewhere into your PATH. A good place is
