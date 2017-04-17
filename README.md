@@ -48,6 +48,19 @@ repository) then run `make` —or `make release` for an optimized build— and c
 the newly generated `bin/shards` somewhere into your PATH. A good place is
 `/usr/local/bin` for example.
 
+Compiling on OS X requires libyml - which can be installed via
+`brew install libyml` and your `LIBRARY_PATH` shell variable needs to be set.
+The location hombrew puts this in is `/opt/homebrew/lib/` and you will need
+to set this variable before you run `make`.
+
+For POSIX complaint shells run:
+
+```export LIBRARY_PATH='/opt/homebrew/lib```
+
+For Fish Shell run:
+
+```set -xg LIBRARY_PATH '/opt/homebrew/lib```
+
 You are now ready to create a `shard.yml` for your projects (see the
 [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)).
 
