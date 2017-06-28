@@ -34,7 +34,7 @@ module Shards
                   message
                 end
         else
-          io << severity[0] << ": " << message
+          io << severity.to_s[0] << ": " << message
         end
       end
     end
