@@ -1,5 +1,5 @@
 require "./command"
-require "./file_utils"
+require "../file_utils"
 
 module Shards
   module Commands
