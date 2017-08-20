@@ -24,7 +24,7 @@ module Shards
           ib += $1.size + 1
 
           if aaa =~ IS_NUMBER_STRING && bbb =~ IS_NUMBER_STRING
-            aaa, bbb = aaa.to_i, bbb.to_i
+            aaa, bbb = aaa.to_i64, bbb.to_i64
             ret = bbb <=> aaa
           else
             ret = bbb <=> aaa
