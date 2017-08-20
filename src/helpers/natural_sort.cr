@@ -16,12 +16,12 @@ module Shards
           return 0 if ia > la
           return 0 unless a[ia .. -1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
           aaa = $1
-          ia += $1.size + 1
+          ia += $1.size
 
           return 0 if ib > lb
           return 0 unless b[ib .. -1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
           bbb = $1
-          ib += $1.size + 1
+          ib += $1.size
 
           if aaa =~ IS_NUMBER_STRING && bbb =~ IS_NUMBER_STRING
             aaa, bbb = aaa.to_i, bbb.to_i
