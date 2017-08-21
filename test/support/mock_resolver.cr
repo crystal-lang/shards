@@ -1,4 +1,4 @@
-require "../src/helpers/natural_sort"
+require "../../src/helpers/natural_sort"
 
 module Shards
   class MockResolver < Resolver
