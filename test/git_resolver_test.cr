@@ -19,10 +19,10 @@ module Shards
       assert_equal ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"], resolver("library").available_versions
 
       refs = git_commits("library")
-      assert_equal ["0.0.1", refs.last], resolver("library", { "commit" => refs.last }).available_versions
-      assert_equal ["0.2.0", refs.first], resolver("library", { "commit" => refs.first }).available_versions
-      assert_equal ["0.1.2", "v0.1.2"], resolver("library", { "tag" => "v0.1.2" }).available_versions
-      assert_equal ["0.2.0", "master"], resolver("library", { "branch" => "master" }).available_versions
+      assert_equal ["0.0.1"], resolver("library", { "commit" => refs.last }).available_versions
+      assert_equal ["0.2.0"], resolver("library", { "commit" => refs.first }).available_versions
+      assert_equal ["0.1.2"], resolver("library", { "tag" => "v0.1.2" }).available_versions
+      assert_equal ["0.2.0"], resolver("library", { "branch" => "master" }).available_versions
     end
 
     def test_read_spec

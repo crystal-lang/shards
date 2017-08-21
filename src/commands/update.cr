@@ -9,9 +9,9 @@ module Shards
 
         manager.packages.each do |package|
           if package.installed?
-            Shards.logger.info "Using #{package.name} (#{package.version})"
+            Shards.logger.info "Using #{package.name} (#{package.report_version})"
           else
-            Shards.logger.info "Installing #{package.name} (#{package.version})"
+            Shards.logger.info "Installing #{package.name} (#{package.report_version})"
             package.install
           end
         end
