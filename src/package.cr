@@ -18,10 +18,21 @@ module Shards
     end
 
     def version
-      if matching_versions.any?
+      if refs = @dependency.refs
+        refs
+      elsif matching_versions.any?
         matching_versions.first
       else
         raise Conflict.new(self)
+      end
+    end
+
+    def report_version
+      version = self.version
+      if version == spec.version
+        version
+      else
+        "#{spec.version} at #{version}"
       end
     end
 
@@ -93,7 +104,7 @@ module Shards
         self << package
       end
 
-      if dependency.name != package.spec.name
+      unless dependency.name == package.spec.name
         raise Error.new("Error shard name (#{package.spec.name}) doesn't match dependency name (#{dependency.name})")
       end
 

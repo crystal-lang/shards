@@ -50,9 +50,9 @@ module Shards
         version ||= package.version
 
         if package.installed?(version)
-          Shards.logger.info "Using #{package.name} (#{version})"
+          Shards.logger.info "Using #{package.name} (#{package.report_version})"
         else
-          Shards.logger.info "Installing #{package.name} (#{version})"
+          Shards.logger.info "Installing #{package.name} (#{package.report_version})"
           package.install(version)
         end
       end

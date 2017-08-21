@@ -51,7 +51,7 @@ module Shards
       update_local_cache
 
       versions = if refs = dependency.refs
-                   [version_at(refs), refs]
+                   [version_at(refs)]
                  else
                    capture("git tag --list #{ GitResolver.git_column_never }")
                      .split("\n")
