@@ -222,7 +222,7 @@ module Shards
       Dir.cd(path) do
         Shards.logger.debug command
 
-        output = capture ? IO::Memory.new : false
+        output = capture ? IO::Memory.new : Process::Redirect::Close
         error = IO::Memory.new
         status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
 
