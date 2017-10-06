@@ -35,7 +35,7 @@ module Shards
         if version && !version.empty?
           new(name, version)
         else
-          raise Error.new("library version of #{name} can't be empty, use * for any version.")
+          raise Error.new("Library version of #{name} can't be empty, use * for any version.")
         end
       end
 
@@ -108,7 +108,7 @@ module Shards
           end
         else
           if validate
-            pull.raise "unknown attribute: #{key}"
+            pull.raise "Unknown attribute: #{key}"
           else
             pull.skip
           end
@@ -117,7 +117,7 @@ module Shards
 
       {% for attr in %w(name version) %}
         unless @{{ attr.id }}
-          pull.raise "missing required attribute: {{ attr.id }}"
+          pull.raise "Missing required attribute: {{ attr.id }}"
         end
       {% end %}
     end

@@ -50,7 +50,7 @@ module Shards
       if resolver.responds_to?(:matches?)
         resolver.matches?(commit)
       else
-        raise LockConflict.new("wrong resolver")
+        raise LockConflict.new("Wrong resolver")
       end
     end
 
