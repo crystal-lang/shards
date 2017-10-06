@@ -35,7 +35,7 @@ module Shards
               raise InvalidLock.new # unknown lock resolver
             end
           elsif Shards.production?
-            raise LockConflict.new("can't install new dependency #{package.name} in production")
+            raise LockConflict.new("Can't install new dependency #{package.name} in production")
           end
 
           install(package, version)

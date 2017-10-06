@@ -92,7 +92,7 @@ module Shards
       if status.success?
         output.to_s if capture
       else
-        raise FailedCommand.new("command failed: #{command}", output.to_s, error.to_s)
+        raise FailedCommand.new("Command failed: #{command}", output.to_s, error.to_s)
       end
     end
   end

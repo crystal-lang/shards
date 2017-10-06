@@ -27,7 +27,7 @@ module Shards
                 dependencies << Dependency.new(pull)
               end
             else
-              pull.raise "no such attribute #{key} in lock version 1.0"
+              pull.raise "No such attribute #{key} in lock version 1.0"
             end
           end
         end
