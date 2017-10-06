@@ -13,6 +13,6 @@ targets:
   shards:
     main: src/shards.cr
 
-crystal: 0.20.0
+crystal: 0.24.0
 
 license: Apache-2.0
