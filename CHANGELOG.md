@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## Unreleased
+
+Features:
+- Version command to print-out the project's version, see #147
+
+Fixes:
+- Don't consider a Git refs to be a version number, see #169
+- Use installed spec for executing scripts, see #143
+- Don't expect `shard.lock` when `shard.yml` has no dependencies, see #145
+- Compatibility with Crystal 0.24.0 (unreleased)
+
 ## v0.7.1
 
 Fixes:
