@@ -1,6 +1,16 @@
+require "./ext/yaml"
+
 module Shards
   class Dependency < Hash(String, String)
     property name : String
+
+    def self.new(pull : YAML::PullParser) : self
+      Dependency.new(pull.read_scalar).tap do |dependency|
+        pull.each_in_mapping do
+          dependency[pull.read_scalar] = pull.read_scalar
+        end
+      end
+    end
 
     def initialize(@name)
       super()

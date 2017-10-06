@@ -1,5 +1,5 @@
 require "colorize"
-require "yaml"
+require "./ext/yaml"
 require "./config"
 require "./dependency"
 require "./errors"
@@ -70,7 +70,7 @@ module Shards
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
-      read_mapping(pull) do
+      pull.each_in_mapping do
         case key = pull.read_scalar
         when "name"
           @name = pull.read_scalar
@@ -83,38 +83,32 @@ module Shards
         when "crystal"
           @crystal = pull.read_scalar
         when "authors"
-          read_sequence(pull) do
+          pull.each_in_sequence do
             authors << Author.new(pull.read_scalar)
           end
         when "dependencies"
-          read_mapping(pull) do
-            dependency = Dependency.new(pull.read_scalar)
-            read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
-            dependencies << dependency
+          pull.each_in_mapping do
+            dependencies << Dependency.new(pull)
           end
         when "development_dependencies"
-          read_mapping(pull) do
-            dependency = Dependency.new(pull.read_scalar)
-            read_mapping(pull) { dependency[pull.read_scalar] = pull.read_scalar }
-            development_dependencies << dependency
+          pull.each_in_mapping do
+            development_dependencies << Dependency.new(pull)
           end
         when "targets"
-          read_mapping(pull) do
-            target = Target.new(pull.read_scalar)
-            read_mapping(pull) { target[pull.read_scalar] = pull.read_scalar }
-            targets << target
+          pull.each_in_mapping do
+            targets << Target.new(pull)
           end
         when "libraries"
-          read_mapping(pull) do
+          pull.each_in_mapping do
             libraries << Library.new(pull)
           end
         when "scripts"
-          read_mapping(pull) do
+          pull.each_in_mapping do
             scripts[pull.read_scalar] = pull.read_scalar
           end
         else
           if validate
-            raise YAML::ParseException.new("unknown attribute: #{ key }", pull.line_number, pull.column_number)
+            pull.raise "unknown attribute: #{key}"
           else
             pull.skip
           end
@@ -123,11 +117,7 @@ module Shards
 
       {% for attr in %w(name version) %}
         unless @{{ attr.id }}
-          raise YAML::ParseException.new(
-            "missing required attribute: {{ attr.id }}",
-            pull.line_number,
-            pull.column_number
-          )
+          pull.raise "missing required attribute: {{ attr.id }}"
         end
       {% end %}
     end
@@ -170,24 +160,6 @@ module Shards
           "http://opensource.org/licenses/#{ license }"
         end
       end
-    end
-
-    private def read_sequence(pull)
-      pull.read_sequence_start
-      until pull.kind == YAML::EventKind::SEQUENCE_END
-        yield
-      end
-      pull.read_next
-      nil
-    end
-
-    private def read_mapping(pull)
-      pull.read_mapping_start
-      until pull.kind == YAML::EventKind::MAPPING_END
-        yield
-      end
-      pull.read_next
-      nil
     end
   end
 end

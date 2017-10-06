@@ -1,27 +1,44 @@
-require "yaml"
+require "./ext/yaml"
 require "./dependency"
 
 module Shards
-  # TODO: use yaml_mapping or YAML::PullParser directly
   module Lock
     def self.from_file(path)
       raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
       from_yaml(File.read(path))
     end
 
-    def self.from_yaml(str : String)
-      data = YAML.parse(str).raw.as(Hash)
+    def self.from_yaml(str)
+      dependencies = [] of Dependency
 
-      case data["version"].as(String)
-      when "1.0"
-        data["shards"].as(Hash).map do |name, config|
-          Dependency.new(name.to_s, config.as(Hash))
+      pull = YAML::PullParser.new(str)
+      pull.read_stream do
+        pull.read_document do
+          pull.read_mapping do
+            key, value = pull.read_scalar, pull.read_scalar
+
+            unless key == "version" && value == "1.0"
+              raise InvalidLock.new
+            end
+
+            case key = pull.read_scalar
+            when "shards"
+              pull.each_in_mapping do
+                dependencies << Dependency.new(pull)
+              end
+            else
+              pull.raise "no such attribute #{key} in lock version 1.0"
+            end
+          end
         end
-      else
-        raise InvalidLock.new # unknown lock version
       end
-    rescue TypeCastError | KeyError
+
+      dependencies
+    rescue ex : YAML::ParseException
+      # raise ParseError.new(ex.message, str, LOCK_FILENAME, ex.line_number, ex.column_number)
       raise Error.new("Invalid #{ LOCK_FILENAME }. Please delete it and run install again.")
+    ensure
+      pull.close if pull
     end
   end
 end
