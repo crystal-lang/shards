@@ -38,7 +38,7 @@ module Shards
     abstract def installed_commit_hash
 
     def run_script(name)
-      if installed? && (command = spec.scripts[name]?)
+      if installed? && (command = installed_spec.try(&.scripts[name]?))
         Shards.logger.info "#{name.capitalize} #{command}"
         Script.run(install_path, command)
       end
