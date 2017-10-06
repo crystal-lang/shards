@@ -30,13 +30,15 @@ module Shards
 
       def self.new(pull : YAML::PullParser)
         name = pull.read_scalar
+
+        line, column = pull.location
         version = pull.read_scalar.strip if pull.kind.scalar?
 
-        if version && !version.empty?
-          new(name, version)
-        else
-          raise Error.new("library version of #{name} can't be empty, use * for any version.")
+        if !version || version.try(&.empty?)
+          pull.raise "library version for #{name} can't be empty, use * for any version", line, column
         end
+
+        new(name, version)
       end
 
       def initialize(@soname, @version)
@@ -71,6 +73,8 @@ module Shards
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
       pull.each_in_mapping do
+        line, column = pull.location
+
         case key = pull.read_scalar
         when "name"
           @name = pull.read_scalar
@@ -108,7 +112,7 @@ module Shards
           end
         else
           if validate
-            pull.raise "unknown attribute: #{key}"
+            pull.raise "unknown attribute: #{key}", line, column
           else
             pull.skip
           end

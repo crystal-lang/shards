@@ -92,7 +92,7 @@ module Shards
   def self.find_resolver(dependency, update_cache = true)
     @@resolvers[dependency.name] ||= begin
       klass = get_resolver_class(dependency.keys)
-      raise Error.new("can't resolve dependency #{dependency.name} (unsupported resolver)") unless klass
+      raise Error.new("Failed can't resolve dependency #{dependency.name} (unsupported resolver)") unless klass
       klass.new(dependency, update_cache: update_cache)
     end
   end

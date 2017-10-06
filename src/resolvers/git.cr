@@ -214,7 +214,7 @@ module Shards
 
     private def run(command, path = local_path, capture = false)
       unless GitResolver.has_git_command?
-        raise Error.new("Error: missing git command line tool. Please install Git first!")
+        raise Error.new("Error missing git command line tool. Please install Git first!")
       end
 
       # Shards.logger.debug { "cd #{path}" }
@@ -233,7 +233,7 @@ module Shards
           if str.starts_with?("error: ") && (idx = str.index('\n'))
             message = str[7 ... idx]
           end
-          raise Error.new("git command failed: #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
+          raise Error.new("Failed #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
         end
       end
     end

@@ -35,15 +35,15 @@ module Shards
     end
 
     def to_s(io)
-      io.puts "in #{ filename }:#{ line_number }: #{ self.class.name }: #{ message }"
+      io.puts "in #{ filename }: #{ message }"
       io.puts
 
       lines = input.split('\n')
-      from = line_number - 2
+      from = line_number - 3
       from = 0 if from < 0
 
-      lines[from .. line_number].each_with_index do |line, i|
-        io.puts "  #{ i + 1 }. #{ line }"
+      lines[from ... line_number].each_with_index do |line, i|
+        io.puts "  #{ from + i + 1 }. #{ line }"
       end
 
       arrow = String.build do |s|
