@@ -26,8 +26,8 @@ license: MIT
 ```
 
 When libraries are installed from Git repositories, the repository is expected
-to have version tags following the [semver](http://semver.org/) format,
-prefixed with a `v`. Examples: `v1.2.3` or `v2.0.0-rc1`.
+to have version tags following a [semver](http://semver.org/)-like format,
+prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 
 Please see the [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)
 for more details about the `shard.yml` format.
@@ -35,8 +35,9 @@ for more details about the `shard.yml` format.
 
 ## Install
 
-Shards is now distributed with Crystal itself (at least in the Homebrew and
-Debian/Ubuntu packages). You can invoke it with `crystal deps`.
+Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
+packages); you may invoke it throught `crystal deps`. Alternatively, a `shards`
+package may be available for your system.
 
 You may download a statically compiled 64bit executable of Shards for Linux or
 OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page and
@@ -49,15 +50,17 @@ the newly generated `bin/shards` somewhere into your PATH. A good place is
 `/usr/local/bin` for example.
 
 You are now ready to create a `shard.yml` for your projects (see the
-[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)).
+[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You may type
+`shards init` (or `crystal deps init`) to have a starting `shard.yml` file
+created for you.
 
-Simply run `shards install` to install your dependencies, which will lock your
-dependencies into `shard.lock`, which you should check into version control,
-because `install` will always install the locked versions, for reproducible
-intallations across computers.
+Simply run `shards install` to install your dependencies (or `crystal deps
+install`), which will lock your dependencies into a `shard.lock` file, which you
+should check into version control, so further `install` will always install the
+locked versions, achieving reproducible installations across computers.
 
-Last but not least, use `shards --help` to list the other commands and their
-options.
+Last but not least, use `shards --help` (or `crystal deps --help`) to list the
+other commands and their options.
 
 Happy Hacking!
 
