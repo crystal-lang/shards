@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## v0.7.2
 
 Features:
 - Version command to print-out the project's version, see #147
@@ -10,6 +10,8 @@ Fixes:
 - Use installed spec for executing scripts, see #143
 - Don't expect `shard.lock` when `shard.yml` has no dependencies, see #145
 - Compatibility with Crystal 0.24.0 (unreleased)
+- Harmonize error messages
+- Correct shard.yml parse error line:column reporting
 
 ## v0.7.1
 
