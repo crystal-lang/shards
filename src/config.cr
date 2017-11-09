@@ -6,7 +6,32 @@ module Shards
   DEFAULT_VERSION = "0"
 
   def self.cache_path
-    @@cache_path ||= ENV.fetch("SHARDS_CACHE_PATH") { File.join(Dir.current, ".shards") }
+    @@cache_path ||= find_or_create_cache_path
+  end
+
+  private def self.find_or_create_cache_path
+    candidates = [
+      ENV["SHARDS_CACHE_PATH"]?,
+      ENV["XDG_CACHE_HOME"]?.try { |cache| File.join(cache, "shards") },
+      ENV["HOME"]?.try { |home| File.join(home, ".cache", "shards") },
+      ENV["HOME"]?.try { |home| File.join(home, ".cache", ".shards") },
+      File.join(Dir.current, ".shards"),
+    ]
+
+    candidates.each do |candidate|
+      next unless candidate
+
+      path = File.expand_path(candidate)
+      return path if File.exists?(path)
+
+      begin
+        Dir.mkdir_p(path)
+        return path
+      rescue Errno
+      end
+    end
+
+    raise Error.new("Failed to find or create cache directory")
   end
 
   def self.cache_path=(@@cache_path : String)

@@ -1,4 +1,5 @@
 ENV["PATH"] = "#{ File.expand_path("../bin", __DIR__) }:#{ ENV["PATH"] }"
+ENV["SHARDS_CACHE_PATH"] = File.expand_path(".shards", __DIR__)
 
 require "minitest/autorun"
 require "../src/config"
