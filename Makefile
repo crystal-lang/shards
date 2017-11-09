@@ -1,4 +1,4 @@
-CRYSTAL_BIN ?= $(shell which crystal)
+CRYSTAL ?= $(shell which crystal)
 
 VERSION := $(shell cat VERSION)
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
@@ -19,7 +19,7 @@ TEMPLATES := $(wildcard src/templates/*.ecr)
 all: bin/shards
 
 bin/shards: $(SOURCES) $(TEMPLATES)
-	$(CRYSTAL_BIN) build -o bin/shards src/shards.cr
+	$(CRYSTAL) build -o bin/shards src/shards.cr
 
 # Builds an optimized static binary ready for distribution.
 #
@@ -32,7 +32,7 @@ release:
 	  chmod 644 libyaml.a ;\
 	  export LIBRARY_PATH= ;\
 	fi
-	$(CRYSTAL_BIN) build --release -o bin/shards src/shards.cr $(CRFLAGS)
+	$(CRYSTAL) build --release -o bin/shards src/shards.cr $(CRFLAGS)
 	gzip -c bin/shards > shards-$(VERSION)_$(OS)_$(ARCH).gz
 
 # Builds the different releases in Vagrant boxes.
@@ -52,9 +52,9 @@ test:
 
 .PHONY: test_unit
 test_unit:
-	$(CRYSTAL_BIN) run test/*_test.cr -- --parallel=1
+	$(CRYSTAL) run test/*_test.cr -- --parallel=1
 
 .PHONY: test_integration
 test_integration: all
-	$(CRYSTAL_BIN) run test/integration/*_test.cr -- --parallel=1
+	$(CRYSTAL) run test/integration/*_test.cr -- --parallel=1
 
