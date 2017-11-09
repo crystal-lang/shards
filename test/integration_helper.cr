@@ -60,53 +60,53 @@ class Minitest::Test
     Minitest::Test.created_repositories!
   end
 
-  def assert_installed(name, version = nil)
-    assert Dir.exists?(install_path(name)), "expected #{name} dependency to have been installed"
+  def assert_installed(name, version = nil, file = __FILE__, line = __LINE__)
+    assert Dir.exists?(install_path(name)), "expected #{name} dependency to have been installed", file, line
 
     if version
-      assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found"
+      assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found", file, line
       spec = Shards::Spec.from_file(install_path(name, "shard.yml"))
 
-      if spec.version == "0" && File.exists?(cache_path("#{ name }.sha1"))
-        assert_equal version, File.read(cache_path("#{ name }.sha1"))
+      if spec.version == "0" && File.exists?(install_path("#{ name }.sha1"))
+        assert_equal version, File.read(install_path("#{ name }.sha1")), nil, file, line
       else
-        assert_equal version, spec.version
+        assert_equal version, spec.version, nil, file, line
       end
     end
   end
 
-  def refute_installed(name, version = nil)
+  def refute_installed(name, version = nil, file = __FILE__, line = __LINE__)
     if version
       if Dir.exists?(install_path(name))
-        assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found"
+        assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found", file, line
         spec = Shards::Spec.from_file(install_path(name, "shard.yml"))
-        refute_equal version, spec.version
+        refute_equal version, spec.version, nil, file, line
       end
     else
-      refute Dir.exists?(install_path(name)), "expected #{name} dependency to not have been installed"
+      refute Dir.exists?(install_path(name)), "expected #{name} dependency to not have been installed", file, line
     end
   end
 
-  def assert_locked(name, version = nil)
+  def assert_locked(name, version = nil, file = __FILE__, line = __LINE__)
     path = File.join(application_path, "shard.lock")
-    assert File.exists?(path), "expected shard.lock to have been generated"
+    assert File.exists?(path), "expected shard.lock to have been generated", file, line
     locks = Shards::Lock.from_file(path)
-    assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked"
+    assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
     if lock && version
       if version =~ /^[\d.]+$/
-        assert_equal version, lock.version, "expected #{name} dependency to have been locked at version #{version}"
+        assert_equal version, lock.version, "expected #{name} dependency to have been locked at version #{version}", file, line
       else
-        assert_equal version, lock.refs, "expected #{name} dependency to have been locked at commit #{version}"
+        assert_equal version, lock.refs, "expected #{name} dependency to have been locked at commit #{version}", file, line
       end
     end
   end
 
-  def refute_locked(name, version = nil)
+  def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)
     path = File.join(application_path, "shard.lock")
-    assert File.exists?(path), "expected shard.lock to have been generated"
+    assert File.exists?(path), "expected shard.lock to have been generated", file, line
     locks = Shards::Lock.from_file(path)
-    refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked"
+    refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked", file, line
   end
 
   def cache_path(*path_names)
