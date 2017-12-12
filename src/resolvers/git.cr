@@ -177,7 +177,7 @@ module Shards
     end
 
     private def clone_repository
-      run "git clone --mirror --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
+      run "git clone --bare --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
         path: File.dirname(local_path)
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
