@@ -36,7 +36,7 @@ for more details about the `shard.yml` format.
 ## Install
 
 Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
-packages); you may invoke it throught `crystal deps`. Alternatively, a `shards`
+packages) and you may invoke it through `crystal deps`. Alternatively, a `shards`
 package may be available for your system.
 
 You may download a statically compiled 64bit executable of Shards for Linux or
