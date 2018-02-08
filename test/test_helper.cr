@@ -1,4 +1,4 @@
-ENV["SHARDS_CACHE_PATH"] = File.expand_path(".shards", __DIR__)
+ENV["SHARDS_CACHE_PATH"] = ".shards"
 ENV["SHARDS_INSTALL_PATH"] = File.expand_path(".lib", __DIR__)
 
 require "minitest/autorun"
