@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## UNRELEASED
+
+Features:
+- Global cache for cloned Git repositories, aside crystal cache
+  (e.g. `~/.cache/shards`).
+
+Fixes:
+- Clone bare Git repositories instead of creating mirrors (fetch should be
+  faster, and less space required on disk).
+
 ## v0.7.2
 
 Features:
