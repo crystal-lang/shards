@@ -76,4 +76,14 @@ module Shards
 
   def self.production=(@@production)
   end
+
+  @@dev = false
+
+  def self.dev?
+    @@dev
+  end
+
+  def self.dev=(value)
+    @@dev = value
+  end
 end
