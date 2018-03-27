@@ -77,3 +77,9 @@ install-man:
 	mkdir -p $(MANDIR)/man1 $(MANDIR)/man5
 	cp $(filter %.1,$(MANPAGES)) $(MANDIR)/man1/
 	cp $(filter %.5,$(MANPAGES)) $(MANDIR)/man5/
+
+.PHONY: uninstall
+uninstall:
+	rm -f "$(BINDIR)/shards"
+	rm -f $(addprefix "$(MANDIR)"/man1/,$(notdir $(filter %.1,$(MANPAGES))))
+	rm -f $(addprefix "$(MANDIR)"/man5/,$(notdir $(filter %.5,$(MANPAGES))))
