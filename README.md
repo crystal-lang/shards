@@ -45,9 +45,11 @@ install it somewhere into your PATH, this version will take precedence over the
 bundled version.
 
 Alternatively you may download a source tarball from the same page (or clone the
-repository) then run `make` —or `make release` for an optimized build— and copy
-the newly generated `bin/shards` somewhere into your PATH. A good place is
-`/usr/local/bin` for example.
+repository) then run `make` —or `make release` for an optimized build— and run
+`make install` to copy the newly generated `bin/shards` and man pages to
+`/usr/local/bin` and `/usr/local/share/man` respectively. You may specify
+a different location using `PREFIX` variable (e.g. `make install PREFIX=/usr`
+to install into `/usr/bin` and `/usr/share/man` respectively).
 
 You are now ready to create a `shard.yml` for your projects (see the
 [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You may type
