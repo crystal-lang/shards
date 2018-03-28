@@ -4,6 +4,11 @@ VERSION := $(shell cat VERSION)
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH := $(shell uname -m)
 
+DESTDIR := /
+PREFIX := /usr/local
+BINDIR := $(DESTDIR)$(PREFIX)/bin
+MANDIR := $(DESTDIR)$(PREFIX)/share/man
+
 ifeq ($(OS),linux)
 	CRFLAGS := --link-flags "-static -L/opt/crystal/embedded/lib"
 endif
@@ -12,6 +17,7 @@ ifeq ($(OS),darwin)
 	CRFLAGS := --link-flags "-L."
 endif
 
+MANPAGES := $(wildcard man/*.[1-8])
 SOURCES := $(wildcard src/*.cr src/**/*.cr)
 TEMPLATES := $(wildcard src/templates/*.ecr)
 
@@ -58,3 +64,22 @@ test_unit:
 test_integration: all
 	$(CRYSTAL) run test/integration/*_test.cr -- --parallel=1
 
+.PHONY: install
+install: install-bin install-man
+
+.PHONY: install-bin
+install-bin: bin/shards
+	mkdir -p $(BINDIR)
+	cp bin/shards $(BINDIR)/
+
+.PHONY: install-man
+install-man:
+	mkdir -p $(MANDIR)/man1 $(MANDIR)/man5
+	cp $(filter %.1,$(MANPAGES)) $(MANDIR)/man1/
+	cp $(filter %.5,$(MANPAGES)) $(MANDIR)/man5/
+
+.PHONY: uninstall
+uninstall:
+	rm -f "$(BINDIR)/shards"
+	rm -f $(addprefix "$(MANDIR)"/man1/,$(notdir $(filter %.1,$(MANPAGES))))
+	rm -f $(addprefix "$(MANDIR)"/man5/,$(notdir $(filter %.5,$(MANPAGES))))
