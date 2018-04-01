@@ -73,27 +73,27 @@ module Shards
     end
 
     def install_executables
-      if installed? && spec.executables.any?
-        Dir.mkdir_p(Shards.bin_path)
+      return if !installed? || spec.executables.empty?
 
-        spec.executables.each do |name|
-          Shards.logger.debug "Install bin/#{name}"
-          source = File.join(resolver.install_path, "bin", name)
-          destination = File.join(Shards.bin_path, name)
+      Dir.mkdir_p(Shards.bin_path)
 
-          if File.exists?(destination)
-            next if File.stat(destination).ino == File.stat(source).ino
-            File.delete(destination)
-          end
+      spec.executables.each do |name|
+        Shards.logger.debug "Install bin/#{name}"
+        source = File.join(resolver.install_path, "bin", name)
+        destination = File.join(Shards.bin_path, name)
 
-          begin
-            File.link(source, destination)
-          rescue ex : Errno
-            if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
-              FileUtils.cp(source, destination)
-            else
-              raise ex
-            end
+        if File.exists?(destination)
+          next if File.stat(destination).ino == File.stat(source).ino
+          File.delete(destination)
+        end
+
+        begin
+          File.link(source, destination)
+        rescue ex : Errno
+          if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
+            FileUtils.cp(source, destination)
+          else
+            raise ex
           end
         end
       end
