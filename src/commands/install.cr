@@ -54,6 +54,7 @@ module Shards
         else
           Shards.logger.info "Installing #{package.name} (#{package.report_version})"
           package.install(version)
+          package.install_executables
         end
       end
 

@@ -52,8 +52,12 @@ module Shards
       create_file project, "shard.yml", contents
     end
 
-    def create_file(project, filename, contents)
-      File.write File.join(git_path(project), filename), contents
+    def create_file(project, filename, contents, perm = nil)
+      path = File.join(git_path(project), filename)
+      parent = File.dirname(path)
+      Dir.mkdir_p(parent) unless Dir.exists?(parent)
+      File.write(path, contents)
+      File.chmod(path, perm) if perm
     end
 
     def git_commits(project)

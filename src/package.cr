@@ -1,3 +1,4 @@
+require "file_utils"
 require "./resolvers/*"
 require "./helpers/versions"
 
@@ -69,6 +70,33 @@ module Shards
     rescue ex : Script::Error
       resolver.cleanup_install_directory
       raise ex
+    end
+
+    def install_executables
+      return if !installed? || spec.executables.empty?
+
+      Dir.mkdir_p(Shards.bin_path)
+
+      spec.executables.each do |name|
+        Shards.logger.debug "Install bin/#{name}"
+        source = File.join(resolver.install_path, "bin", name)
+        destination = File.join(Shards.bin_path, name)
+
+        if File.exists?(destination)
+          next if File.stat(destination).ino == File.stat(source).ino
+          File.delete(destination)
+        end
+
+        begin
+          File.link(source, destination)
+        rescue ex : Errno
+          if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
+            FileUtils.cp(source, destination)
+          else
+            raise ex
+          end
+        end
+      end
     end
 
     def to_lock(io : IO)
