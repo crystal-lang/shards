@@ -1,60 +1,42 @@
-CRYSTAL ?= $(shell which crystal)
+.POSIX:
 
-VERSION := $(shell cat VERSION)
-OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-ARCH := $(shell uname -m)
+CRYSTAL = crystal
+CRFLAGS =
+SOURCES = src/*.cr src/**/*.cr
+TEMPLATES = src/templates/*.ecr
 
-ifeq ($(OS),linux)
-	CRFLAGS := --link-flags "-static -L/opt/crystal/embedded/lib"
-endif
+DESTDIR =
+PREFIX = /usr/local
+BINDIR = $(DESTDIR)$(PREFIX)/bin
+MANDIR = $(DESTDIR)$(PREFIX)/share/man
+INSTALL = /usr/bin/install
 
-ifeq ($(OS),darwin)
-	CRFLAGS := --link-flags "-L."
-endif
-
-SOURCES := $(wildcard src/*.cr src/**/*.cr)
-TEMPLATES := $(wildcard src/templates/*.ecr)
-
-# Builds an unoptimized binary.
 all: bin/shards
 
+clean: phony
+	rm -f bin/shards
+
 bin/shards: $(SOURCES) $(TEMPLATES)
-	$(CRYSTAL) build -o bin/shards src/shards.cr
+	@mkdir -p bin
+	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
 
-# Builds an optimized static binary ready for distribution.
-#
-# On OS X the binary is only partially static (it depends on the system's
-# dylib), but libyaml should be bundled, unless the linker can find
-# libyaml.dylib
-release:
-	if [ "$(OS)" = "darwin" ] ; then \
-	  cp /usr/local/lib/libyaml.a . ;\
-	  chmod 644 libyaml.a ;\
-	  export LIBRARY_PATH= ;\
-	fi
-	$(CRYSTAL) build --release -o bin/shards src/shards.cr $(CRFLAGS)
-	gzip -c bin/shards > shards-$(VERSION)_$(OS)_$(ARCH).gz
+install: bin/shards phony
+	$(INSTALL) --mode 0755 -d $(BINDIR) $(MANDIR)/man1 $(MANDIR)/man5
+	$(INSTALL) --mode 0755 -t $(BINDIR) bin/shards
+	$(INSTALL) --mode 0644 -t $(MANDIR)/man1 man/shards.1
+	$(INSTALL) --mode 0644 -t $(MANDIR)/man5 man/shard.yml.5
 
-# Builds the different releases in Vagrant boxes.
-releases:
-	vagrant up --provision
-	vagrant ssh precise64 --command "cd /vagrant && make release"
-	vagrant ssh precise32 --command "cd /vagrant && linux32 make release"
-	vagrant halt
+uninstall: phony
+	rm -f $(BINDIR)/shards
+	rm -f $(MANDIR)/man1/shards.1
+	rm -f $(MANDIR)/man5/shard.yml.5
 
-clean:
-	rm -rf .crystal bin/shards
+test: test_unit test_integration
 
-.PHONY: test
-test:
-	make test_unit
-	make test_integration
+test_unit: phony
+	$(CRYSTAL) run test/*_test.cr
 
-.PHONY: test_unit
-test_unit:
-	$(CRYSTAL) run test/*_test.cr -- --parallel=1
+test_integration: bin/shards phony
+	$(CRYSTAL) run test/integration/*_test.cr
 
-.PHONY: test_integration
-test_integration: all
-	$(CRYSTAL) run test/integration/*_test.cr -- --parallel=1
-
+phony:
