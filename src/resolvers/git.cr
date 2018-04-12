@@ -1,3 +1,4 @@
+require "uri"
 require "./resolver"
 require "../helpers/natural_sort"
 
@@ -107,11 +108,23 @@ module Shards
     end
 
     def sha1_path
-      File.join(Shards.install_path, "#{dependency.name}.sha1")
+      @sha1_path ||= File.join(Shards.install_path, "#{dependency.name}.sha1")
     end
 
     def local_path
-      File.join(Shards.cache_path, dependency.name)
+      @local_path ||= begin
+                        uri = URI.parse(git_url)
+
+                        path = uri.path.to_s[1..-1]
+                        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
+                        path += ".git" unless path.ends_with?(".git")
+
+                        if host = uri.host
+                          File.join(Shards.cache_path, host, path)
+                        else
+                          File.join(Shards.cache_path, path)
+                        end
+                      end
     end
 
     def git_url
@@ -177,8 +190,10 @@ module Shards
     end
 
     private def clone_repository
-      run "git clone --bare --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
-        path: File.dirname(local_path)
+      dirname = File.dirname(local_path)
+      filename = File.basename(local_path)
+      Dir.mkdir_p(dirname) unless Dir.exists?(dirname)
+      run "git clone --bare --quiet -- #{FileUtils.escape git_url} #{filename}", path: dirname
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
