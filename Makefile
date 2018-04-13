@@ -21,15 +21,15 @@ bin/shards: $(SOURCES) $(TEMPLATES)
 	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
 
 install: bin/shards phony
-	$(INSTALL) --mode 0755 -d $(BINDIR) $(MANDIR)/man1 $(MANDIR)/man5
-	$(INSTALL) --mode 0755 -t $(BINDIR) bin/shards
-	$(INSTALL) --mode 0644 -t $(MANDIR)/man1 man/shards.1
-	$(INSTALL) --mode 0644 -t $(MANDIR)/man5 man/shard.yml.5
+	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
+	$(INSTALL) -m 0755 -t "$(BINDIR)" bin/shards
+	$(INSTALL) -m 0644 -t "$(MANDIR)/man1" man/shards.1
+	$(INSTALL) -m 0644 -t "$(MANDIR)/man5" man/shard.yml.5
 
 uninstall: phony
-	rm -f $(BINDIR)/shards
-	rm -f $(MANDIR)/man1/shards.1
-	rm -f $(MANDIR)/man5/shard.yml.5
+	rm -f "$(BINDIR)/shards"
+	rm -f "$(MANDIR)/man1/shards.1"
+	rm -f "$(MANDIR)/man5/shard.yml.5"
 
 test: test_unit test_integration
 
