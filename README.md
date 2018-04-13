@@ -36,30 +36,22 @@ for more details about the `shard.yml` format.
 ## Install
 
 Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
-packages); you may invoke it throught `shards`. Alternatively, a `shards`
-package may be available for your system.
+packages). Alternatively, a `shards` package may be available for your system.
 
-You may download a statically compiled 64bit executable of Shards for Linux or
-OS X from the [releases](https://github.com/ysbaddaden/shards/releases) page and
-install it somewhere into your PATH, this version will take precedence over the
-bundled version.
+You can download a source tarball from the same page (or clone the repository)
+then run `make CRFLAGS=--release`and copy `bin/shards` into your `PATH`. For
+example `/usr/local/bin`.
 
-Alternatively you may download a source tarball from the same page (or clone the
-repository) then run `make` —or `make release` for an optimized build— and copy
-the newly generated `bin/shards` somewhere into your PATH. A good place is
-`/usr/local/bin` for example.
+You are now ready to create a `shard.yml` for your projects (see details in
+[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You can type
+`shards init` to have an example `shard.yml` file created for your project.
 
-You are now ready to create a `shard.yml` for your projects (see the
-[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You may type
-`shards init` to have a starting `shard.yml` file created for you.
+Run `shards install` to install your dependencies, which will lock your
+dependencies into a `shard.lock` file. You should check both `shard.yml` and
+`shard.lock` into version control, so further `shards install` will always
+install locked versions, achieving reproducible installations across computers.
 
-Simply run `shards install` to install your dependencies, which will lock your
-dependencies into a `shard.lock` file, which you should check into version
-control, so further `install` will always install the locked versions,
-achieving reproducible installations across computers.
-
-Last but not least, use `shards --help` to list the other commands and their
-options.
+Run `shards --help` to list other commands with their options.
 
 Happy Hacking!
 
