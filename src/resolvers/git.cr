@@ -1,3 +1,4 @@
+require "uri"
 require "./resolver"
 require "../helpers/natural_sort"
 
@@ -107,11 +108,23 @@ module Shards
     end
 
     def sha1_path
-      File.join(Shards.install_path, "#{dependency.name}.sha1")
+      @sha1_path ||= File.join(Shards.install_path, "#{dependency.name}.sha1")
     end
 
     def local_path
-      File.join(Shards.cache_path, dependency.name)
+      @local_path ||= begin
+                        uri = URI.parse(git_url)
+
+                        path = uri.path.to_s[1..-1]
+                        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
+                        path += ".git" unless path.ends_with?(".git")
+
+                        if host = uri.host
+                          File.join(Shards.cache_path, host, path)
+                        else
+                          File.join(Shards.cache_path, path)
+                        end
+                      end
     end
 
     def git_url
@@ -177,8 +190,7 @@ module Shards
     end
 
     private def clone_repository
-      run "git clone --bare --quiet -- #{FileUtils.escape git_url} #{dependency.name}",
-        path: File.dirname(local_path)
+      run_in_current_folder "git clone --bare --quiet -- #{FileUtils.escape git_url} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
@@ -212,28 +224,30 @@ module Shards
     end
 
     private def run(command, path = local_path, capture = false)
+      Dir.cd(path) do
+        run_in_current_folder(command, capture)
+      end
+    end
+
+    private def run_in_current_folder(command, capture = false)
       unless GitResolver.has_git_command?
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
 
-      # Shards.logger.debug { "cd #{path}" }
+      Shards.logger.debug command
 
-      Dir.cd(path) do
-        Shards.logger.debug command
+      output = capture ? IO::Memory.new : Process::Redirect::Close
+      error = IO::Memory.new
+      status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
 
-        output = capture ? IO::Memory.new : Process::Redirect::Close
-        error = IO::Memory.new
-        status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
-
-        if status.success?
-          output.to_s if capture
-        else
-          str = error.to_s
-          if str.starts_with?("error: ") && (idx = str.index('\n'))
-            message = str[7 ... idx]
-          end
-          raise Error.new("Failed #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
+      if status.success?
+        output.to_s if capture
+      else
+        str = error.to_s
+        if str.starts_with?("error: ") && (idx = str.index('\n'))
+          message = str[7 ... idx]
         end
+        raise Error.new("Failed #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
       end
     end
   end

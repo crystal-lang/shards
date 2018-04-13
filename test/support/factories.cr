@@ -67,7 +67,7 @@ module Shards
     end
 
     def git_url(project)
-      "file:///#{git_path(project)}"
+      "file://#{git_path(project)}"
     end
 
     def git_path(project)
