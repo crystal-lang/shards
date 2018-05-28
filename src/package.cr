@@ -83,7 +83,7 @@ module Shards
         destination = File.join(Shards.bin_path, name)
 
         if File.exists?(destination)
-          next if File.stat(destination).ino == File.stat(source).ino
+          next if File.info(destination) == File.info(source)
           File.delete(destination)
         end
 
