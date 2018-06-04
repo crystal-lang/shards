@@ -7,7 +7,6 @@ authors:
 development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr
-    branch: master
 
 targets:
   shards:
