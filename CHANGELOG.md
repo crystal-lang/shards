@@ -1,14 +1,22 @@
 # CHANGELOG
 
-## UNRELEASED
+## v0.8.0
 
 Features:
-- Global cache for cloned Git repositories, aside crystal cache
-  (e.g. `~/.cache/shards`).
+- Install shard executables inside project bin folder on shard install.
+  See #126.
 
-Fixes:
+Changes:
+- Global cache for cloned Git repositories, aside crystal cache
+  (e.g. `~/.cache/shards`). Customizable with `SHARDS_CACHE_PATH`.
 - Clone bare Git repositories instead of creating mirrors (fetch should be
   faster, and less space required on disk).
+- Man pages are now in the `man` folder.
+- Allow loose shard versioning, accepting semver-like versions and alternatives
+  such as calver.
+
+Fixes:
+- Compatibility with Crystal 0.25.
 
 ## v0.7.2
 
