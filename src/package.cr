@@ -83,7 +83,14 @@ module Shards
         destination = File.join(Shards.bin_path, name)
 
         if File.exists?(destination)
-          next if File.info(destination) == File.info(source)
+          {% if File.class.has_method?(:same?) %}
+            # Since Crystal 0.25.0
+            next if File.same?(destination, source)
+          {% else %}
+            # Up to Crystal 0.24.2
+            next if File.stat(destination).ino == File.stat(source).ino
+          {% end %}
+
           File.delete(destination)
         end
 
