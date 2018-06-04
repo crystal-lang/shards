@@ -34,7 +34,7 @@ module Shards
         Shards.logger.debug "crystal #{args.join(' ')}"
 
         error = IO::Memory.new
-        status = Process.run("crystal", args: args, output: STDOUT, error: error)
+        status = Process.run("crystal", args: args, output: Process::Redirect::Inherit, error: error)
         raise Error.new("Error target #{target.name} failed to compile:\n#{error}") unless status.success?
       end
     end
