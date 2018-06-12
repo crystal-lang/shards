@@ -53,6 +53,56 @@ module Shards
       assert_raises(Error) { resolver("unknown").install }
     end
 
+    def test_installed_reports_library_is_installed
+      resolver("library").tap do |resolver|
+        refute resolver.installed?
+
+        resolver.install
+        assert resolver.installed?
+      end
+    end
+
+    def test_installed_when_target_is_incorrect_link
+      resolver("library").tap do |resolver|
+        File.symlink(git_path("legacy"), resolver.install_path)
+        refute resolver.installed?
+
+        resolver.install
+        assert resolver.installed?
+      end
+    end
+
+    def test_installed_when_target_is_incorrect_broken_link
+      resolver("library").tap do |resolver|
+        File.symlink("/does-not-exist", resolver.install_path)
+        refute resolver.installed?
+
+        resolver.install
+        assert resolver.installed?
+      end
+    end
+
+    def test_installed_when_target_is_dir
+      resolver("library").tap do |resolver|
+        Dir.mkdir_p(resolver.install_path)
+        File.touch(File.join(resolver.install_path, "foo"))
+        refute resolver.installed?
+
+        resolver.install
+        assert resolver.installed?
+      end
+    end
+
+    def test_installed_when_target_is_file
+      resolver("library").tap do |resolver|
+        File.touch(resolver.install_path)
+        refute resolver.installed?
+
+        resolver.install
+        assert resolver.installed?
+      end
+    end
+
     private def resolver(name, config = {} of String => String)
       config["path"] = git_path(name)
       dependency = Dependency.new(name, config)

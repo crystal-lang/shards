@@ -1,6 +1,6 @@
 module FileUtils
   def self.rm_rf(path)
-    return unless File.exists?(path)
+    return unless File.exists?(path) || File.symlink?(path)
 
     if Dir.exists?(path)
       command = "rm -rf #{escape path}"
