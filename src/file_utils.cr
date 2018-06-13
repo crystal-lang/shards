@@ -1,5 +1,5 @@
-module FileUtils
-  def self.rm_rf(path)
+module Shards::FileUtils
+  def self.rm_rf_logging(path)
     return unless File.exists?(path) || File.symlink?(path)
 
     if Dir.exists?(path)
