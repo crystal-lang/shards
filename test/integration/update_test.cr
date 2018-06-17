@@ -101,6 +101,23 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_finds_then_updates_new_compatible_version
+    metadata = { dependencies: { web: "~> 1.1.0" } }
+    lock = { web: "1.1.2" }
+
+    with_shard(metadata, lock) do
+      run "shards install"
+      assert_installed "web", "1.1.2"
+    end
+
+    create_git_release "web", "1.1.3"
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "web", "1.1.3"
+    end
+  end
+
   def test_wont_generate_lockfile_for_empty_dependencies
     metadata = { dependencies: {} of Symbol => String }
     with_shard(metadata) do
