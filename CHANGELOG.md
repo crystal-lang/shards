@@ -3,8 +3,9 @@
 ## v0.8.1
 
 Fixes:
-- Repositories cloned with v0.8.0 can't fetch new remote refs anymore, which
-  totally broke the `update` command.
+- Git repositories cloned with v0.8.0 can't fetch new remote refs anymore,
+  which totally broke the `update` command.
+- The Path resolver incorrectly handled invalid symlinks.
 
 ## v0.8.0 [REVOKED]
 
