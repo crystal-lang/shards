@@ -181,16 +181,23 @@ module Shards
       Shards.logger.info "Fetching #{git_url}"
 
       if cloned_repository?
-        fetch_repository
+        # repositories cloned with shards v0.8.0 won't fetch any new remote
+        # refs; we must delete them and clone again!
+        if valid_repository?
+          fetch_repository
+        else
+          delete_repository
+          mirror_repository
+        end
       else
-        clone_repository
+        mirror_repository
       end
 
       @updated_cache = true
     end
 
-    private def clone_repository
-      run_in_current_folder "git clone --bare --quiet -- #{FileUtils.escape git_url} #{local_path}"
+    private def mirror_repository
+      run_in_current_folder "git clone --mirror --quiet -- #{FileUtils.escape git_url} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
@@ -208,6 +215,13 @@ module Shards
 
     private def cloned_repository?
       Dir.exists?(local_path)
+    end
+
+    private def valid_repository?
+      File.each_line(File.join(local_path, "config")) do |line|
+        return true if line =~ /mirror\s*=\s*true/
+      end
+      false
     end
 
     private def origin_changed?
