@@ -102,19 +102,21 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_finds_then_updates_new_compatible_version
-    metadata = { dependencies: { web: "~> 1.1.0" } }
-    lock = { web: "1.1.2" }
+    create_git_repository "oopsie", "1.1.0", "1.2.0"
+
+    metadata = { dependencies: { oopsie: "~> 1.1.0" } }
+    lock = { oopsie: "1.1.0" }
 
     with_shard(metadata, lock) do
       run "shards install"
-      assert_installed "web", "1.1.2"
+      assert_installed "oopsie", "1.1.0"
     end
 
-    create_git_release "web", "1.1.3"
+    create_git_release "oopsie", "1.1.1"
 
     with_shard(metadata, lock) do
       run "shards update"
-      assert_installed "web", "1.1.3"
+      assert_installed "oopsie", "1.1.1"
     end
   end
 
