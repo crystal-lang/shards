@@ -1,6 +1,12 @@
 # CHANGELOG
 
-## v0.8.0
+## v0.8.1
+
+Fixes:
+- Repositories cloned with v0.8.0 can't fetch new remote refs anymore, which
+  totally broke the `update` command.
+
+## v0.8.0 [REVOKED]
 
 Features:
 - Install shard executables inside project bin folder on shard install.
