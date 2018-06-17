@@ -49,7 +49,7 @@ module Shards
     end
 
     protected def cleanup_install_directory
-      FileUtils.rm_rf(install_path)
+      FileUtils.rm_rf_logging(install_path)
     end
 
     protected def parse_legacy_projectfile_to_yaml(contents)

@@ -13,7 +13,7 @@ module Shards
           name = File.basename(path)
 
           if locks.none? { |d| d.name == name }
-            FileUtils.rm_rf(path)
+            FileUtils.rm_rf_logging(path)
             Shards.logger.info "Pruned #{File.join(File.basename(Shards.install_path), name)}"
           end
         end

@@ -209,7 +209,7 @@ module Shards
     end
 
     private def delete_repository
-      FileUtils.rm_rf(local_path)
+      FileUtils.rm_rf_logging(local_path)
       @origin_url = nil
     end
 

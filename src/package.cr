@@ -97,7 +97,7 @@ module Shards
           File.link(source, destination)
         rescue ex : Errno
           if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
-            FileUtils.cp(source, destination)
+            ::FileUtils.cp(source, destination)
           else
             raise ex
           end
