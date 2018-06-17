@@ -101,6 +101,25 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_finds_then_updates_new_compatible_version
+    create_git_repository "oopsie", "1.1.0", "1.2.0"
+
+    metadata = { dependencies: { oopsie: "~> 1.1.0" } }
+    lock = { oopsie: "1.1.0" }
+
+    with_shard(metadata, lock) do
+      run "shards install"
+      assert_installed "oopsie", "1.1.0"
+    end
+
+    create_git_release "oopsie", "1.1.1"
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "oopsie", "1.1.1"
+    end
+  end
+
   def test_wont_generate_lockfile_for_empty_dependencies
     metadata = { dependencies: {} of Symbol => String }
     with_shard(metadata) do
