@@ -1,8 +1,8 @@
+require "file_utils"
 require "../spec"
 require "../dependency"
 require "../errors"
 require "../script"
-require "../file_utils"
 
 module Shards
   abstract class Resolver
@@ -49,6 +49,7 @@ module Shards
     end
 
     protected def cleanup_install_directory
+      Shards.logger.debug "rm -rf '#{Helpers::Path.escape(install_path)}'"
       FileUtils.rm_rf(install_path)
     end
 

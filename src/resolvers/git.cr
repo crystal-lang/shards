@@ -1,6 +1,7 @@
 require "uri"
 require "./resolver"
 require "../helpers/natural_sort"
+require "../helpers/path"
 
 module Shards
   RELEASE_VERSION = /^v?([\d\.]+)$/
@@ -93,7 +94,7 @@ module Shards
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
-      run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{FileUtils.escape install_path}"
+      run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
 
       if version =~ RELEASE_VERSION
         File.delete(sha1_path) if File.exists?(sha1_path)
@@ -197,7 +198,7 @@ module Shards
     end
 
     private def mirror_repository
-      run_in_current_folder "git clone --mirror --quiet -- #{FileUtils.escape git_url} #{local_path}"
+      run_in_current_folder "git clone --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
@@ -209,6 +210,7 @@ module Shards
     end
 
     private def delete_repository
+      Shards.logger.debug "rm -rf '#{local_path}'"
       FileUtils.rm_rf(local_path)
       @origin_url = nil
     end

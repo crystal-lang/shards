@@ -1,5 +1,6 @@
+require "file_utils"
 require "./command"
-require "../file_utils"
+require "../helpers/path"
 
 module Shards
   module Commands
@@ -13,6 +14,7 @@ module Shards
           name = File.basename(path)
 
           if locks.none? { |d| d.name == name }
+            Shards.logger.debug "rm -rf '#{Helpers::Path.escape(path)}'"
             FileUtils.rm_rf(path)
             Shards.logger.info "Pruned #{File.join(File.basename(Shards.install_path), name)}"
           end
