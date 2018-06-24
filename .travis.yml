@@ -34,4 +34,4 @@ before_script: |
   git config --global column.ui always
 
 script:
-  - make test
+  - make install_shards test

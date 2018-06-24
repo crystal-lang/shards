@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.8.2 [UNRELEASED]
+
+Fixes:
+- macOS Unix `install` command doesn't have `-t` option.
+- Exclude build artificats from Git.
+- Add build rule to install dependent shards prior running tests.
+
 ## v0.8.1
 
 Fixes:
