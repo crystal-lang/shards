@@ -1,6 +1,20 @@
 # CHANGELOG
 
-## v0.8.0
+## v0.8.2
+
+Fixes:
+- macOS Unix `install` command doesn't have `-t` option.
+- Exclude build artificats from Git.
+- Add build rule to install dependent shards prior running tests.
+
+## v0.8.1
+
+Fixes:
+- Git repositories cloned with v0.8.0 can't fetch new remote refs anymore,
+  which totally broke the `update` command.
+- The Path resolver incorrectly handled invalid symlinks.
+
+## v0.8.0 [REVOKED]
 
 Features:
 - Install shard executables inside project bin folder on shard install.
