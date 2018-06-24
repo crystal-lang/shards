@@ -26,6 +26,9 @@ install: bin/shards phony
 	$(INSTALL) -m 0644 man/shards.1 "$(MANDIR)/man1"
 	$(INSTALL) -m 0644 man/shard.yml.5 "$(MANDIR)/man5"
 
+install_shards: bin/shards
+	bin/shards install
+
 uninstall: phony
 	rm -f "$(BINDIR)/shards"
 	rm -f "$(MANDIR)/man1/shards.1"
