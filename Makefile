@@ -16,11 +16,11 @@ all: shards
 clean: phony
 	rm -f bin/shards
 
-shards: $(SOURCES) $(TEMPLATES)
+bin/shards: $(SOURCES) $(TEMPLATES)
 	@mkdir -p bin
 	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
 
-install: shards phony
+install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
 	$(INSTALL) -m 0755 bin/shards "$(BINDIR)"
 	$(INSTALL) -m 0644 man/shards.1 "$(MANDIR)/man1"
@@ -31,10 +31,7 @@ uninstall: phony
 	rm -f "$(MANDIR)/man1/shards.1"
 	rm -f "$(MANDIR)/man5/shard.yml.5"
 
-test:	install_shards test_unit test_integration
-
-install_shards: shards
-	bin/shards install
+test:	test_unit test_integration
 
 test_unit: phony
 	$(CRYSTAL) run test/*_test.cr
