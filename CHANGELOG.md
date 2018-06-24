@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.8.2
+## v0.8.2 [UNRELEASED]
 
 Fixes:
 - macOS Unix `install` command doesn't have `-t` option.
