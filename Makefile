@@ -22,9 +22,9 @@ bin/shards: $(SOURCES) $(TEMPLATES)
 
 install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
-	$(INSTALL) -m 0755 -t "$(BINDIR)" bin/shards
-	$(INSTALL) -m 0644 -t "$(MANDIR)/man1" man/shards.1
-	$(INSTALL) -m 0644 -t "$(MANDIR)/man5" man/shard.yml.5
+	$(INSTALL) -m 0755 bin/shards "$(BINDIR)"
+	$(INSTALL) -m 0644 man/shards.1 "$(MANDIR)/man1"
+	$(INSTALL) -m 0644 man/shard.yml.5 "$(MANDIR)/man5"
 
 uninstall: phony
 	rm -f "$(BINDIR)/shards"
