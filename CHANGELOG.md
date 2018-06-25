@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## UNRELEASED
+
+Fixes:
+- `install -t` isn't supported on macOS.
+
 ## v0.8.1
 
 Fixes:
