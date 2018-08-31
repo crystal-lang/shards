@@ -39,13 +39,8 @@ module Shards
       if file_exists?(refs, SPEC_FILENAME)
         capture("git show #{refs}:#{SPEC_FILENAME}")
       else
-        if file_exists?(refs, "Projectfile")
-          contents = capture("git show #{refs}:Projectfile")
-          dependencies = parse_legacy_projectfile_to_yaml(contents)
-        end
-
         version = version_at(refs) || DEFAULT_VERSION
-        "name: #{dependency.name}\nversion: #{version}\n#{dependencies}"
+        "name: #{dependency.name}\nversion: #{version}\n"
       end
     end
 

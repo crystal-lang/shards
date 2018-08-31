@@ -12,14 +12,7 @@ module Shards
       if File.exists?(spec_path)
         File.read(spec_path)
       else
-        projectfile_path = File.join(local_path, "Projectfile")
-
-        if File.exists?(projectfile_path)
-          contents = File.read(projectfile_path)
-          dependencies = parse_legacy_projectfile_to_yaml(contents)
-        end
-
-        "name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n#{dependencies}"
+        "name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n"
       end
     end
 
