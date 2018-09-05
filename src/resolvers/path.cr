@@ -12,7 +12,7 @@ module Shards
       if File.exists?(spec_path)
         File.read(spec_path)
       else
-        "name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n"
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
       end
     end
 

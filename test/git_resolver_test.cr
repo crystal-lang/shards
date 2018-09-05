@@ -22,7 +22,7 @@ module Shards
     end
 
     def test_read_spec
-      assert_equal "name: empty\nversion: #{DEFAULT_VERSION}\n", resolver("empty").read_spec
+      assert_raises { resolver("empty").read_spec }
       assert_equal "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>", resolver("library").read_spec
       assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")
       assert_equal "name: library\nversion: 0.1.1\n", resolver("library").read_spec("0.1.1")

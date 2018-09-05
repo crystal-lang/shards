@@ -16,7 +16,7 @@ class InstallCommandTest < Minitest::Test
       assert_installed "pg", "0.2.1"
 
       # it installed the path dependency
-      assert_installed "foo"
+      assert_installed "foo", "0.1.0"
 
       # it installed development dependencies (recursively, except their
       # development dependencies)
@@ -46,16 +46,6 @@ class InstallCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
       assert_match "Missing #{Shards::SPEC_FILENAME}", ex.stdout
       assert_match "Please run 'shards init'", ex.stdout
-    end
-  end
-
-  def test_falls_back_to_install_and_lock_current_head
-    commit = git_commits(:empty).first
-
-    with_shard({ dependencies: { empty: nil } }, nil) do
-      run "shards install"
-      assert_installed "empty", commit
-      assert_locked "empty", commit
     end
   end
 

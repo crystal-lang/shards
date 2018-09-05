@@ -21,8 +21,7 @@ module Shards
       path = File.join(install_path, SPEC_FILENAME)
       return Spec.from_file(path) if File.exists?(path)
 
-      # TODO: raise instead of generating fake spec once shards is widely adopted
-      Spec.from_yaml("name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n")
+      raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
     end
 
     def installed?
