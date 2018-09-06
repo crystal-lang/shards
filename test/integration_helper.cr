@@ -55,7 +55,7 @@ class Minitest::Test
     create_file "fails", "Makefile", "all:\n\ttest -n ''\n"
     create_git_release "fails", "0.1.0", "name: fails\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
 
-    create_path_repository "foo"
+    create_path_repository "foo", "0.1.0"
 
     create_path_repository "binary"
     create_shard "binary", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"

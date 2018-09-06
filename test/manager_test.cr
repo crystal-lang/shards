@@ -12,19 +12,18 @@ module Shards
 
       MockResolver.register_spec("minitest", version: "0.1.1")
 
-      MockResolver.register_spec("legacy", version: "1.0.0", dependencies: %w(base:~>0.1.0))
       MockResolver.register_spec("collection", version: "1.0.0", dependencies: %w(base:>0.2.0))
 
       MockResolver.register_spec("library", version: "0.0.1")
       MockResolver.register_spec("library", version: "0.1.0")
       MockResolver.register_spec("library", version: "0.1.1")
       MockResolver.register_spec("library", version: "0.1.2")
-      MockResolver.register_spec("library", version: "0.2.0", dependencies: %w(legacy minitest))
+      MockResolver.register_spec("library", version: "0.2.0", dependencies: %w(minitest))
 
-      MockResolver.register_spec("failing", version: "0.1.0", dependencies: %w(legacy collection))
+      MockResolver.register_spec("failing", version: "0.1.0", dependencies: %w(collection))
 
       MockResolver.register_spec("webmock", version: "0.1.0")
-      MockResolver.register_spec("framework", dependencies: %w(base), development: %w(legacy))
+      MockResolver.register_spec("framework", dependencies: %w(base))
       MockResolver.register_spec("ide", dependencies: %w(framework), development: %w(minitest))
     end
 
@@ -53,8 +52,8 @@ module Shards
         }
       })
       manager.resolve
-      assert_equal 4, manager.packages.size
-      assert_equal %w(base legacy library minitest), manager.packages.map(&.name).sort
+      assert_equal 2, manager.packages.size
+      assert_equal %w(library minitest), manager.packages.map(&.name).sort
     end
 
     def test_resolves_version_requirements
@@ -81,7 +80,7 @@ module Shards
         }
       })
       ex = assert_raises(Shards::Conflict) { manager.resolve }
-      assert_equal "Error resolving base (~>0.1.0, >0.2.0)", ex.message
+      assert_equal "Error resolving base (>0.2.0)", ex.message
     end
 
     def test_resolves_development_dependencies

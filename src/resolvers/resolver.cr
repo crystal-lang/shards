@@ -6,9 +6,6 @@ require "../script"
 
 module Shards
   abstract class Resolver
-    PROJECTFILE_GITHUB_RE = /github\s+"(.+?\/(.+?))"(.*)/
-    PROJECTFILE_GITHUB_BRANCH_RE = /"(.+?)"/
-
     getter dependency : Dependency
 
     def initialize(@dependency, @update_cache = true)
@@ -24,8 +21,7 @@ module Shards
       path = File.join(install_path, SPEC_FILENAME)
       return Spec.from_file(path) if File.exists?(path)
 
-      # TODO: raise instead of generating fake spec once shards is widely adopted
-      Spec.from_yaml("name: #{dependency.name}\nversion: #{DEFAULT_VERSION}\n")
+      raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
     end
 
     def installed?
@@ -51,35 +47,6 @@ module Shards
     protected def cleanup_install_directory
       Shards.logger.debug "rm -rf '#{Helpers::Path.escape(install_path)}'"
       FileUtils.rm_rf(install_path)
-    end
-
-    protected def parse_legacy_projectfile_to_yaml(contents)
-      dependencies = parse_dependencies_from_projectfile(contents)
-        .map do |d|
-          if d.has_key?("branch")
-            "  #{d["name"]}:\n    github: #{d["github"]}\n    branch: #{d["branch"]}"
-          else
-            "  #{d["name"]}:\n    github: #{d["github"]}"
-          end
-        end
-
-      if dependencies.any?
-        "dependencies:\n#{dependencies.join("\n")}"
-      end
-    end
-
-    protected def parse_dependencies_from_projectfile(contents)
-      dependencies = Array(Hash(String, String)).new
-
-      contents.scan(PROJECTFILE_GITHUB_RE) do |m|
-        dependency = { "name" => m[2], "github" => m[1] }
-        if m[3]? && (mm = m[3].match(PROJECTFILE_GITHUB_BRANCH_RE))
-          dependency["branch"] = mm[1]
-        end
-        dependencies << dependency
-      end
-
-      dependencies
     end
   end
 
