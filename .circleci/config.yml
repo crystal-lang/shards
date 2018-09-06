@@ -3,31 +3,28 @@ version: 2
 dry:
   prepare: &prepare
     command: |
-      make
+      crystal --version
       git config --global user.email "you@example.com"
       git config --global user.name "Your Name"
       git config --global column.ui always
+  
+  steps: &steps
+    - run: *prepare
+    - checkout
+    - run: make
+    - run: bin/shards install
+    - run: make test
 
 jobs:
   test:
     docker:
       - image: crystallang/crystal:latest
-    steps:
-      - run: crystal --version
-      - checkout
-      - run: *prepare
-      - run: shards
-      - run: make test
+    steps: &steps
 
   test-on-nightly:
     docker:
       - image: crystallang/crystal:nightly
-    steps:
-      - run: crystal --version
-      - checkout
-      - run: *prepare
-      - run: shards
-      - run: make test
+    steps: &steps
 
 workflows:
   version: 2
