@@ -12,7 +12,7 @@ dry:
     - run: *prepare
     - checkout
     - run: make
-    - run: bin/shards install
+    - run: shards install
     - run: make test
 
 jobs:
