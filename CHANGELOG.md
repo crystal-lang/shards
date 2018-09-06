@@ -5,14 +5,14 @@
 Fixes:
 - `install -t` isn't supported on macOS.
 
-## v0.8.1
+## v0.8.1 - 2018-06-17
 
 Fixes:
 - Git repositories cloned with v0.8.0 can't fetch new remote refs anymore,
   which totally broke the `update` command.
 - The Path resolver incorrectly handled invalid symlinks.
 
-## v0.8.0 [REVOKED]
+## v0.8.0 - 2018-06-05 [REVOKED]
 
 Features:
 - Install shard executables inside project bin folder on shard install.
@@ -30,7 +30,7 @@ Changes:
 Fixes:
 - Compatibility with Crystal 0.25.
 
-## v0.7.2
+## v0.7.2 - 2017-11-16
 
 Features:
 - Version command to print-out the project's version, see #147
@@ -43,13 +43,13 @@ Fixes:
 - Harmonize error messages
 - Correct shard.yml parse error line:column reporting
 
-## v0.7.1
+## v0.7.1 - 2016-11-24
 
 Fixes:
 - correctly updates or keeps dependencies, see #107, #141
 - upgrades minitest dependency so test do run
 
-## v0.7.0
+## v0.7.0 - 2016-11-18
 
 Features:
 - Build command for `targets` entry in SPEC
@@ -70,28 +70,28 @@ Fixes:
 - correctly report git errors
 - the update command created a lockfile for empty dependencies
 
-## v0.6.4
+## v0.6.4 - 2016-11-18
 
 Fixes:
 - Compatibility with Crystal 0.19.0
 
-## v0.6.3
+## v0.6.3 - 2016-05-05
 
 Fixes:
 - Compatibility with Crystal > 0.15.0
 - Relative paths for path dependencies, see #99
 
-## v0.6.2
+## v0.6.2 - 2016-03-07
 
 Fixes:
 - Don't crash when git binary is missing.
 
-## v0.6.1
+## v0.6.1 - 2016-02-16
 
 Fixes:
 - Compatibility with Crystal > 0.11.1
 
-## v0.6.0
+## v0.6.0 - 2016-01-23
 
 Features:
 - prune command to remove extraneous libs
@@ -102,29 +102,29 @@ Fixes:
 - path resolver didn't verify the path actually existed, see #77
 - recursion when shard name doesn't match dependency name, see #72
 
-## v0.5.4
+## v0.5.4 - 2015-12-23
 
 Fixes:
 - Compatibility with Crystal > 0.9.1
 
-## v0.5.3
+## v0.5.3 - 2015-10-23
 
 Fixes:
 - Git resolver didn't install the locked commit when using branch, tag or
   commit or just failed to install the dependency, see #65 and #67
 
-## v0.5.2
+## v0.5.2 - 2015-10-02
 
 Fixes:
 - compilation on Crystal 0.9.0
 
-## v0.5.1
+## v0.5.1 - 2015-10-02
 
 Fixes:
 - always generate a `shard.yml` when installing legacy dependencies, see #60
 - only create `libs` and `.shards` folders when required, see #61
 
-## v0.5.0
+## v0.5.0 - 2015-09-28
 
 Breaking Change:
 - renamed `--no-colors` option as `--no-color` to match crystal
@@ -145,7 +145,7 @@ Fixes:
 - don't generate lockfile for projects without dependencies
 - don't fail when loading empty Projectfile
 
-## v0.4.0
+## v0.4.0 - 2015-09-14
 
 Features:
 - lock resolved versions for indempotent installs across computers, see #27
@@ -158,13 +158,13 @@ Breaking Changes:
 Fixes:
 - compatibility with Crystal 0.7.7
 
-## v0.3.1
+## v0.3.1 - 2015-08-16
 
 Fixes:
 - don't install dependencies from optional groups recursively
 - manager didn't install path dependencies anymore
 
-## v0.3.0
+## v0.3.0 - 2015-08-03
 
 Features:
 - optional groups of dependencies, see #8
@@ -173,13 +173,13 @@ Features:
 Fixes:
 - clone repository again when Git remote origin changes, see #4
 
-## v0.2.0
+## v0.2.0 - 2015-06-03
 
 Fixes:
 - correctly accesses git versioned `shard.yml` files;
 - correctly links/extracts the `src` folder as the `libs/<name>` folder for both
   Git and path resolvers.
 
-## v0.1.0
+## v0.1.0 - 2015-05-23
 
 Initial release.
