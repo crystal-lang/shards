@@ -7,7 +7,7 @@ dry:
       git config --global user.email "you@example.com"
       git config --global user.name "Your Name"
       git config --global column.ui always
-  
+
   steps: &steps
     - run: *prepare
     - checkout
@@ -19,12 +19,12 @@ jobs:
   test:
     docker:
       - image: crystallang/crystal:latest
-    steps: &steps
+    steps: *steps
 
   test-on-nightly:
     docker:
       - image: crystallang/crystal:nightly
-    steps: &steps
+    steps: *steps
 
 workflows:
   version: 2
