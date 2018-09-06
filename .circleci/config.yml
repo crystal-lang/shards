@@ -1,0 +1,43 @@
+version: 2
+
+dry:
+  prepare: &prepare
+    command: |
+      crystal --version
+      git config --global user.email "you@example.com"
+      git config --global user.name "Your Name"
+      git config --global column.ui always
+  
+  steps: &steps
+    - run: *prepare
+    - checkout
+    - run: make
+    - run: shards install
+    - run: make test
+
+jobs:
+  test:
+    docker:
+      - image: crystallang/crystal:latest
+    steps: &steps
+
+  test-on-nightly:
+    docker:
+      - image: crystallang/crystal:nightly
+    steps: &steps
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - test
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - test-on-nightly
