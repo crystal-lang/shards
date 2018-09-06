@@ -1,50 +1,48 @@
-.TH SHARDS "1" "September 2015" "shards 0.8.1" "User Commands"
+.TH SHARDS "1" "September 2018" "shards 0.8.1" "User Commands"
 .SH NAME
 shards \- dependency manager for the Crystal Language
 .SH SYNOPSYS
 .B
 shards
-[\fIOPTION\fR]... [\fICOMMAND\fR]...
+[\fI<options>\fR...] [<\fIcommand\fR>]
+.PP
+If no \fIcommand\fR is given, \fBinstall\fR will be run by default.
 .SH DESCRIPTION
 .PP
 Manages dependencies for Crystal projects and libraries with reproducible
 installs across computers and systems.
 .PP
-Requires the presence of a \fIshards.yml\fR file. See \fBshard.yml\fR(5) for
+Requires the presence of a \fIshard.yml\fR file. See \fBshard.yml\fR(5) for
 more information on its format.
-.SH OPTIONS
-\-h, \-\-help
-.RS 4
-Prints usage synopsis.
-.RE
-.PP
-\-\-no-color
-.RS 4
-Disable colored output.
-.RE
-.PP
-\-\-production
-.RS 4
-Run in release mode. Development dependencies won't be installed and only
-locked dependencies will be installed. Commands will fail if dependencies in
-\fIshard.yml\fR and \fIshard.lock\fR are out of sync.
-.RE
-.PP
-\-q, \-\-quiet
-.RS 4
-Decreases the log verbosity, printing only warnings and errors.
-.RE
-.PP
-\-v, \-\-verbose
-.RS 4
-Increases the log verbosity, printing all debug statements.
-.RE
-.PP
-\-\-version
-.RS 4
-Prints the Shards version.
-.RE
 .SH COMMANDS
+.PP
+\fBbuild\fR [\fI<targets>\fR] [\fI<options>\fR...]
+.RS 4
+Builds the specified \fItargets\fR in \fBbin\fR path. If no targets are specified, all are built.
+This command ensures all dependencies are installed, so it is not necessary to run \fBshards install\fR before.
+.PP
+All \fIoptions\fP following the command are delegated to \fBcrystal build\fR.
+.RE
+.PP
+\fBcheck\fR
+.RS 4
+Verifies that all dependencies are installed and requirements are satisfied.
+.SS
+.RS 4
+Exit status:
+.PP
+.TP 3
+\fB0\fR
+dependencies are satisfied,
+.TP 3
+\fB1\fR
+dependencies aren't satisfied.
+.RE
+.PP
+\fBinit\fR
+.RS 4
+Initializes a shard folder and creates a default \fIshard.yml\fR.
+.RE
 .PP
 \fBinstall\fR
 .RS 4
@@ -58,6 +56,16 @@ a requirement, but may succeed if a new dependency was added, as long as it
 doesn't generate a conflict, thus generating a new \fIshard.lock\fR file.
 .RE
 .PP
+\fBlist\fR
+.RS 4
+Lists the installed dependencies and their versions.
+.RE
+.PP
+\fBprune\fR
+.RS 4
+Removes unused dependencies from \fIlib\fR folder.
+.RE
+.PP
 \fBupdate\fR
 .RS 4
 Resolves and updates all dependencies into the \fIlib\fR folder again,
@@ -65,26 +73,49 @@ whatever the locked versions and commits in the \fIshard.lock\fR file.
 Eventually generates a new \fIshard.lock\fR file.
 .RE
 .PP
-\fBcheck\fR
+\fBversion\fR [\fI<path>\fR]
 .RS 4
-Verifies if all dependencies have been installed and requirements
-satisfied.
-.SS
-Exit status:
-.TP
-0
-dependencies are satisfied,
-.TP
-1
-dependencies aren't satisfied.
+Prints the current version of the shard.
 .RE
-.SH AUTHOR
+.SH OPTIONS
+.PP
+\fB\-\-version\fR
+.RS 4
+Prints the \fIshards\fR version.
+.RE
+.PP
+\fB\-h, \-\-help\fR
+.RS 4
+Prints usage synopsis.
+.RE
+.PP
+\fB\-\-no-color\fR
+.RS 4
+Disable colored output.
+.RE
+.PP
+\fB\-\-production\fR
+.RS 4
+Run in release mode. Development dependencies won't be installed and only
+locked dependencies will be installed. Commands will fail if dependencies in
+\fIshard.yml\fR and \fIshard.lock\fR are out of sync.
+.RE
+.PP
+\fB\-q, \-\-quiet\fR
+.RS 4
+Decreases the log verbosity, printing only warnings and errors.
+.RE
+.PP
+\fB\-v, \-\-verbose\fR
+.RS 4
+Increases the log verbosity, printing all debug statements.
+.REAUTHOR
 Written by Julien Portalier.
 .SH "REPORTING BUGS"
-Report shards bugs to <https://github.com/ysbaddaden/shards/issues>
+Report shards bugs to <https://github.com/crystal-lang/shards/issues>
 Crystal Language home page: <https://crystal-lang.org>
 .SH COPYRIGHT
-Copyright \(co 2015 Julien Portalier.
+Copyright \(co 2018 Julien Portalier.
 License Apache 2.0 <http://www.apache.org/licenses/LICENSE-2.0>.
 .br
 This is free software: you are free to change and redistribute it.

@@ -3,23 +3,25 @@ require "./commands/*"
 
 module Shards
   def self.display_help_and_exit(opts)
-    puts "shards [options] <command>"
-    puts
-    puts "Commands:"
-    puts "    build [targets] [options]"
-    puts "    check"
-    #puts "    info <package>"
-    puts "    init"
-    puts "    install"
-    puts "    list"
-    puts "    prune"
-    #puts "    search <query>"
-    puts "    update"
-    # puts "    update [package package ...]"
-    puts "    version [path]"
-    puts
-    puts "Options:"
+    puts <<-HELP
+      shards [<options>...] [<command>]
+
+      Commands:
+          build [<targets>] [<options>]  - Builds the specified <targets> in `bin` path.
+          check                          - Verifies all dependencies are installed.
+          init                           - Initializes a shard folder.
+          install                        - Installs dependencies from `shard.lock` file.
+          list                           - Lists installed dependencies.
+          prune                          - Removes unused dependencies from `lib` folder.
+          update                         - Updates dependencies and `shards.lock`.
+          version [<path>]               - Prints the current version of the shard.
+
+      Options:
+      HELP
     puts opts
+    #    info <package>
+    #    search <query>
+    #     update [package package ...]
     exit
   end
 
@@ -27,12 +29,12 @@ module Shards
     OptionParser.parse! do |opts|
       path = Dir.current
 
-      opts.on("--no-color", "") { self.colors = false }
-      opts.on("--version", "") { puts self.version_string; exit }
-      opts.on("--production", "") { self.production = true }
-      opts.on("-v", "--verbose", "") { self.logger.level = Logger::Severity::DEBUG }
-      opts.on("-q", "--quiet", "") { self.logger.level = Logger::Severity::WARN }
-      opts.on("-h", "--help", "") { self.display_help_and_exit(opts) }
+      opts.on("--no-color", "Disable colored output.") { self.colors = false }
+      opts.on("--version", "Prints the `shards` version.") { puts self.version_string; exit }
+      opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
+      opts.on("-v", "--verbose", "Increases the log verbosity, printing all debug statements.") { self.logger.level = Logger::Severity::DEBUG }
+      opts.on("-q", "--quiet", "Decreases the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
+      opts.on("-h", "--help", "Prints usage synopsis.") { self.display_help_and_exit(opts) }
 
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
