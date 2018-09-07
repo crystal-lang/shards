@@ -136,7 +136,7 @@ module Shards
       })
       manager.resolve
 
-      if pkg = manager.packages.find { |pkg| pkg.name == dependency }
+      if pkg = manager.packages.find(&.name.==(dependency))
         assert_equal version, pkg.version, "expected #{dependency} #{requirement} to resolve to #{version} but was #{pkg.version}"
       else
         assert pkg, "expected #{dependency} #{requirement} to resolve to #{version} but got nothing"

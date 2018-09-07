@@ -28,7 +28,7 @@ class VersionCommandTest < Minitest::Test
   end
 
   def test_fails_version
-    ex = assert_raises(FailedCommand) do
+    assert_raises(FailedCommand) do
       root = File.expand_path("/", Dir.current)
       run "shards version #{root}"
     end

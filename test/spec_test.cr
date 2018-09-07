@@ -213,7 +213,7 @@ module Shards
         github: spalger/crystal-mime
         branch: master
       YAML
-      ex = assert_raises(ParseError) { Spec.from_yaml(str) }
+      assert_raises(ParseError) { Spec.from_yaml(str) }
     end
   end
 end
