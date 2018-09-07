@@ -54,7 +54,7 @@ module Shards
 
     private def self.to_yaml(dependencies)
       yaml = dependencies.map do |dep|
-        ary = dep.split(":", 2)
+        ary = dep.split(':', 2)
 
         if ary.size == 2
           "  #{ary[0]}:\n    mock: \"test\"\n    version: #{ary[1].inspect}"
@@ -63,7 +63,7 @@ module Shards
         end
       end
 
-      yaml.join("\n")
+      yaml.join('\n')
     end
   end
 

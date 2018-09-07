@@ -23,32 +23,32 @@ module Shards
 
     def to_shard_yaml(metadata)
       String.build do |yml|
-        yml << "name: " << (metadata[:name]? || "test").inspect << "\n"
-        yml << "version: " << (metadata[:version]? || "0.0.0").inspect << "\n"
+        yml << "name: " << (metadata[:name]? || "test").inspect << '\n'
+        yml << "version: " << (metadata[:version]? || "0.0.0").inspect << '\n'
 
         metadata.each do |key, value|
           if key.to_s.ends_with?("dependencies")
-            yml << key << ":"
+            yml << key << ':'
 
             if value.responds_to?(:each)
-              yml << "\n"
+              yml << '\n'
               value.each do |name, version|
                 yml << "  " << name << ":\n"
 
                 case version
                 when String
-                  yml << "    git: " << git_url(name).inspect << "\n"
-                  yml << "    version: " << version.inspect << "\n"
+                  yml << "    git: " << git_url(name).inspect << '\n'
+                  yml << "    version: " << version.inspect << '\n'
                 #when Hash
                 #  version.each do |k, v|
-                #    yml << "    " << k << ": " << v.inspect << "\n"
+                #    yml << "    " << k << ": " << v.inspect << '\n'
                 #  end
                 when NamedTuple
                   version.each do |k, v|
-                    yml << "    " << k.to_s << ": " << v.inspect << "\n"
+                    yml << "    " << k.to_s << ": " << v.inspect << '\n'
                   end
                 else
-                  yml << "    git: " << git_url(name).inspect << "\n"
+                  yml << "    git: " << git_url(name).inspect << '\n'
                 end
               end
             else
@@ -61,7 +61,7 @@ module Shards
                 yml << "  " << target.to_s << ":\n"
                 if info.responds_to?(:each)
                   info.each do |main, src|
-                    yml << "    main: " << src.inspect << "\n"
+                    yml << "    main: " << src.inspect << '\n'
                   end
                 end
               end
@@ -80,12 +80,12 @@ module Shards
 
         lock.each do |name, version|
           yml << "  " << name << ":\n"
-          yml << "    git: " << git_url(name).inspect << "\n"
+          yml << "    git: " << git_url(name).inspect << '\n'
 
           if version =~ /^[\d\.]+$/
-            yml << "    version: " << version.inspect << "\n"
+            yml << "    version: " << version.inspect << '\n'
           else
-            yml << "    commit: " << version.inspect << "\n"
+            yml << "    commit: " << version.inspect << '\n'
           end
         end
       end

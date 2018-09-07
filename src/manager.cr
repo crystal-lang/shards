@@ -35,7 +35,7 @@ module Shards
         .each do |package|
           io << "  " << package.name << ":\n"
           package.to_lock(io)
-          io << "\n"
+          io << '\n'
         end
     end
 

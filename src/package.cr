@@ -107,12 +107,12 @@ module Shards
 
     def to_lock(io : IO)
       key = resolver.class.key
-      io << "    " << key << ": " << @dependency[key] << "\n"
+      io << "    " << key << ": " << @dependency[key] << '\n'
 
       if @dependency.refs || !(version =~ RELEASE_VERSION)
-        io << "    commit: " << resolver.installed_commit_hash.to_s << "\n"
+        io << "    commit: " << resolver.installed_commit_hash.to_s << '\n'
       else
-        io << "    version: " << version << "\n"
+        io << "    version: " << version << '\n'
       end
     end
 

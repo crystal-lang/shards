@@ -18,7 +18,7 @@ module Shards
           versions
         when /~>(.+)/
           ver = $1.strip
-          vver = if idx = ver.rindex(".")
+          vver = if idx = ver.rindex('.')
                    ver[0...idx]
                  else
                    ver

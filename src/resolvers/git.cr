@@ -50,7 +50,7 @@ module Shards
                    [version_at(refs)]
                  else
                    capture("git tag --list #{GitResolver.git_column_never}")
-                     .split("\n")
+                     .split('\n')
                      .map { |version| $1 if version.strip =~ RELEASE_VERSION }
                  end.compact
 
@@ -65,12 +65,12 @@ module Shards
     def matches?(commit)
       if branch = dependency["branch"]?
         capture("git branch --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split("\n")
+          .split('\n')
           .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
           .includes?(branch)
       elsif tag = dependency["tag"]?
         capture("git tag --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split("\n")
+          .split('\n')
           .includes?(tag)
       else
         !capture("git log -n 1 #{commit}").strip.empty?
@@ -150,7 +150,7 @@ module Shards
       update_local_cache
 
       tags = capture("git tag --list --contains #{refs} #{GitResolver.git_column_never}")
-        .split("\n")
+        .split('\n')
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
       tags.first?
@@ -161,8 +161,8 @@ module Shards
 
       refs = [] of String?
       refs << commit
-      refs += capture("git tag --list --contains #{commit} #{GitResolver.git_column_never}").split("\n")
-      refs += capture("git branch --list --contains #{commit} #{GitResolver.git_column_never}").split(" ")
+      refs += capture("git tag --list --contains #{commit} #{GitResolver.git_column_never}").split('\n')
+      refs += capture("git branch --list --contains #{commit} #{GitResolver.git_column_never}").split(' ')
       refs.compact.uniq
     end
 
