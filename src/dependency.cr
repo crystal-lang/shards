@@ -1,8 +1,11 @@
 require "./ext/yaml"
 
 module Shards
-  class Dependency < Hash(String, String)
+  class Dependency
     property name : String
+
+    @store = {} of String => String
+    forward_missing_to @store
 
     def self.new(pull : YAML::PullParser) : self
       Dependency.new(pull.read_scalar).tap do |dependency|
@@ -13,26 +16,24 @@ module Shards
     end
 
     def initialize(@name)
-      super()
     end
 
     # DEPRECATED: with no replacement
     def initialize(@name, config)
-      super()
-      config.each { |k, v| self[k.to_s] = v.to_s }
+      config.each { |k, v| @store[k.to_s] = v.to_s }
     end
 
     def version
-      fetch("version", "*")
+      @store.fetch("version", "*")
     end
 
     def refs
-      self["branch"]? || self["tag"]? || self["commit"]?
+      @store["branch"]? || @store["tag"]? || @store["commit"]?
     end
 
     def inspect(io)
       io << "#<" << self.class.name << " {" << name << " => "
-      super
+      @store.inspect(io)
       io << "}>"
     end
   end

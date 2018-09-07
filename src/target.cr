@@ -1,6 +1,9 @@
 module Shards
-  class Target < Hash(String, String)
+  class Target
     property name : String
+
+    @store = {} of String => String
+    forward_missing_to @store
 
     def self.new(pull : YAML::PullParser) : self
       Target.new(pull.read_scalar).tap do |target|
@@ -11,11 +14,10 @@ module Shards
     end
 
     def initialize(@name)
-      super()
     end
 
     def main
-      self["main"]
+      @store["main"]
     end
   end
 end
