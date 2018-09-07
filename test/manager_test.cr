@@ -34,10 +34,10 @@ module Shards
 
     def test_resolve
       manager = manager_for({
-        "name" => "test",
+        "name"         => "test",
         "dependencies" => {
-          "base" => { "mock" => "test" }
-        }
+          "base" => {"mock" => "test"},
+        },
       })
       manager.resolve
       assert_equal 1, manager.packages.size
@@ -46,10 +46,10 @@ module Shards
 
     def test_resolves_recursively
       manager = manager_for({
-        "name" => "test",
+        "name"         => "test",
         "dependencies" => {
-          "library" => { "mock" => "test", "version" => "0.2.0" }
-        }
+          "library" => {"mock" => "test", "version" => "0.2.0"},
+        },
       })
       manager.resolve
       assert_equal 2, manager.packages.size
@@ -74,10 +74,10 @@ module Shards
 
     def test_fails_to_resolve_with_incompatible_version_requirements
       manager = manager_for({
-        "name" => "test",
+        "name"         => "test",
         "dependencies" => {
-          "failing" => { "mock" => "test" }
-        }
+          "failing" => {"mock" => "test"},
+        },
       })
       ex = assert_raises(Shards::Conflict) { manager.resolve }
       assert_equal "Error resolving base (>0.2.0)", ex.message
@@ -85,13 +85,13 @@ module Shards
 
     def test_resolves_development_dependencies
       manager = manager_for({
-        "name" => "test",
+        "name"         => "test",
         "dependencies" => {
-          "ide" => { "mock" => "test" }
+          "ide" => {"mock" => "test"},
         },
         "development_dependencies" => {
-          "webmock" => { "mock" => "test" },
-        }
+          "webmock" => {"mock" => "test"},
+        },
       })
       manager.resolve
 
@@ -127,20 +127,19 @@ module Shards
       Manager.new(spec)
     end
 
-
     private def assert_resolves(version, requirement, dependency = "library")
       manager = manager_for({
-        "name" => "test",
+        "name"         => "test",
         "dependencies" => {
-          dependency => { "mock" => "test", "version" => requirement }
-        }
+          dependency => {"mock" => "test", "version" => requirement},
+        },
       })
       manager.resolve
 
       if pkg = manager.packages.find { |pkg| pkg.name == dependency }
-        assert_equal version, pkg.version, "expected #{ dependency} #{ requirement } to resolve to #{ version } but was #{ pkg.version }"
+        assert_equal version, pkg.version, "expected #{dependency} #{requirement} to resolve to #{version} but was #{pkg.version}"
       else
-        assert pkg, "expected #{dependency } #{ requirement } to resolve to #{ version } but got nothing"
+        assert pkg, "expected #{dependency} #{requirement} to resolve to #{version} but got nothing"
       end
     end
   end

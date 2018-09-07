@@ -3,8 +3,8 @@ require "../integration_helper"
 class CheckCommandTest < Minitest::Test
   def test_lists_all_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", },
-      development_dependencies: { mock: "*" }
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
       run "shards install"
@@ -19,8 +19,8 @@ class CheckCommandTest < Minitest::Test
 
   def test_production_doesnt_list_development_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", },
-      development_dependencies: { mock: "*" }
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
       run "shards install --production"

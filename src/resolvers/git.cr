@@ -25,7 +25,7 @@ module Shards
     end
 
     protected def self.git_version
-      @@git_version ||= `git --version`.strip[12 .. -1]
+      @@git_version ||= `git --version`.strip[12..-1]
     end
 
     protected def self.git_column_never
@@ -49,7 +49,7 @@ module Shards
       versions = if refs = dependency.refs
                    [version_at(refs)]
                  else
-                   capture("git tag --list #{ GitResolver.git_column_never }")
+                   capture("git tag --list #{GitResolver.git_column_never}")
                      .split("\n")
                      .map { |version| $1 if version.strip =~ RELEASE_VERSION }
                  end.compact
@@ -64,16 +64,16 @@ module Shards
 
     def matches?(commit)
       if branch = dependency["branch"]?
-        capture("git branch --list #{ GitResolver.git_column_never } --contains #{ commit }")
+        capture("git branch --list #{GitResolver.git_column_never} --contains #{commit}")
           .split("\n")
           .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
           .includes?(branch)
       elsif tag = dependency["tag"]?
-        capture("git tag --list #{ GitResolver.git_column_never } --contains #{ commit }")
+        capture("git tag --list #{GitResolver.git_column_never} --contains #{commit}")
           .split("\n")
           .includes?(tag)
       else
-        !capture("git log -n 1 #{ commit }").strip.empty?
+        !capture("git log -n 1 #{commit}").strip.empty?
       end
     end
 
@@ -93,7 +93,7 @@ module Shards
       if version =~ RELEASE_VERSION
         File.delete(sha1_path) if File.exists?(sha1_path)
       else
-        commit = capture("git log -n 1 --pretty=%H #{ version }").strip
+        commit = capture("git log -n 1 --pretty=%H #{version}").strip
         File.write(sha1_path, commit)
       end
     end
@@ -108,18 +108,18 @@ module Shards
 
     def local_path
       @local_path ||= begin
-                        uri = URI.parse(git_url)
+        uri = URI.parse(git_url)
 
-                        path = uri.path.to_s[1..-1]
-                        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
-                        path += ".git" unless path.ends_with?(".git")
+        path = uri.path.to_s[1..-1]
+        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
+        path += ".git" unless path.ends_with?(".git")
 
-                        if host = uri.host
-                          File.join(Shards.cache_path, host, path)
-                        else
-                          File.join(Shards.cache_path, path)
-                        end
-                      end
+        if host = uri.host
+          File.join(Shards.cache_path, host, path)
+        else
+          File.join(Shards.cache_path, path)
+        end
+      end
     end
 
     def git_url
@@ -149,7 +149,7 @@ module Shards
     private def version_at(refs)
       update_local_cache
 
-      tags = capture("git tag --list --contains #{refs} #{ GitResolver.git_column_never }")
+      tags = capture("git tag --list --contains #{refs} #{GitResolver.git_column_never}")
         .split("\n")
         .map { |tag| $1 if tag =~ RELEASE_VERSION }
         .compact
@@ -161,8 +161,8 @@ module Shards
 
       refs = [] of String?
       refs << commit
-      refs += capture("git tag --list --contains #{commit} #{ GitResolver.git_column_never }").split("\n")
-      refs += capture("git branch --list --contains #{commit} #{ GitResolver.git_column_never }").split(" ")
+      refs += capture("git tag --list --contains #{commit} #{GitResolver.git_column_never}").split("\n")
+      refs += capture("git branch --list --contains #{commit} #{GitResolver.git_column_never}").split(" ")
       refs.compact.uniq
     end
 
@@ -255,9 +255,9 @@ module Shards
       else
         str = error.to_s
         if str.starts_with?("error: ") && (idx = str.index('\n'))
-          message = str[7 ... idx]
+          message = str[7...idx]
         end
-        raise Error.new("Failed #{ command } (#{ message }). Maybe a commit, branch or file doesn't exist?")
+        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
   end

@@ -47,7 +47,7 @@ module Shards
 
     def self.from_file(path, validate = false)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
-      raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
+      raise Error.new("Missing #{File.basename(path)}") unless File.exists?(path)
       from_yaml(File.read(path), path, validate)
     end
 
@@ -169,7 +169,7 @@ module Shards
         if license =~ %r(https?://)
           license
         else
-          "http://opensource.org/licenses/#{ license }"
+          "http://opensource.org/licenses/#{license}"
         end
       end
     end

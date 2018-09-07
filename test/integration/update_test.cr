@@ -3,8 +3,8 @@ require "../integration_helper"
 class UpdateCommandTest < Minitest::Test
   def test_installs_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", },
-      development_dependencies: { mock: "*" },
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
     }
 
     with_shard(metadata) do
@@ -38,10 +38,10 @@ class UpdateCommandTest < Minitest::Test
 
   def test_updates_locked_dependencies
     metadata = {
-      dependencies: { web: "2.0.0" },
-      development_dependencies: { minitest: "~> 0.1.2" },
+      dependencies:             {web: "2.0.0"},
+      development_dependencies: {minitest: "~> 0.1.2"},
     }
-    lock = { web: "1.0.0", minitest: "0.1.2" }
+    lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
       run "shards update"
@@ -56,9 +56,9 @@ class UpdateCommandTest < Minitest::Test
 
   def test_updates_locked_commit
     metadata = {
-      dependencies: { web: { git: git_url(:web), branch: "master" } }
+      dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
-    lock = { web: git_commits(:web)[-5] }
+    lock = {web: git_commits(:web)[-5]}
 
     with_shard(metadata, lock) do
       run "shards update"
@@ -70,10 +70,10 @@ class UpdateCommandTest < Minitest::Test
     metadata = {
       dependencies: {
         web: "~> 1.1.0",
-        orm: "*"
-      }
+        orm: "*",
+      },
     }
-    lock = { web: "1.1.2" }
+    lock = {web: "1.1.2"}
 
     with_shard(metadata, lock) do
       run "shards update"
@@ -87,8 +87,8 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_removes_dependencies
-    metadata = { dependencies: { web: "~> 1.1.0" } }
-    lock = { web: "1.0.0", orm: "0.5.0" }
+    metadata = {dependencies: {web: "~> 1.1.0"}}
+    lock = {web: "1.0.0", orm: "0.5.0"}
 
     with_shard(metadata, lock) do
       run "shards update"
@@ -104,8 +104,8 @@ class UpdateCommandTest < Minitest::Test
   def test_finds_then_updates_new_compatible_version
     create_git_repository "oopsie", "1.1.0", "1.2.0"
 
-    metadata = { dependencies: { oopsie: "~> 1.1.0" } }
-    lock = { oopsie: "1.1.0" }
+    metadata = {dependencies: {oopsie: "~> 1.1.0"}}
+    lock = {oopsie: "1.1.0"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -121,7 +121,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_wont_generate_lockfile_for_empty_dependencies
-    metadata = { dependencies: {} of Symbol => String }
+    metadata = {dependencies: {} of Symbol => String}
     with_shard(metadata) do
       path = File.join(application_path, "shard.lock")
       refute File.exists?(path)
@@ -131,8 +131,8 @@ class UpdateCommandTest < Minitest::Test
   def test_installs_executables
     metadata = {
       dependencies: {
-        binary: { type: "path", path: rel_path(:binary) },
-      }
+        binary: {type: "path", path: rel_path(:binary)},
+      },
     }
     with_shard(metadata) { run("shards install --no-color") }
 

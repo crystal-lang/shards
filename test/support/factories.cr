@@ -82,10 +82,10 @@ module Shards
 
     def tmp_path
       @tmp_path ||= begin
-                      path = File.expand_path("../../.repositories", __FILE__)
-                      Dir.mkdir(path) unless Dir.exists?(path)
-                      path
-                    end
+        path = File.expand_path("../../.repositories", __FILE__)
+        Dir.mkdir(path) unless Dir.exists?(path)
+        path
+      end
     end
 
     def run(command, capture = false)

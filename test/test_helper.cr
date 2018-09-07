@@ -19,9 +19,9 @@ class Minitest::Test
   end
 
   def clear_repositories
-    run "rm -rf #{ tmp_path }/*"
-    run "rm -rf #{ Shards.cache_path }/*"
-    run "rm -rf #{ Shards.install_path }/*"
+    run "rm -rf #{tmp_path}/*"
+    run "rm -rf #{Shards.cache_path}/*"
+    run "rm -rf #{Shards.install_path}/*"
   end
 
   def install_path(project, *path_names)

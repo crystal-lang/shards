@@ -28,18 +28,18 @@ module Shards
 
     def test_raises_on_unknown_version
       ex = assert_raises(InvalidLock) { Lock.from_yaml("version: 99\n") }
-      assert_match "Unsupported #{ LOCK_FILENAME }.", ex.message
+      assert_match "Unsupported #{LOCK_FILENAME}.", ex.message
     end
 
     def test_raises_on_invalid_format
       ex = assert_raises(Error) { Lock.from_yaml("") }
-      assert_match "Invalid #{ LOCK_FILENAME }.", ex.message
+      assert_match "Invalid #{LOCK_FILENAME}.", ex.message
 
       ex = assert_raises(Error) { Lock.from_yaml("version: 1.0\n") }
-      assert_match "Invalid #{ LOCK_FILENAME }.", ex.message
+      assert_match "Invalid #{LOCK_FILENAME}.", ex.message
 
       ex = assert_raises(Error) { Lock.from_yaml("version: 1.0\nshards:\n") }
-      assert_match "Invalid #{ LOCK_FILENAME }.", ex.message
+      assert_match "Invalid #{LOCK_FILENAME}.", ex.message
     end
   end
 end

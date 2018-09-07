@@ -15,7 +15,7 @@ class InitCommandTest < Minitest::Test
     Dir.cd(application_path) do
       File.write(shard_path, "")
       ex = assert_raises(FailedCommand) { run "shards init --no-color" }
-      assert_match "#{ Shards::SPEC_FILENAME } already exists", ex.stdout
+      assert_match "#{Shards::SPEC_FILENAME} already exists", ex.stdout
       assert_empty File.read(shard_path)
     end
   end

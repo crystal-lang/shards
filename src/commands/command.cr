@@ -32,7 +32,7 @@ module Shards
       @spec ||= if File.exists?(spec_path)
                   Spec.from_file(spec_path)
                 else
-                  raise Error.new("Missing #{ spec_filename }. Please run 'shards init'")
+                  raise Error.new("Missing #{spec_filename}. Please run 'shards init'")
                 end
     end
 
@@ -48,7 +48,7 @@ module Shards
       @locks ||= if lockfile?
                    Lock.from_file(lockfile_path)
                  else
-                   raise Error.new("Missing #{ LOCK_FILENAME }. Please run 'shards install'")
+                   raise Error.new("Missing #{LOCK_FILENAME}. Please run 'shards install'")
                  end
     end
 

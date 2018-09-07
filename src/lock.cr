@@ -4,7 +4,7 @@ require "./dependency"
 module Shards
   module Lock
     def self.from_file(path)
-      raise Error.new("Missing #{ File.basename(path) }") unless File.exists?(path)
+      raise Error.new("Missing #{File.basename(path)}") unless File.exists?(path)
       from_yaml(File.read(path))
     end
 
@@ -36,7 +36,7 @@ module Shards
       dependencies
     rescue ex : YAML::ParseException
       # raise ParseError.new(ex.message, str, LOCK_FILENAME, ex.line_number, ex.column_number)
-      raise Error.new("Invalid #{ LOCK_FILENAME }. Please delete it and run install again.")
+      raise Error.new("Invalid #{LOCK_FILENAME}. Please delete it and run install again.")
     ensure
       pull.close if pull
     end

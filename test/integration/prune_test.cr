@@ -3,13 +3,13 @@ require "../integration_helper"
 class PruneCommandTest < Minitest::Test
   def setup
     metadata = {
-      dependencies: { web: "*", orm: "*", },
-      development_dependencies: { mock: "*" },
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
     }
     with_shard(metadata) { run "shards install" }
 
     metadata = {
-      dependencies: { web: "*" }
+      dependencies: {web: "*"},
     }
     with_shard(metadata) { run "shards update" }
   end
