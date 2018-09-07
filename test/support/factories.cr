@@ -62,7 +62,7 @@ module Shards
 
     def git_commits(project)
       Dir.cd(git_path(project)) do
-        run("git log --format='%H'", capture: true).not_nil!.strip.split("\n")
+        run("git log --format='%H'", capture: true).not_nil!.strip.split('\n')
       end
     end
 

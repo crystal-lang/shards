@@ -101,15 +101,15 @@ module Shards
 
     private def manager_for(config)
       yaml = String.build do |yml|
-        yml << "name: " << config["name"] << "\n"
-        yml << "version: " << config.fetch("version", "0.0.0") << "\n"
+        yml << "name: " << config["name"] << '\n'
+        yml << "version: " << config.fetch("version", "0.0.0") << '\n'
 
         if dependencies = config["dependencies"]?
           yml << "dependencies:\n"
 
           dependencies.as(Hash).each do |name, hsh|
-            yml << "  " << name << ": " << "\n"
-            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+            yml << "  " << name << ": " << '\n'
+            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << '\n' }
           end
         end
 
@@ -117,8 +117,8 @@ module Shards
           yml << "development_dependencies:\n"
 
           dependencies.as(Hash).each do |name, hsh|
-            yml << "  " << name << ": " << "\n"
-            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << "\n" }
+            yml << "  " << name << ": " << '\n'
+            hsh.as(Hash).each { |k, v| yml << "    " << k << ": " << v.inspect << '\n' }
           end
         end
       end
