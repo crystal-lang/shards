@@ -131,7 +131,7 @@ module Shards
     end
 
     def add(dependency)
-      package = find { |package| package.name == dependency.name }
+      package = find(&.name.==(dependency.name))
 
       unless package
         package = Package.new(dependency, update_cache: @update_cache)

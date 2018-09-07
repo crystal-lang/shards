@@ -36,7 +36,7 @@ module Shards
       opts.on("-q", "--quiet", "Decreases the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
       opts.on("-h", "--help", "Prints usage synopsis.") { self.display_help_and_exit(opts) }
 
-      opts.unknown_args do |args, options|
+      opts.unknown_args do |args, _options|
         case args[0]? || DEFAULT_COMMAND
         when "build"
           build(path, args[1..-1])
