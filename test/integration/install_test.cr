@@ -3,8 +3,8 @@ require "../integration_helper"
 class InstallCommandTest < Minitest::Test
   def test_installs_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", foo: { path: rel_path(:foo) }, },
-      development_dependencies: { mock: "*" },
+      dependencies:             {web: "*", orm: "*", foo: {path: rel_path(:foo)}},
+      development_dependencies: {mock: "*"},
     }
 
     with_shard(metadata) do
@@ -51,10 +51,10 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependencies_at_locked_version
     metadata = {
-      dependencies: { web: "1.0.0" },
-      development_dependencies: { minitest: "~> 0.1.2" },
+      dependencies:             {web: "1.0.0"},
+      development_dependencies: {minitest: "~> 0.1.2"},
     }
-    lock = { web: "1.0.0", minitest: "0.1.2" }
+    lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -68,8 +68,8 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_always_installs_locked_versions
-    metadata = { dependencies: { minitest: "0.1.0" }, }
-    lock = { minitest: "0.1.0" }
+    metadata = {dependencies: {minitest: "0.1.0"}}
+    lock = {minitest: "0.1.0"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -77,8 +77,8 @@ class InstallCommandTest < Minitest::Test
       assert_locked "minitest", "0.1.0"
     end
 
-    metadata = { dependencies: { minitest: "0.1.2" }, }
-    lock = { minitest: "0.1.2" }
+    metadata = {dependencies: {minitest: "0.1.2"}}
+    lock = {minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -89,9 +89,9 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
     metadata = {
-      dependencies: { web: { git: git_url(:web), branch: "master" } }
+      dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
-    lock = { web: git_commits(:web)[-5] }
+    lock = {web: git_commits(:web)[-5]}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -101,9 +101,9 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependency_at_locked_commit_when_refs_is_a_version_tag
     metadata = {
-      dependencies: { web: { git: git_url(:web), tag: "v1.1.1" } }
+      dependencies: {web: {git: git_url(:web), tag: "v1.1.1"}},
     }
-    lock = { web: git_commits(:web)[-3] }
+    lock = {web: git_commits(:web)[-3]}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -113,23 +113,23 @@ class InstallCommandTest < Minitest::Test
 
   def test_updates_locked_commit
     metadata = {
-      dependencies: { web: { git: git_url(:web), branch: "master" } }
+      dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
 
-    with_shard(metadata, { web: git_commits(:web)[-5] }) do
+    with_shard(metadata, {web: git_commits(:web)[-5]}) do
       run "shards install"
       assert_installed "web", "1.2.0"
     end
 
-    with_shard(metadata, { web: git_commits(:web)[0] }) do
+    with_shard(metadata, {web: git_commits(:web)[0]}) do
       run "shards install"
       assert_installed "web", "2.1.0"
     end
   end
 
   def test_fails_to_install_when_dependency_requirement_changed
-    metadata = { dependencies: { web: "2.0.0" }, }
-    lock = { web: "1.0.0" }
+    metadata = {dependencies: {web: "2.0.0"}}
+    lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
@@ -143,10 +143,10 @@ class InstallCommandTest < Minitest::Test
     metadata = {
       dependencies: {
         web: "~> 1.0.0",
-        orm: "*"
-      }
+        orm: "*",
+      },
     }
-    lock = { web: "1.0.0" }
+    lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -160,8 +160,8 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_updated_lockfile_on_removed_dependencies
-    metadata = { dependencies: { web: "~> 1.0.0" } }
-    lock = { web: "1.0.0", orm: "0.5.0" }
+    metadata = {dependencies: {web: "~> 1.0.0"}}
+    lock = {web: "1.0.0", orm: "0.5.0"}
 
     with_shard(metadata, lock) do
       run "shards install"
@@ -175,7 +175,7 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_locks_commit_when_installing_git_refs
-    metadata = { dependencies: { web: { git: git_url(:web), branch: "master" } } }
+    metadata = {dependencies: {web: {git: git_url(:web), branch: "master"}}}
 
     with_shard(metadata) do
       run "shards install"
@@ -185,8 +185,8 @@ class InstallCommandTest < Minitest::Test
 
   def test_production_doesnt_install_development_dependencies
     metadata = {
-      dependencies: { web: "*", orm: "*", },
-      development_dependencies: { mock: "*" },
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
     }
 
     with_shard(metadata) do
@@ -211,10 +211,10 @@ class InstallCommandTest < Minitest::Test
     metadata = {
       dependencies: {
         web: "~> 1.0.0",
-        orm: "*"
-      }
+        orm: "*",
+      },
     }
-    lock = { web: "1.0.0" }
+    lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
       ex = assert_raises(FailedCommand) { run "shards install --production --no-color" }
@@ -224,7 +224,7 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_doesnt_generate_lockfile_when_project_has_no_dependencies
-    with_shard({ name: "test" }) do
+    with_shard({name: "test"}) do
       run "shards install"
 
       refute File.exists?(File.join(application_path, "shard.lock")),
@@ -233,14 +233,14 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_runs_postinstall_script
-    with_shard({ dependencies: { post: "*" } }) do
+    with_shard({dependencies: {post: "*"}}) do
       run "shards install"
       assert File.exists?(File.join(application_path, "lib", "post", "made.txt"))
     end
   end
 
   def test_prints_details_and_removes_dependency_when_postinstall_script_fails
-    with_shard({ dependencies: { fails: "*" } }) do
+    with_shard({dependencies: {fails: "*"}}) do
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
       assert_match "E: Failed make:\n", ex.stdout
       assert_match "test -n ''\n", ex.stdout
@@ -251,8 +251,8 @@ class InstallCommandTest < Minitest::Test
   def test_fails_when_shard_name_doesnt_match
     metadata = {
       dependencies: {
-        typo: { git: git_url(:mock), version: "*" }
-      }
+        typo: {git: git_url(:mock), version: "*"},
+      },
     }
     with_shard(metadata) do
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
@@ -263,8 +263,8 @@ class InstallCommandTest < Minitest::Test
   def test_installs_executables
     metadata = {
       dependencies: {
-        binary: { type: "path", path: rel_path(:binary) },
-      }
+        binary: {type: "path", path: rel_path(:binary)},
+      },
     }
     with_shard(metadata) { run("shards install --no-color") }
 

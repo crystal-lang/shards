@@ -16,36 +16,29 @@ module Shards
         case requirement
         when "*", ""
           versions
-
         when /~>(.+)/
           ver = $1.strip
           vver = if idx = ver.rindex(".")
-                   ver[0 ... idx]
+                   ver[0...idx]
                  else
                    ver
                  end
           versions.select { |v| v.starts_with?(vver) && (natural_sort(v, ver) <= 0) }
-
         when />=(.+)/
           ver = $1.strip
           versions.select { |v| natural_sort(v, ver) <= 0 }
-
         when /<=(.+)/
           ver = $1.strip
           versions.select { |v| natural_sort(v, ver) >= 0 }
-
         when />(.+)/
           ver = $1.strip
           versions.select { |v| natural_sort(v, ver) < 0 }
-
         when /<(.+)/
           ver = $1.strip
           versions.select { |v| natural_sort(v, ver) > 0 }
-
         else
           ver = requirement.strip
           versions.select { |v| v == ver }
-
         end
       end
     end

@@ -6,14 +6,14 @@ module Shards
     class Init < Command
       def run(*args)
         if File.exists?(shard_path)
-          raise Error.new("#{ SPEC_FILENAME } already exists")
+          raise Error.new("#{SPEC_FILENAME} already exists")
         end
 
         File.write(shard_path, String.build do |__str__|
-          ECR.embed "#{ __DIR__ }/../templates/shard.yml.ecr", "__str__"
+          ECR.embed "#{__DIR__}/../templates/shard.yml.ecr", "__str__"
         end)
 
-        Shards.logger.info "Created #{ SPEC_FILENAME }"
+        Shards.logger.info "Created #{SPEC_FILENAME}"
       end
 
       private def name
