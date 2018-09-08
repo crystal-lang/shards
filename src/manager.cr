@@ -4,7 +4,7 @@ module Shards
   class Manager
     getter spec : Spec
     getter packages : Set
-    # getter locks : Array(Dependency)
+    property locks : Array(Dependency)?
 
     def initialize(@spec, update_cache = true)
       @packages = Set.new(update_cache: update_cache)
@@ -21,9 +21,21 @@ module Shards
     # TODO: handle conflicts
     def resolve(dependencies)
       dependencies.each do |dependency|
-        package = packages.add(dependency)
+        package = add(dependency)
         resolve(package.spec.dependencies)
       end
+    end
+
+    def add(dependency)
+      if dependency["branch"]? && (lock = @locks.try(&.find { |d| d.name == dependency.name }))
+        # NOTE: if the dependency is a branch refs and we previously locked
+        # the dependency, we must declare that locked commit (on install only)
+        # otherwise we'd end up resolving the latest branch commit spec that
+        # could change dependencies, while still eventually installing the
+        # locked commit.
+        packages.add(lock)
+      end
+      packages.add(dependency)
     end
 
     def to_lock(io : IO)
