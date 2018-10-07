@@ -89,7 +89,9 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
     metadata = {
-      dependencies: {web: {git: git_url(:web), branch: "master"}},
+      dependencies: {
+        web: {git: git_url(:web), branch: "master"}
+      },
     }
     lock = {web: git_commits(:web)[-5]}
 
@@ -109,6 +111,25 @@ class InstallCommandTest < Minitest::Test
       run "shards install"
       assert_installed "web", "1.1.1"
     end
+  end
+
+  def test_resolves_dependency_spec_at_locked_commit
+    create_git_repository "locked"
+    create_git_release "locked", "0.1.0", "name: locked\nversion: 0.1.0\n"
+    create_git_release "locked", "0.2.0", "name: locked\nversion: 0.2.0\ndependencies:\n  pg:\n    git: #{git_path("pg")}\n"
+
+    metadata = {
+      dependencies: {
+        "locked": {git: git_path(:"locked"), branch: "master"},
+      }
+    }
+    lock = {
+      "locked": git_commits(:"locked").last
+    }
+    with_shard(metadata, lock) { run "shards install" }
+
+    assert_installed "locked", "0.1.0"
+    refute_installed "pg"
   end
 
   def test_updates_locked_commit
