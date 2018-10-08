@@ -4,15 +4,18 @@ require "./command"
 module Shards
   module Commands
     class List < Command
-      def run(*args)
+      property tree_mode = false
+
+      def run(args = [] of String)
         return unless has_dependencies?
+        self.tree_mode = args[-1] == "--tree"
 
         puts "Shards installed:"
         list(spec.dependencies)
         list(spec.development_dependencies) unless Shards.production?
       end
 
-      private def list(dependencies)
+      private def list(dependencies, level = 1)
         dependencies.each do |dependency|
           resolver = Shards.find_resolver(dependency)
 
@@ -22,9 +25,11 @@ module Shards
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
           end
 
-          puts "  * #{_spec.name} (#{_spec.version})"
+          indent = "  " * level
+          puts "#{indent}* #{_spec.name} (#{_spec.version})"
 
-          list(_spec.dependencies)
+          indent_level = self.tree_mode ? level + 1 : level
+          list(_spec.dependencies, indent_level)
         end
       end
 

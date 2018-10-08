@@ -11,7 +11,7 @@ module Shards
           check                          - Verifies all dependencies are installed.
           init                           - Initializes a shard folder.
           install                        - Installs dependencies from `shard.lock` file.
-          list                           - Lists installed dependencies.
+          list [<options>]               - Lists installed dependencies.
           prune                          - Removes unused dependencies from `lib` folder.
           update                         - Updates dependencies and `shards.lock`.
           version [<path>]               - Prints the current version of the shard.
@@ -50,7 +50,7 @@ module Shards
         when "install"
           Commands::Install.run(path)
         when "list"
-          Commands::List.run(path)
+          Commands::List.run(path, args)
         when "prune"
           Commands::Prune.run(path)
           # when "search"
