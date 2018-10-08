@@ -32,4 +32,20 @@ class CheckCommandTest < Minitest::Test
       refute_match "shoulda (0.1.0)", stdout
     end
   end
+
+  def test_lists_tree_all_dependencies
+    metadata = {
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
+    }
+    with_shard(metadata) do
+      run "shards install"
+      stdout = run "shards list --tree", capture: true
+      assert_match "  * web (2.1.0)", stdout
+      assert_match "  * orm (0.5.0)", stdout
+      assert_match "    * pg (0.2.1)", stdout
+      assert_match "  * mock (0.1.0)", stdout
+      assert_match "    * shoulda (0.1.0)", stdout
+    end
+  end
 end
