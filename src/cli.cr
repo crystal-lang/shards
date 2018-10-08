@@ -50,7 +50,7 @@ module Shards
         when "install"
           Commands::Install.run(path)
         when "list"
-          Commands::List.run(path, args)
+          Commands::List.run(path, args[1.. -1])
         when "prune"
           Commands::Prune.run(path)
           # when "search"

@@ -8,7 +8,7 @@ module Shards
 
       def run(args = [] of String)
         return unless has_dependencies?
-        self.tree_mode = args[-1] == "--tree"
+        self.tree_mode = args[0] == "--tree"
 
         puts "Shards installed:"
         list(spec.dependencies)
