@@ -28,7 +28,7 @@ module Shards
           indent = "  " * level
           puts "#{indent}* #{_spec.name} (#{_spec.version})"
 
-          indent_level = self.tree_mode ? level + 1 : level
+          indent_level = tree_mode ? level + 1 : level
           list(_spec.dependencies, indent_level)
         end
       end
