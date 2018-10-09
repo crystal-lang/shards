@@ -4,12 +4,12 @@ require "./command"
 module Shards
   module Commands
     class List < Command
-      property tree_mode = false
+      def self.run(path, @@tree = false)
+        super
+      end
 
-      def run(args = [] of String)
+      def run(*args)
         return unless has_dependencies?
-        self.tree_mode = args.first? == "--tree"
-
         puts "Shards installed:"
         list(spec.dependencies)
         list(spec.development_dependencies) unless Shards.production?
@@ -28,7 +28,7 @@ module Shards
           indent = "  " * level
           puts "#{indent}* #{_spec.name} (#{_spec.version})"
 
-          indent_level = tree_mode ? level + 1 : level
+          indent_level = @@tree ? level + 1 : level
           list(_spec.dependencies, indent_level)
         end
       end
