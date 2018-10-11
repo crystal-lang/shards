@@ -3,7 +3,24 @@ require "../integration_helper"
 class InstallCommandTest < Minitest::Test
   def test_installs_dependencies
     metadata = {
-      dependencies:             {web: "*", orm: "*", foo: {path: rel_path(:foo)}},
+      dependencies: {
+        web: "*",
+        orm: "*",
+        foo: {
+          path: rel_path(:foo)
+        },
+        monofirstsubmodule: {
+          git: git_path(:mono),
+          dep: "libs/monofirstsubmodule",
+        },
+        monosecondsubmodule: {
+          git: git_path(:mono),
+          dep: "libs/monosecondsubmodule",
+        },
+        monopathsubmodule: {
+          path: File.join(rel_path(:mono), "libs", "monopathsubmodule"),
+        }
+      },
       development_dependencies: {mock: "*"},
     }
 
@@ -14,6 +31,10 @@ class InstallCommandTest < Minitest::Test
       assert_installed "web", "2.1.0"
       assert_installed "orm", "0.5.0"
       assert_installed "pg", "0.2.1"
+
+      # It installed mono repo dependencies
+      assert_installed "monofirstsubmodule", "2.0.0"
+      assert_installed "monosecondsubmodule", "2.0.0"
 
       # it installed the path dependency
       assert_installed "foo", "0.1.0"

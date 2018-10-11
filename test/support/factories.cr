@@ -10,21 +10,25 @@ end
 module Shards
   module Factories
     def create_path_repository(project, version = nil)
-      Dir.mkdir_p(File.join(git_path(project), "src"))
-      File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
+      create_src_file(project)
       create_shard project, "name: #{project}\nversion: #{version}\n" if version
     end
 
     def create_git_repository(project, *versions)
-      Dir.cd(tmp_path) do
-        run "git init #{project}"
-      end
+      git_init(project)
+      create_src_file(project)
+      git_add(project)
 
-      Dir.mkdir(File.join(git_path(project), "src"))
-      File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
+      versions.each { |version| create_git_release project, version }
+    end
 
-      Dir.cd(git_path(project)) do
-        run "git add src/#{project}.cr"
+    def create_mono_git_repository(project : String, versions : Array(String), submodules : Array(String))
+      git_init(project)
+
+      submodules.each do |submodule|
+        create_src_file(project, submodule, "libs", submodule)
+        git_add(project, submodule, "libs", submodule)
+        create_shard(project, "name: #{submodule}\nversion: #{versions.last || "1.0.0"}\n", "libs", submodule)
       end
 
       versions.each { |version| create_git_release project, version }
@@ -48,8 +52,8 @@ module Shards
       end
     end
 
-    def create_shard(project, contents)
-      create_file project, "shard.yml", contents
+    def create_shard(project, contents, *additional_path)
+      create_file project, File.join(*additional_path, "shard.yml"), contents
     end
 
     def create_file(project, filename, contents, perm = nil)
@@ -58,6 +62,25 @@ module Shards
       Dir.mkdir_p(parent) unless Dir.exists?(parent)
       File.write(path, contents)
       File.chmod(path, perm) if perm
+    end
+
+    def create_src_file(project, submodule = nil, *paths)
+      current_module = submodule || project
+
+      Dir.mkdir_p(File.join(git_path(project), paths.join("/"), "src"))
+      File.write(File.join(git_path(project), paths.join("/"), "src", "#{current_module}.cr"), "module #{current_module.capitalize}\nend")
+    end
+
+    def git_init(project)
+      Dir.cd(tmp_path) do
+        run "git init #{project}"
+      end
+    end
+
+    def git_add(project, file = project, *additional_path)
+      Dir.cd(git_path(project)) do
+        run "git add #{File.join(*additional_path, "src/#{file}.cr")}"
+      end
     end
 
     def git_commits(project)
