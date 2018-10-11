@@ -8,8 +8,7 @@ module Shards
   abstract class Resolver
     getter dependency : Dependency
 
-    def initialize(@dependency, @update_cache = true)
-    end
+    def initialize(@dependency, @update_cache = true); end
 
     def spec(version = nil)
       Spec.from_yaml(read_spec(version))
@@ -21,7 +20,7 @@ module Shards
       path = File.join(install_path, SPEC_FILENAME)
       return Spec.from_file(path) if File.exists?(path)
 
-      raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+      raise Error.new("Missing #{shards_location.inspect} for #{dependency.name.inspect}")
     end
 
     def installed?
@@ -47,6 +46,14 @@ module Shards
     protected def cleanup_install_directory
       Shards.logger.debug "rm -rf '#{Helpers::Path.escape(install_path)}'"
       FileUtils.rm_rf(install_path)
+    end
+
+    protected def shards_location
+      if dependency.dep
+        "#{dependency.dep}/#{SPEC_FILENAME}"
+      else
+        SPEC_FILENAME
+      end
     end
   end
 

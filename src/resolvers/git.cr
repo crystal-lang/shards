@@ -36,10 +36,10 @@ module Shards
       update_local_cache
       refs = git_refs(version)
 
-      if file_exists?(refs, SPEC_FILENAME)
-        capture("git show #{refs}:#{SPEC_FILENAME}")
+      if file_exists?(refs, shards_location)
+        capture("git show #{refs}:#{shards_location}")
       else
-        raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
+        raise Error.new("Missing \"#{refs}:#{shards_location}\" for #{dependency.name.inspect}")
       end
     end
 
@@ -84,17 +84,27 @@ module Shards
       cleanup_install_directory
       Dir.mkdir_p(install_path)
 
-      unless file_exists?(refs, SPEC_FILENAME)
+      unless file_exists?(refs, shards_location)
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
-      run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
+      run "git archive --format=tar --prefix= #{shard_ref(version)} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
 
       if version =~ RELEASE_VERSION
         File.delete(sha1_path) if File.exists?(sha1_path)
       else
         commit = capture("git log -n 1 --pretty=%H #{version}").strip
         File.write(sha1_path, commit)
+      end
+    end
+
+    def shard_ref(version)
+      refs = version && git_refs(version) || dependency.refs || "HEAD"
+
+      if dependency.dep
+        "#{refs}:#{dependency.dep}"
+      else
+        refs
       end
     end
 
