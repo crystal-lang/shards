@@ -12,12 +12,10 @@ class InstallCommandTest < Minitest::Test
         monofirstsubmodule: {
           git: git_path(:mono),
           dep: "libs/monofirstsubmodule",
-          version: "1.0.0"
         },
         monosecondsubmodule: {
           git: git_path(:mono),
           dep: "libs/monosecondsubmodule",
-          version: "2.0.0"
         },
         monopathsubmodule: {
           path: File.join(rel_path(:mono), "libs", "monopathsubmodule"),
