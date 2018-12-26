@@ -1,3 +1,4 @@
+require "./shards"
 require "option_parser"
 require "./commands/*"
 

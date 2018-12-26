@@ -18,7 +18,7 @@ clean: phony
 
 bin/shards: $(SOURCES) $(TEMPLATES)
 	@mkdir -p bin
-	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
+	$(CRYSTAL) build src/cli.cr -o bin/shards $(CRFLAGS)
 
 install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"

@@ -38,7 +38,7 @@ scripts:
 
 targets:
   shards:
-    main: src/shards.cr
+    main: src/cli.cr
 
 license: MIT
 ```

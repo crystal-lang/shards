@@ -10,7 +10,7 @@ development_dependencies:
 
 targets:
   shards:
-    main: src/shards.cr
+    main: src/cli.cr
 
 crystal: 0.25.0
 
