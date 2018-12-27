@@ -44,7 +44,7 @@ module Shards
     def create_git_commit(project, message = "new commit")
       Dir.cd(git_path(project)) do
         run "git add ."
-        run "git commit --allow-empty -m '#{message}'"
+        run "git commit --allow-empty --no-gpg-sign -m '#{message}'"
       end
     end
 
