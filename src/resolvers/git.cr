@@ -47,12 +47,10 @@ module Shards
       update_local_cache
 
       versions = if refs = dependency.refs
-                   [version_at(refs)]
+                   [version_at(refs)].compact
                  else
-                   capture("git tag --list #{GitResolver.git_column_never}")
-                     .split('\n')
-                     .map { |version| $1 if version.strip =~ RELEASE_VERSION }
-                 end.compact
+                   versions_from_tags
+                 end
 
       if versions.any?
         Shards.logger.debug { "versions: #{versions.reverse.join(", ")}" }
@@ -60,6 +58,14 @@ module Shards
       else
         ["HEAD"]
       end
+    end
+
+    protected def versions_from_tags(refs = nil)
+      options = "--contains #{refs}" if refs
+
+      capture("git tag --list #{options} #{GitResolver.git_column_never}")
+        .split('\n')
+        .compact_map { |tag| $1 if tag =~ RELEASE_VERSION }
     end
 
     def matches?(commit)
@@ -149,11 +155,7 @@ module Shards
     private def version_at(refs)
       update_local_cache
 
-      tags = capture("git tag --list --contains #{refs} #{GitResolver.git_column_never}")
-        .split('\n')
-        .map { |tag| $1 if tag =~ RELEASE_VERSION }
-        .compact
-      tags.first?
+      versions_from_tags(refs).first?
     end
 
     private def refs_at(commit)
