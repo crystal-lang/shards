@@ -8,6 +8,9 @@ module Shards
 
       create_git_repository "library", "0.0.1", "0.1.0", "0.1.1", "0.1.2"
       create_git_release "library", "0.2.0", shard: "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>"
+
+      # Create a version tag not prefixed by 'v' which should be ignored
+      create_git_tag "library", "99.9.9"
     end
 
     def test_available_versions

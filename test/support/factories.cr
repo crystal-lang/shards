@@ -37,7 +37,13 @@ module Shards
           create_shard project, contents
         end
         create_git_commit project, "release: v#{version}"
-        run "git tag v#{version}"
+      end
+      create_git_tag(project, "v#{version}")
+    end
+
+    def create_git_tag(project, version)
+      Dir.cd(git_path(project)) do
+        run "git tag #{version}"
       end
     end
 

@@ -4,7 +4,7 @@ require "../helpers/natural_sort"
 require "../helpers/path"
 
 module Shards
-  RELEASE_VERSION = /^v?([\d\.]+)$/
+  VERSION_REFERENCE = /^v?[\d\.]+$/
 
   class GitResolver < Resolver
     @@has_git_command : Bool?
@@ -60,12 +60,14 @@ module Shards
       end
     end
 
+    RELEASE_VERSION_TAG = /^v([\d\.]+)$/
+
     protected def versions_from_tags(refs = nil)
       options = "--contains #{refs}" if refs
 
       capture("git tag --list #{options} #{GitResolver.git_column_never}")
         .split('\n')
-        .compact_map { |tag| $1 if tag =~ RELEASE_VERSION }
+        .compact_map { |tag| $1 if tag =~ RELEASE_VERSION_TAG }
     end
 
     def matches?(commit)
@@ -96,7 +98,7 @@ module Shards
 
       run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
 
-      if version =~ RELEASE_VERSION
+      if version =~ VERSION_REFERENCE
         File.delete(sha1_path) if File.exists?(sha1_path)
       else
         commit = capture("git log -n 1 --pretty=%H #{version}").strip
@@ -134,7 +136,7 @@ module Shards
 
     private def git_refs(version)
       case version
-      when RELEASE_VERSION
+      when VERSION_REFERENCE
         if version && version.starts_with?('v')
           version
         else
