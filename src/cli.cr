@@ -1,4 +1,7 @@
-require "./shards"
+require "./config"
+require "./logger"
+require "./errors"
+require "./version"
 require "option_parser"
 require "./commands/*"
 

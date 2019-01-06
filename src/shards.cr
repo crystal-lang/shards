@@ -1,4 +1,1 @@
-require "./config"
-require "./logger"
-require "./errors"
-require "./version"
+{% raise "Please use `src/cli.cr` for building a shards executable." %}
