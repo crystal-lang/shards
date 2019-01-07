@@ -146,10 +146,19 @@ module Shards
       end
     end
 
+    def self.prerelease?(str)
+      str.each_char.any?(&.ascii_letter?)
+    end
+
     def self.resolve(versions, requirements : Enumerable(String))
+      unless requirements.any? { |r| prerelease?(r) }
+        versions = versions.reject { |v| prerelease?(v) }
+      end
+
       matching_versions = requirements
         .map { |requirement| resolve(versions, requirement) }
         .reduce(versions) { |a, e| a & e }
+
       sort(matching_versions)
     end
 

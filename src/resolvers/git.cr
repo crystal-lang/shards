@@ -4,8 +4,6 @@ require "../versions"
 require "../helpers/path"
 
 module Shards
-  VERSION_REFERENCE = /^v?[\d\.]+$/
-
   class GitResolver < Resolver
     @@has_git_command : Bool?
     @@git_column_never : String?
@@ -60,14 +58,12 @@ module Shards
       end
     end
 
-    RELEASE_VERSION_TAG = /^v([\d\.]+)$/
-
     protected def versions_from_tags(refs = nil)
       options = "--contains #{refs}" if refs
 
       capture("git tag --list #{options} #{GitResolver.git_column_never}")
         .split('\n')
-        .compact_map { |tag| $1 if tag =~ RELEASE_VERSION_TAG }
+        .compact_map { |tag| $1 if tag =~ VERSION_TAG }
     end
 
     def matches?(commit)

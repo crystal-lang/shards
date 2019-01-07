@@ -19,9 +19,6 @@ module Shards
       Options:
       HELP
     puts opts
-    #    info <package>
-    #    search <query>
-    #     update [package package ...]
     exit
   end
 
@@ -42,9 +39,6 @@ module Shards
           build(path, args[1..-1])
         when "check"
           Commands::Check.run(path)
-        #when "info"
-        #  display_help_and_exit(opts) unless args[1]?
-        #  Commands::Info.run(args[1])
         when "init"
           Commands::Init.run(path)
         when "install"
@@ -53,12 +47,8 @@ module Shards
           Commands::List.run(path, tree: args.includes?("--tree"))
         when "prune"
           Commands::Prune.run(path)
-          # when "search"
-          #  display_help_and_exit(opts) unless args[1]?
-          #  Commands::Search.run(path, args[1])
         when "update"
           Commands::Update.run(path)
-          # Commands.update(path, *args[1..-1])
         when "version"
           Commands::Version.run(args[1]? || path)
         else

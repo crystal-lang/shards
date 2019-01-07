@@ -54,6 +54,62 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_wont_install_prerelease_version
+    metadata = { dependencies: {unstable: "*"} }
+    lock = {unstable: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "unstable", "0.2.0"
+      assert_locked "unstable", "0.2.0"
+    end
+  end
+
+  def test_installs_specified_prerelease_version
+    metadata = { dependencies: {unstable: "~> 0.3.0.alpha"} }
+    lock = {unstable: "0.3.0.alpha"}
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "unstable", "0.3.0.beta"
+      assert_locked "unstable", "0.3.0.beta"
+    end
+  end
+
+  def test_updates_locked_specified_prerelease
+    metadata = { dependencies: {unstable: "~> 0.3.0.alpha"} }
+    lock = {unstable: "0.3.0.alpha"}
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "unstable", "0.3.0.beta"
+      assert_locked "unstable", "0.3.0.beta"
+    end
+  end
+
+  def test_updates_from_prerelease_to_release_with_approximate_operator
+    metadata = { dependencies: {preview: "~> 0.3.0.a"} }
+    lock = {preview: "0.3.0.alpha"}
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "preview", "0.3.0"
+      assert_locked "preview", "0.3.0"
+    end
+  end
+
+  # TODO: detect version, and prefer release (0.3.0) over further prereleases (?)
+  def test_updates_to_latest_prerelease_with_gte_operator
+    metadata = { dependencies: {preview: ">= 0.3.0.a"} }
+    lock = {preview: "0.3.0.a"}
+
+    with_shard(metadata, lock) do
+      run "shards update"
+      assert_installed "preview", "0.4.0.a"
+      assert_locked "preview", "0.4.0.a"
+    end
+  end
+
   def test_updates_locked_commit
     metadata = {
       dependencies: {web: {git: git_url(:web), branch: "master"}},

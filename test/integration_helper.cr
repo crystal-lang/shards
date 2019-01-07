@@ -62,6 +62,9 @@ class Minitest::Test
     create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755
     create_file "binary", "bin/baz", "#! /usr/bin/env sh\necho 'KO'", perm: 0o755
 
+    create_git_repository "unstable", "0.1.0", "0.2.0", "0.3.0.alpha", "0.3.0.beta"
+    create_git_repository "preview", "0.1.0", "0.2.0", "0.3.0.a", "0.3.0.b", "0.3.0", "0.4.0.a"
+
     Minitest::Test.created_repositories!
   end
 
@@ -103,7 +106,7 @@ class Minitest::Test
     assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
     if lock && version
-      if version =~ /^[\d.]+$/
+      if version =~ Shards::VERSION_REFERENCE
         assert_equal version, lock.version, "expected #{name} dependency to have been locked at version #{version}", file, line
       else
         assert_equal version, lock.refs, "expected #{name} dependency to have been locked at commit #{version}", file, line

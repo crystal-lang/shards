@@ -49,6 +49,28 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_wont_install_prerelease_version
+    metadata = {
+      dependencies: {unstable: "*"},
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "unstable", "0.2.0"
+      assert_locked "unstable", "0.2.0"
+    end
+  end
+
+  def test_installs_specified_prerelease_version
+    metadata = {
+      dependencies: {unstable: "0.3.0.alpha"},
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "unstable", "0.3.0.alpha"
+      assert_locked "unstable", "0.3.0.alpha"
+    end
+  end
+
   def test_installs_dependencies_at_locked_version
     metadata = {
       dependencies:             {web: "1.0.0"},
