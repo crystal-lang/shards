@@ -1,11 +1,9 @@
 require "file_utils"
 require "./resolvers/*"
-require "./helpers/versions"
+require "./versions"
 
 module Shards
   class Package
-    include Helpers::Versions
-
     getter requirements : Array(String)
     @resolver : Resolver?
     @available_versions : Array(String)?
@@ -38,7 +36,7 @@ module Shards
     end
 
     def matching_versions
-      resolve_versions(available_versions, requirements)
+      Versions.resolve(available_versions, requirements)
     end
 
     def spec

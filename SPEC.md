@@ -79,8 +79,9 @@ The version number of the library (String, required).
 
 - It must contain digits.
 - It may contain dots and dashes but not consecutive ones.
+- It may contain a letter to make it a 'prerelease'.
 
-Examples: `1.2.3`, `2.0.0-rc1` or `2016.09`.
+Examples: `1.2.3`, `2.0.0.1`, `1.0.0.alpha` `2.0.0-rc1` or `2016.09`.
 
 While Shards doesn't enforce it, following a rational versioning scheme like
 [Semantic Versioning](http://semver.org/) or [Calendar Versioning](http://calver.org/)

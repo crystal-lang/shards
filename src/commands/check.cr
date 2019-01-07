@@ -1,11 +1,9 @@
-require "../helpers/versions"
 require "./command"
+require "../versions"
 
 module Shards
   module Commands
     class Check < Command
-      include Helpers::Versions
-
       def run(*args)
         if has_dependencies?
           locks # ensures that lockfile exists
@@ -45,7 +43,7 @@ module Shards
         end
 
         if version = lock["version"]?
-          if resolve_requirement([version], dependency.version).empty?
+          if Versions.resolve([version], dependency.version).empty?
             Shards.logger.debug { "#{dependency.name}: lock conflict" }
             return false
           else
@@ -61,7 +59,7 @@ module Shards
         #  end
         #end
 
-        if resolve_requirement([spec.version], dependency.version).empty?
+        if Versions.resolve([spec.version], dependency.version).empty?
           Shards.logger.debug { "#{dependency.name}: version mismatch" }
           return false
         end
