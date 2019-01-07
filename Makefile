@@ -34,7 +34,7 @@ uninstall: phony
 test: test_unit test_integration
 
 test_unit: phony
-	$(CRYSTAL) run test/*_test.cr
+	$(CRYSTAL) run test/*_test.cr test/helpers/*_test.cr
 
 test_integration: bin/shards phony
 	$(CRYSTAL) run test/integration/*_test.cr

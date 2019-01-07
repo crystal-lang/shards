@@ -29,7 +29,7 @@ module Shards
     end
 
     protected def self.git_column_never
-      @@git_column_never ||= Helpers::NaturalSort.sort(git_version, "1.7.11") < 0 ? "--column=never" : ""
+      @@git_column_never ||= Helpers::NaturalSort.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
     def read_spec(version = "*")

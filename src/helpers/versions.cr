@@ -6,16 +6,17 @@ module Shards
       include NaturalSort
 
       def resolve_versions(versions, requirements)
-        requirements
+        matching_versions = requirements
           .map { |requirement| resolve_requirement(versions, requirement) }
           .reduce(versions) { |a, e| a & e }
-          .sort { |a, b| natural_sort(a, b) }
+        natural_sort(matching_versions)
       end
 
       def resolve_requirement(versions, requirement)
         case requirement
         when "*", ""
           versions
+
         when /~>(.+)/
           ver = $1.strip
           vver = if idx = ver.rindex('.')
@@ -23,19 +24,28 @@ module Shards
                  else
                    ver
                  end
-          versions.select { |v| v.starts_with?(vver) && (natural_sort(v, ver) <= 0) }
+          versions.select do |v|
+            v.starts_with?(vver) &&
+              !v[vver.size]?.try(&.ascii_alphanumeric?) &&
+              (natural_compare(v, ver) <= 0)
+          end
+
         when />=(.+)/
           ver = $1.strip
-          versions.select { |v| natural_sort(v, ver) <= 0 }
+          versions.select { |v| natural_compare(v, ver) <= 0 }
+
         when /<=(.+)/
           ver = $1.strip
-          versions.select { |v| natural_sort(v, ver) >= 0 }
+          versions.select { |v| natural_compare(v, ver) >= 0 }
+
         when />(.+)/
           ver = $1.strip
-          versions.select { |v| natural_sort(v, ver) < 0 }
+          versions.select { |v| natural_compare(v, ver) < 0 }
+
         when /<(.+)/
           ver = $1.strip
-          versions.select { |v| natural_sort(v, ver) > 0 }
+          versions.select { |v| natural_compare(v, ver) > 0 }
+
         else
           ver = requirement.strip
           versions.select { |v| v == ver }

@@ -11,7 +11,7 @@ module Shards
     def read_spec(version = nil)
       specs = @@specs[dependency.name].not_nil!
       unless version
-        version = specs.keys.sort { |a, b| natural_sort(a, b) }.first?
+        version = natural_sort(specs.keys).first?
       end
       specs[version.to_s]
     end

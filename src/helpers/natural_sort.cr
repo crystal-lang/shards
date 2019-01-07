@@ -1,36 +1,73 @@
 module Shards
   module Helpers
     module NaturalSort
-      EXTRACT_ALPHA_OR_NUMBER_GROUP = /([A-Za-z]+|[\d]+)/
-      IS_NUMBER_STRING              = /\A\d+\Z/
+      NON_ALPHANUMERIC = /[^a-zA-Z0-9]/
 
-      def natural_sort(a, b)
-        NaturalSort.sort(a, b)
+      def natural_sort(versions)
+        versions.sort { |a, b| NaturalSort.compare(a, b) }
       end
 
-      def self.sort(a, b)
-        ia = ib = 0
-        la, lb = a.size, b.size
+      def natural_compare(a, b)
+        NaturalSort.compare(a, b)
+      end
+
+      def self.compare(a, b)
+        if a == b
+          return 0
+        end
 
         loop do
-          return 0 if ia > la
-          return 0 unless a[ia..-1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
-          aaa = $1
-          ia += $1.size
+          # extract next segment from version number ("1.0.2" => "1" then "0" then "2"):
+          a_segment, a = next_segment(a)
+          b_segment, b = next_segment(b)
 
-          return 0 if ib > lb
-          return 0 unless b[ib..-1] =~ EXTRACT_ALPHA_OR_NUMBER_GROUP
-          bbb = $1
-          ib += $1.size
-
-          if aaa =~ IS_NUMBER_STRING && bbb =~ IS_NUMBER_STRING
-            aaa, bbb = aaa.to_i, bbb.to_i
-            ret = bbb <=> aaa
-          else
-            ret = bbb <=> aaa
+          # accept unbalanced version numbers ("1.0" == "1.0.0.0", "1.0" < "1.0.1")
+          if a_segment.empty?
+            only_zeroes_remaining(b_segment, b) { return 1 }
+            return 0
           end
 
+          # accept unbalanced version numbers ("1.0.0.0" == "1.0", "1.0.1" > "1.0")
+          if b_segment.empty?
+            only_zeroes_remaining(a_segment, a) { return -1 }
+            return 0
+          end
+
+          # try to convert segments to numbers:
+          a_num = a_segment.to_i?(whitespace: false)
+          b_num = b_segment.to_i?(whitespace: false)
+
+          # compare:
+          ret =
+            if a_num && b_num
+              b_num <=> a_num
+            else
+              b_segment <=> a_segment
+            end
+
+          # if different return the result (older or newer), otherwise continue
+          # to the next segment:
           return ret unless ret == 0
+        end
+      end
+
+      private def self.next_segment(str)
+        segment, _, str = str.partition(NON_ALPHANUMERIC)
+        {segment, str}
+      end
+
+      private def self.only_zeroes_remaining(segment, str)
+        unless segment.to_i?(whitespace: false) == 0
+          yield
+        end
+
+        loop do
+          segment, str = next_segment(str)
+          break if segment.empty?
+
+          unless segment.to_i?(whitespace: false) == 0
+            yield
+          end
         end
       end
     end
