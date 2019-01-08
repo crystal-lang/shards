@@ -30,6 +30,10 @@ module Shards
       self["branch"]? || self["tag"]? || self["commit"]?
     end
 
+    def path
+      self["path"]?
+    end
+
     def inspect(io)
       io << "#<" << self.class.name << " {" << name << " => "
       super
