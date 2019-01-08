@@ -29,11 +29,16 @@ module Shards
     end
 
     def report_version
-      version = self.version
-      if version == spec.version
-        version
+      if path = @dependency.path
+        "#{spec.version} at #{path}"
       else
-        "#{spec.version} at #{version}"
+        version = self.version
+
+        if version == spec.version
+          version
+        else
+          "#{spec.version} at #{version}"
+        end
       end
     end
 
