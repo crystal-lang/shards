@@ -2,6 +2,16 @@ require "./test_helper"
 
 module Shards
   class VersionsTest < Minitest::Test
+    def prerelease?
+      refute Versions.prerelease?("1.0")
+      refute Versions.prerelease?("1.0.0.1")
+
+      assert Versions.prerelease?("1.0a")
+      assert Versions.prerelease?("1.0.alpha")
+      assert Versions.prerelease?("1.0.0-rc1")
+      assert Versions.prerelease?("1.0.0-pre.1.2.x.y")
+    end
+
     def test_compare
       # a is older than b:
       assert_equal 1, Versions.compare("1.0.0", "1.0.1")
@@ -48,6 +58,12 @@ module Shards
 
       assert_equal -1, Versions.compare("1.0-pre2", "1.0-pre1")
       assert_equal -1, Versions.compare("1.0-pre10", "1.0-pre2")
+    end
+
+    def test_compare_ignores_semver_metadata
+      assert_equal -1, Versions.compare("1.1+20180110", "1.0+20180110")
+      assert_equal 0, Versions.compare("1.0+build1", "1.0+build2")
+      assert_equal 1, Versions.compare("1.0+20180110", "1.1+20180110")
     end
 
     def test_sort

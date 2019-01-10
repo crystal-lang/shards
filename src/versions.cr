@@ -8,6 +8,9 @@ module Shards
       protected getter! segment : String
 
       def initialize(@str : String)
+        if index = @str.index('+')
+          @str = @str[0...index]
+        end
       end
 
       def next
@@ -201,5 +204,5 @@ module Shards
         versions.select { |v| v == ver }
       end
     end
-end
+  end
 end
