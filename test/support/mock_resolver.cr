@@ -1,9 +1,7 @@
-require "../../src/helpers/natural_sort"
+require "../../src/versions"
 
 module Shards
   class MockResolver < Resolver
-    include Helpers::NaturalSort
-
     def self.key
       "mock"
     end
@@ -11,7 +9,7 @@ module Shards
     def read_spec(version = nil)
       specs = @@specs[dependency.name].not_nil!
       unless version
-        version = specs.keys.sort { |a, b| natural_sort(a, b) }.first?
+        version = Versions.sort(specs.keys).first?
       end
       specs[version.to_s]
     end

@@ -1,4 +1,3 @@
-require "../helpers/versions"
 require "./command"
 
 module Shards

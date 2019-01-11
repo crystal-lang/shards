@@ -5,6 +5,9 @@ module Shards
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
 
+  VERSION_REFERENCE = /^v?\d+[-.][-.a-zA-Z\d]+$/
+  VERSION_TAG = /^v(\d+[-.][-.a-zA-Z\d]+)$/
+
   def self.cache_path
     @@cache_path ||= find_or_create_cache_path
   end
