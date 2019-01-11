@@ -1,16 +1,22 @@
 # CHANGELOG
 
-## UNRELEASED
+## v0.9.0.beta - 2019-01-11
+
+Breaking changes:
+- A `shard.yml` spec is now required in libraries.
+- Drop support for obsolete Projectfile.
 
 Features:
 - Experimental support for prereleases. Add a letter to a version number to
   declare a pre-release. For example `1.2.3.alpha` or `1.0.0-rc1`.
+- Ignore semver metadata (+abc).
 
 Fixes:
 - Approximate operator used to match invalid version numbers (e.g. `~> 0.1.0`
   wrongly matched `0.10.0`).
 - Unbalanced version numbers, such as `1.0.0` and `1.0.0.1` are now correctly
   ordered and compared as `1.0.0.1 > 1.0.0`.
+- Force the 'v' prefix in version tags.
 - `install -t` isn't supported on macOS.
 
 ## v0.8.1 - 2018-06-17
