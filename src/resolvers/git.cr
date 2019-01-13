@@ -172,7 +172,7 @@ module Shards
         @updated_cache = false
       end
 
-      return if !@update_cache || @updated_cache
+      return if @updated_cache
       Shards.logger.info "Fetching #{git_url}"
 
       if cloned_repository?
