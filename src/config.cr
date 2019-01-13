@@ -71,12 +71,6 @@ module Shards
   def self.bin_path=(@@bin_path : String)
   end
 
-  @@production = false
-
-  def self.production?
-    @@production
-  end
-
-  def self.production=(@@production)
-  end
+  class_property? production = false
+  class_property? local = false
 end

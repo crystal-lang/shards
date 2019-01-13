@@ -172,7 +172,7 @@ module Shards
         @updated_cache = false
       end
 
-      return if @updated_cache
+      return if Shards.local? || @updated_cache
       Shards.logger.info "Fetching #{git_url}"
 
       if cloned_repository?
@@ -234,6 +234,10 @@ module Shards
     end
 
     private def run(command, path = local_path, capture = false)
+      if Shards.local? && !Dir.exists?(path)
+        dependency_name = File.basename(path, ".git")
+        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
+      end
       Dir.cd(path) do
         run_in_current_folder(command, capture)
       end
