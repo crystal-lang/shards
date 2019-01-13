@@ -9,16 +9,10 @@ module Shards
     "DEBUG" => :light_gray,
   }
 
-  @@colors = true
+  class_property? colors = true
 
-  def self.colors=(value)
-    @@colors = value
-  end
-
-  @@logger : Logger?
-
-  def self.logger
-    @@logger ||= Logger.new(STDOUT).tap do |logger|
+  class_getter(logger : Logger) do
+    Logger.new(STDOUT).tap do |logger|
       logger.progname = "shards"
       logger.level = Logger::Severity::INFO
 

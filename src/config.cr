@@ -8,9 +8,18 @@ module Shards
   VERSION_REFERENCE = /^v?\d+[-.][-.a-zA-Z\d]+$/
   VERSION_TAG = /^v(\d+[-.][-.a-zA-Z\d]+)$/
 
-  def self.cache_path
-    @@cache_path ||= find_or_create_cache_path
+  class_property(cache_path : String) { find_or_create_cache_path }
+
+  class_property(install_path : String) do
+    warn_about_legacy_libs_path
+    ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
   end
+
+  class_property(bin_path : String) do
+    ENV.fetch("SHARDS_BIN_PATH") { File.join(Dir.current, "bin") }
+  end
+
+  class_property? production = false
 
   private def self.find_or_create_cache_path
     candidates = [
@@ -37,19 +46,6 @@ module Shards
     raise Error.new("Failed to find or create cache directory")
   end
 
-  def self.cache_path=(@@cache_path : String)
-  end
-
-  def self.install_path
-    @@install_path ||= begin
-      warn_about_legacy_libs_path
-      ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
-    end
-  end
-
-  def self.install_path=(@@install_path : String)
-  end
-
   private def self.warn_about_legacy_libs_path
     # TODO: drop me in a future release
 
@@ -62,21 +58,5 @@ module Shards
     if File.exists?(legacy_install_path)
       Shards.logger.warn "Shards now installs dependencies into the 'lib' folder. You may delete the legacy 'libs' folder."
     end
-  end
-
-  def self.bin_path
-    @@bin_path ||= ENV.fetch("SHARDS_BIN_PATH") { File.join(Dir.current, "bin") }
-  end
-
-  def self.bin_path=(@@bin_path : String)
-  end
-
-  @@production = false
-
-  def self.production?
-    @@production
-  end
-
-  def self.production=(@@production)
   end
 end

@@ -84,14 +84,10 @@ module Shards
       "../../test/.repositories/#{project}"
     end
 
-    @tmp_path : String?
-
-    def tmp_path
-      @tmp_path ||= begin
-        path = File.expand_path("../../.repositories", __FILE__)
-        Dir.mkdir(path) unless Dir.exists?(path)
-        path
-      end
+    getter(tmp_path : String) do
+      path = File.expand_path("../../.repositories", __FILE__)
+      Dir.mkdir(path) unless Dir.exists?(path)
+      path
     end
 
     def run(command, capture = false)

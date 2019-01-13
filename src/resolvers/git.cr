@@ -6,9 +6,6 @@ require "../helpers/path"
 module Shards
   class GitResolver < Resolver
     @@has_git_command : Bool?
-    @@git_column_never : String?
-    @@git_version : String?
-
     @origin_url : String?
 
     def self.key
@@ -22,12 +19,12 @@ module Shards
       @@has_git_command
     end
 
-    protected def self.git_version
-      @@git_version ||= `git --version`.strip[12..-1]
+    protected class_getter(git_version : String) do
+      `git --version`.strip[12..-1]
     end
 
-    protected def self.git_column_never
-      @@git_column_never ||= Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
+    protected class_getter(git_column_never : String) do
+      Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
     def read_spec(version = "*")
@@ -106,23 +103,21 @@ module Shards
       File.read(sha1_path).strip if installed? && File.exists?(sha1_path)
     end
 
-    def sha1_path
-      @sha1_path ||= File.join(Shards.install_path, "#{dependency.name}.sha1")
+    getter(sha1_path) do
+      File.join(Shards.install_path, "#{dependency.name}.sha1")
     end
 
-    def local_path
-      @local_path ||= begin
-        uri = URI.parse(git_url)
+    getter(local_path) do
+      uri = URI.parse(git_url)
 
-        path = uri.path.to_s[1..-1]
-        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
-        path += ".git" unless path.ends_with?(".git")
+      path = uri.path.to_s[1..-1]
+      path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
+      path += ".git" unless path.ends_with?(".git")
 
-        if host = uri.host
-          File.join(Shards.cache_path, host, path)
-        else
-          File.join(Shards.cache_path, path)
-        end
+      if host = uri.host
+        File.join(Shards.cache_path, host, path)
+      else
+        File.join(Shards.cache_path, path)
       end
     end
 

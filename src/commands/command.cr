@@ -8,9 +8,6 @@ module Shards
     getter spec_path : String
     getter lockfile_path : String
 
-    @spec : Spec?
-    @locks : Array(Dependency)?
-
     def initialize(path)
       if File.directory?(path)
         @path = path
@@ -28,28 +25,26 @@ module Shards
       new(path).run(*args)
     end
 
-    def spec
-      @spec ||= if File.exists?(spec_path)
-                  Spec.from_file(spec_path)
-                else
-                  raise Error.new("Missing #{spec_filename}. Please run 'shards init'")
-                end
+    getter(spec : Spec) do
+      if File.exists?(spec_path)
+        Spec.from_file(spec_path)
+      else
+        raise Error.new("Missing #{spec_filename}. Please run 'shards init'")
+      end
     end
 
     def spec_filename
       File.basename(spec_path)
     end
 
-    def manager
-      @manager ||= Manager.new(spec)
-    end
+    getter(manager) { Manager.new(spec) }
 
-    def locks
-      @locks ||= if lockfile?
-                   Lock.from_file(lockfile_path)
-                 else
-                   raise Error.new("Missing #{LOCK_FILENAME}. Please run 'shards install'")
-                 end
+    getter(locks : Array(Dependency)) do
+      if lockfile?
+        Lock.from_file(lockfile_path)
+      else
+        raise Error.new("Missing #{LOCK_FILENAME}. Please run 'shards install'")
+      end
     end
 
     def lockfile?

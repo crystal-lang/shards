@@ -91,10 +91,8 @@ module Shards
       end
     end
 
-    @application_path : String?
-
-    def application_path
-      @application_path ||= File.expand_path("../../tmp/integration", __DIR__).tap do |path|
+    getter(application_path : String) do
+      File.expand_path("../../tmp/integration", __DIR__).tap do |path|
         if File.exists?(path)
           run("rm -rf #{path}/*", capture: false)
           run("rm -rf #{path}/.shards", capture: false)

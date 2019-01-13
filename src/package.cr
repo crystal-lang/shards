@@ -5,8 +5,6 @@ require "./versions"
 module Shards
   class Package
     getter requirements : Array(String)
-    @resolver : Resolver?
-    @available_versions : Array(String)?
 
     def initialize(@dependency : Dependency, @update_cache = false)
       @requirements = [] of String
@@ -119,12 +117,12 @@ module Shards
       end
     end
 
-    def resolver
-      @resolver ||= Shards.find_resolver(@dependency, update_cache: @update_cache)
+    getter(resolver : Resolver) do
+      Shards.find_resolver(@dependency, update_cache: @update_cache)
     end
 
-    private def available_versions
-      @available_versions ||= resolver.available_versions
+    private getter(available_versions : Array(String)) do
+      resolver.available_versions
     end
   end
 
