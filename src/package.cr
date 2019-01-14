@@ -68,7 +68,19 @@ module Shards
     end
 
     def install(version = nil)
+      # install the shard:
       resolver.install(version || self.version)
+
+      # link the project's lib path as the shard's lib path, so the dependency
+      # can access transitive dependencies:
+      unless @dependency.path
+        lib_path = File.join(resolver.install_path, "lib")
+        Shards.logger.debug "Link #{Shards.install_path} to #{lib_path}"
+        File.symlink("../../lib", lib_path)
+      end
+    end
+
+    def postinstall
       resolver.run_script("postinstall")
     rescue ex : Script::Error
       resolver.cleanup_install_directory

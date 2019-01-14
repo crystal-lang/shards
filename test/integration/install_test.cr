@@ -291,6 +291,15 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_runs_postinstall_with_transitive_dependencies
+    with_shard({ dependencies: {transitive: "*"} }) do
+      run "shards install"
+      binary = File.join(application_path, "lib", "transitive", "version")
+      assert File.exists?(binary)
+      assert_equal "version @ 0.1.0\n", `#{binary}`
+    end
+  end
+
   def test_fails_when_shard_name_doesnt_match
     metadata = {
       dependencies: {

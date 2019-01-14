@@ -184,6 +184,15 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_runs_postinstall_with_transitive_dependencies
+    with_shard({ dependencies: {transitive: "*"} }, {transitive: "0.1.0"}) do
+      run "shards update"
+      binary = File.join(application_path, "lib", "transitive", "version")
+      assert File.exists?(binary)
+      assert_equal "version @ 0.1.0\n", `#{binary}`
+    end
+  end
+
   def test_installs_executables
     metadata = {
       dependencies: {

@@ -65,6 +65,23 @@ class Minitest::Test
     create_git_repository "unstable", "0.1.0", "0.2.0", "0.3.0.alpha", "0.3.0.beta"
     create_git_repository "preview", "0.1.0", "0.2.0", "0.3.0.a", "0.3.0.b", "0.3.0", "0.4.0.a"
 
+    # postinstall script with transitive dependency:
+    create_git_repository "version"
+    create_file "version", "src/version.cr", %(module Version; STRING = "version @ 0.1.0"; end)
+    create_git_release "version", "0.1.0"
+
+    create_git_repository "transitive"
+    create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)
+    create_git_release "transitive", "0.2.0", <<-YAML
+name: transitive
+version: 0.2.0
+dependencies:
+  version:
+    git: #{git_path(:version)}
+scripts:
+  postinstall: crystal build src/version.cr
+YAML
+
     Minitest::Test.created_repositories!
   end
 
