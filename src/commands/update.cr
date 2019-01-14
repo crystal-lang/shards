@@ -7,19 +7,32 @@ module Shards
       def run(*args)
         manager.resolve
 
-        manager.packages.each do |package|
-          if package.installed?
-            Shards.logger.info "Using #{package.name} (#{package.report_version})"
-          else
-            Shards.logger.info "Installing #{package.name} (#{package.report_version})"
-            package.install
-          end
-          package.install_executables
-        end
+        install(manager.packages)
 
         if generate_lockfile?
           manager.to_lock(lockfile_path)
         end
+      end
+
+      private def install(packages : Set)
+        packages
+          .compact_map { |package| install(package) }
+          .each(&.postinstall)
+
+        # always install executables because the path resolver never installs
+        # dependencies, but uses them as-is:
+        packages.each(&.install_executables)
+      end
+
+      private def install(package : Package)
+        if package.installed?
+          Shards.logger.info "Using #{package.name} (#{package.report_version})"
+          return
+        end
+
+        Shards.logger.info "Installing #{package.name} (#{package.report_version})"
+        package.install
+        package
       end
 
       private def generate_lockfile?

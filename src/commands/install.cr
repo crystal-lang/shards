@@ -44,7 +44,13 @@ module Shards
       end
 
       private def install(packages : Set)
-        packages.each { |package| install(package) }
+        packages
+          .compact_map { |package| install(package) }
+          .each(&.postinstall)
+
+        # always install executables because the path resolver never installs
+        # dependencies, but uses them as-is:
+        packages.each(&.install_executables)
       end
 
       private def install(package : Package, version = nil)
@@ -52,11 +58,12 @@ module Shards
 
         if package.installed?(version)
           Shards.logger.info "Using #{package.name} (#{package.report_version})"
-        else
-          Shards.logger.info "Installing #{package.name} (#{package.report_version})"
-          package.install(version)
-          package.install_executables
+          return
         end
+
+        Shards.logger.info "Installing #{package.name} (#{package.report_version})"
+        package.install(version)
+        package
       end
 
       private def generate_lockfile?
