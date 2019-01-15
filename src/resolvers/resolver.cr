@@ -8,7 +8,7 @@ module Shards
   abstract class Resolver
     getter dependency : Dependency
 
-    def initialize(@dependency, @update_cache = true)
+    def initialize(@dependency)
     end
 
     def spec(version = nil)
@@ -57,11 +57,11 @@ module Shards
     @@resolver_classes[resolver.key] = resolver
   end
 
-  def self.find_resolver(dependency, update_cache = true)
+  def self.find_resolver(dependency)
     @@resolvers[dependency.name] ||= begin
       klass = get_resolver_class(dependency.keys)
       raise Error.new("Failed can't resolve dependency #{dependency.name} (unsupported resolver)") unless klass
-      klass.new(dependency, update_cache: update_cache)
+      klass.new(dependency)
     end
   end
 

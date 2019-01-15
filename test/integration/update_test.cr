@@ -201,4 +201,32 @@ class UpdateCommandTest < Minitest::Test
     assert File.exists?(foo), "Expected to have installed bin/foo executable"
     assert_equal "FOO\n", `#{foo}`
   end
+
+  def test_doesnt_update_local_cache
+    metadata = {
+      dependencies: { local_cache: "*" },
+    }
+
+    with_shard(metadata) do
+      # error: dependency isn't in local cache
+      ex = assert_raises(FailedCommand) { run("shards install --local --no-color") }
+      assert_match %(E: Missing repository cache for "local_cache".), ex.stdout
+    end
+
+    # re-run without --local to install the dependency:
+    create_git_repository "local_cache", "1.0", "2.0"
+    with_shard(metadata) { run("shards install") }
+    assert_locked "local_cache", "2.0"
+
+    # create a new release:
+    create_git_release "local_cache", "3.0"
+
+    # re-run with --local, which won't find the new release:
+    with_shard(metadata) { run("shards update --local") }
+    assert_locked "local_cache", "2.0"
+
+    # run again without --local, which will find & install the new release:
+    with_shard(metadata) { run("shards update") }
+    assert_locked "local_cache", "3.0"
+  end
 end

@@ -6,8 +6,8 @@ module Shards
     getter packages : Set
     property locks : Array(Dependency)?
 
-    def initialize(@spec, update_cache = true)
-      @packages = Set.new(update_cache: update_cache)
+    def initialize(@spec)
+      @packages = Set.new
     end
 
     def resolve

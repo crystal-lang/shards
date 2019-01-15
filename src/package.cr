@@ -8,7 +8,7 @@ module Shards
     @resolver : Resolver?
     @available_versions : Array(String)?
 
-    def initialize(@dependency : Dependency, @update_cache = false)
+    def initialize(@dependency : Dependency)
       @requirements = [] of String
     end
 
@@ -120,7 +120,7 @@ module Shards
     end
 
     def resolver
-      @resolver ||= Shards.find_resolver(@dependency, update_cache: @update_cache)
+      @resolver ||= Shards.find_resolver(@dependency)
     end
 
     private def available_versions
@@ -129,15 +129,11 @@ module Shards
   end
 
   class Set < Array(Package)
-    def initialize(@update_cache = true)
-      super()
-    end
-
     def add(dependency)
       package = find { |package| package.name == dependency.name }
 
       unless package
-        package = Package.new(dependency, update_cache: @update_cache)
+        package = Package.new(dependency)
         self << package
       end
 

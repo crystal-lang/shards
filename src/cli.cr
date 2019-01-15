@@ -29,6 +29,7 @@ module Shards
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
       opts.on("--version", "Prints the `shards` version.") { puts self.version_string; exit }
       opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
+      opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       opts.on("-v", "--verbose", "Increases the log verbosity, printing all debug statements.") { self.logger.level = Logger::Severity::DEBUG }
       opts.on("-q", "--quiet", "Decreases the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
       opts.on("-h", "--help", "Prints usage synopsis.") { self.display_help_and_exit(opts) }
