@@ -153,9 +153,13 @@ module Shards
       str.each_char.any?(&.ascii_letter?)
     end
 
-    def self.resolve(versions, requirements : Enumerable(String))
-      unless requirements.any? { |r| prerelease?(r) }
-        versions = versions.reject { |v| prerelease?(v) }
+    protected def self.without_prereleases(versions)
+      versions.reject { |v| prerelease?(v) }
+    end
+
+    def self.resolve(versions, requirements : Enumerable(String), prereleases = false)
+      unless prereleases || requirements.any? { |r| prerelease?(r) }
+        versions = without_prereleases(versions)
       end
 
       matching_versions = requirements

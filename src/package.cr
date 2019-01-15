@@ -40,8 +40,8 @@ module Shards
       end
     end
 
-    def matching_versions
-      Versions.resolve(available_versions, requirements)
+    def matching_versions(prereleases = false)
+      Versions.resolve(available_versions, requirements, prereleases)
     end
 
     def spec
@@ -123,8 +123,13 @@ module Shards
       @resolver ||= Shards.find_resolver(@dependency)
     end
 
-    private def available_versions
-      @available_versions ||= resolver.available_versions
+    def available_versions(prereleases = true)
+      versions = @available_versions ||= resolver.available_versions
+      if prereleases
+        versions
+      else
+        Versions.without_prereleases(versions)
+      end
     end
   end
 
