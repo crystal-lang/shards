@@ -12,6 +12,7 @@ module Shards
           init                           - Initializes a shard folder.
           install                        - Installs dependencies from `shard.lock` file.
           list [--tree]                  - Lists installed dependencies.
+          outdated [--pre]               - Lists dependencies that are outdated.
           prune                          - Removes unused dependencies from `lib` folder.
           update                         - Updates dependencies and `shards.lock`.
           version [<path>]               - Prints the current version of the shard.
@@ -46,6 +47,8 @@ module Shards
           Commands::Install.run(path)
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
+        when "outdated"
+          Commands::Outdated.run(path, prereleases: args.includes?("--pre"))
         when "prune"
           Commands::Prune.run(path)
         when "update"
