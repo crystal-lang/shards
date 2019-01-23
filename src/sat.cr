@@ -7,6 +7,12 @@ module Shards
     alias Literal = Int32
     alias Clause = Array(Literal)
 
+    enum Assignment : Int8
+      NOT_SELECTED = 0
+      SELECTED = 1
+      UNDEFINED = -1
+    end
+
     def self.from_io(io : IO) : SAT
       new.tap do |sat|
         while line = io.gets
@@ -65,39 +71,35 @@ module Shards
       end
     end
 
-    protected def assignment_to_s(assignment : Array(Literal?), brief = false)
+    protected def assignment_to_s(assignment, brief = false)
       String.build do |str|
-        assignment.zip(@variables).compact_map do |(a, v)|
-          if a == 0
-            next if brief
-            str << '~'
+        assignment.each_with_index do |a, index|
+          if a.selected?
+            str << @variables[index] << ' '
+          elsif !brief && a.not_selected?
+            str << '~' << @variables[index] << ' ' unless brief
           end
-          str << v << ' '
         end
       end
     end
 
-    protected def to_assigment(assignment : Array(Literal?), brief = false)
-      aa = Array(String).new(assignment.size)
-
-      assignment.zip(@variables).each do |(a, v)|
-        if a == 0
-          aa << "~#{v}" unless brief
-        else
-          aa << v
+    protected def to_variables(assignment, brief = false)
+      assignment.each_with_index.compact_map do |(a, index)|
+        if a.selected?
+          @variables[index]
+        elsif !brief && a.not_selected?
+          "~#{@variables[index]}"
         end
-      end
-
-      aa
+      end.to_a
     end
 
     # Solves SAT and yields solutions.
     def solve(brief = true, verbose = false) : Nil
       watchlist = setup_watchlist
-      assignment = Array(Literal?).new(@variables.size) { nil }
+      assignment = Array(Assignment).new(@variables.size) { Assignment::UNDEFINED }
 
       solve(watchlist, assignment, 0, verbose) do |solution|
-        yield to_assigment(solution, brief)
+        yield to_variables(solution, brief)
       end
     end
 
@@ -130,10 +132,10 @@ module Shards
 
             # set the bit indicating a has been tried for d:
             state[d] |= 1 << a
-            assignment[d] = a
+            assignment[d] = Assignment.from_value(a)
 
             if !update_watchlist(watchlist, (d << 1) | a, assignment, verbose)
-              assignment[d] = nil
+              assignment[d] = Assignment::UNDEFINED
             else
               d += 1
               break
@@ -149,7 +151,7 @@ module Shards
 
           # backtrack:
           state[d] = 0
-          assignment[d] = nil
+          assignment[d] = Assignment::UNDEFINED
           d -= 1
         end
       end
@@ -183,7 +185,7 @@ module Shards
           a = alternative & 1
           av = assignment[v]
 
-          if av.nil? || av == a ^ 1
+          if av.undefined? || av.value == a ^ 1
             found_alternative = true
             watchlist[false_literal].shift?
             watchlist[alternative] << clause
