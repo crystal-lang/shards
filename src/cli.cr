@@ -47,6 +47,8 @@ module Shards
           Commands::Install.run(path)
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
+        when "lock"
+          Commands::Lock.run(path)
         when "outdated"
           Commands::Outdated.run(path, prereleases: args.includes?("--pre"))
         when "prune"

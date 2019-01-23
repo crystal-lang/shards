@@ -35,10 +35,23 @@ module Shards
       refs = git_refs(version)
 
       if file_exists?(refs, SPEC_FILENAME)
-        capture("git show #{refs}:#{SPEC_FILENAME}")
+         capture("git show #{refs}:#{SPEC_FILENAME}")
       else
         raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
       end
+    end
+
+    def specs(versions)
+      specs = {} of String => Spec
+
+      versions.each do |version|
+        refs = git_refs(version)
+        yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
+        specs[version] = Spec.from_yaml(yaml)
+      rescue Error
+      end
+
+      specs
     end
 
     def available_versions

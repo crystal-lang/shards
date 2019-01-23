@@ -46,7 +46,7 @@ module Shards
 
     def locks
       @locks ||= if lockfile?
-                   Lock.from_file(lockfile_path)
+                   Shards::Lock.from_file(lockfile_path)
                  else
                    raise Error.new("Missing #{LOCK_FILENAME}. Please run 'shards install'")
                  end

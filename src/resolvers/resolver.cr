@@ -15,6 +15,12 @@ module Shards
       Spec.from_yaml(read_spec(version))
     end
 
+    def specs(versions)
+      specs = {} of String => Spec
+      versions.each { |version| specs[version] = spec(version) }
+      specs
+    end
+
     def installed_spec
       return unless installed?
 

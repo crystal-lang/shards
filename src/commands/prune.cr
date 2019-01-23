@@ -7,7 +7,6 @@ module Shards
     class Prune < Command
       def run(*args)
         return unless lockfile?
-        locks = Lock.from_file(lockfile_path)
 
         Dir[File.join(Shards.install_path, "*")].each do |path|
           next unless Dir.exists?(path)
