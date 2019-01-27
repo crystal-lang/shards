@@ -53,16 +53,16 @@ module Shards
       @clauses << clause
     end
 
-    protected def literal_to_s(literal : Literal) : String
+    private def literal_to_s(literal : Literal) : String
       String.build { |str| literal_to_s(str, literal) }
     end
 
-    protected def literal_to_s(io : IO, literal : Literal) : Nil
+    private def literal_to_s(io : IO, literal : Literal) : Nil
       io << '~' unless literal & 1 == 0
       io << @variables[literal >> 1]
     end
 
-    protected def clause_to_s(clause : Clause) : String
+    private def clause_to_s(clause : Clause) : String
       String.build do |str|
         clause.each_with_index do |literal, index|
           str << ' ' unless index == 0
@@ -71,7 +71,7 @@ module Shards
       end
     end
 
-    protected def assignment_to_s(assignment, brief = false)
+    private def assignment_to_s(assignment, brief = false)
       String.build do |str|
         assignment.each_with_index do |a, index|
           if a.selected?
@@ -83,33 +83,47 @@ module Shards
       end
     end
 
-    protected def to_variables(assignment, brief = false)
-      assignment.each_with_index.compact_map do |(a, index)|
+    private def to_variables(result, assignment, brief = false)
+      result.clear
+
+      assignment.each_with_index do |a, index|
         if a.selected?
-          @variables[index]
+          result << @variables[index]
         elsif !brief && a.not_selected?
-          "~#{@variables[index]}"
+          result << "~#{@variables[index]}"
         end
-      end.to_a
+      end
     end
 
-    # Solves SAT and yields solutions.
+    # Solves SAT and yields proposed solution.
+    #
+    # Reuses the yielded array for performance reasons (avoids many
+    # allocations); you must duplicate the array if you want to memorize a
+    # solution. For example:
+    #
+    # ```
+    # solution = nil
+    # ast.solve { |proposal| solution = proposal.dup }
+    # ```
     def solve(brief = true, verbose = false) : Nil
       watchlist = setup_watchlist
       assignment = Array(Assignment).new(@variables.size) { Assignment::UNDEFINED }
 
+      result = [] of String
+
       solve(watchlist, assignment, 0, verbose) do |solution|
-        yield to_variables(solution, brief)
+        to_variables(result, solution, brief)
+        yield result
       end
     end
 
     # Iteratively solve SAT by assigning to variables d, d+1, ..., n-1.
     # Assumes variables 0, ..., d-1 are assigned so far.
     private def solve(watchlist, assignment, d, verbose)
-      # The state list wil keep track of what values for which variables
-      # we have tried so far. A value of 0 means nothing has been tried yet,
-      # a value of 1 means False has been tried but not True, 2 means True
-      # but not False, and 3 means both have been tried.
+      # The state list keeps track of what values for which variables we have
+      # tried so far. A value of 0 means nothing has been tried yet, a value of
+      # 1 means False has been tried but not True, 2 means True but not False,
+      # and 3 means both have been tried.
       n = @variables.size
       state = Array(Literal).new(n) { Literal.new(0) }
 
@@ -120,7 +134,7 @@ module Shards
           next
         end
 
-        # Let's try assigning a value to v. Here would be the place to insert
+        # Let's try assigning a value to 'v'. Here would be the place to insert
         # heuristics of which value to try first.
         tried_something = false
 
@@ -130,7 +144,7 @@ module Shards
 
             tried_something = true
 
-            # set the bit indicating a has been tried for d:
+            # set the bit indicating 'a' has been tried for 'd':
             state[d] |= 1 << a
             assignment[d] = Assignment.from_value(a)
 
@@ -174,8 +188,8 @@ module Shards
 
     # Updates the watch list after literal 'false_literal' was just assigned
     # `false`, by making any clause watching false_literal watch something else.
-    # Returns False it is impossible to do so, meaning a clause is contradicted by
-    # the current assignment.
+    # Returns `false` if it's impossible to do so, meaning a clause is
+    # contradicted by the current assignment.
     private def update_watchlist(watchlist, false_literal, assignment, verbose)
       while clause = watchlist[false_literal].first?
         found_alternative = false
