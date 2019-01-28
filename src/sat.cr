@@ -30,6 +30,7 @@ module Shards
       @clauses = Array(Clause).new
       @table = Hash(String, Literal).new
       @variables = Array(String).new
+      @conflicts = Array(Array(Literal)).new
     end
 
     def add_clause(str : String) : Nil
@@ -62,7 +63,7 @@ module Shards
       io << @variables[literal >> 1]
     end
 
-    private def clause_to_s(clause : Clause) : String
+    protected def clause_to_s(clause : Clause) : String
       String.build do |str|
         clause.each_with_index do |literal, index|
           str << ' ' unless index == 0
@@ -95,6 +96,14 @@ module Shards
       end
     end
 
+    def conflicts
+      @conflicts.map do |clause|
+        clause.map do |literal|
+          literal_to_s(literal)
+        end
+      end
+    end
+
     # Solves SAT and yields proposed solution.
     #
     # Reuses the yielded array for performance reasons (avoids many
@@ -105,7 +114,7 @@ module Shards
     # solution = nil
     # ast.solve { |proposal| solution = proposal.dup }
     # ```
-    def solve(brief = true, verbose = false) : Nil
+    def solve(brief = true, verbose = false)
       watchlist = setup_watchlist
       assignment = Array(Assignment).new(@variables.size) { Assignment::UNDEFINED }
 
@@ -140,7 +149,7 @@ module Shards
 
         {0, 1}.each do |a|
           if (state[d] >> a) & 1 == 0
-            STDERR.puts "Trying #{@variables[d]} = #{a}" if verbose
+#            STDERR.puts "Trying #{@variables[d]} = #{a}" if verbose
 
             tried_something = true
 
@@ -209,10 +218,14 @@ module Shards
 
         unless found_alternative
           if verbose
-            dump_watchlist(watchlist)
+#            dump_watchlist(watchlist)
             STDERR.puts "Current assignment: #{assignment_to_s(assignment)}"
-            STDERR.puts "Clause #{clause_to_s(clause)} contradicted."
+            STDERR.puts "Contradicted clause: #{clause_to_s(clause)}"
+            STDERR.puts
           end
+
+          @conflicts << clause
+
           return false
         end
       end

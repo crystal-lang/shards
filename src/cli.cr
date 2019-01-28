@@ -41,6 +41,8 @@ module Shards
           build(path, args[1..-1])
         when "check"
           Commands::Check.run(path)
+        when "graph"
+          Commands::Graph.run(path)
         when "init"
           Commands::Init.run(path)
         when "install"

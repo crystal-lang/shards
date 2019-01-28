@@ -1,38 +1,32 @@
 require "./command"
 require "../sat"
+require "../dependency_graph"
 
 module Shards
   module Commands
     class Lock < Command
-      record Pkg,
-        resolver : Resolver,
-        versions : Hash(String, Spec)
+      private def graph
+        @graph ||= DependencyGraph.new
+      end
 
       private def sat
         @sat ||= SAT.new
       end
 
-      private def pkgs
-        @pkgs ||= {} of String => Pkg
-      end
-
       def run
         # 1. build dependency graph:
-        Shards.logger.info { "Collecting dependencies..." }
+        Shards.logger.info { "Building dependency graph" }
 
         spent = Time.measure do
-          dig(spec.dependencies, resolve: true)
-          dig(spec.development_dependencies, resolve: true) unless Shards.production?
+          graph.add(spec, development: !Shards.production?)
         end
 
-        Shards.logger.info do
-          total = pkgs.reduce(0) { |acc, (_, pkg)| acc + pkg.versions.size }
-          "Collected #{pkgs.size} dependencies (total: #{total} specs, duration: #{spent})"
+        Shards.logger.debug do
+          total = graph.packages.reduce(0) { |acc, (_, pkg)| acc + pkg.versions.size }
+          "Collected #{graph.packages.size} dependencies (#{total} specs, duration: #{spent})"
         end
 
         # 2. translate dependency graph as CNF clauses (conjunctive normal form):
-        Shards.logger.debug { "Building clauses..." }
-
         spent = Time.measure do
           # the package to install dependencies for:
           sat.add_clause [spec.name]
@@ -42,22 +36,30 @@ module Shards
           add_dependencies(negation, spec.dependencies)
           add_dependencies(negation, spec.development_dependencies) unless Shards.production?
 
-          # nested dependencies:
-          pkgs.each do |name, pkg|
-            pkg.versions.each do |version, s|
-              add_dependencies("~#{name}:#{version}", s.dependencies)
+          # version conflicts:
+          # - we want at most 1 version for each package
+          # - defined before dependencies, so any conflict will fail quickly
+          graph.each do |pkg|
+            pkg.each_combination do |a, b|
+              sat.add_clause ["~#{pkg.name}:#{a}", "~#{pkg.name}:#{b}"]
             end
           end
 
-          # version conflicts (we want at most 1 version for each package):
-          pkgs.each do |name, pkg|
-            pkg.versions.keys.each_combination(2) do |(a, b)|
-              sat.add_clause ["~#{name}:#{a}", "~#{name}:#{b}"]
+          # nested dependencies:
+          graph.each do |pkg|
+            pkg.each do |version, s|
+              add_dependencies("~#{pkg.name}:#{version}", s.dependencies)
             end
           end
         end
-        Shards.logger.info { "Built #{sat.@clauses.size} clauses (duration: #{spent})" }
+        Shards.logger.debug { "Built #{sat.@clauses.size} clauses (duration: #{spent})" }
 
+        # STDERR.puts "VARIABLES:"
+        # sat.@variables.each do |variable|
+        #   STDERR.puts variable
+        # end
+
+        # STDERR.puts "\nCLAUSES:"
         # sat.@clauses.each do |clause|
         #   STDERR.puts sat.clause_to_s(clause)
         # end
@@ -71,15 +73,15 @@ module Shards
         #       versions, not necessarily from the latest one (e.g. for
         #       conservative updates).
         # TODO: consider adding some weight (e.g. to update some dependencies).
-        pkgs.each do |name, pkg|
-          pkg.versions.keys.each_with_index do |version, index|
-            distances["#{name}:#{version}"] = index
+        graph.each do |pkg|
+          pkg.each_version do |version, index|
+            distances["#{pkg.name}:#{version}"] = index
           end
         end
 
         # 4. solving + decision
         # FIXME: some nested dependencies seem to be selected despite being extraneous (missing clauses?)
-        Shards.logger.info { "Solving dependencies..." }
+        Shards.logger.info { "Solving dependencies" }
         count = 0
 
         solution = nil
@@ -97,37 +99,52 @@ module Shards
             if distance < solution_distance
               solution = proposal.dup
               solution_distance = distance
-              Shards.logger.debug { "Select proposal (distance=#{solution_distance}): #{solution.sort.join(' ')}" }
+
+              Shards.logger.debug do
+                "Select proposal (distance=#{solution_distance}): #{solution.sort.join(' ')}"
+              end
 
             # fewer dependencies?
             elsif distance == solution_distance && proposal.size < solution.not_nil!.size
               solution = proposal.dup
               solution_distance = distance
-              Shards.logger.debug { "Select smaller proposal (distance=#{solution_distance}): #{solution.sort.join(' ')}" }
+
+              Shards.logger.debug do
+                "Select smaller proposal (distance=#{solution_distance}): #{solution.sort.join(' ')}"
+              end
             end
           end
         end
 
         # 5.
         if solution
-          Shards.logger.info { "Analyzed #{count} solutions (duration: #{spent}" }
+          Shards.logger.debug { "Analyzed #{count} solutions (duration: #{spent}" }
           Shards.logger.info { "Found solution:" }
+
           solution
             .compact_map { |variable| variable.split(':') if variable.index(':') }
             .sort { |a, b| a[0] <=> b[0] }
-            .each { |p| puts "#{p[0]}: #{p[1]}" }
+            .each { |p| puts "  #{p[0]}: #{p[1]}" }
         else
-          Shards.logger.error { "Failed to find a solution (duration: #{spent})" }
+          report_conflicts
+
+          if Shards.logger.debug?
+            Shards.logger.error { "Failed to find a solution (duration: #{spent})" }
+          else
+            Shards.logger.error { "Failed to find a solution" }
+          end
         end
       end
 
       private def add_dependencies(negation, dependencies)
         dependencies.each do |d|
-          versions = Versions.resolve(pkgs[d.name].versions.keys, {d.version})
+          versions = graph.resolve(d)
 
-          # FIXME: looks like we couldn't resolve a constraint here; maybe it's
-          #        related to a git refs?
-          next if versions.empty?
+          if versions.empty?
+            # FIXME: we couldn't resolve a constraint (likely a git refs)
+            Shards.logger.warn { "Failed to match versions for #{d.inspect}" }
+            next
+          end
 
           clause = [negation]
           versions.each { |v| clause << "#{d.name}:#{v}" }
@@ -135,26 +152,53 @@ module Shards
         end
       end
 
-      # TODO: try and limit versions to what's actually reachable, in order to
-      #       reduce the dependency graph, which will reduce the number of
-      #       solutions, thus reduce the overall solving time.
-      private def dig(dependencies, resolve = false)
-        dependencies.each do |dependency|
-          next if pkgs.has_key?(dependency.name)
+      private def report_conflicts
+        interest = ::Set(String).new
+        negation = "~#{self.spec.name}"
 
-          resolver = Shards.find_resolver(dependency)
-          versions = resolver.available_versions
+        sat.conflicts.reverse_each do |clause|
+          if clause.size == 2 && clause.all?(&.starts_with?('~'))
+            # version conflict:
+            clause[0] =~ /^~(.+):(.+)$/
+            a_name, a_version = $1, $2
 
-          # resolve main spec constraints (avoids impossible branches in the
-          # dependency graph):
-          versions = Versions.resolve(versions, {dependency.version}) if resolve
+            clause[1] =~ /:(.+)$/
+            b_version = $1
 
-          pkg = Pkg.new(resolver, resolver.specs(Versions.sort(versions)))
-          pkgs[dependency.name] = pkg
+            Shards.logger.warn do
+              "Conflict can't install '#{a_name}' versions #{a_version} and #{b_version} at the same time."
+            end
+            interest << "#{a_name}:"
 
-          pkg.versions.each do |version, spec|
-            next unless version =~ VERSION_REFERENCE
-            dig(spec.dependencies)
+          elsif interest.any? { |x| clause.any?(&.starts_with?(x)) }
+            # dependency graph conflict:
+            if clause[0] == negation
+              spec = self.spec
+              a_name, a_version = spec.name, nil
+            else
+              clause[0] =~ /^~(.+):(.+)$/
+              a_name, a_version = $1, $2
+
+              spec = graph.packages[a_name].versions[a_version]
+              interest << "#{a_name}:"
+            end
+
+            clause[1] =~ /^(.+):(.+)$/
+            b_name, b_version = $1, $2
+
+            dependency = spec.dependencies.find(&.name.==(b_name)).not_nil!
+
+            Shards.logger.warn do
+              human = dependency.to_human_requirement
+
+              String.build do |str|
+                str << "Conflict " << a_name
+                str << ' ' << a_version if a_version
+                str << " requires " << dependency.name << ' '
+                str << human
+                # str << " (selected " << b_version << ')' unless human == b_version
+              end
+            end
           end
         end
       end

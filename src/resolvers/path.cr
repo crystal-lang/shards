@@ -16,6 +16,15 @@ module Shards
       end
     end
 
+    def spec?(version)
+      spec_path = File.join(local_path, SPEC_FILENAME)
+
+      if File.exists?(spec_path)
+        Spec.from_yaml(File.read(spec_path))
+        # TODO: fail if the spec isn't the expected version!
+      end
+    end
+
     def installed_spec
       Spec.from_yaml(read_spec) if installed?
     end

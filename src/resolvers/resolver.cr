@@ -35,6 +35,7 @@ module Shards
     end
 
     abstract def read_spec(version = nil)
+    abstract def spec?(version)
     abstract def available_versions
     abstract def install(version = nil)
     abstract def installed_commit_hash
