@@ -1,11 +1,11 @@
 require "./command"
-require "../dependency_graph"
+require "../solver/graph"
 
 module Shards
   module Commands
     class Graph < Command
       def run
-        graph = DependencyGraph.new
+        graph = Solver::Graph.new
         graph.add(spec, development: !Shards.production?)
 
         graph.each do |pkg|
