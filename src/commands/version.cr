@@ -3,12 +3,12 @@ require "./command"
 module Shards
   module Commands
     class Version < Command
-      def self.run(path, *args)
+      def self.run(path)
         path = lookup_path(path)
-        new(path).run(*args)
+        new(path).run
       end
 
-      def run(*args)
+      def run
         puts spec.version
       end
 

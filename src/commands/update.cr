@@ -4,7 +4,7 @@ module Shards
   module Commands
     class Update < Command
       # TODO: only update specified dependencies (ie. load locked versions, but don't enforce them)
-      def run(*args)
+      def run
         manager.resolve
 
         install(manager.packages)

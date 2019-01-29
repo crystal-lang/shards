@@ -4,7 +4,7 @@ require "../versions"
 module Shards
   module Commands
     class Check < Command
-      def run(*args)
+      def run
         if has_dependencies?
           locks # ensures that lockfile exists
           verify(spec.dependencies)

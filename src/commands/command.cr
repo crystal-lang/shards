@@ -22,10 +22,10 @@ module Shards
       @lockfile_path = File.join(@path, LOCK_FILENAME)
     end
 
-    abstract def run(*args)
+    abstract def run(*args, **kwargs)
 
-    def self.run(path, *args)
-      new(path).run(*args)
+    def self.run(path, *args, **kwargs)
+      new(path).run(*args, **kwargs)
     end
 
     def spec

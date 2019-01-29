@@ -5,7 +5,7 @@ require "../helpers/path"
 module Shards
   module Commands
     class Prune < Command
-      def run(*args)
+      def run
         return unless lockfile?
 
         Dir[File.join(Shards.install_path, "*")].each do |path|

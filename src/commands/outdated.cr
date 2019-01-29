@@ -3,14 +3,12 @@ require "./command"
 module Shards
   module Commands
     class Outdated < Command
+      @prereleases = false
+
       @up_to_date = true
       @output = IO::Memory.new
 
-      def self.run(path, @@prereleases = false)
-        super
-      end
-
-      def run(*args)
+      def run(@prereleases = false)
         return unless has_dependencies?
 
         if lockfile?
@@ -44,7 +42,7 @@ module Shards
         installed = _spec.version
 
         # already the latest version?
-        latest = Versions.sort(package.available_versions(@@prereleases)).first
+        latest = Versions.sort(package.available_versions(@prereleases)).first
         return if latest == installed
 
         @up_to_date = false
@@ -53,7 +51,7 @@ module Shards
         @output << " (installed: " << installed
 
         # is new version matching constraints available?
-        available = package.matching_versions(@@prereleases).first
+        available = package.matching_versions(@prereleases).first
         unless available == installed
           @output << ", available: " << available
         end
