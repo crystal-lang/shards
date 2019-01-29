@@ -150,7 +150,11 @@ module Shards
     end
 
     def self.prerelease?(str)
-      str.each_char.any?(&.ascii_letter?)
+      str.each_char do |char|
+        return true if char.ascii_letter?
+        break if char == '+'
+      end
+      false
     end
 
     protected def self.without_prereleases(versions)
