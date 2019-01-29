@@ -4,11 +4,24 @@ require "../solver"
 module Shards
   module Commands
     class Lock < Command
-      def run(print = false, update = false)
+      def run(shards, print = false, update = false)
         Shards.logger.info { "Resolving dependencies" }
 
         solver = Solver.new(spec)
-        solver.locks = locks if !update && lockfile?
+
+        if lockfile?
+          if update
+            # update selected dependencies to latest possible versions, but
+            # avoid to update unspecified dependencies, if possible:
+            unless shards.empty?
+              solver.locks = locks.reject { |d| shards.includes?(d.name) }
+            end
+          else
+            # install must be as conservative as possible:
+            solver.locks = locks
+          end
+        end
+
         solver.prepare(development: !Shards.production?)
 
         if solution = solver.solve

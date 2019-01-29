@@ -48,7 +48,9 @@ module Shards
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
         when "lock"
-          Commands::Lock.run(path,
+          Commands::Lock.run(
+            path,
+            args.reject(&.starts_with?("--")),
             print: args.includes?("--print"),
             update: args.includes?("--update")
           )
