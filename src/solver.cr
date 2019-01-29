@@ -10,9 +10,7 @@ module Shards
       version : String,
       commit : String?
 
-    alias Solution = Array(Result)
-
-    getter graph : Graph
+    setter locks : Array(Dependency)?
 
     def initialize(@spec : Spec)
       @graph = Graph.new
@@ -24,7 +22,7 @@ module Shards
       build_cnf_clauses(development)
     end
 
-    def solve : Solution?
+    def solve : Array(Result)?
       distances = calculate_distances
 
       solution = nil
@@ -50,7 +48,7 @@ module Shards
     end
 
     private def to_result(proposal)
-      solution = Solution.new
+      solution = [] of Result
 
       proposal.each do |str|
         next unless colon = str.index(':')
@@ -96,7 +94,7 @@ module Shards
             clause[0] =~ /^~(.+):(.+)$/
             a_name, a_version = $1, $2
 
-            spec = graph.packages[a_name].versions[a_version]
+            spec = @graph.packages[a_name].versions[a_version]
             interest << "#{a_name}:"
           end
 
@@ -143,7 +141,7 @@ module Shards
 
     private def add_dependencies(negation, dependencies)
       dependencies.each do |d|
-        versions = graph.resolve(d)
+        versions = @graph.resolve(d)
 
         if versions.empty?
           # FIXME: we couldn't resolve a constraint
@@ -163,18 +161,27 @@ module Shards
 
     # Computes the distance for each version from a reference version, for
     # deciding the best solution.
-    #
-    # TODO: should be the distance from a given version or a range of
-    #       versions, not necessarily from the latest one (e.g. for
-    #       conservative updates).
-    # TODO: consider adding some weight (e.g. to update some dependencies).
     private def calculate_distances
       distances = {} of String => Int32
       distances[@spec.name] = 0
 
-      graph.each do |pkg|
+      @graph.each do |pkg|
+        # reference is latest version by default:
+        position = 0
+
+        if locked = @locks.try(&.find { |d| d.name == pkg.name })
+          # determine position of locked version to use it as reference:
+          pkg.each_version do |version, index|
+            if version == locked.version
+              position = index
+              break
+            end
+          end
+        end
+
+        # calculate distances to reference version:
         pkg.each_version do |version, index|
-          distances["#{pkg.name}:#{version}"] = index
+          distances["#{pkg.name}:#{version}"] = (position - index).abs
         end
       end
 

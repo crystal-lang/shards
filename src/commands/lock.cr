@@ -4,10 +4,11 @@ require "../solver"
 module Shards
   module Commands
     class Lock < Command
-      def run(print = false)
+      def run(print = false, update = false)
         Shards.logger.info { "Resolving dependencies" }
 
         solver = Solver.new(spec)
+        solver.locks = locks if !update && lockfile?
         solver.prepare(development: !Shards.production?)
 
         if solution = solver.solve
@@ -26,7 +27,7 @@ module Shards
       end
 
       private def to_lockfile(solution, io)
-        io << "version: 1.1\n"
+        io << "version: 1.0\n"
         io << "shards:\n"
 
         solution.sort_by!(&.name).each do |rs|
@@ -41,7 +42,7 @@ module Shards
             io << "    version: " << rs.version << '\n'
           end
 
-          puts
+          io << '\n'
         end
       end
     end
