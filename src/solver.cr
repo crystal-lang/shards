@@ -6,10 +6,13 @@ require "./spec"
 module Shards
   class Solver
     setter locks : Array(Dependency)?
+    @solution : Array(Package)?
 
     def initialize(@spec : Spec)
       @graph = Graph.new
       @sat = SAT.new
+      @solution = nil
+      @solution_distance = Int32::MAX
     end
 
     def prepare(development = true) : Nil
@@ -20,26 +23,46 @@ module Shards
     def solve : Array(Package)?
       distances = calculate_distances
 
-      solution = nil
-      solution_distance = Int32::MAX
-
       @sat.solve do |proposal|
         # calculate the proposal quality (distance from ideal solution):
         distance = proposal.reduce(0) { |a, e| a + distances[e] }
 
-        if distance < solution_distance
+        if distance < @solution_distance
           # select better solution (less distance from ideal):
-          solution = proposal.dup
-          solution_distance = distance
+          consider(proposal, distance)
 
-        elsif distance == solution_distance && proposal.size < solution.not_nil!.size
+        elsif distance == @solution_distance && proposal.size < @solution.not_nil!.size
           # select solution with fewer dependencies (same distance from ideal):
-          solution = proposal.dup
-          solution_distance = distance
+          consider(proposal, distance)
         end
       end
 
-      to_packages(solution) if solution
+      @solution
+    end
+
+    private def consider(proposal, distance)
+      packages = to_packages(proposal)
+
+      # pre-releases are opt-in, so we must check that the solution didn't
+      # select one unless at least one requirement in the selected graph asked
+      # for it:
+      packages.each do |package|
+        next unless Versions.prerelease?(package.version)
+
+        if dependency = @spec.dependencies.find { |d| d.name == package.name }
+          break if Versions.prerelease?(dependency.version)
+        end
+
+        return unless packages.any? do |pkg|
+          if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
+            Versions.prerelease?(dependency.version)
+          end
+        end
+      end
+
+      # solution is acceptable:
+      @solution = packages
+      @solution_distance = distance
     end
 
     private def to_packages(solution)
