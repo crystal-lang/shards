@@ -50,7 +50,7 @@ module Shards
         when "lock"
           Commands::Lock.run(
             path,
-            args.reject(&.starts_with?("--")),
+            args[1..-1].reject(&.starts_with?("--")),
             print: args.includes?("--print"),
             update: args.includes?("--update")
           )
@@ -59,7 +59,10 @@ module Shards
         when "prune"
           Commands::Prune.run(path)
         when "update"
-          Commands::Update.run(path, args.reject(&.starts_with?("--")))
+          Commands::Update.run(
+            path,
+            args[1..-1].reject(&.starts_with?("--"))
+          )
         when "version"
           Commands::Version.run(args[1]? || path)
         else
