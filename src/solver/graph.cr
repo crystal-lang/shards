@@ -50,7 +50,7 @@ module Shards
         spec.development_dependencies.each { |dependency| add(dependency) } if development
       end
 
-      private def add(dependency : Dependency)
+      def add(dependency : Dependency)
         pkg = @packages[dependency.name] ||= Pkg.new(dependency)
         resolver = pkg.resolver
 

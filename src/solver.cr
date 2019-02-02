@@ -17,6 +17,15 @@ module Shards
 
     def prepare(development = true) : Nil
       @graph.add(@spec, development)
+
+      if locks = @locks
+        locks.each do |lock|
+          if lock["commit"]?
+            @graph.add(lock)
+          end
+        end
+      end
+
       build_cnf_clauses(development)
     end
 
@@ -76,7 +85,7 @@ module Shards
 
         if plus = str.index("+git.commit.")
           version = str[(colon + 1)...plus]
-          commit = str[(plus + 13)..-1]
+          commit = str[(plus + 12)..-1]
         else
           version = str[(colon + 1)..-1]
           commit = nil
@@ -192,7 +201,7 @@ module Shards
         if locked = @locks.try(&.find { |d| d.name == pkg.name })
           # determine position of locked version to use it as reference:
           pkg.each_version do |version, index|
-            if version == locked.version
+            if version == locked.version || ((commit = locked["commit"]?) && version.ends_with?("+git.commit.#{commit}"))
               position = index
               break
             end
