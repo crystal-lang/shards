@@ -8,7 +8,7 @@ module Shards
     setter locks : Array(Dependency)?
     @solution : Array(Package)?
 
-    def initialize(@spec : Spec)
+    def initialize(@spec : Spec, @prereleases = false)
       @graph = Graph.new
       @sat = SAT.new
       @solution = nil
@@ -46,16 +46,18 @@ module Shards
       # pre-releases are opt-in, so we must check that the solution didn't
       # select one unless at least one requirement in the selected graph asked
       # for it:
-      packages.each do |package|
-        next unless Versions.prerelease?(package.version)
+      unless @prereleases
+        packages.each do |package|
+          next unless Versions.prerelease?(package.version)
 
-        if dependency = @spec.dependencies.find { |d| d.name == package.name }
-          break if Versions.prerelease?(dependency.version)
-        end
+          if dependency = @spec.dependencies.find { |d| d.name == package.name }
+            break if Versions.prerelease?(dependency.version)
+          end
 
-        return unless packages.any? do |pkg|
-          if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
-            Versions.prerelease?(dependency.version)
+          return unless packages.any? do |pkg|
+            if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
+              Versions.prerelease?(dependency.version)
+            end
           end
         end
       end

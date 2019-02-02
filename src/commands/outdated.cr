@@ -13,7 +13,7 @@ module Shards
 
         Shards.logger.info { "Resolving dependencies" }
 
-        solver = Solver.new(spec)
+        solver = Solver.new(spec, @prereleases)
         solver.prepare(development: !Shards.production?)
 
         if packages = solver.solve
