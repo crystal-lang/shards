@@ -1,15 +1,10 @@
+require "./package"
 require "./solver/graph"
 require "./solver/sat"
 require "./spec"
 
 module Shards
   class Solver
-    record Result,
-      name : String,
-      resolver : Resolver,
-      version : String,
-      commit : String?
-
     setter locks : Array(Dependency)?
 
     def initialize(@spec : Spec)
@@ -22,7 +17,7 @@ module Shards
       build_cnf_clauses(development)
     end
 
-    def solve : Array(Result)?
+    def solve : Array(Package)?
       distances = calculate_distances
 
       solution = nil
@@ -44,13 +39,13 @@ module Shards
         end
       end
 
-      to_result(solution) if solution
+      to_packages(solution) if solution
     end
 
-    private def to_result(proposal)
-      solution = [] of Result
+    private def to_packages(solution)
+      packages = [] of Package
 
-      proposal.each do |str|
+      solution.each do |str|
         next unless colon = str.index(':')
         name = str[0...colon]
 
@@ -63,10 +58,10 @@ module Shards
         end
 
         resolver = @graph.packages[name].resolver
-        solution << Result.new(name, resolver, version, commit)
+        packages << Package.new(name, resolver, version, commit)
       end
 
-      solution
+      packages
     end
 
     def each_conflict

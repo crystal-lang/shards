@@ -4,7 +4,7 @@ require "../solver"
 module Shards
   module Commands
     class Lock < Command
-      def run(shards, print = false, update = false)
+      def run(shards : Array(String), print = false, update = false)
         Shards.logger.info { "Resolving dependencies" }
 
         solver = Solver.new(spec)
@@ -24,35 +24,34 @@ module Shards
 
         solver.prepare(development: !Shards.production?)
 
-        if solution = solver.solve
+        if packages = solver.solve
           if print
-            to_lockfile(solution, STDOUT)
+            Shards::Lock.write(packages, STDOUT)
           else
-            Shards.logger.info { "Writing #{LOCK_FILENAME}" }
-            File.open(LOCK_FILENAME, "w") { |file| to_lockfile(solution, file) }
+            write_lockfile(packages)
           end
         else
           solver.each_conflict do |message|
             Shards.logger.warn { "Conflict #{message}" }
           end
-          Shards.logger.error { "Failed to find a solution" }
+          Shards.logger.error { "Failed to resolve dependencies" }
         end
       end
 
-      private def to_lockfile(solution, io)
+      private def to_lockfile(packages, io)
         io << "version: 1.0\n"
         io << "shards:\n"
 
-        solution.sort_by!(&.name).each do |rs|
-          key = rs.resolver.class.key
+        packages.sort_by!(&.name).each do |package|
+          key = package.resolver.class.key
 
-          io << "  " << rs.name << ":\n"
-          io << "    " << key << ": " << rs.resolver.dependency[key] << '\n'
+          io << "  " << package.name << ":\n"
+          io << "    " << key << ": " << package.resolver.dependency[key] << '\n'
 
-          if rs.commit
-            io << "    commit: " << rs.commit << '\n'
+          if package.commit
+            io << "    commit: " << package.commit << '\n'
           else
-            io << "    version: " << rs.version << '\n'
+            io << "    version: " << package.version << '\n'
           end
 
           io << '\n'

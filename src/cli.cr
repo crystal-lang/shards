@@ -14,7 +14,7 @@ module Shards
           list [--tree]                  - Lists installed dependencies.
           outdated [--pre]               - Lists dependencies that are outdated.
           prune                          - Removes unused dependencies from `lib` folder.
-          update                         - Updates dependencies and `shards.lock`.
+          update [<shard>, ...]          - Updates dependencies and `shard.lock`.
           version [<path>]               - Prints the current version of the shard.
 
       Options:
@@ -59,7 +59,7 @@ module Shards
         when "prune"
           Commands::Prune.run(path)
         when "update"
-          Commands::Update.run(path)
+          Commands::Update.run(path, args.reject(&.starts_with?("--")))
         when "version"
           Commands::Version.run(args[1]? || path)
         else

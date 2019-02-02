@@ -16,6 +16,10 @@ module Shards
       end
     end
 
+    def dependency_path
+      @dependency.path
+    end
+
     def spec?(version)
       spec_path = File.join(local_path, SPEC_FILENAME)
 

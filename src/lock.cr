@@ -1,5 +1,6 @@
 require "./ext/yaml"
 require "./dependency"
+require "./package"
 
 module Shards
   module Lock
@@ -39,6 +40,32 @@ module Shards
       raise Error.new("Invalid #{LOCK_FILENAME}. Please delete it and run install again.")
     ensure
       pull.close if pull
+    end
+
+    def self.write(packages : Array(Package), path : String)
+      File.open(path, "w") do |file|
+        write(packages, file)
+      end
+    end
+
+    def self.write(packages : Array(Package), io : IO)
+      io << "version: 1.0\n"
+      io << "shards:\n"
+
+      packages.sort_by!(&.name).each do |package|
+        key = package.resolver.class.key
+
+        io << "  " << package.name << ":\n"
+        io << "    " << key << ": " << package.resolver.dependency[key] << '\n'
+
+        if package.commit
+          io << "    commit: " << package.commit << '\n'
+        else
+          io << "    version: " << package.version << '\n'
+        end
+
+        io << '\n'
+      end
     end
   end
 end

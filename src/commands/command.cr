@@ -1,5 +1,4 @@
 require "../lock"
-require "../manager"
 require "../spec"
 
 module Shards
@@ -40,10 +39,6 @@ module Shards
       File.basename(spec_path)
     end
 
-    def manager
-      @manager ||= Manager.new(spec)
-    end
-
     def locks
       @locks ||= if lockfile?
                    Shards::Lock.from_file(lockfile_path)
@@ -54,6 +49,11 @@ module Shards
 
     def lockfile?
       File.exists?(lockfile_path)
+    end
+
+    def write_lockfile(packages)
+      Shards.logger.info { "Writing #{LOCK_FILENAME}" }
+      Shards::Lock.write(packages, LOCK_FILENAME)
     end
   end
 end
