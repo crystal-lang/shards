@@ -58,6 +58,10 @@ module Shards
           next if pkg.versions.has_key?(version)
 
           if spec = resolver.spec?(version)
+            unless dependency.name == spec.name
+              raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
+            end
+
             pkg.versions[version] = spec
             add(spec)
           else
