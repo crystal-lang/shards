@@ -177,39 +177,56 @@ module Shards
       case requirement
       when "*", ""
         versions
-
-      when /~>(.+)/
-        ver = $1.strip
-        vver = if idx = ver.rindex('.')
-                 ver[0...idx]
-               else
-                 ver
-               end
-        versions.select do |v|
-          v.starts_with?(vver) &&
-            !v[vver.size]?.try(&.ascii_alphanumeric?) &&
-            (compare(v, ver) <= 0)
-        end
-
-      when />=(.+)/
-        ver = $1.strip
-        versions.select { |v| compare(v, ver) <= 0 }
-
-      when /<=(.+)/
-        ver = $1.strip
-        versions.select { |v| compare(v, ver) >= 0 }
-
-      when />(.+)/
-        ver = $1.strip
-        versions.select { |v| compare(v, ver) < 0 }
-
-      when /<(.+)/
-        ver = $1.strip
-        versions.select { |v| compare(v, ver) > 0 }
-
+      when /~>\s*([^\s]+)/
+        ver = if idx = $1.rindex('.')
+                $1[0...idx]
+              else
+                $1
+              end
+        versions.select { |version| matches_approximate?(version, $1, ver) }
+      when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
+        versions.select { |version| matches_operator?(version, $1, $2) }
       else
-        ver = requirement.strip
-        versions.select { |v| v == ver }
+        versions.select { |version| matches_operator?(version, "=", requirement) }
+      end
+    end
+
+    def self.matches?(version : String, requirement : String)
+      case requirement
+      when "*", ""
+        true
+      when /~>\s*([^\s]+)\d*/
+        ver = if idx = $1.rindex('.')
+                $1[0...idx]
+              else
+                $1
+              end
+        matches_approximate?(version, $1, ver)
+      when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
+        matches_operator?(version, $1, $2)
+      else
+        matches_operator?(version, "=", requirement)
+      end
+    end
+
+    private def self.matches_approximate?(version, requirement, ver)
+      version.starts_with?(ver) &&
+        !version[ver.size]?.try(&.ascii_alphanumeric?) &&
+        (compare(version, requirement) <= 0)
+    end
+
+    private def self.matches_operator?(version, operator, requirement)
+      case operator
+      when ">="
+        compare(version, requirement) <= 0
+      when "<="
+        compare(version, requirement) >= 0
+      when ">"
+        compare(version, requirement) < 0
+      when "<"
+        compare(version, requirement) > 0
+      else
+        compare(version, requirement) == 0
       end
     end
   end

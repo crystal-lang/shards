@@ -17,6 +17,10 @@ module Shards
         solver.prepare(development: !Shards.production?)
 
         if packages = solver.solve
+          if lockfile?
+            validate(packages)
+          end
+
           install(packages)
 
           if generate_lockfile?(packages)
@@ -28,6 +32,33 @@ module Shards
           end
           Shards.logger.error { "Failed to resolve dependencies" }
         end
+      end
+
+      private def validate(packages)
+        packages.each do |package|
+          if lock = locks.find { |d| d.name == package.name }
+            if version = lock.version?
+              validate_locked_version(package, version)
+            elsif commit = lock["commit"]?
+              validate_locked_commit(package, commit)
+            else
+              raise InvalidLock.new # unknown lock resolver
+            end
+          elsif Shards.production?
+            raise LockConflict.new("can't install new dependency #{package.name} in production")
+          end
+        end
+      end
+
+      private def validate_locked_version(package, version)
+        return if Shards.production? && package.version == version
+        return if Versions.matches?(version, package.spec.version)
+        raise LockConflict.new("#{package.name} requirements changed")
+      end
+
+      private def validate_locked_commit(package, commit)
+        return if commit == package.commit
+        raise LockConflict.new("#{package.name} requirements changed")
       end
 
       private def install(packages : Array(Package))

@@ -165,5 +165,40 @@ module Shards
       assert_equal ["0.1"], Versions.resolve(["0.1"], "~> 0.1")
       assert_equal ["0.1"], Versions.resolve(["0.1"], "~> 0.1.0")
     end
+
+    def test_matches?
+      assert Versions.matches?("0.1.0", "*")
+      assert Versions.matches?("1.0.0", "*")
+
+      assert Versions.matches?("1.0.0", "1.0.0")
+      assert Versions.matches?("1.0.0", "1.0")
+      refute Versions.matches?("1.0.0", "1.0.1")
+
+      assert Versions.matches?("1.0.0", ">= 1.0.0")
+      assert Versions.matches?("1.0.0", ">= 1.0")
+      assert Versions.matches?("1.0.1", ">= 1.0.0")
+      refute Versions.matches?("1.0.0", ">= 1.0.1")
+
+      refute Versions.matches?("1.0.0", "> 1.0.0")
+      refute Versions.matches?("1.0.0", "> 1.0")
+      assert Versions.matches?("1.0.1", "> 1.0.0")
+      refute Versions.matches?("1.0.0", "> 1.0.1")
+
+      assert Versions.matches?("1.0.0", "<= 1.0.0")
+      assert Versions.matches?("1.0.0", "<= 1.0")
+      refute Versions.matches?("1.0.1", "<= 1.0.0")
+      assert Versions.matches?("1.0.0", "<= 1.0.1")
+
+      refute Versions.matches?("1.0.0", "< 1.0.0")
+      refute Versions.matches?("1.0.0", "< 1.0")
+      refute Versions.matches?("1.0.1", "< 1.0.0")
+      assert Versions.matches?("1.0.0", "< 1.0.1")
+
+      assert Versions.matches?("1.0.0", "~> 1.0.0")
+      assert Versions.matches?("1.0.0", "~> 1.0")
+      refute Versions.matches?("1.0.0", "~> 1.1")
+      assert Versions.matches?("1.0.1", "~> 1.0.0")
+      refute Versions.matches?("1.0.0", "~> 1.0.1")
+    end
   end
 end
