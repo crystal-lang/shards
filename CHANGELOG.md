@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.9.0.rc1 - 2019-01-11
+
+Breaking changes:
+- Dependency solver was overhauled;
+- Git tag refs that match a version number are now an actual version (i.e.
+  `tag: v1.0.0` is converted to `version: 1.0.0`).
+
+Features:
+- Update specified shards only, trying to keep other shards to their locked
+  version if possible;
+- Add `--local` argument to use the cache as-is, allowing to skip git fetches
+  when you know the cache is up-to-date;
+- Add the *outdated* command to list dependencies that could be updated
+  (matching constraints) as well as their latest version; including pre-release
+  versions on demand.
+- Add the *lock* command that behaves like the *install* and *update* commands
+  but that only creates a lockfile, and doesn't install anything.
+
+Fixes:
+- Transitive dependencies are now available to all installed shards, allowing
+  postinstall scripts to compile any Crystal application;
+- Don't consider metadata when considering a pre-release version number.
+
 ## v0.9.0.beta - 2019-01-11
 
 Breaking changes:
