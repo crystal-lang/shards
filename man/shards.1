@@ -41,7 +41,7 @@ dependencies aren't satisfied.
 .PP
 \fBinit\fR
 .RS 4
-Initializes a shard folder and creates a default \fIshard.yml\fR.
+Initializes a default \fIshard.yml\fR in the current folder.
 .RE
 .PP
 \fBinstall\fR
@@ -56,9 +56,19 @@ a requirement, but may succeed if a new dependency was added, as long as it
 doesn't generate a conflict, thus generating a new \fIshard.lock\fR file.
 .RE
 .PP
-\fBlist\fR
+\fBlist [--tree]\fR
 .RS 4
-Lists the installed dependencies and their versions.
+Lists the installed dependencies and their versions. Specifying \fI--tree\fR
+will list nested dependencies in a tree manner, instead of a flattened list.
+.RE
+.PP
+\fBlock [--update [<shards>]]\fR
+.RS 4
+Resolves dependencies and creates or updates the \fIshard.lock\fR file as per
+the \fBinstall\fR command, but never installs the dependencies.
+.PP
+Specifying \fI--update\fR follows the same semantics as the \fBupdate\fR
+command.
 .RE
 .PP
 \fBprune\fR
@@ -66,27 +76,32 @@ Lists the installed dependencies and their versions.
 Removes unused dependencies from \fIlib\fR folder.
 .RE
 .PP
-\fBupdate\fR
+\fBupdate [<shards>]\fR
 .RS 4
 Resolves and updates all dependencies into the \fIlib\fR folder again,
 whatever the locked versions and commits in the \fIshard.lock\fR file.
+.PP
+Specifying \fIshards\fR will update these dependencies only, trying to be as
+conservative as possible with other dependencies, respecting the locked versions
+and commits in the \fIshard.lock\fR file.
+.PP
 Eventually generates a new \fIshard.lock\fR file.
 .RE
 .PP
 \fBversion\fR [\fI<path>\fR]
 .RS 4
-Prints the current version of the shard.
+Print the current version of the shard located at \fIpath\fR.
 .RE
 .SH OPTIONS
 .PP
 \fB\-\-version\fR
 .RS 4
-Prints the \fIshards\fR version.
+Print the \fIshards\fR version.
 .RE
 .PP
 \fB\-h, \-\-help\fR
 .RS 4
-Prints usage synopsis.
+Print usage synopsis.
 .RE
 .PP
 \fB\-\-no-color\fR
@@ -103,12 +118,12 @@ locked dependencies will be installed. Commands will fail if dependencies in
 .PP
 \fB\-q, \-\-quiet\fR
 .RS 4
-Decreases the log verbosity, printing only warnings and errors.
+Decrease the log verbosity, printing only warnings and errors.
 .RE
 .PP
 \fB\-v, \-\-verbose\fR
 .RS 4
-Increases the log verbosity, printing all debug statements.
+Increase the log verbosity, printing all debug statements.
 .REAUTHOR
 Written by Julien Portalier.
 .SH "REPORTING BUGS"
