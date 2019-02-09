@@ -17,6 +17,8 @@ module Shards
         solver.prepare(development: !Shards.production?)
 
         if packages = solver.solve
+          return if packages.empty?
+
           if lockfile?
             validate(packages)
           end
