@@ -10,7 +10,7 @@ module Shards
         end
 
         if targets.empty?
-          targets = manager.spec.targets.map(&.name)
+          targets = spec.targets.map(&.name)
         end
 
         targets.each do |name|
@@ -23,7 +23,7 @@ module Shards
       end
 
       private def build(target, options)
-        Shards.logger.info "Building: #{target.name}"
+        Shards.logger.info { "Building: #{target.name}" }
 
         args = [
           "build",
@@ -31,7 +31,7 @@ module Shards
           target.main,
         ]
         options.each { |option| args << option }
-        Shards.logger.debug "crystal #{args.join(' ')}"
+        Shards.logger.debug { "crystal #{args.join(' ')}" }
 
         error = IO::Memory.new
         status = Process.run("crystal", args: args, output: Process::Redirect::Inherit, error: error)

@@ -4,7 +4,7 @@ require "ecr/macros"
 module Shards
   module Commands
     class Init < Command
-      def run(*args)
+      def run
         if File.exists?(shard_path)
           raise Error.new("#{SPEC_FILENAME} already exists")
         end

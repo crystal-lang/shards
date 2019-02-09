@@ -10,6 +10,10 @@ module Shards
       assert Versions.prerelease?("1.0.alpha")
       assert Versions.prerelease?("1.0.0-rc1")
       assert Versions.prerelease?("1.0.0-pre.1.2.x.y")
+
+      assert Versions.prerelease?("1.0.0-pre+20190129")
+      refute Versions.prerelease?("1.0+20190129")
+      refute Versions.prerelease?("1.0+build1")
     end
 
     def test_compare
@@ -160,6 +164,41 @@ module Shards
 
       assert_equal ["0.1"], Versions.resolve(["0.1"], "~> 0.1")
       assert_equal ["0.1"], Versions.resolve(["0.1"], "~> 0.1.0")
+    end
+
+    def test_matches?
+      assert Versions.matches?("0.1.0", "*")
+      assert Versions.matches?("1.0.0", "*")
+
+      assert Versions.matches?("1.0.0", "1.0.0")
+      assert Versions.matches?("1.0.0", "1.0")
+      refute Versions.matches?("1.0.0", "1.0.1")
+
+      assert Versions.matches?("1.0.0", ">= 1.0.0")
+      assert Versions.matches?("1.0.0", ">= 1.0")
+      assert Versions.matches?("1.0.1", ">= 1.0.0")
+      refute Versions.matches?("1.0.0", ">= 1.0.1")
+
+      refute Versions.matches?("1.0.0", "> 1.0.0")
+      refute Versions.matches?("1.0.0", "> 1.0")
+      assert Versions.matches?("1.0.1", "> 1.0.0")
+      refute Versions.matches?("1.0.0", "> 1.0.1")
+
+      assert Versions.matches?("1.0.0", "<= 1.0.0")
+      assert Versions.matches?("1.0.0", "<= 1.0")
+      refute Versions.matches?("1.0.1", "<= 1.0.0")
+      assert Versions.matches?("1.0.0", "<= 1.0.1")
+
+      refute Versions.matches?("1.0.0", "< 1.0.0")
+      refute Versions.matches?("1.0.0", "< 1.0")
+      refute Versions.matches?("1.0.1", "< 1.0.0")
+      assert Versions.matches?("1.0.0", "< 1.0.1")
+
+      assert Versions.matches?("1.0.0", "~> 1.0.0")
+      assert Versions.matches?("1.0.0", "~> 1.0")
+      refute Versions.matches?("1.0.0", "~> 1.1")
+      assert Versions.matches?("1.0.1", "~> 1.0.0")
+      refute Versions.matches?("1.0.0", "~> 1.0.1")
     end
   end
 end

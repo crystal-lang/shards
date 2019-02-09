@@ -35,10 +35,30 @@ module Shards
       refs = git_refs(version)
 
       if file_exists?(refs, SPEC_FILENAME)
-        capture("git show #{refs}:#{SPEC_FILENAME}")
+         capture("git show #{refs}:#{SPEC_FILENAME}")
       else
         raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
       end
+    end
+
+    def specs(versions)
+      specs = {} of String => Spec
+
+      versions.each do |version|
+        refs = git_refs(version)
+        yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
+        specs[version] = Spec.from_yaml(yaml)
+      rescue Error
+      end
+
+      specs
+    end
+
+    def spec?(version)
+      refs = git_refs(version)
+      yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
+      Spec.from_yaml(yaml)
+    rescue Error
     end
 
     def available_versions
@@ -97,9 +117,12 @@ module Shards
       if version =~ VERSION_REFERENCE
         File.delete(sha1_path) if File.exists?(sha1_path)
       else
-        commit = capture("git log -n 1 --pretty=%H #{version}").strip
-        File.write(sha1_path, commit)
+        File.write(sha1_path, commit_sha1_at(version))
       end
+    end
+
+    def commit_sha1_at(refs)
+      capture("git log -n 1 --pretty=%H #{refs}").strip
     end
 
     def installed_commit_hash
@@ -138,6 +161,8 @@ module Shards
         else
           "v#{version}"
         end
+      when VERSION_AT_GIT_COMMIT
+        $1
       when "*"
         "HEAD"
       else
@@ -145,15 +170,16 @@ module Shards
       end
     end
 
-    # TODO: first try and load shard.yml and get version from it, and eventually
-    #       fallback to asking Git for release tags at commit/tag/branch.
-    #
-    # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
-    #        never release tags AFTER the refs
-    private def version_at(refs)
+    protected def version_at(refs)
       update_local_cache
 
-      versions_from_tags(refs).first?
+      if spec = spec?(refs)
+        spec.version
+      else
+        # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
+        #        never release tags AFTER the refs
+        versions_from_tags(refs).first?
+      end
     end
 
     private def refs_at(commit)

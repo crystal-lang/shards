@@ -4,7 +4,7 @@ ENV["SHARDS_INSTALL_PATH"] = File.expand_path(".lib", __DIR__)
 require "minitest/autorun"
 require "../src/config"
 require "../src/logger"
-require "../src/manager"
+require "../src/resolvers/*"
 require "./support/factories"
 require "./support/mock_resolver"
 

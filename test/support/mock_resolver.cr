@@ -22,6 +22,10 @@ module Shards
       end
     end
 
+    def spec?(version)
+      raise "not implemented error"
+    end
+
     @@specs = {} of String => Hash(String, String)
 
     def self.register_spec(name, version = "0.0.0", dependencies = nil, development = nil)

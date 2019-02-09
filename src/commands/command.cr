@@ -1,5 +1,4 @@
 require "../lock"
-require "../manager"
 require "../spec"
 
 module Shards
@@ -22,10 +21,10 @@ module Shards
       @lockfile_path = File.join(@path, LOCK_FILENAME)
     end
 
-    abstract def run(*args)
+    abstract def run(*args, **kwargs)
 
-    def self.run(path, *args)
-      new(path).run(*args)
+    def self.run(path, *args, **kwargs)
+      new(path).run(*args, **kwargs)
     end
 
     def spec
@@ -40,13 +39,9 @@ module Shards
       File.basename(spec_path)
     end
 
-    def manager
-      @manager ||= Manager.new(spec)
-    end
-
     def locks
       @locks ||= if lockfile?
-                   Lock.from_file(lockfile_path)
+                   Shards::Lock.from_file(lockfile_path)
                  else
                    raise Error.new("Missing #{LOCK_FILENAME}. Please run 'shards install'")
                  end
@@ -54,6 +49,11 @@ module Shards
 
     def lockfile?
       File.exists?(lockfile_path)
+    end
+
+    def write_lockfile(packages)
+      Shards.logger.info { "Writing #{LOCK_FILENAME}" }
+      Shards::Lock.write(packages, LOCK_FILENAME)
     end
   end
 end

@@ -54,6 +54,29 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
+  def test_updates_specified_dependencies
+    metadata = { dependencies: {web: "*", orm: "*", optional: "*"}, }
+    lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
+
+    with_shard(metadata, lock) do
+      run "shards update orm optional"
+
+      # keeps unspecified dependencies:
+      assert_installed "web", "1.0.0"
+      assert_locked "web", "1.0.0"
+
+      # updates specified dependencies:
+      assert_installed "orm", "0.5.0"
+      assert_locked "orm", "0.5.0"
+      assert_installed "optional", "0.2.2"
+      assert_locked "optional", "0.2.2"
+
+      # installs additional dependencies:
+      assert_installed "pg", "0.2.1"
+      assert_locked "pg", "0.2.1"
+    end
+  end
+
   def test_wont_install_prerelease_version
     metadata = { dependencies: {unstable: "*"} }
     lock = {unstable: "0.1.0"}

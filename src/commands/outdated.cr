@@ -3,48 +3,54 @@ require "./command"
 module Shards
   module Commands
     class Outdated < Command
+      @prereleases = false
+
       @up_to_date = true
       @output = IO::Memory.new
 
-      def self.run(path, @@prereleases = false)
-        super
-      end
-
-      def run(*args)
+      def run(@prereleases = false)
         return unless has_dependencies?
 
-        if lockfile?
-          manager.locks = locks
-          manager.resolve
-        else
-          manager.resolve
-        end
+        Shards.logger.info { "Resolving dependencies" }
 
-        manager.packages.each do |package|
-          analyze(package)
-        end
+        solver = Solver.new(spec, @prereleases)
+        solver.prepare(development: !Shards.production?)
 
-        if @up_to_date
-          Shards.logger.info "Dependencies are up to date!"
+        if packages = solver.solve
+          packages.each { |package| analyze(package) }
+
+          if @up_to_date
+            Shards.logger.info "Dependencies are up to date!"
+          else
+            @output.rewind
+            Shards.logger.warn "Outdated dependencies:"
+            puts @output.to_s
+          end
         else
-          @output.rewind
-          Shards.logger.warn "Outdated dependencies:"
-          puts @output.to_s
+          solver.each_conflict do |message|
+            Shards.logger.warn { "Conflict #{message}" }
+          end
+          Shards.logger.error { "Failed to resolve dependencies" }
         end
       end
 
       private def analyze(package)
-        _spec = package.resolver.installed_spec
+        resolver = package.resolver
+        installed = resolver.installed_spec.try(&.version)
 
-        unless _spec
+        unless installed
           Shards.logger.warn { "#{package.name}: not installed" }
           return
         end
 
-        installed = _spec.version
-
         # already the latest version?
-        latest = Versions.sort(package.available_versions(@@prereleases)).first
+        available_versions =
+          if @prereleases
+            resolver.available_versions
+          else
+            Versions.without_prereleases(resolver.available_versions)
+          end
+        latest = Versions.sort(available_versions).first
         return if latest == installed
 
         @up_to_date = false
@@ -52,14 +58,12 @@ module Shards
         @output << "  * " << package.name
         @output << " (installed: " << installed
 
-        # is new version matching constraints available?
-        available = package.matching_versions(@@prereleases).first
-        unless available == installed
-          @output << ", available: " << available
+        unless installed == package.version
+          @output << ", available: " << package.version
         end
 
         # also report latest version:
-        if Versions.compare(latest, available) < 0
+        if Versions.compare(latest, package.version) < 0
           @output << ", latest: " << latest
         end
 

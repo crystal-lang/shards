@@ -15,6 +15,12 @@ module Shards
       Spec.from_yaml(read_spec(version))
     end
 
+    def specs(versions)
+      specs = {} of String => Spec
+      versions.each { |version| specs[version] = spec(version) }
+      specs
+    end
+
     def installed_spec
       return unless installed?
 
@@ -29,6 +35,7 @@ module Shards
     end
 
     abstract def read_spec(version = nil)
+    abstract def spec?(version)
     abstract def available_versions
     abstract def install(version = nil)
     abstract def installed_commit_hash

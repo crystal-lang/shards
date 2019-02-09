@@ -7,15 +7,16 @@ module Shards
       shards [<options>...] [<command>]
 
       Commands:
-          build [<targets>] [<options>]  - Builds the specified <targets> in `bin` path.
-          check                          - Verifies all dependencies are installed.
-          init                           - Initializes a shard folder.
-          install                        - Installs dependencies from `shard.lock` file.
-          list [--tree]                  - Lists installed dependencies.
-          outdated [--pre]               - Lists dependencies that are outdated.
-          prune                          - Removes unused dependencies from `lib` folder.
-          update                         - Updates dependencies and `shards.lock`.
-          version [<path>]               - Prints the current version of the shard.
+          build [<targets>] [<options>]  - Build the specified <targets> in `bin` path.
+          check                          - Verify all dependencies are installed.
+          init                           - Initialize a `shard.yml` file.
+          install                        - Install dependencies, creating or using the `shard.lock` file.
+          list [--tree]                  - List installed dependencies.
+          lock [--update] [<shards>]     - Lock dependencies in `shard.lock` but doesn't install them.
+          outdated [--pre]               - List dependencies that are outdated.
+          prune                          - Remove unused dependencies from `lib` folder.
+          update [<shards>]              - Update dependencies and `shard.lock`.
+          version [<path>]               - Print the current version of the shard.
 
       Options:
       HELP
@@ -28,12 +29,12 @@ module Shards
       path = Dir.current
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
-      opts.on("--version", "Prints the `shards` version.") { puts self.version_string; exit }
+      opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
       opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("-v", "--verbose", "Increases the log verbosity, printing all debug statements.") { self.logger.level = Logger::Severity::DEBUG }
-      opts.on("-q", "--quiet", "Decreases the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
-      opts.on("-h", "--help", "Prints usage synopsis.") { self.display_help_and_exit(opts) }
+      opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.logger.level = Logger::Severity::DEBUG }
+      opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
+      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
 
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
@@ -47,12 +48,22 @@ module Shards
           Commands::Install.run(path)
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
+        when "lock"
+          Commands::Lock.run(
+            path,
+            args[1..-1].reject(&.starts_with?("--")),
+            print: args.includes?("--print"),
+            update: args.includes?("--update")
+          )
         when "outdated"
           Commands::Outdated.run(path, prereleases: args.includes?("--pre"))
         when "prune"
           Commands::Prune.run(path)
         when "update"
-          Commands::Update.run(path)
+          Commands::Update.run(
+            path,
+            args[1..-1].reject(&.starts_with?("--"))
+          )
         when "version"
           Commands::Version.run(args[1]? || path)
         else

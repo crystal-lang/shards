@@ -12,18 +12,31 @@ module Shards
       end
     end
 
-    def initialize(@name)
+    protected def initialize(@name)
       super()
     end
 
-    # DEPRECATED: with no replacement
-    def initialize(@name, config)
+    protected def initialize(@name, config)
       super()
       config.each { |k, v| self[k.to_s] = v.to_s }
     end
 
     def version
-      fetch("version", "*")
+      version { "*" }
+    end
+
+    def version?
+      version { nil }
+    end
+
+    private def version
+      if version = self["version"]?
+        version
+      elsif self["tag"]? =~ VERSION_TAG
+        $1
+      else
+        yield
+      end
     end
 
     def refs
@@ -32,6 +45,20 @@ module Shards
 
     def path
       self["path"]?
+    end
+
+    def to_human_requirement
+      if version = version?
+        version
+      elsif branch = self["branch"]?
+        "branch #{branch}"
+      elsif tag = self["tag"]?
+        "tag #{tag}"
+      elsif commit = self["commit"]?
+        "commit #{commit}"
+      else
+        "*"
+      end
     end
 
     def inspect(io)
