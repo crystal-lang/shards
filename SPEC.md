@@ -124,6 +124,25 @@ work with the project (e.g., an automated documentation generator).
 crystal: 0.19.2
 ```
 
+### repository
+
+The URL of the shard's canonical repository (String, recommended).
+
+The URL should be compatible with typical VCS tools without modifications.
+`http`/`https` is preferred over VCS schemes like `git`.
+It is recommended that this URL is publicly available.
+
+Copies of a shard (such as mirros, development forks etc.) should point to the same:
+canonical repository address, even if hosted at different locations.
+
+### homepage
+
+The URL of the shard's homepage (String, recommended).
+
+### documentation
+
+The URL to a website providing the shard's documentation for online browsing (String).
+
 ### dependencies
 
 A list of required dependencies (Hash).
