@@ -109,6 +109,12 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_resolves_dependency_at_head_when_no_version_tags
+    metadata = {dependencies: {"missing": "*"}}
+    with_shard(metadata) { run "shards install" }
+    assert_installed "missing", "0.1.0"
+  end
+
   def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
     metadata = {
       dependencies: {

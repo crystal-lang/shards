@@ -52,9 +52,13 @@ class Minitest::Test
     # path dependency:
     create_path_repository "foo", "0.1.0"
 
-    # dependency with neither a shard.yml nor version tags:
-    create_git_repository "empty"
-    create_git_commit "empty", "initial release"
+    # dependency with neither a shard.yml and/or version tags:
+    #create_git_repository "empty"
+    #create_git_commit "empty", "initial release"
+
+    create_git_repository "missing"
+    create_shard "missing", "name: missing\nversion: 0.1.0\n"
+    create_git_commit "missing", "initial release"
 
     # dependencies with postinstall scripts:
     create_git_repository "post"
