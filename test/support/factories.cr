@@ -36,6 +36,9 @@ module Shards
           contents = shard.is_a?(String) ? shard : "name: #{project}\nversion: #{version}\n"
           create_shard project, contents
         end
+        Dir.cd(git_path(project)) do
+          run "git add src/#{project}.cr"
+        end
         create_git_commit project, "release: v#{version}"
       end
       create_git_tag(project, "v#{version}")

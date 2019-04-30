@@ -25,7 +25,7 @@ module Shards
     end
 
     def spec
-      @spec ||= resolver.spec(version)
+      @spec ||= resolver.spec(commit || version)
     end
 
     def installed?

@@ -318,21 +318,38 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_executables
+  def test_installs_executables_at_version
+    metadata = {
+      dependencies: {binary: "0.1.0"}
+    }
+    with_shard(metadata) { run("shards install --no-color") }
+
+    foobar = File.join(application_path, "bin", "foobar")
+    baz = File.join(application_path, "bin", "baz")
+    foo = File.join(application_path, "bin", "foo")
+
+    assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
+    assert File.exists?(baz), "Expected to have installed bin/baz executable"
+    refute File.exists?(foo), "Expected not to have installed bin/foo executable"
+
+    assert_equal "OK\n", `#{foobar}`
+    assert_equal "KO\n", `#{baz}`
+  end
+
+  def test_installs_executables_at_refs
     metadata = {
       dependencies: {
-        binary: {type: "path", path: rel_path(:binary)},
+        binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]}
       },
     }
     with_shard(metadata) { run("shards install --no-color") }
 
     foobar = File.join(application_path, "bin", "foobar")
     baz = File.join(application_path, "bin", "baz")
+    foo = File.join(application_path, "bin", "foo")
 
     assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
     assert File.exists?(baz), "Expected to have installed bin/baz executable"
-
-    assert_equal "OK\n", `#{foobar}`
-    assert_equal "KO\n", `#{baz}`
+    refute File.exists?(foo), "Expected not to have installed bin/foo executable"
   end
 end
