@@ -27,7 +27,7 @@ module Shards
           solver.each_conflict do |message|
             Shards.logger.warn { "Conflict #{message}" }
           end
-          Shards.logger.error { "Failed to resolve dependencies" }
+          raise Shards::Error.new("Failed to resolve dependencies")
         end
       end
 
