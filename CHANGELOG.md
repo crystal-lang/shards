@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.9.0.rc2 - 2019-05-07
+
+Fixes:
+- Exit with non-zero status on dependency resolve error;
+- Install dependency at HEAD when no version tags are defined;
+- Install executables using `shard.yml` at commit (not version).
+
 ## v0.9.0.rc1 - 2019-01-11
 
 Breaking changes:
