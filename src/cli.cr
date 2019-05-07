@@ -16,6 +16,7 @@ module Shards
           outdated [--pre]               - List dependencies that are outdated.
           prune                          - Remove unused dependencies from `lib` folder.
           update [<shards>]              - Update dependencies and `shard.lock`.
+          purge                          - Clears the local cache
           version [<path>]               - Print the current version of the shard.
 
       Options:
@@ -64,6 +65,8 @@ module Shards
             path,
             args[1..-1].reject(&.starts_with?("--"))
           )
+        when "purge"
+          Commands::Purge.run(path)
         when "version"
           Commands::Version.run(args[1]? || path)
         else
