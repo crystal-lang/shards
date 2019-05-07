@@ -60,7 +60,7 @@ class BuildCommandTest < Minitest::Test
   end
 
   def test_reports_error_when_target_failed_to_compile
-    File.write File.join(application_path, "src", "cli.cr"), "a = ..."
+    File.write File.join(application_path, "src", "cli.cr"), "a = ......"
 
     Dir.cd(application_path) do
       ex = assert_raises(FailedCommand) do

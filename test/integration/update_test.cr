@@ -216,21 +216,21 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_executables
-    metadata = {
-      dependencies: {
-        binary: {type: "path", path: rel_path(:binary)},
-      },
-    }
-    with_shard(metadata) { run("shards install --no-color") }
+  def test_installs_new_executables
+    metadata = {dependencies: {binary: "0.2.0"}}
+    lock = {binary: "0.1.0"}
+    with_shard(metadata, lock) { run("shards update --no-color") }
 
-    create_file "binary", "bin/foo", "echo 'FOO'", perm: 0o755
-    create_shard "binary", "name: binary\nversion: 0.2.0\nexecutables:\n  - foobar\n  - baz\n  - foo"
-
-    with_shard(metadata) { run("shards update --no-color") }
-
+    foobar = File.join(application_path, "bin", "foobar")
+    baz = File.join(application_path, "bin", "baz")
     foo = File.join(application_path, "bin", "foo")
+
+    assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
+    assert File.exists?(baz), "Expected to have installed bin/baz executable"
     assert File.exists?(foo), "Expected to have installed bin/foo executable"
+
+    assert_equal "OK\n", `#{foobar}`
+    assert_equal "KO\n", `#{baz}`
     assert_equal "FOO\n", `#{foo}`
   end
 

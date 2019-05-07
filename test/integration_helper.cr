@@ -27,6 +27,7 @@ class Minitest::Test
   end
 
   def setup_repositories
+    # git dependencies for testing version resolution:
     create_git_repository "web", "1.0.0", "1.1.0", "1.1.1", "1.1.2", "1.2.0", "2.0.0", "2.1.0"
     create_git_repository "pg", "0.1.0", "0.2.0", "0.2.1", "0.3.0"
     create_git_repository "optional", "0.2.0", "0.2.1", "0.2.2"
@@ -44,9 +45,22 @@ class Minitest::Test
     create_git_repository "release", "0.2.0", "0.2.1", "0.2.2"
     create_git_release "release", "0.3.0", "name: release\nversion: 0.3.0\ncustom_dependencies:\n  pg:\n    git: #{git_path("optional")}\n"
 
-    create_git_repository "empty"
-    create_git_commit "empty", "initial release"
+    # git dependencies with prereleases:
+    create_git_repository "unstable", "0.1.0", "0.2.0", "0.3.0.alpha", "0.3.0.beta"
+    create_git_repository "preview", "0.1.0", "0.2.0", "0.3.0.a", "0.3.0.b", "0.3.0", "0.4.0.a"
 
+    # path dependency:
+    create_path_repository "foo", "0.1.0"
+
+    # dependency with neither a shard.yml and/or version tags:
+    #create_git_repository "empty"
+    #create_git_commit "empty", "initial release"
+
+    create_git_repository "missing"
+    create_shard "missing", "name: missing\nversion: 0.1.0\n"
+    create_git_commit "missing", "initial release"
+
+    # dependencies with postinstall scripts:
     create_git_repository "post"
     create_file "post", "Makefile", "all:\n\ttouch made.txt\n"
     create_git_release "post", "0.1.0", "name: post\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
@@ -55,17 +69,7 @@ class Minitest::Test
     create_file "fails", "Makefile", "all:\n\ttest -n ''\n"
     create_git_release "fails", "0.1.0", "name: fails\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
 
-    create_path_repository "foo", "0.1.0"
-
-    create_path_repository "binary"
-    create_shard "binary", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
-    create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755
-    create_file "binary", "bin/baz", "#! /usr/bin/env sh\necho 'KO'", perm: 0o755
-
-    create_git_repository "unstable", "0.1.0", "0.2.0", "0.3.0.alpha", "0.3.0.beta"
-    create_git_repository "preview", "0.1.0", "0.2.0", "0.3.0.a", "0.3.0.b", "0.3.0", "0.4.0.a"
-
-    # postinstall script with transitive dependency:
+    # transitive dependencies in postinstall scripts:
     create_git_repository "version"
     create_file "version", "src/version.cr", %(module Version; STRING = "version @ 0.1.0"; end)
     create_git_release "version", "0.1.0"
@@ -81,6 +85,14 @@ dependencies:
 scripts:
   postinstall: crystal build src/version.cr
 YAML
+
+    # dependencies with executables:
+    create_git_repository "binary"
+    create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755
+    create_file "binary", "bin/baz", "#! /usr/bin/env sh\necho 'KO'", perm: 0o755
+    create_git_release "binary", "0.1.0", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
+    create_file "binary", "bin/foo", "echo 'FOO'", perm: 0o755
+    create_git_release "binary", "0.2.0", "name: binary\nversion: 0.2.0\nexecutables:\n  - foobar\n  - baz\n  - foo"
 
     Minitest::Test.created_repositories!
   end

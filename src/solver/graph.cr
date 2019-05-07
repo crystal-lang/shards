@@ -71,16 +71,25 @@ module Shards
       end
 
       private def versions_for(dependency, resolver) : Array(String)
-        if requirement = dependency.version?
-          if requirement == "HEAD"
-            versions_for_refs("HEAD", dependency, resolver)
+        matching =
+          if requirement = dependency.version?
+            if requirement == "HEAD"
+              return versions_for_refs("HEAD", dependency, resolver)
+            else
+              Versions.resolve(resolver.available_versions, requirement)
+            end
+          elsif refs = dependency.refs
+            versions_for_refs(refs, dependency, resolver)
           else
-            Versions.resolve(resolver.available_versions, requirement)
+            resolver.available_versions
           end
-        elsif refs = dependency.refs
-          versions_for_refs(refs, dependency, resolver)
+
+        if matching.size == 1 && matching.first == "HEAD"
+          # NOTE: dependency doesn't have any version number tag, and defaults
+          #       to [HEAD], we must resolve the refs to an actual version:
+          versions_for_refs("HEAD", dependency, resolver)
         else
-          resolver.available_versions
+          matching
         end
       end
 
