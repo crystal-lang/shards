@@ -132,7 +132,7 @@ The URL should be compatible with typical VCS tools without modifications.
 `http`/`https` is preferred over VCS schemes like `git`.
 It is recommended that this URL is publicly available.
 
-Copies of a shard (such as mirros, development forks etc.) should point to the same:
+Copies of a shard (such as mirrors, development forks etc.) should point to the same
 canonical repository address, even if hosted at different locations.
 
 ### homepage
