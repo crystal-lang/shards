@@ -54,10 +54,11 @@ module Shards
 
       # pre-releases are opt-in, so we must check that the solution didn't
       # select one unless at least one requirement in the selected graph asked
-      # for it:
+      # for it, or we install the dependency at a Git refs:
       unless @prereleases
         packages.each do |package|
           next unless Versions.prerelease?(package.version)
+          next if package.commit
 
           if dependency = @spec.dependencies.find { |d| d.name == package.name }
             break if Versions.prerelease?(dependency.version)

@@ -71,6 +71,18 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_installs_prerelease_version_at_refs
+    metadata = {
+      dependencies: {
+        unstable: {git: git_url(:unstable), branch: "master"}
+      }
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "unstable", "0.3.0.beta"
+    end
+  end
+
   def test_installs_dependencies_at_locked_version
     metadata = {
       dependencies:             {web: "1.0.0"},
