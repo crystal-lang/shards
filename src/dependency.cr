@@ -7,7 +7,15 @@ module Shards
     def self.new(pull : YAML::PullParser) : self
       Dependency.new(pull.read_scalar).tap do |dependency|
         pull.each_in_mapping do
-          dependency[pull.read_scalar] = pull.read_scalar
+          key = pull.read_scalar
+          value = pull.read_scalar
+
+          # HACK: user/repo is case insensitive in github repositories, we thus
+          # linearize the dependency definition to always be lowercase to avoid
+          # issues later (e.g. cloning a repository multiple times in the cache)
+          value = value.downcase if key == "github"
+
+          dependency[key] = value
         end
       end
     end
