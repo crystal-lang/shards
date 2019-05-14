@@ -64,11 +64,7 @@ module Shards
     def available_versions
       update_local_cache
 
-      versions = if refs = dependency.refs
-                   [version_at(refs)].compact
-                 else
-                   versions_from_tags
-                 end
+      versions = versions_from_tags
 
       if versions.any?
         Shards.logger.debug { "versions: #{versions.reverse.join(", ")}" }
@@ -103,7 +99,7 @@ module Shards
 
     def install(version = nil)
       update_local_cache
-      refs = version && git_refs(version) || dependency.refs || "HEAD"
+      refs = version && git_refs(version) || "HEAD"
 
       cleanup_install_directory
       Dir.mkdir_p(install_path)
