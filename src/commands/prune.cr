@@ -9,7 +9,7 @@ module Shards
         return unless lockfile?
 
         Dir[File.join(Shards.install_path, "*")].each do |path|
-          next unless Dir.exists?(path)
+          next unless File.directory?(path)
           name = File.basename(path)
 
           if locks.none? { |d| d.name == name }
