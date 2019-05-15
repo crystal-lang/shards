@@ -26,9 +26,9 @@ class PruneCommandTest < Minitest::Test
   end
 
   def test_wont_remove_files
-    File.write(File.join(application_path, "lib", ".keep"), "")
+    File.write(File.join(application_path, "lib", "keep"), "")
     Dir.cd(application_path) { run "shards prune" }
-    assert_equal [".keep", "web"], installed_dependencies.sort
+    assert_equal ["keep", "web"], installed_dependencies.sort
   end
 
   private def installed_dependencies
