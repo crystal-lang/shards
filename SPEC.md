@@ -137,7 +137,7 @@ canonical repository address, even if hosted at different locations.
 
 ### homepage
 
-The URL of the shard's homepage (String, recommended).
+The URL of the shard's homepage (String).
 
 ### documentation
 
