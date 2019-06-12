@@ -1,5 +1,5 @@
 name: shards
-version: 0.9.0.rc2
+version: 0.9.0
 
 authors:
   - Julien Portalier <julien@portalier.com>
@@ -12,6 +12,6 @@ targets:
   shards:
     main: src/shards.cr
 
-crystal: 0.28.0
+crystal: 0.29.0
 
 license: Apache-2.0

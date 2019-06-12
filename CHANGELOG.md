@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.9.0 - 2019-06-13
+
+Fixes:
+- Allow resolving pre-release when installing git refs;
+- Report all available versions (Git resolver);
+- Don't prune everything in `lib` directory.
+
 ## v0.9.0.rc2 - 2019-05-07
 
 Fixes:
