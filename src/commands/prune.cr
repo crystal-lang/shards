@@ -15,6 +15,13 @@ module Shards
           if locks.none? { |d| d.name == name }
             Shards.logger.debug "rm -rf '#{Helpers::Path.escape(path)}'"
             FileUtils.rm_rf(path)
+
+            sha1 = "#{path}.sha1"
+            if File.exists?(sha1)
+              Shards.logger.debug "rm '#{Helpers::Path.escape(sha1)}'"
+              File.delete(sha1)
+            end
+
             Shards.logger.info "Pruned #{File.join(File.basename(Shards.install_path), name)}"
           end
         end

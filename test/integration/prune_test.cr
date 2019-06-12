@@ -3,7 +3,7 @@ require "../integration_helper"
 class PruneCommandTest < Minitest::Test
   def setup
     metadata = {
-      dependencies:             {web: "*", orm: "*"},
+      dependencies:             {web: "*", orm: {git: git_url(:orm), branch: "master"}},
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) { run "shards install" }
@@ -17,6 +17,7 @@ class PruneCommandTest < Minitest::Test
   def test_removes_unused_dependencies
     Dir.cd(application_path) { run "shards prune" }
     assert_equal ["web"], installed_dependencies
+    refute File.exists?(File.join(application_path, "lib", "orm.sha1"))
   end
 
   def test_removes_directories
