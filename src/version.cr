@@ -1,5 +1,5 @@
 module Shards
-  VERSION    = {{ `cat #{__DIR__}/../VERSION`.stringify.chomp }}
+  VERSION    = {{ read_file("#{__DIR__}/../VERSION").chomp }}
   BUILD_SHA1 = {{ `git log --format=%h -n 1 2>/dev/null || echo ""`.stringify.chomp }}
   BUILD_DATE = {{ `date -u +'%Y-%m-%d'`.stringify.chomp }}
 
