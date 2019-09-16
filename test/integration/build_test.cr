@@ -67,7 +67,7 @@ class BuildCommandTest < Minitest::Test
         run "shards build --no-color app"
       end
       assert_match "target app failed to compile", ex.stdout
-      assert_match "Syntax error", ex.stdout
+      assert_match "unexpected token: ...", ex.stdout
       refute File.exists?(bin_path("app"))
     end
   end
