@@ -15,6 +15,7 @@ module Shards
           lock [--update] [<shards>]     - Lock dependencies in `shard.lock` but doesn't install them.
           outdated [--pre]               - List dependencies that are outdated.
           prune                          - Remove unused dependencies from `lib` folder.
+          run [<target>]                 - Build and run specific target
           update [<shards>]              - Update dependencies and `shard.lock`.
           version [<path>]               - Print the current version of the shard.
 
@@ -59,6 +60,8 @@ module Shards
           Commands::Outdated.run(path, prereleases: args.includes?("--pre"))
         when "prune"
           Commands::Prune.run(path)
+        when "run"
+          run_command(path, args[1..-1])
         when "update"
           Commands::Update.run(
             path,
@@ -76,6 +79,31 @@ module Shards
   end
 
   def self.build(path, args)
+    targets, options = parse_args(args)
+
+    begin
+      Commands::Check.run(path)
+    rescue
+      Commands::Install.run(path)
+    end
+
+    Commands::Build.run(path, targets, options)
+  end
+
+  def self.run_command(path, args)
+    targets, options = parse_args(args)
+
+    begin
+      Commands::Check.run(path)
+    rescue
+      Commands::Install.run(path)
+    end
+
+    Commands::Run.run(path, targets, options)
+  end
+end
+
+  def self.parse_args(args)
     targets = [] of String
     options = [] of String
 
@@ -87,15 +115,8 @@ module Shards
       end
     end
 
-    begin
-      Commands::Check.run(path)
-    rescue
-      Commands::Install.run(path)
-    end
-
-    Commands::Build.run(path, targets, options)
+    { targets, options }
   end
-end
 
 begin
   Shards.run
