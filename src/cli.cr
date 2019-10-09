@@ -40,7 +40,9 @@ module Shards
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
         when "build"
-          build(path, args[1..-1])
+          targets, command_options = parse_args(args[1..-1])
+          check_and_install_dependencies(path)
+          Commands::Build.run(path, targets, command_options)
         when "check"
           Commands::Check.run(path)
         when "init"
@@ -61,7 +63,9 @@ module Shards
         when "prune"
           Commands::Prune.run(path)
         when "run"
-          run_command(path, args[1..-1])
+          targets, command_options = parse_args(args[1..-1])
+          check_and_install_dependencies(path)
+          Commands::Run.run(path, targets, command_options, options)
         when "update"
           Commands::Update.run(
             path,
@@ -78,31 +82,6 @@ module Shards
     end
   end
 
-  def self.build(path, args)
-    targets, options = parse_args(args)
-
-    begin
-      Commands::Check.run(path)
-    rescue
-      Commands::Install.run(path)
-    end
-
-    Commands::Build.run(path, targets, options)
-  end
-
-  def self.run_command(path, args)
-    targets, options = parse_args(args)
-
-    begin
-      Commands::Check.run(path)
-    rescue
-      Commands::Install.run(path)
-    end
-
-    Commands::Run.run(path, targets, options)
-  end
-end
-
   def self.parse_args(args)
     targets = [] of String
     options = [] of String
@@ -114,9 +93,17 @@ end
         targets << arg
       end
     end
-
     { targets, options }
   end
+
+  def self.check_and_install_dependencies(path)
+    begin
+      Commands::Check.run(path)
+    rescue
+      Commands::Install.run(path)
+    end
+  end
+end
 
 begin
   Shards.run
