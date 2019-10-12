@@ -31,7 +31,7 @@ module Shards
         @clauses = Array(Clause).new
         @table = Hash(String, Literal).new
         @variables = Array(String).new
-        @conflicts = Array(Array(Literal)).new
+        @conflicts = Set(Array(Literal)).new
       end
 
       def add_clause(str : String) : Nil
