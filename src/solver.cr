@@ -13,6 +13,8 @@ module Shards
       @sat = SAT.new
       @solution = nil
       @solution_distance = Int32::MAX
+      @dependencies = {} of String => Array(String)
+      @clauses = Array(Array(String)).new
     end
 
     def prepare(development = true) : Nil
@@ -27,6 +29,7 @@ module Shards
       end
 
       build_cnf_clauses(development)
+      push_cnf_clauses
     end
 
     def solve : Array(Package)?
@@ -35,6 +38,10 @@ module Shards
       @sat.solve do |proposal|
         # calculate the proposal quality (distance from ideal solution):
         distance = proposal.reduce(0) { |a, e| a + distances[e] }
+
+        # if distance == 0 && consider(proposal, distance)
+        #   return @solution # ideal solution (?)
+        # end
 
         if distance < @solution_distance
           # select better solution (less distance from ideal):
@@ -64,7 +71,7 @@ module Shards
             break if Versions.prerelease?(dependency.version)
           end
 
-          return unless packages.any? do |pkg|
+          return false unless packages.any? do |pkg|
             if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
               Versions.prerelease?(dependency.version)
             end
@@ -75,6 +82,8 @@ module Shards
       # solution is acceptable:
       @solution = packages
       @solution_distance = distance
+
+      true
     end
 
     private def to_packages(solution)
@@ -83,6 +92,7 @@ module Shards
       solution.each do |str|
         next unless colon = str.index(':')
         name = str[0...colon]
+        next if name == @spec.name
 
         if plus = str.index("+git.commit.")
           version = str[(colon + 1)...plus]
@@ -101,7 +111,7 @@ module Shards
 
     def each_conflict
       interest = ::Set(String).new
-      negation = "~#{@spec.name}"
+      negation = "~#{@spec.name}:#{@spec.version}"
 
       @sat.conflicts.reverse_each do |clause|
         if clause.size == 2 && clause.all?(&.starts_with?('~'))
@@ -145,10 +155,10 @@ module Shards
 
     private def build_cnf_clauses(development)
       # the package to install dependencies for:
-      @sat.add_clause [@spec.name]
+      add_clause ["#{@spec.name}:#{@spec.version}"]
 
       # main dependencies:
-      negation = "~#{@spec.name}"
+      negation = "~#{@spec.name}:#{@spec.version}"
       add_dependencies(negation, @spec.dependencies)
       add_dependencies(negation, @spec.development_dependencies) if development
 
@@ -157,7 +167,7 @@ module Shards
       # - defined before dependencies, so any conflict will fail quickly
       @graph.each do |pkg|
         pkg.each_combination do |a, b|
-          add_conflict("~#{pkg.name}:#{a}", "~#{pkg.name}:#{b}")
+          add_clause ["~#{pkg.name}:#{a}", "~#{pkg.name}:#{b}"]
         end
       end
 
@@ -166,6 +176,20 @@ module Shards
         pkg.each do |version, s|
           add_dependencies("~#{pkg.name}:#{version}", s.dependencies)
         end
+      end
+    end
+
+    private def push_cnf_clauses
+      @dependencies.each do |name, versions|
+        @sat.exclusive_range do
+          Versions
+            .sort!(versions)
+            .each { |version| @sat.add_variable("#{name}:#{version}") }
+        end
+      end
+
+      @clauses.each do |clause|
+        @sat.add_clause(clause)
       end
     end
 
@@ -181,19 +205,30 @@ module Shards
 
         clause = [negation]
         versions.each { |v| clause << "#{d.name}:#{v}" }
-        @sat.add_clause(clause)
+        add_clause(clause)
       end
     end
 
-    private def add_conflict(a, b)
-      @sat.add_clause [a, b]
+    # Collects clauses (and thus variables) to eventually push to the SAT
+    # solver. We don't push them immediately because we must layout variables in
+    # a specific order.
+    private def add_clause(clause : Array(String))
+      clause.each do |name|
+        if name.starts_with?("~")
+          name = name[1..-1]
+        end
+        name, version = name.split(':', 2)
+        versions = @dependencies[name] ||= [] of String
+        versions << version unless versions.includes?(version)
+      end
+      @clauses << clause
     end
 
     # Computes the distance for each version from a reference version, for
     # deciding the best solution.
     private def calculate_distances
       distances = {} of String => Int32
-      distances[@spec.name] = 0
+      distances["#{@spec.name}:#{@spec.version}"] = 0
 
       @graph.each do |pkg|
         # reference is latest version by default:

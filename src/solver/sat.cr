@@ -32,6 +32,24 @@ module Shards
         @table = Hash(String, Literal).new
         @variables = Array(String).new
         @conflicts = Array(Array(Literal)).new
+        @ranges = Array(Range(Int32, Int32)).new
+      end
+
+      def exclusive_range : Nil
+        start = @variables.size
+
+        yield
+
+        stop = @variables.size
+        range = start...stop
+        range.each { @ranges << range }
+      end
+
+      def add_variable(name : String) : Nil
+        unless @table.has_key?(name)
+          @table[name] = @variables.size
+          @variables << name
+        end
       end
 
       def add_clause(str : String) : Nil
@@ -42,12 +60,7 @@ module Shards
         clause = ary.map do |literal|
           negated = literal.starts_with?('~') ? 1 : 0
           variable = literal[negated..-1]
-
-          unless @table.has_key?(variable)
-            @table[variable] = @variables.size
-            @variables << variable
-          end
-
+          add_variable(variable)
           @table[variable] << 1 | negated
         end
 
@@ -121,7 +134,7 @@ module Shards
 
         result = [] of String
 
-        solve(watchlist, assignment, 0, verbose) do |solution|
+        solve(watchlist, assignment, verbose) do |solution|
           to_variables(result, solution, brief)
           yield result
         end
@@ -129,27 +142,40 @@ module Shards
 
       # Iteratively solve SAT by assigning to variables d, d+1, ..., n-1.
       # Assumes variables 0, ..., d-1 are assigned so far.
-      private def solve(watchlist, assignment, d, verbose)
-        # The state list keeps track of what values for which variables we have
-        # tried so far. A value of 0 means nothing has been tried yet, a value of
-        # 1 means False has been tried but not True, 2 means True but not False,
-        # and 3 means both have been tried.
+      private def solve(watchlist, assignment, verbose)
         n = @variables.size
+
+        # the state list keeps track of what values for which variables we have
+        # tried so far. A value of:
+        # - 0 means nothing has been tried yet;
+        # - 1 means false has been tried but not true;
+        # - 2 means true but not false;
+        # - 3 means both have been tried.
         state = Array(Literal).new(n) { Literal.new(0) }
+        d = 0
 
         loop do
-          if d == n
+          if d >= n
             yield assignment
+
+            # exhausted last dependency: backtrack to last assigned state
             d -= 1
+
+            while state[d] == 0
+              d -= 1
+            end
+
             next
           end
 
-          # Let's try assigning a value to 'v'. Here would be the place to insert
+          # let's try assigning a value to 'v'. Here would be the place to insert
           # heuristics of which value to try first.
           tried_something = false
 
-          {0, 1}.each do |a|
+          {1, 0}.each do |a|
             if (state[d] >> a) & 1 == 0
+              #puts "try next value (#{@variables[d]?} = #{a})"
+
               # STDERR.puts "Trying #{@variables[d]} = #{a}" if verbose
 
               tried_something = true
@@ -161,22 +187,41 @@ module Shards
               if !update_watchlist(watchlist, (d << 1) | a, assignment, verbose)
                 assignment[d] = Assignment::UNDEFINED
               else
-                d += 1
+                if r = @ranges[d]?
+                  d = r.end # skip to next dependency
+                else
+                  d += 1
+                end
+
+                #puts "skip to #{d} #{@variables[d]?}"
                 break
               end
             end
           end
 
           unless tried_something
-            if d == 0
-              # can't backtrack further, no solutions:
-              return
-            end
+            # can't backtrack further, no solutions:
+            return if d == 1
 
-            # backtrack:
+            # reset current assignment:
             state[d] = 0
             assignment[d] = Assignment::UNDEFINED
-            d -= 1
+
+            if range = @ranges[d]?
+              if range.includes?(d + 1)
+                # move to next version in dependency (i.e. forward track)
+                d += 1
+                #puts "move to next version #{@variables[d]?}"
+                next
+              end
+            end
+
+            # exhausted dependency: backtrack to last assigned state
+            while state[d] == 0
+              d -= 1
+            end
+
+            #puts "exhausted dependency, backtrack to #{@variables[d]?}"
           end
         end
       end

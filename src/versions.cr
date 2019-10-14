@@ -88,6 +88,10 @@ module Shards
       versions.sort { |a, b| compare(a, b) }
     end
 
+    def self.sort!(versions)
+      versions.sort! { |a, b| compare(a, b) }
+    end
+
     def self.compare(a, b)
       if a == b
         return 0
