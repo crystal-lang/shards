@@ -10,13 +10,13 @@ module Shards
           targets = spec.targets.map(&.name)
         end
 
-        raise Error.new("Error No targets defined.") if targets.empty?
+        raise Error.new("Error no targets defined") if targets.empty?
 
         if targets.size > 1
           if specific_target_requested
-            raise Error.new("Error Please specify only one target. If you meant to pass arguments you may use: shards run target -- args.")
-          elsif
-            raise Error.new("Error More than 1 target defined. Please specify what target you want to run.")
+            raise Error.new("Error please specify only one target. If you meant to pass arguments you may use 'shards run target -- args'")
+          else
+            raise Error.new("Error please specify the target with 'shards run target'")
           end
         end
 
@@ -26,8 +26,9 @@ module Shards
 
           error = IO::Memory.new
           status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, output: Process::Redirect::Inherit, error: error)
-          raise Error.new("Error Target #{target.name} failed to run:\n#{error}") unless status.success?
-        elsif raise Error.new("Error Target #{targets.first} not found.")
+          raise Error.new("Error target #{target.name} failed to run:\n#{error}") unless status.success?
+        else
+          raise Error.new("Error target #{targets.first} was not found in #{SPEC_FILENAME}")
         end
       end
     end

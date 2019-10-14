@@ -65,7 +65,7 @@ class RunCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) do
         run "shards run --no-color", true
       end
-      assert_match /Error More than 1 target defined. Please specify what target you want to run./, ex.stdout
+      assert_match /Error please specify the target with 'shards run target'/, ex.stdout
     end
   end
 
@@ -79,7 +79,7 @@ class RunCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) do
         run "shards run --no-color"
       end
-      assert_match /Error No targets defined./, ex.stdout
+      assert_match /Error no targets defined/, ex.stdout
     end
   end
 
@@ -93,11 +93,11 @@ class RunCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) do
         run "shards run missing --no-color"
       end
-      assert_match /Error Target missing not found./, ex.stdout
+      assert_match /Error target missing was not found in/, ex.stdout
     end
   end
 
-  def test_fails_when_no_targets_defined_with_target
+  def test_fails_when_passing_multiple_targets
     File.write File.join(application_path, "shard.yml"), <<-YAML
       name: build
       version: 0.1.0
@@ -112,7 +112,7 @@ class RunCommandTest < Minitest::Test
       ex = assert_raises(FailedCommand) do
         run "shards run app alt --no-color"
       end
-      assert_match /Error Please specify only one target. If you meant to pass arguments you may use: shards run target -- args./, ex.stdout
+      assert_match /Error please specify only one target. If you meant to pass arguments you may use 'shards run target -- args'/, ex.stdout
     end
   end
 end

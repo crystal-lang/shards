@@ -97,11 +97,9 @@ module Shards
   end
 
   def self.check_and_install_dependencies(path)
-    begin
-      Commands::Check.run(path)
-    rescue
-      Commands::Install.run(path)
-    end
+    Commands::Check.run(path)
+  rescue
+    Commands::Install.run(path)
   end
 end
 
