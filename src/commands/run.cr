@@ -23,10 +23,7 @@ module Shards
         if target = spec.targets.find { |t| t.name == targets.first }
           Commands::Build.run(path, targets, options)
           Shards.logger.info { "Executing: #{target.name} #{run_options.join(' ')}" }
-
-          error = IO::Memory.new
-          status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, output: Process::Redirect::Inherit, error: error)
-          raise Error.new("Error target #{target.name} failed to run:\n#{error}") unless status.success?
+          status = Process.exec(command: File.join(Shards.bin_path, target.name), args: run_options, output: Process::Redirect::Inherit)
         else
           raise Error.new("Error target #{targets.first} was not found in #{SPEC_FILENAME}")
         end
