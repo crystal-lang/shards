@@ -64,17 +64,20 @@ module Shards
       spec.dependencies.size.should eq(3)
 
       spec.dependencies[0].name.should eq("repo")
-      spec.dependencies[0]["github"].should eq("user/repo")
+      spec.dependencies[0].resolver.should eq("github")
+      spec.dependencies[0].url.should eq("user/repo")
       spec.dependencies[0].version.should eq("1.2.3")
       spec.dependencies[0].refs.should be_nil
 
       spec.dependencies[1].name.should eq("example")
-      spec.dependencies[1]["git"].should eq("https://example.com/example-crystal.git")
+      spec.dependencies[1].resolver.should eq("git")
+      spec.dependencies[1].url.should eq("https://example.com/example-crystal.git")
       spec.dependencies[1].version.should eq("*")
       spec.dependencies[1].refs.should eq("master")
 
       spec.dependencies[2].name.should eq("local")
-      spec.dependencies[2]["path"].should eq("/var/clones/local")
+      spec.dependencies[2].resolver.should eq("path")
+      spec.dependencies[2].url.should eq("/var/clones/local")
       spec.dependencies[2].version.should eq("*")
       spec.dependencies[2].refs.should eq("unreleased")
     end
@@ -95,11 +98,13 @@ module Shards
       spec.development_dependencies.size.should eq(2)
 
       spec.development_dependencies[0].name.should eq("minitest")
-      spec.development_dependencies[0]["github"].should eq("ysbaddaden/minitest.cr")
+      spec.development_dependencies[0].resolver.should eq("github")
+      spec.development_dependencies[0].url.should eq("ysbaddaden/minitest.cr")
       spec.development_dependencies[0].version.should eq("0.1.4")
 
       spec.development_dependencies[1].name.should eq("webmock")
-      spec.development_dependencies[1]["git"].should eq("https://github.com/manastech/webcmok-crystal.git")
+      spec.development_dependencies[1].resolver.should eq("git")
+      spec.development_dependencies[1].url.should eq("https://github.com/manastech/webcmok-crystal.git")
       spec.development_dependencies[1].refs.should eq("master")
     end
 

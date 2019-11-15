@@ -18,11 +18,11 @@ module Shards
       if lock = lock_index.delete(name)
         resolver = Shards.find_resolver(lock)
 
-        if version = lock["version"]?
+        if version = lock.version?
           spec = resolver.spec(version)
-        elsif commit = lock["commit"]?
+        elsif commit = lock.commit
           spec = resolver.spec(commit)
-          lock["version"] = "#{spec.version}+git.commit.#{commit}"
+          lock.version = "#{spec.version}+git.commit.#{commit}"
         else
           return
         end
@@ -48,7 +48,7 @@ module Shards
 
         deps.each do |dep|
           if lock = lock_index[dep.name]?
-            if version = lock["version"]?
+            if version = lock.version?
               next unless Versions.matches?(version, dep.version)
             end
 

@@ -7,7 +7,7 @@ module Shards
     end
 
     def git_url
-      "https://bitbucket.org/#{dependency["bitbucket"]}.git"
+      "https://bitbucket.org/#{dependency.url}.git"
     end
   end
 

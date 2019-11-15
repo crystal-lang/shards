@@ -10,12 +10,6 @@ require "../support/factories"
 
 module Shards
   set_warning_log_level
-
-  class Dependency
-    def self.from_name_config(name, config) : self
-      Dependency.new(name, config)
-    end
-  end
 end
 
 Spec.before_each do

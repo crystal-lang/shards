@@ -1,64 +1,87 @@
 require "./ext/yaml"
 
 module Shards
-  class Dependency < Hash(String, String)
+  class Dependency
     property name : String
+    setter version : String?
+    property! resolver : String?
+    property! url : String?
+    property tag : String?
+    property branch : String?
+    property commit : String?
+
+    getter unmapped = Hash(String, YAML::Any).new
 
     def self.new(pull : YAML::PullParser) : self
-      Dependency.new(pull.read_scalar).tap do |dependency|
-        pull.each_in_mapping do
-          dependency[pull.read_scalar] = pull.read_scalar
+      dependency = Dependency.new(pull.read_scalar)
+
+      pull.each_in_mapping do
+        case key = pull.read_scalar
+        when "version"
+          dependency.version = pull.read_scalar
+        when "url"
+          dependency.url = pull.read_scalar
+        when "tag"
+          dependency.tag = pull.read_scalar
+        when "branch"
+          dependency.branch = pull.read_scalar
+        when "commit"
+          dependency.commit = pull.read_scalar
+        when "path", "git", "github", "gitlab", "bitbucket"
+          if (resolver = dependency.resolver?) && resolver != key
+            dependency.unmapped[resolver] = YAML::Any.new(dependency.url)
+          end
+          dependency.resolver = key
+          dependency.url = pull.read_scalar
+        else
+          dependency.unmapped[key] = YAML::Any.new(pull.read_scalar)
         end
       end
+
+      unless dependency.url?
+        raise "Invalid dependency, missing resolver"
+      end
+
+      dependency
     end
 
-    protected def initialize(@name)
-      super()
-    end
-
-    protected def initialize(@name, config)
-      super()
-      config.each { |k, v| self[k.to_s] = v.to_s }
+    def initialize(
+      @name : String,
+      @resolver : String? = nil, @url : String? = nil,
+      @version : String? = nil,
+      @branch : String? = nil, @tag : String? = nil, @commit : String? = nil,
+      @unmapped : Hash(String, YAML::Any) = Hash(String, YAML::Any).new
+    )
     end
 
     def version
-      version { "*" }
+      version? || "*"
     end
 
     def version?
-      version { nil }
+      if version = @version
+        version
+      elsif tag =~ VERSION_TAG
+        $1
+      end
     end
 
     def prerelease?
       Versions.prerelease? version
     end
 
-    private def version
-      if version = self["version"]?
-        version
-      elsif self["tag"]? =~ VERSION_TAG
-        $1
-      else
-        yield
-      end
-    end
-
     def refs
-      self["branch"]? || self["tag"]? || self["commit"]?
-    end
-
-    def path
-      self["path"]?
+      branch || tag || commit
     end
 
     def to_human_requirement
-      if version = version?
+      if version = self.version?
         version
-      elsif branch = self["branch"]?
+      elsif branch = self.branch
         "branch #{branch}"
-      elsif tag = self["tag"]?
+      elsif tag = self.tag
         "tag #{tag}"
-      elsif commit = self["commit"]?
+      elsif commit = self.commit
         "commit #{commit}"
       else
         "*"

@@ -53,10 +53,10 @@ module Shards
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|
-        key = package.resolver.class.key
+        dependency = package.resolver.dependency
 
         io << "  " << package.name << ":\n"
-        io << "    " << key << ": " << package.resolver.dependency[key] << '\n'
+        io << "    " << dependency.resolver << ": " << dependency.url << '\n'
 
         if package.commit
           io << "    commit: " << package.commit << '\n'

@@ -42,7 +42,7 @@ module Shards
           return false
         end
 
-        if version = lock["version"]?
+        if version = lock.version?
           if Versions.resolve([version], dependency.version).empty?
             Log.debug { "#{dependency.name}: lock conflict" }
             return false

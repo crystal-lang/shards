@@ -147,7 +147,7 @@ module Shards
     end
 
     def git_url
-      dependency["git"].to_s.strip
+      dependency.url.strip
     end
 
     private def git_refs(version)
