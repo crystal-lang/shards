@@ -27,8 +27,8 @@ module Shards
 
         args = [
           "build",
-          "-o", File.join(Shards.bin_path, target.name),
-          target.main,
+          "-o", target.output_path,
+          target.source_path,
         ]
         options.each { |option| args << option }
         Log.debug { "crystal #{args.join(' ')}" }

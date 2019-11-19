@@ -117,6 +117,7 @@ module Shards
           main: src/shards.cr
         cli:
           main: src/command/cli.cr
+          extra: foo
       YAML
 
       spec.targets.size.should eq(2)
@@ -126,6 +127,7 @@ module Shards
 
       spec.targets[1].name.should eq("cli")
       spec.targets[1].main.should eq("src/command/cli.cr")
+      spec.targets[1].attributes["extra"].should eq("foo")
     end
 
     it "parse executables" do
