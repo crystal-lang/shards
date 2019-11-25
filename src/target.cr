@@ -3,38 +3,28 @@ module Shards
     property name : String
     property main : String
 
-    getter attributes : Hash(String, YAML::Any)
-
     def self.new(pull : YAML::PullParser) : self
+      start_pos = pull.location
       name = pull.read_scalar
       main = nil
-      extra_attributes = {} of String => YAML::Any
 
       pull.each_in_mapping do
         case key = pull.read_scalar
         when "main"
           main = pull.read_scalar
         else
-          extra_attributes[key] = YAML::Any.new(pull.read_scalar)
+          # ignore unknown dependency mapping for future extensions
         end
       end
 
       unless main
-        raise "Missing attribute 'main' for target #{name.inspect}"
+        raise YAML::ParseException.new(%(Missing property "main" for target #{name.inspect}), *start_pos)
       end
 
-      Target.new(name, main, extra_attributes)
+      Target.new(name, main)
     end
 
-    def initialize(@name : String, @main : String, @attributes = {} of String => YAML::Any)
-    end
-
-    def source_path : String
-      main
-    end
-
-    def output_path : String
-      File.join(Shards.bin_path, name)
+    def initialize(@name, @main)
     end
   end
 end
