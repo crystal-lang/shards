@@ -243,7 +243,17 @@ module Shards
     end
 
     private def origin_changed?
-      (@origin_url ||= capture("git ls-remote --get-url origin").strip) != git_url
+      @origin_url ||= capture("git ls-remote --get-url origin").strip
+      normalize_origin(@origin_url) != normalize_origin(git_url)
+    end
+
+    # Returns the https form of an origin URL for comparisons.
+    #
+    # This may be overriden in individual resolvers. e.g.
+    #
+    #   "git@github.com:foo/bar" => "https://github.com/foo/bar"
+    protected def normalize_origin(origin)
+      origin
     end
 
     private def file_exists?(refs, path)

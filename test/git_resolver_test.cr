@@ -38,6 +38,23 @@ module Shards
       assert_equal "0.2.0", library.installed_spec.not_nil!.version
     end
 
+    def test_normalize_origin
+      fake_dep = Dependency.new("", {} of String => String)
+
+      resolver = GitResolver.new(fake_dep)
+      assert_equal nil, resolver.normalize_origin(nil)
+      assert_equal "git@github.com:foo/bar", resolver.normalize_origin("git@github.com:foo/bar")
+
+      resolver = GithubResolver.new(fake_dep)
+      assert_equal "https://github.com/foo/bar", resolver.normalize_origin("git@github.com:foo/bar")
+
+      resolver = GitlabResolver.new(fake_dep)
+      assert_equal "https://gitlab.com/foo/bar", resolver.normalize_origin("git@gitlab.com:foo/bar")
+
+      resolver = BitbucketResolver.new(fake_dep)
+      assert_equal "https://bitbucket.org/foo/bar", resolver.normalize_origin("git@bitbucket.org:foo/bar")
+    end
+
     def test_install_refs
       skip "TODO: install commit (whatever the version)"
       skip "TODO: install branch (whatever the version)"
