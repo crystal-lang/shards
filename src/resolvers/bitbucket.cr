@@ -9,10 +9,6 @@ module Shards
     def git_url
       "https://bitbucket.org/#{dependency["bitbucket"]}.git"
     end
-
-    def normalize_origin(origin : String)
-      origin.sub("git@bitbucket.org:", "https://bitbucket.org/")
-    end
   end
 
   register_resolver BitbucketResolver

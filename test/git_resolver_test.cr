@@ -38,21 +38,26 @@ module Shards
       assert_equal "0.2.0", library.installed_spec.not_nil!.version
     end
 
-    def test_normalize_origin
-      fake_dep = Dependency.new("", {} of String => String)
+    def test_origins_equal
+      r = GitResolver.new(Dependency.new("", {} of String => String))
 
-      resolver = GitResolver.new(fake_dep)
-      assert_equal nil, resolver.normalize_origin(nil)
-      assert_equal "git@github.com:foo/bar", resolver.normalize_origin("git@github.com:foo/bar")
+      #matches
+      assert r.origins_equal("git@github.com:foo/bar", "git@github.com:foo/bar")
+      assert r.origins_equal("https://gitlab.com/foo/bar", "git@gitlab.com:foo/bar")
+      assert r.origins_equal("bob@gitlab.com:foo/bar", "fred@gitlab.com:foo/bar")
+      assert r.origins_equal("git@gitlab.com:foo/bar", "https://gitlab.com/foo/bar")
+      assert r.origins_equal("http://bitbucket.org/foo", "https://bitbucket.org/foo")
+      assert r.origins_equal("http://bitbucket.org/foo", "ssh://bitbucket.org/foo")
+      assert r.origins_equal("misc_pattern", "misc_pattern")
+      assert r.origins_equal(nil, nil)
 
-      resolver = GithubResolver.new(fake_dep)
-      assert_equal "https://github.com/foo/bar", resolver.normalize_origin("git@github.com:foo/bar")
-
-      resolver = GitlabResolver.new(fake_dep)
-      assert_equal "https://gitlab.com/foo/bar", resolver.normalize_origin("git@gitlab.com:foo/bar")
-
-      resolver = BitbucketResolver.new(fake_dep)
-      assert_equal "https://bitbucket.org/foo/bar", resolver.normalize_origin("git@bitbucket.org:foo/bar")
+      # mismatches
+      assert !r.origins_equal("https://gitlabZ.com/foo/bar", "https://gitlab.com/foo/bar")
+      assert !r.origins_equal("git@github.com:foo/bar2", "https://gitlab.com/foo/bar")
+      assert !r.origins_equal("http://bitbucket.org/foo", "sshZ://bitbucket.org/foo")
+      assert !r.origins_equal("misc_pattern", "misc_pattern_2")
+      assert !r.origins_equal("http://bitbucket.org/foo", nil)
+      assert !r.origins_equal(nil, "http://bitbucket.org/foo")
     end
 
     def test_install_refs
