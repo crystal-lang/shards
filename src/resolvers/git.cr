@@ -244,7 +244,7 @@ module Shards
 
     private def origin_changed?
       @origin_url ||= capture("git ls-remote --get-url origin").strip
-      origins_equal(@origin_url, git_url)
+      !origins_equal(@origin_url, git_url)
     end
 
     # Returns whether origin URLs have matching hosts and paths.
