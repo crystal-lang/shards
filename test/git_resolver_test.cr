@@ -38,26 +38,49 @@ module Shards
       assert_equal "0.2.0", library.installed_spec.not_nil!.version
     end
 
-    def test_origins_equal
-      r = GitResolver.new(Dependency.new("", {} of String => String))
+    def test_origin_changed
+      dependency = Dependency.new("library", {"git" => git_url("library")})
+      library = GitResolver.new(dependency)
+      library.install("0.1.2")
 
-      #matches
-      assert r.origins_equal("git@github.com:foo/bar", "git@github.com:foo/bar")
-      assert r.origins_equal("https://gitlab.com/foo/bar", "git@gitlab.com:foo/bar")
-      assert r.origins_equal("bob@gitlab.com:foo/bar", "fred@gitlab.com:foo/bar")
-      assert r.origins_equal("git@gitlab.com:foo/bar", "https://gitlab.com/foo/bar")
-      assert r.origins_equal("http://bitbucket.org/foo", "https://bitbucket.org/foo")
-      assert r.origins_equal("http://bitbucket.org/foo", "ssh://bitbucket.org/foo")
-      assert r.origins_equal("misc_pattern", "misc_pattern")
-      assert r.origins_equal(nil, nil)
+      # Change the origin in the cache repo to https://github.com/foo/bar
+      Dir.cd(library.local_path) do
+        run "git remote set-url origin https://github.com/foo/bar"
+      end
 
-      # mismatches
-      assert !r.origins_equal("https://gitlabZ.com/foo/bar", "https://gitlab.com/foo/bar")
-      assert !r.origins_equal("git@github.com:foo/bar2", "https://gitlab.com/foo/bar")
-      assert !r.origins_equal("http://bitbucket.org/foo", "sshZ://bitbucket.org/foo")
-      assert !r.origins_equal("misc_pattern", "misc_pattern_2")
-      assert !r.origins_equal("http://bitbucket.org/foo", nil)
-      assert !r.origins_equal(nil, "http://bitbucket.org/foo")
+      # All of these alternatives should not trigger origin as changed
+      same_origins = [
+        "https://github.com/foo/bar",
+        "https://github.com:1234/foo/bar",
+        "http://github.com/foo/bar",
+        "ssh://github.com/foo/bar",
+        "git://github.com/foo/bar",
+        "rsync://github.com/foo/bar",
+        "git@github.com:foo/bar",
+        "bob@github.com:foo/bar",
+        "github.com:foo/bar",
+        "github.com:/foo/bar",
+      ]
+
+      same_origins.each do |origin|
+        dependency["git"] = origin
+        refute library.origin_changed?, origin
+      end
+
+      # These alternatives should all trigger origin as changed
+      changed_origins = [
+        "https://github.com/foo/bar2",
+        "https://github.com/foos/bar",
+        "https://githubz.com/foo/bar",
+        "file:///github.com/foo/bar",
+        "github.com/foo/bar",
+        "",
+      ]
+
+      changed_origins.each do |origin|
+        dependency["git"] = origin
+        assert library.origin_changed?, origin
+      end
     end
 
     def test_install_refs
