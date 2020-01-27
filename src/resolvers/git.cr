@@ -260,8 +260,8 @@ module Shards
     # Parses a URI string, with additional support for ssh+git URI schemes.
     private def parse_git_uri(raw_uri)
       # Try normal URI parsing first
-      u = URI.parse(raw_uri)
-      return u if u.host && u.path
+      uri = URI.parse(raw_uri)
+      return uri if uri.absolute?
 
       # Otherwise, assume and attempt to parse the scp-style ssh URIs
       host, _, path = raw_uri.partition(':')
