@@ -261,7 +261,7 @@ module Shards
     private def parse_git_uri(raw_uri)
       # Try normal URI parsing first
       uri = URI.parse(raw_uri)
-      return uri if uri.absolute?
+      return uri if uri.absolute? && !uri.opaque?
 
       # Otherwise, assume and attempt to parse the scp-style ssh URIs
       host, _, path = raw_uri.partition(':')

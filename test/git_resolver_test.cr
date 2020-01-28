@@ -58,6 +58,7 @@ module Shards
         "rsync://github.com/foo/bar",
         "git@github.com:foo/bar",
         "bob@github.com:foo/bar",
+        "github.com:foo/bar",
       ]
 
       same_origins.each do |origin|
