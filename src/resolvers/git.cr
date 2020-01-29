@@ -35,7 +35,7 @@ module Shards
       refs = git_refs(version)
 
       if file_exists?(refs, SPEC_FILENAME)
-         capture("git show #{refs}:#{SPEC_FILENAME}")
+        capture("git show #{refs}:#{SPEC_FILENAME}")
       else
         raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
       end

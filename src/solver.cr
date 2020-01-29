@@ -39,7 +39,6 @@ module Shards
         if distance < @solution_distance
           # select better solution (less distance from ideal):
           consider(proposal, distance)
-
         elsif distance == @solution_distance && proposal.size < @solution.not_nil!.size
           # select solution with fewer dependencies (same distance from ideal):
           consider(proposal, distance)
@@ -65,10 +64,10 @@ module Shards
           end
 
           return unless packages.any? do |pkg|
-            if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
-              Versions.prerelease?(dependency.version)
-            end
-          end
+                          if dependency = pkg.spec.dependencies.find { |d| d.name == package.name }
+                            Versions.prerelease?(dependency.version)
+                          end
+                        end
         end
       end
 
@@ -114,7 +113,6 @@ module Shards
 
           yield "can't install '#{a_name}' versions #{a_version} and #{b_version} at the same time."
           interest << "#{a_name}:"
-
         elsif interest.any? { |x| clause.any?(&.starts_with?(x)) }
           # dependency conflict:
           if clause[0] == negation
