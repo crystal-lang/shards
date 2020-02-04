@@ -45,6 +45,10 @@ module Shards
       end
     end
 
+    def to_s(io)
+      io << name << " " << version
+    end
+
     def self.from_file(path, validate = false)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
       raise Error.new("Missing #{File.basename(path)}") unless File.exists?(path)

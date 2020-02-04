@@ -1,5 +1,5 @@
 require "./command"
-require "../solver"
+require "../solver2"
 
 module Shards
   module Commands
@@ -7,7 +7,7 @@ module Shards
       def run
         Shards.logger.info { "Resolving dependencies" }
 
-        solver = Solver.new(spec)
+        solver = Solver2.new(spec)
 
         if lockfile?
           # install must be as conservative as possible:

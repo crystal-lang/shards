@@ -61,6 +61,10 @@ module Shards
       end
     end
 
+    def to_s(io)
+      io << name << " " << version
+    end
+
     def inspect(io)
       io << "#<" << self.class.name << " {" << name << " => "
       super
