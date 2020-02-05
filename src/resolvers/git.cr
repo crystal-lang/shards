@@ -271,7 +271,7 @@ module Shards
       end
 
       # Normalize leading slash, matching URI parsing
-      if !path.starts_with?('/')
+      unless path.starts_with?('/')
         path = '/' + path
       end
 
