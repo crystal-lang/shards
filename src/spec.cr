@@ -73,6 +73,7 @@ module Shards
     getter description : String?
     getter license : String?
     getter crystal : String?
+    property resolver : Resolver?
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)

@@ -47,7 +47,7 @@ module Shards
       versions.each do |version|
         refs = git_refs(version)
         yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-        specs[version] = Spec.from_yaml(yaml)
+        specs[version] = Spec.from_yaml(yaml).tap { |spec| spec.resolver = self }
       rescue Error
       end
 

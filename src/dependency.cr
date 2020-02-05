@@ -29,6 +29,10 @@ module Shards
       version { nil }
     end
 
+    def prerelease?
+      Versions.prerelease? version
+    end
+
     private def version
       if version = self["version"]?
         version
