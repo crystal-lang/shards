@@ -11,8 +11,8 @@ dry:
   steps: &steps
     - run: *prepare
     - checkout
-    - run: make
     - run: shards install
+    - run: make
     - run: make test
 
 jobs:
@@ -34,7 +34,7 @@ workflows:
   nightly:
     triggers:
       - schedule:
-          cron: "0 2 * * *"
+          cron: '0 2 * * *'
           filters:
             branches:
               only:
