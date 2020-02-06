@@ -242,7 +242,7 @@ module Shards
       false
     end
 
-    def origin_url
+    private def origin_url
       @origin_url ||= capture("git ls-remote --get-url origin").strip
     end
 
