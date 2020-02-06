@@ -1,7 +1,7 @@
 require "molinillo"
 
 module Shards
-  class Solver2
+  class MolinilloSolver
     setter locks : Array(Dependency)?
     @solution : Array(Package)?
 

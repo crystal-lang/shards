@@ -1,5 +1,5 @@
 require "./command"
-require "../solver2"
+require "../molinillo_solver"
 
 module Shards
   module Commands
@@ -7,7 +7,7 @@ module Shards
       def run(shards : Array(String))
         Shards.logger.info { "Resolving dependencies" }
 
-        solver = Solver2.new(spec)
+        solver = MolinilloSolver.new(spec)
 
         if lockfile? && !shards.empty?
           # update selected dependencies to latest possible versions, but
