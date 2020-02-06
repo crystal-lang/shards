@@ -108,9 +108,11 @@ module Shards
     def requirement_satisfied_by?(requirement, activated, spec)
       # puts "#{requirement.version} ??? #{spec.version} => #{Versions.matches?(spec.version, requirement.version)}"
 
-      if !spec.version.includes?("+git.commit.") && Versions.prerelease?(spec.version) && !requirement.prerelease?
-        vertex = activated.vertex_named!(spec.name)
-        return false if vertex.requirements.none?(&.prerelease?)
+      unless @prereleases
+        if !spec.version.includes?("+git.commit.") && Versions.prerelease?(spec.version) && !requirement.prerelease?
+          vertex = activated.vertex_named(spec.name)
+          return false if !vertex || vertex.requirements.none?(&.prerelease?)
+        end
       end
 
       Versions.matches?(spec.version, requirement.version)
