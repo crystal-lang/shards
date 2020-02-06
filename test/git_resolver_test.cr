@@ -72,6 +72,8 @@ module Shards
         "https://github.com/foos/bar",
         "https://githubz.com/foo/bar",
         "file:///github.com/foo/bar",
+        "git@github.com:foo/bar2",
+        "git@github2.com:foo/bar",
         "",
       ]
 

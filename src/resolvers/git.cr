@@ -131,7 +131,7 @@ module Shards
 
     def local_path
       @local_path ||= begin
-        uri = parse_git_uri(git_url)
+        uri = parse_uri(git_url)
 
         path = uri.path.to_s[1..-1]
         path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
@@ -251,14 +251,14 @@ module Shards
       return false if origin_url == git_url
       return true if origin_url.nil? || git_url.nil?
 
-      origin_parsed = parse_git_uri(origin_url)
-      git_parsed = parse_git_uri(git_url)
+      origin_parsed = parse_uri(origin_url)
+      git_parsed = parse_uri(git_url)
 
       (origin_parsed.host != git_parsed.host) || (origin_parsed.path != git_parsed.path)
     end
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
-    private def parse_git_uri(raw_uri)
+    private def parse_uri(raw_uri)
       # Try normal URI parsing first
       uri = URI.parse(raw_uri)
       return uri if uri.absolute? && !uri.opaque?
