@@ -2,7 +2,7 @@
 
 CRYSTAL = crystal
 CRFLAGS =
-SOURCES = src/*.cr src/**/*.cr
+SOURCES = src/*.cr src/**/*.cr lib/molinillo/**/*.cr
 TEMPLATES = src/templates/*.ecr
 
 DESTDIR =

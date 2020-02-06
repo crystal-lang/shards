@@ -20,10 +20,28 @@ module Shards
              else
                @spec.dependencies
              end
+
+      base = Molinillo::DependencyGraph(Dependency, Dependency).new
+      if locks = @locks
+        locks.each do |lock|
+          if version = lock["version"]?
+            dep = deps.find { |d| d.name == lock.name }
+            next if dep && !Versions.matches?(version, dep.version)
+          end
+
+          if commit = lock["commit"]?
+            resolver = Shards.find_resolver(lock)
+            spec = resolver.spec(commit)
+            lock["version"] = "#{spec.version}+git.commit.#{commit}"
+          end
+          base.add_vertex(lock.name, lock, true)
+        end
+      end
+
       result =
         Molinillo::Resolver(Dependency, Spec)
           .new(self, self)
-          .resolve(deps)
+          .resolve(deps, base)
 
       # puts result.to_dot
 
@@ -63,6 +81,9 @@ module Shards
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
             resolver.spec(version).tap do |spec|
+              unless dependency.name == spec.name
+                raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
+              end
               spec.version = version
             end
           end
@@ -70,6 +91,14 @@ module Shards
 
         result
       end
+    end
+
+    def name_for_explicit_dependency_source
+      SPEC_FILENAME
+    end
+
+    def name_for_locking_dependency_source
+      LOCK_FILENAME
     end
 
     def dependencies_for(specification : S) : Array(R)
@@ -100,6 +129,10 @@ module Shards
         else
           resolver.available_versions
         end
+
+      if (locks = @locks) && (locked = locks.find { |dep| dep.name == dependency.name })
+        matching << locked.version
+      end
 
       if matching.size == 1 && matching.first == "HEAD"
         # NOTE: dependency doesn't have any version number tag, and defaults
