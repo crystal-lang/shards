@@ -68,8 +68,8 @@ The name of library (String, required).
 - It should be lowercase (a-z).
 - It should not contain `crystal`.
 - It may contain digits (0-9) but not start with one.
-- It may contain underscores or dashes but not start/end with one.
-- It must not have consecutive underscores or dashes.
+- It may contain underscores, dashes or periods but not start/end with one.
+- It must not have consecutive underscores, dashes or periods.
 
 Examples: `minitest`, `mysql2`, `battery-horse`.
 
