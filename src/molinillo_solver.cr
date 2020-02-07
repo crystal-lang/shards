@@ -152,5 +152,14 @@ module Shards
     private def versions_for_refs(refs, dependency, resolver) : NoReturn
       raise "unreachable"
     end
+
+    def before_resolution
+    end
+
+    def after_resolution
+    end
+
+    def indicate_progress
+    end
   end
 end
