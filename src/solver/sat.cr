@@ -9,9 +9,9 @@ module Shards
       alias Clause = Array(Literal)
 
       enum Assignment : Int8
-        NOT_SELECTED = 0
-        SELECTED = 1
-        UNDEFINED = -1
+        NOT_SELECTED =  0
+        SELECTED     =  1
+        UNDEFINED    = -1
       end
 
       def self.from_io(io : IO) : SAT

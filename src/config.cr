@@ -5,8 +5,8 @@ module Shards
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
 
-  VERSION_REFERENCE = /^v?\d+[-.][-.a-zA-Z\d]+$/
-  VERSION_TAG = /^v(\d+[-.][-.a-zA-Z\d]+)$/
+  VERSION_REFERENCE     = /^v?\d+[-.][-.a-zA-Z\d]+$/
+  VERSION_TAG           = /^v(\d+[-.][-.a-zA-Z\d]+)$/
   VERSION_AT_GIT_COMMIT = /\+git\.commit\.([0-9a-f]+)$/
 
   def self.cache_path

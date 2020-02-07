@@ -51,13 +51,13 @@ module Shards
           end
         end
 
-        #if commit = lock["commit"]?
+        # if commit = lock["commit"]?
         #  if resolver.responds_to?(:installed_commit)
         #    return resolver.installed_commit == commit
         #  else
         #    return false
         #  end
-        #end
+        # end
 
         if Versions.resolve([spec.version], dependency.version).empty?
           Shards.logger.debug { "#{dependency.name}: version mismatch" }
