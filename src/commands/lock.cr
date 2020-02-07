@@ -24,19 +24,13 @@ module Shards
 
         solver.prepare(development: !Shards.production?)
 
-        if packages = solver.solve
-          return if packages.empty?
+        packages = handle_resolver_errors { solver.solve }
+        return if packages.empty?
 
-          if print
-            Shards::Lock.write(packages, STDOUT)
-          else
-            write_lockfile(packages)
-          end
+        if print
+          Shards::Lock.write(packages, STDOUT)
         else
-          solver.each_conflict do |message|
-            Shards.logger.warn { "Conflict #{message}" }
-          end
-          raise Shards::Error.new("Failed to resolve dependencies")
+          write_lockfile(packages)
         end
       end
 

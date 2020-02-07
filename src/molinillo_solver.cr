@@ -62,10 +62,6 @@ module Shards
       packages
     end
 
-    def each_conflict(&block)
-      raise "not implemented"
-    end
-
     def name_for(dependency)
       dependency.name
     end

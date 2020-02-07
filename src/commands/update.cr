@@ -17,17 +17,11 @@ module Shards
 
         solver.prepare(development: !Shards.production?)
 
-        if packages = solver.solve
-          install(packages)
+        packages = handle_resolver_errors { solver.solve }
+        install(packages)
 
-          if generate_lockfile?(packages)
-            write_lockfile(packages)
-          end
-        else
-          solver.each_conflict do |message|
-            Shards.logger.warn { "Conflict #{message}" }
-          end
-          raise Shards::Error.new("Failed to resolve dependencies")
+        if generate_lockfile?(packages)
+          write_lockfile(packages)
         end
       end
 
