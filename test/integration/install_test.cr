@@ -74,8 +74,8 @@ class InstallCommandTest < Minitest::Test
   def test_installs_prerelease_version_at_refs
     metadata = {
       dependencies: {
-        unstable: {git: git_url(:unstable), branch: "master"}
-      }
+        unstable: {git: git_url(:unstable), branch: "master"},
+      },
     }
     with_shard(metadata) do
       run "shards install"
@@ -130,7 +130,7 @@ class InstallCommandTest < Minitest::Test
   def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
     metadata = {
       dependencies: {
-        web: {git: git_url(:web), branch: "master"}
+        web: {git: git_url(:web), branch: "master"},
       },
     }
     lock = {web: git_commits(:web)[-5]}
@@ -161,10 +161,10 @@ class InstallCommandTest < Minitest::Test
     metadata = {
       dependencies: {
         "locked": {git: git_path(:"locked"), branch: "master"},
-      }
+      },
     }
     lock = {
-      "locked": git_commits(:"locked").last
+      "locked": git_commits(:"locked").last,
     }
     with_shard(metadata, lock) { run "shards install" }
 
@@ -310,7 +310,7 @@ class InstallCommandTest < Minitest::Test
   end
 
   def test_runs_postinstall_with_transitive_dependencies
-    with_shard({ dependencies: {transitive: "*"} }) do
+    with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
       binary = File.join(application_path, "lib", "transitive", "version")
       assert File.exists?(binary)
@@ -332,7 +332,7 @@ class InstallCommandTest < Minitest::Test
 
   def test_installs_executables_at_version
     metadata = {
-      dependencies: {binary: "0.1.0"}
+      dependencies: {binary: "0.1.0"},
     }
     with_shard(metadata) { run("shards install --no-color") }
 
@@ -351,7 +351,7 @@ class InstallCommandTest < Minitest::Test
   def test_installs_executables_at_refs
     metadata = {
       dependencies: {
-        binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]}
+        binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]},
       },
     }
     with_shard(metadata) { run("shards install --no-color") }

@@ -39,10 +39,10 @@ module Shards
                 when String
                   yml << "    git: " << git_url(name).inspect << '\n'
                   yml << "    version: " << version.inspect << '\n'
-                #when Hash
-                #  version.each do |k, v|
-                #    yml << "    " << k << ": " << v.inspect << '\n'
-                #  end
+                  # when Hash
+                  #  version.each do |k, v|
+                  #    yml << "    " << k << ": " << v.inspect << '\n'
+                  #  end
                 when NamedTuple
                   version.each do |k, v|
                     yml << "    " << k.to_s << ": " << v.inspect << '\n'
