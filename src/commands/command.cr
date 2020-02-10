@@ -57,12 +57,10 @@ module Shards
     end
 
     def handle_resolver_errors
-      begin
-        yield
-      rescue e : Molinillo::ResolverError
-        Shards.logger.error e.message
-        raise Shards::Error.new("Failed to resolve dependencies")
-      end
+      yield
+    rescue e : Molinillo::ResolverError
+      Shards.logger.error e.message
+      raise Shards::Error.new("Failed to resolve dependencies")
     end
   end
 end
