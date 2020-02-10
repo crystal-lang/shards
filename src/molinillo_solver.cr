@@ -43,8 +43,6 @@ module Shards
           .new(self, self)
           .resolve(deps, base)
 
-      # puts result.to_dot
-
       packages = [] of Package
       result.each do |v|
         spec = v.payload.as(Spec) || raise "BUG: returned graph payload was not a Spec"
@@ -70,7 +68,6 @@ module Shards
     @specs = Hash({String, String}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      # puts "search_for #{dependency.name}, #{dependency.version}"
       @search_results[{dependency.name, dependency.version}] ||= begin
         resolver = Shards.find_resolver(dependency)
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
@@ -102,8 +99,6 @@ module Shards
     end
 
     def requirement_satisfied_by?(requirement, activated, spec)
-      # puts "#{requirement.version} ??? #{spec.version} => #{Versions.matches?(spec.version, requirement.version)}"
-
       unless @prereleases
         if !spec.version.includes?("+git.commit.") && Versions.prerelease?(spec.version) && !requirement.prerelease?
           vertex = activated.vertex_named(spec.name)
