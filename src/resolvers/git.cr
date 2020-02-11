@@ -22,7 +22,7 @@ module Shards
       when "github", "bitbucket", "gitlab"
         "https://#{resolver}.com/#{url}.git"
       else
-        raise "Unknown resolver #{key}"
+        raise "Unknown resolver #{resolver}"
       end
     end
 
