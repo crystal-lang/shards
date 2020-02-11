@@ -93,13 +93,13 @@ module Shards
     end
 
     def to_human_requirement
-      if version = self.version?
+      if version?
         version
-      elsif branch = self.branch
+      elsif branch
         "branch #{branch}"
-      elsif tag = self.tag
+      elsif tag
         "tag #{tag}"
-      elsif commit = self.commit
+      elsif commit
         "commit #{commit}"
       else
         "*"
