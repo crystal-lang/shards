@@ -17,7 +17,7 @@ module Shards
     end
 
     def dependency_path
-      @dependency.url
+      local_path
     end
 
     def spec(version = nil)
@@ -64,7 +64,7 @@ module Shards
     end
 
     def local_path
-      dependency.url
+      dependency.path.not_nil!
     end
 
     private def expanded_local_path

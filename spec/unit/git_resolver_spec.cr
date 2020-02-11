@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 private def resolver(name)
-  dependency = Shards::Dependency.new(name, "git", git_url(name))
+  dependency = Shards::Dependency.new(name, git: git_url(name))
   Shards::GitResolver.new(dependency)
 end
 
@@ -44,7 +44,7 @@ module Shards
     end
 
     it "origin changed" do
-      dependency = Dependency.new("library", "git", git_url("library"))
+      dependency = Dependency.new("library", git: git_url("library"))
       library = GitResolver.new(dependency)
       library.install("0.1.2")
 
@@ -67,7 +67,7 @@ module Shards
       ]
 
       same_origins.each do |origin|
-        dependency.url = origin
+        dependency.git = origin
         library.origin_changed?.should be_false
       end
 
@@ -83,7 +83,7 @@ module Shards
       ]
 
       changed_origins.each do |origin|
-        dependency.url = origin
+        dependency.git = origin
         library.origin_changed?.should be_true
       end
     end

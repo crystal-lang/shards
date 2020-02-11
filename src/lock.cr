@@ -56,7 +56,11 @@ module Shards
         dependency = package.resolver.dependency
 
         io << "  " << package.name << ":\n"
-        io << "    " << dependency.resolver_name << ": " << dependency.url << '\n'
+        if path = dependency.path
+          io << "    path: " << path << '\n'
+        else
+          io << "    git: " << dependency.git << '\n'
+        end
 
         if package.commit
           io << "    commit: " << package.commit << '\n'
