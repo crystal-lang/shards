@@ -4,6 +4,10 @@ version: 0.9.0
 authors:
   - Julien Portalier <julien@portalier.com>
 
+dependencies:
+  molinillo:
+    github: crystal-lang/crystal-molinillo
+
 development_dependencies:
   minitest:
     github: ysbaddaden/minitest.cr

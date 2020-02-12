@@ -2,6 +2,7 @@
 /.shards
 /lib
 /bin/shards
+/bin/shards.dwarf
 /test/.repositories
 /test/.shards
 /test/.lib

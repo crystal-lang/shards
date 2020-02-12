@@ -12,7 +12,7 @@ module Shards
     end
 
     def spec(version = nil)
-      Spec.from_yaml(read_spec(version))
+      Spec.from_yaml(read_spec(version)).tap { |spec| spec.resolver = self }
     end
 
     def specs(versions)
