@@ -2,7 +2,7 @@ require "option_parser"
 require "./commands/*"
 
 module Shards
-  def self.display_help_and_exit(opts)
+  def self.display_help(opts)
     puts <<-HELP
       shards [<options>...] [<command>]
 
@@ -17,11 +17,12 @@ module Shards
           prune                          - Remove unused dependencies from `lib` folder.
           update [<shards>]              - Update dependencies and `shard.lock`.
           version [<path>]               - Print the current version of the shard.
+          --version                      - Print the `shards` version.
+          -h, --help                     - Print usage synopsis.
 
       Options:
       HELP
     puts opts
-    exit
   end
 
   def self.run
@@ -29,17 +30,16 @@ module Shards
       path = Dir.current
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
-      opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
       opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
+      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
-      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
 
       opts.unknown_args do |args, options|
-        case args[0]? || DEFAULT_COMMAND
+        case args.shift? || DEFAULT_COMMAND
         when "build"
-          build(path, args[1..-1])
+          build(path, args)
         when "check"
           Commands::Check.run(path)
         when "init"
@@ -51,7 +51,7 @@ module Shards
         when "lock"
           Commands::Lock.run(
             path,
-            args[1..-1].reject(&.starts_with?("--")),
+            args.reject(&.starts_with?("--")),
             print: args.includes?("--print"),
             update: args.includes?("--update")
           )
@@ -62,12 +62,17 @@ module Shards
         when "update"
           Commands::Update.run(
             path,
-            args[1..-1].reject(&.starts_with?("--"))
+            args.reject(&.starts_with?("--"))
           )
         when "version"
           Commands::Version.run(args[1]? || path)
+        when "--version"
+          puts self.version_string
+        when "-h", "--help"
+          display_help(opts)
         else
-          display_help_and_exit(opts)
+          display_help(opts)
+          exit 1
         end
 
         exit
