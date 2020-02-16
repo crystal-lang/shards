@@ -55,7 +55,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_updates_specified_dependencies
-    metadata = { dependencies: {web: "*", orm: "*", optional: "*"}, }
+    metadata = {dependencies: {web: "*", orm: "*", optional: "*"}}
     lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
 
     with_shard(metadata, lock) do
@@ -78,7 +78,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_wont_install_prerelease_version
-    metadata = { dependencies: {unstable: "*"} }
+    metadata = {dependencies: {unstable: "*"}}
     lock = {unstable: "0.1.0"}
 
     with_shard(metadata, lock) do
@@ -89,7 +89,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_installs_specified_prerelease_version
-    metadata = { dependencies: {unstable: "~> 0.3.0.alpha"} }
+    metadata = {dependencies: {unstable: "~> 0.3.0.alpha"}}
     lock = {unstable: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
@@ -100,7 +100,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_updates_locked_specified_prerelease
-    metadata = { dependencies: {unstable: "~> 0.3.0.alpha"} }
+    metadata = {dependencies: {unstable: "~> 0.3.0.alpha"}}
     lock = {unstable: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
@@ -111,7 +111,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_updates_from_prerelease_to_release_with_approximate_operator
-    metadata = { dependencies: {preview: "~> 0.3.0.a"} }
+    metadata = {dependencies: {preview: "~> 0.3.0.a"}}
     lock = {preview: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
@@ -123,7 +123,7 @@ class UpdateCommandTest < Minitest::Test
 
   # TODO: detect version, and prefer release (0.3.0) over further prereleases (?)
   def test_updates_to_latest_prerelease_with_gte_operator
-    metadata = { dependencies: {preview: ">= 0.3.0.a"} }
+    metadata = {dependencies: {preview: ">= 0.3.0.a"}}
     lock = {preview: "0.3.0.a"}
 
     with_shard(metadata, lock) do
@@ -208,7 +208,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   def test_runs_postinstall_with_transitive_dependencies
-    with_shard({ dependencies: {transitive: "*"} }, {transitive: "0.1.0"}) do
+    with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
       run "shards update"
       binary = File.join(application_path, "lib", "transitive", "version")
       assert File.exists?(binary)
@@ -236,7 +236,7 @@ class UpdateCommandTest < Minitest::Test
 
   def test_doesnt_update_local_cache
     metadata = {
-      dependencies: { local_cache: "*" },
+      dependencies: {local_cache: "*"},
     }
 
     with_shard(metadata) do

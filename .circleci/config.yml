@@ -14,6 +14,7 @@ dry:
     - run: shards install
     - run: make
     - run: make test
+    - run: crystal tool format --check
 
 jobs:
   test:

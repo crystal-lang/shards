@@ -12,3 +12,4 @@ before_script: |
 
 script:
   - make test
+  - crystal tool format --check

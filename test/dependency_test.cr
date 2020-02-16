@@ -16,14 +16,14 @@ class Shards::DependencyTest < Minitest::Test
   end
 
   def test_version_with_tags
-    dependency = Dependency.new("app", { tag: "fix/something" })
+    dependency = Dependency.new("app", {tag: "fix/something"})
     assert_equal "*", dependency.version
 
-    dependency = Dependency.new("app", { tag: "1.2.3" })
+    dependency = Dependency.new("app", {tag: "1.2.3"})
     assert_equal "*", dependency.version
 
     # version tag is considered a version:
-    dependency = Dependency.new("app", { tag: "v1.2.3-pre1" })
+    dependency = Dependency.new("app", {tag: "v1.2.3-pre1"})
     assert_equal "1.2.3-pre1", dependency.version
   end
 end
