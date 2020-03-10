@@ -2,7 +2,9 @@
 
 CRYSTAL = crystal
 CRFLAGS =
-SOURCES = src/*.cr src/**/*.cr lib/molinillo/**/*.cr
+SHARDS_SOURCES = $(shell find src -name '*.cr')
+MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr')
+SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
 DESTDIR =
