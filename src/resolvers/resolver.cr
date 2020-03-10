@@ -42,8 +42,8 @@ module Shards
 
     def run_script(name)
       if installed? && (command = installed_spec.try(&.scripts[name]?))
-        Shards.logger.info "#{name.capitalize} #{command} (#{dependency.name})"
-        Script.run(install_path, command)
+        Shards.logger.info "#{name.capitalize} of #{dependency.name}: #{command}"
+        Script.run(install_path, command, name, dependency.name)
       end
     end
 
