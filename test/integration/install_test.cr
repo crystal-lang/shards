@@ -295,15 +295,16 @@ class InstallCommandTest < Minitest::Test
 
   def test_runs_postinstall_script
     with_shard({dependencies: {post: "*"}}) do
-      run "shards install"
+      output = run "shards install --no-color", capture: true
       assert File.exists?(File.join(application_path, "lib", "post", "made.txt"))
+      assert_match "Postinstall of post: make", output
     end
   end
 
   def test_prints_details_and_removes_dependency_when_postinstall_script_fails
     with_shard({dependencies: {fails: "*"}}) do
       ex = assert_raises(FailedCommand) { run "shards install --no-color" }
-      assert_match "E: Failed make:\n", ex.stdout
+      assert_match "E: Failed postinstall of fails on make:\n", ex.stdout
       assert_match "test -n ''\n", ex.stdout
       refute Dir.exists?(File.join(application_path, "lib", "fails"))
     end
