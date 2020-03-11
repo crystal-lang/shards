@@ -46,6 +46,11 @@ module Shards
       packages = [] of Package
       result.each do |v|
         spec = v.payload.as(Spec) || raise "BUG: returned graph payload was not a Spec"
+        v.requirements.each do |dependency|
+          unless dependency.name == spec.name
+            raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
+          end
+        end
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
@@ -60,7 +65,11 @@ module Shards
       packages
     end
 
-    def name_for(dependency)
+    def name_for(spec : Shards::Spec)
+      spec.resolver.not_nil!.dependency.name
+    end
+
+    def name_for(dependency : Shards::Dependency)
       dependency.name
     end
 
@@ -74,9 +83,6 @@ module Shards
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
             resolver.spec(version).tap do |spec|
-              unless dependency.name == spec.name
-                raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
-              end
               spec.version = version
             end
           end

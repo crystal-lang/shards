@@ -341,6 +341,30 @@ describe "install" do
     end
   end
 
+  it "test install old with version when shard was renamed" do
+    metadata = {
+      dependencies: {
+        old_name: {git: git_url(:renamed), version: "0.1.0"},
+      },
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "old_name", "0.1.0"
+    end
+  end
+
+  it "test install new when shard was renamed" do
+    metadata = {
+      dependencies: {
+        new_name: {git: git_url(:renamed)},
+      },
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "new_name", "0.2.0"
+    end
+  end
+
   it "installs executables at version" do
     metadata = {
       dependencies: {binary: "0.1.0"},
