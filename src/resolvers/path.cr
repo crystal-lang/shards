@@ -41,16 +41,29 @@ module Shards
     end
 
     private def check_install_path_target
-      begin
-        real_install_path = File.real_path(install_path)
-      rescue errno : Errno
-        if errno.errno == Errno::ENOENT
-          return false
-        else
-          raise errno
+      {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
+        begin
+          real_install_path = File.real_path(install_path)
+        rescue ex : File::Error
+          if ex.os_error == Errno::ENOENT
+            return false
+          else
+            raise ex
+          end
         end
-      end
-      real_install_path == expanded_local_path
+        real_install_path == expanded_local_path
+      {% else %}
+        begin
+          real_install_path = File.real_path(install_path)
+        rescue errno : Errno
+          if errno.errno == Errno::ENOENT
+            return false
+          else
+            raise errno
+          end
+        end
+        real_install_path == expanded_local_path
+      {% end %}
     end
 
     def available_versions

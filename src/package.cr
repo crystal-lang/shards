@@ -71,15 +71,27 @@ module Shards
           File.delete(destination)
         end
 
-        begin
-          File.link(source, destination)
-        rescue ex : Errno
-          if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
-            FileUtils.cp(source, destination)
-          else
-            raise ex
+        {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
+          begin
+            File.link(source, destination)
+          rescue ex : File::Error
+            if {Errno::EPERM, Errno::EXDEV}.includes?(ex.os_error)
+              FileUtils.cp(source, destination)
+            else
+              raise ex
+            end
           end
-        end
+        {% else %}
+          begin
+            File.link(source, destination)
+          rescue ex : Errno
+            if {Errno::EPERM, Errno::EXDEV}.includes?(ex.errno)
+              FileUtils.cp(source, destination)
+            else
+              raise ex
+            end
+          end
+        {% end %}
       end
     end
   end
