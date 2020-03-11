@@ -7,12 +7,13 @@ module Shards
     end
 
     def read_spec(version = nil)
-      spec_path = File.join(local_path, SPEC_FILENAME)
+      spec_path = File.join(Path[local_path].expand(home: true).to_s, SPEC_FILENAME)
+
 
       if File.exists?(spec_path)
         File.read(spec_path)
       else
-        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}\n  Expected it at #{spec_path}")
       end
     end
 
@@ -21,7 +22,7 @@ module Shards
     end
 
     def spec?(version)
-      spec_path = File.join(local_path, SPEC_FILENAME)
+      spec_path = File.join(Path[local_path].expand(home: true).to_s, SPEC_FILENAME)
 
       if File.exists?(spec_path)
         Spec.from_yaml(File.read(spec_path))
@@ -58,7 +59,7 @@ module Shards
     end
 
     def local_path
-      dependency["path"].to_s
+      path = dependency["path"].to_s
     end
 
     private def expanded_local_path
