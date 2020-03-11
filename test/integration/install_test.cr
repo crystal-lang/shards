@@ -319,6 +319,18 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
+  def test_fails_with_circular_dependencies
+    create_git_repository "a"
+    create_git_release "a", "0.1.0", "name: a\nversion: 0.1.0\ndependencies:\n  b:\n    git: #{git_path("b")}"
+    create_git_repository "b"
+    create_git_release "b", "0.1.0", "name: b\nversion: 0.1.0\ndependencies:\n  a:\n    git: #{git_path("a")}"
+
+    with_shard({dependencies: {a: "*"}}) do
+      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
+      assert_match "There is a circular dependency between a and b", ex.stdout
+    end
+  end
+
   def test_fails_when_shard_name_doesnt_match
     metadata = {
       dependencies: {
