@@ -1,37 +1,52 @@
-version: 2
+version: 2.1
 
-dry:
-  prepare: &prepare
-    command: |
-      crystal --version
-      git config --global user.email "you@example.com"
-      git config --global user.name "Your Name"
-      git config --global column.ui always
+orbs:
+  crystal: manastech/crystal@1.0.0
 
-  steps: &steps
-    - run: *prepare
-    - checkout
-    - run: shards install
-    - run: make
-    - run: make test
-    - run: crystal tool format --check
+commands:
+  shards-make-test:
+    steps:
+      - run:
+          name: git config
+          command: |
+            git config --global user.email "you@example.com"
+            git config --global user.name "Your Name"
+            git config --global column.ui always
+      - crystal/version
+      - checkout
+      - crystal/shards-install
+      - run: make
+      - run: make test
+      - crystal/format-check
 
 jobs:
   test:
     docker:
       - image: crystallang/crystal:latest
-    steps: *steps
+    steps:
+      - shards-make-test
+
+  test-on-osx:
+    macos:
+      xcode: 11.1.0 # latest mojave
+    steps:
+      - run:
+          name: Install Crystal
+          command: brew install crystal
+      - shards-make-test
 
   test-on-nightly:
     docker:
       - image: crystallang/crystal:nightly
-    steps: *steps
+    steps:
+      - shards-make-test
 
 workflows:
   version: 2
   ci:
     jobs:
       - test
+      - test-on-osx
   nightly:
     triggers:
       - schedule:
