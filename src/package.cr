@@ -74,12 +74,8 @@ module Shards
         {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
           begin
             File.link(source, destination)
-          rescue ex : File::Error
-            if {Errno::EPERM, Errno::EXDEV}.includes?(ex.os_error)
-              FileUtils.cp(source, destination)
-            else
-              raise ex
-            end
+          rescue File::Error
+            FileUtils.cp(source, destination)
           end
         {% else %}
           begin

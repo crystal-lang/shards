@@ -44,12 +44,8 @@ module Shards
       {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
         begin
           real_install_path = File.real_path(install_path)
-        rescue ex : File::Error
-          if ex.os_error == Errno::ENOENT
-            return false
-          else
-            raise ex
-          end
+        rescue File::NotFoundError
+          return false
         end
         real_install_path == expanded_local_path
       {% else %}
