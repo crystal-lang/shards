@@ -28,7 +28,7 @@ def create_git_repository(project, *versions)
   versions.each { |version| create_git_release project, version }
 end
 
-def create_git_release(project, version, shard = true)
+def create_git_version_commit(project, version, shard = true)
   Dir.cd(git_path(project)) do
     if shard
       contents = shard.is_a?(String) ? shard : "name: #{project}\nversion: #{version}\n"
@@ -39,6 +39,10 @@ def create_git_release(project, version, shard = true)
     end
     create_git_commit project, "release: v#{version}"
   end
+end
+
+def create_git_release(project, version, shard = true)
+  create_git_version_commit(project, version, shard)
   create_git_tag(project, "v#{version}")
 end
 

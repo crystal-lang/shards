@@ -64,6 +64,7 @@ private def setup_repositories
   create_git_repository "renamed"
   create_git_release "renamed", "0.1.0", "name: old_name\nversion: 0.1.0"
   create_git_release "renamed", "0.2.0", "name: new_name\nversion: 0.2.0"
+  create_git_version_commit "renamed", "0.3.0", "name: another_name\nversion: 0.3.0"
 
   create_git_repository "transitive"
   create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)

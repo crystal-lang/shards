@@ -365,6 +365,42 @@ describe "install" do
     end
   end
 
+  it "fail install old version when shard was renamed" do
+    metadata = {
+      dependencies: {
+        new_name: {git: git_url(:renamed), version: "0.1.0"},
+      },
+    }
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (old_name) doesn't match dependency name (new_name)")
+    end
+  end
+
+  it "fail install new version when shard was renamed" do
+    metadata = {
+      dependencies: {
+        old_name: {git: git_url(:renamed), version: "0.2.0"},
+      },
+    }
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (new_name) doesn't match dependency name (old_name)")
+    end
+  end
+
+  it "install untagged version when shard was renamed" do
+    metadata = {
+      dependencies: {
+        another_name: {git: git_url(:renamed), branch: "master"},
+      },
+    }
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "another_name", "0.3.0"
+    end
+  end
+
   it "installs executables at version" do
     metadata = {
       dependencies: {binary: "0.1.0"},
