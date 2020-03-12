@@ -45,7 +45,7 @@ module Shards
 
       packages = [] of Package
       result.each do |v|
-        spec = v.payload.as(Spec) || raise "BUG: returned graph payload was not a Spec"
+        spec = v.payload.as?(Spec) || raise "BUG: returned graph payload was not a Spec"
         v.requirements.each do |dependency|
           unless dependency.name == spec.name
             raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
