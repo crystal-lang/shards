@@ -19,6 +19,22 @@ commands:
       - run: make test
       - crystal/format-check
 
+  with-brew-cache:
+    parameters:
+      steps:
+        type: steps
+    steps:
+      - restore_cache:
+          keys:
+            - brew-cache-v1-{{ .Branch }}
+            - brew-cache-v1-
+      - steps: <<parameters.steps>>
+      - save_cache:
+          key: brew-cache-v1-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /usr/local/Homebrew
+            - ~/Library/Caches/Homebrew
+
 jobs:
   test:
     docker:
@@ -30,9 +46,11 @@ jobs:
     macos:
       xcode: 11.1.0 # latest mojave
     steps:
-      - run:
-          name: Install Crystal
-          command: brew install crystal
+      - with-brew-cache:
+          steps:
+            - run:
+                name: Install Crystal
+                command: brew install crystal
       - shards-make-test
 
   test-on-nightly:
