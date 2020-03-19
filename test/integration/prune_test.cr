@@ -27,12 +27,13 @@ class PruneCommandTest < Minitest::Test
   end
 
   def test_wont_remove_files
-    File.write(File.join(application_path, "lib", "keep"), "")
+    File.write(File.join(application_path, "lib", ".keep_hidden"), "")
+    File.write(File.join(application_path, "lib", "keep_not_hidden"), "")
     Dir.cd(application_path) { run "shards prune" }
-    assert_equal ["keep", "web"], installed_dependencies.sort
+    assert_equal [".keep_hidden", "keep_not_hidden", "web"], installed_dependencies.sort
   end
 
   private def installed_dependencies
-    Dir[File.join(application_path, "lib", "*")].map { |path| File.basename(path) }
+    Dir.glob(File.join(application_path, "lib", "*"), match_hidden: true).map { |path| File.basename(path) }
   end
 end
