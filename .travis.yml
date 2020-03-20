@@ -2,7 +2,6 @@ language: crystal
 
 os:
   - linux
-  - osx
 
 before_script: |
   make
