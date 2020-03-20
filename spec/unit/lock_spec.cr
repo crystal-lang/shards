@@ -1,5 +1,5 @@
 require "./spec_helper"
-require "../src/lock"
+require "../../src/lock"
 
 module Shards
   describe Lock do
