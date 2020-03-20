@@ -6,7 +6,4 @@
 /spec/.repositories
 /spec/.shards
 /spec/.lib
-/test/.repositories
-/test/.shards
-/test/.lib
 /tmp
