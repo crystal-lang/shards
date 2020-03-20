@@ -3,6 +3,9 @@
 /lib
 /bin/shards
 /bin/shards.dwarf
+/spec/.repositories
+/spec/.shards
+/spec/.lib
 /test/.repositories
 /test/.shards
 /test/.lib
