@@ -112,3 +112,7 @@ def run(command, capture = false)
     raise FailedCommand.new("command failed: #{command}", output.to_s, error.to_s)
   end
 end
+
+def run!(command)
+  run(command, capture: true).not_nil!
+end
