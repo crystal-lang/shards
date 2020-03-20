@@ -1,7 +1,7 @@
-require "../integration_helper"
+require "./spec_helper"
 
-class UpdateCommandTest < Minitest::Test
-  def test_installs_dependencies
+describe "update" do
+  it "installs dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
       development_dependencies: {mock: "*"},
@@ -36,7 +36,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_locked_dependencies
+  it "updates locked dependencies" do
     metadata = {
       dependencies:             {web: "2.0.0"},
       development_dependencies: {minitest: "~> 0.1.2"},
@@ -54,7 +54,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_specified_dependencies
+  it "updates specified dependencies" do
     metadata = {dependencies: {web: "*", orm: "*", optional: "*"}}
     lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
 
@@ -77,7 +77,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_wont_install_prerelease_version
+  it "won't install prerelease version" do
     metadata = {dependencies: {unstable: "*"}}
     lock = {unstable: "0.1.0"}
 
@@ -88,7 +88,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_specified_prerelease_version
+  it "installs specified prerelease version" do
     metadata = {dependencies: {unstable: "~> 0.3.0.alpha"}}
     lock = {unstable: "0.3.0.alpha"}
 
@@ -99,7 +99,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_locked_specified_prerelease
+  it "updates locked specified prerelease" do
     metadata = {dependencies: {unstable: "~> 0.3.0.alpha"}}
     lock = {unstable: "0.3.0.alpha"}
 
@@ -110,7 +110,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_from_prerelease_to_release_with_approximate_operator
+  it "updates from prerelease to release with approximate operator" do
     metadata = {dependencies: {preview: "~> 0.3.0.a"}}
     lock = {preview: "0.3.0.alpha"}
 
@@ -122,7 +122,7 @@ class UpdateCommandTest < Minitest::Test
   end
 
   # TODO: detect version, and prefer release (0.3.0) over further prereleases (?)
-  def test_updates_to_latest_prerelease_with_gte_operator
+  it "updates to latest prerelease with >= operator" do
     metadata = {dependencies: {preview: ">= 0.3.0.a"}}
     lock = {preview: "0.3.0.a"}
 
@@ -133,7 +133,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_locked_commit
+  it "updates locked commit" do
     metadata = {
       dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
@@ -145,7 +145,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_new_dependencies
+  it "installs new dependencies" do
     metadata = {
       dependencies: {
         web: "~> 1.1.0",
@@ -165,7 +165,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_removes_dependencies
+  it "removes dependencies" do
     metadata = {dependencies: {web: "~> 1.1.0"}}
     lock = {web: "1.0.0", orm: "0.5.0"}
 
@@ -180,7 +180,7 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_finds_then_updates_new_compatible_version
+  it "finds then updates new compatible version" do
     create_git_repository "oopsie", "1.1.0", "1.2.0"
 
     metadata = {dependencies: {oopsie: "~> 1.1.0"}}
@@ -199,24 +199,24 @@ class UpdateCommandTest < Minitest::Test
     end
   end
 
-  def test_wont_generate_lockfile_for_empty_dependencies
+  it "won't generate lockfile for empty dependencies" do
     metadata = {dependencies: {} of Symbol => String}
     with_shard(metadata) do
       path = File.join(application_path, "shard.lock")
-      refute File.exists?(path)
+      File.exists?(path).should be_false
     end
   end
 
-  def test_runs_postinstall_with_transitive_dependencies
+  it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
       run "shards update"
       binary = File.join(application_path, "lib", "transitive", "version")
-      assert File.exists?(binary)
-      assert_equal "version @ 0.1.0\n", `#{binary}`
+      File.exists?(binary).should be_true
+      `#{binary}`.should eq("version @ 0.1.0\n")
     end
   end
 
-  def test_installs_new_executables
+  it "installs new executables" do
     metadata = {dependencies: {binary: "0.2.0"}}
     lock = {binary: "0.1.0"}
     with_shard(metadata, lock) { run("shards update --no-color") }
@@ -225,24 +225,24 @@ class UpdateCommandTest < Minitest::Test
     baz = File.join(application_path, "bin", "baz")
     foo = File.join(application_path, "bin", "foo")
 
-    assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
-    assert File.exists?(baz), "Expected to have installed bin/baz executable"
-    assert File.exists?(foo), "Expected to have installed bin/foo executable"
+    File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
+    File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
+    File.exists?(foo).should be_true    # "Expected to have installed bin/foo executable"
 
-    assert_equal "OK\n", `#{foobar}`
-    assert_equal "KO\n", `#{baz}`
-    assert_equal "FOO\n", `#{foo}`
+    `#{foobar}`.should eq("OK\n")
+    `#{baz}`.should eq("KO\n")
+    `#{foo}`.should eq("FOO\n")
   end
 
-  def test_doesnt_update_local_cache
+  it "doesn't update local cache" do
     metadata = {
       dependencies: {local_cache: "*"},
     }
 
     with_shard(metadata) do
       # error: dependency isn't in local cache
-      ex = assert_raises(FailedCommand) { run("shards install --local --no-color") }
-      assert_match %(E: Missing repository cache for "local_cache".), ex.stdout
+      ex = expect_raises(FailedCommand) { run("shards install --local --no-color") }
+      ex.stdout.should contain(%(E: Missing repository cache for "local_cache".))
     end
 
     # re-run without --local to install the dependency:
