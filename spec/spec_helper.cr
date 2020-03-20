@@ -12,6 +12,12 @@ require "./support/factories"
 
 module Shards
   logger.level = Logger::Severity::WARN
+
+  class Dependency
+    def self.from_name_config(name, config) : self
+      Dependency.new(name, config)
+    end
+  end
 end
 
 Spec.before_each do
