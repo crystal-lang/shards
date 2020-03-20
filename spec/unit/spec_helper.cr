@@ -8,8 +8,6 @@ require "../../src/resolvers/*"
 
 require "../support/factories"
 
-# require "./support/mock_resolver"
-
 module Shards
   logger.level = Logger::Severity::WARN
 
