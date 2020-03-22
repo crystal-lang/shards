@@ -6,7 +6,7 @@ describe "version" do
       version: "1.33.7",
     }
     with_shard(metadata) do
-      stdout = run! "shards version"
+      stdout = run "shards version"
       stdout.should contain("1.33.7")
     end
   end
@@ -21,7 +21,7 @@ describe "version" do
 
       outer_path = File.expand_path("..", application_path)
       Dir.cd(outer_path) do
-        stdout = run! "shards version #{inner_path}"
+        stdout = run "shards version #{inner_path}"
         stdout.should contain("0.0.42")
       end
     end

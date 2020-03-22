@@ -293,7 +293,7 @@ describe "install" do
 
   it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
-      output = run! "shards install --no-color"
+      output = run "shards install --no-color"
       File.exists?(File.join(application_path, "lib", "post", "made.txt")).should be_true
       output.should contain("Postinstall of post: make")
     end

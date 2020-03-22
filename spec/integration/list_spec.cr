@@ -8,7 +8,7 @@ describe "list" do
     }
     with_shard(metadata) do
       run "shards install"
-      stdout = run! "shards list"
+      stdout = run "shards list"
 
       stdout.should contain("web (2.1.0)")
       stdout.should contain("orm (0.5.0)")
@@ -25,7 +25,7 @@ describe "list" do
     }
     with_shard(metadata) do
       run "shards install --production"
-      stdout = run! "shards list --production"
+      stdout = run "shards list --production"
       stdout.should contain("web (2.1.0)")
       stdout.should contain("orm (0.5.0)")
       stdout.should contain("pg (0.2.1)")
@@ -41,7 +41,7 @@ describe "list" do
     }
     with_shard(metadata) do
       run "shards install"
-      stdout = run! "shards list --tree"
+      stdout = run "shards list --tree"
       stdout.should contain("  * web (2.1.0)")
       stdout.should contain("  * orm (0.5.0)")
       stdout.should contain("    * pg (0.2.1)")

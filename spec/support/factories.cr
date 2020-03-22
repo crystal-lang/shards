@@ -69,7 +69,7 @@ end
 
 def git_commits(project)
   Dir.cd(git_path(project)) do
-    run("git log --format='%H'", capture: true).not_nil!.strip.split('\n')
+    run("git log --format='%H'").strip.split('\n')
   end
 end
 
@@ -101,18 +101,14 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command, capture = false)
+def run(command)
   # puts command
   output, error = IO::Memory.new, IO::Memory.new
   status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
 
   if status.success?
-    output.to_s if capture
+    output.to_s
   else
     raise FailedCommand.new("command failed: #{command}", output.to_s, error.to_s)
   end
-end
-
-def run!(command)
-  run(command, capture: true).not_nil!
 end

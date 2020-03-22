@@ -1,8 +1,8 @@
 Spec.before_each do
   application_path.tap do |path|
     if File.exists?(path)
-      run("rm -rf #{path}/*", capture: false)
-      run("rm -rf #{path}/.shards", capture: false)
+      run("rm -rf #{path}/*")
+      run("rm -rf #{path}/.shards")
     else
       Dir.mkdir_p(path)
     end
@@ -93,8 +93,8 @@ module Shards::Specs
   def self.application_path
     @@application_path ||= File.expand_path("../../tmp/integration", __DIR__).tap do |path|
       if File.exists?(path)
-        run("rm -rf #{path}/*", capture: false)
-        run("rm -rf #{path}/.shards", capture: false)
+        run("rm -rf #{path}/*")
+        run("rm -rf #{path}/.shards")
       else
         Dir.mkdir_p(path)
       end
