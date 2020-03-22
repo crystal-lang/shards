@@ -1,31 +1,17 @@
 ENV["PATH"] = "#{File.expand_path("../../bin", __DIR__)}:#{ENV["PATH"]}"
 ENV["SHARDS_CACHE_PATH"] = ".shards"
 
-require "spec"
 require "../../src/config"
 require "../../src/lock"
 require "../../src/spec"
 require "../support/factories"
 require "../support/cli"
 
-module Shards::Specs
-  @@created_repositories = false
+run "rm -rf #{tmp_path}/*"
+setup_repositories
 
-  def self.created_repositories?
-    @@created_repositories
-  end
-
-  def self.created_repositories!
-    @@created_repositories = true
-  end
-end
-
-Spec.before_each do
-  unless Shards::Specs.created_repositories?
-    run "rm -rf #{tmp_path}/*"
-    setup_repositories
-  end
-end
+# Setup repositories before spec module
+require "spec"
 
 private def setup_repositories
   # git dependencies for testing version resolution:
@@ -94,8 +80,6 @@ private def setup_repositories
   create_git_release "binary", "0.1.0", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
   create_file "binary", "bin/foo", "echo 'FOO'", perm: 0o755
   create_git_release "binary", "0.2.0", "name: binary\nversion: 0.2.0\nexecutables:\n  - foobar\n  - baz\n  - foo"
-
-  Shards::Specs.created_repositories!
 end
 
 private def assert(value, message, file, line)
