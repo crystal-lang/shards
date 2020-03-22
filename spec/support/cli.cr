@@ -1,11 +1,11 @@
 Spec.before_each do
-  application_path.tap do |path|
-    if File.exists?(path)
-      run("rm -rf #{path}/*")
-      run("rm -rf #{path}/.shards")
-    else
-      Dir.mkdir_p(path)
-    end
+  path = application_path
+
+  if File.exists?(path)
+    run("rm -rf #{path}/*")
+    run("rm -rf #{path}/.shards")
+  else
+    Dir.mkdir_p(path)
   end
 end
 
