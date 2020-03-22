@@ -1,9 +1,5 @@
 require "./spec_helper"
 
-private def versions
-  ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.10.0"]
-end
-
 module Shards
   describe Versions do
     #   class VersionsTest < Minitest::Test
@@ -128,10 +124,14 @@ module Shards
     end
 
     it "resolve any" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "*").should eq(versions)
     end
 
     it "resolve eq" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "0.2.0").should eq(["0.2.0"])
       Versions.resolve(versions, "0.1.1").should eq(["0.1.1"])
       Versions.resolve(versions, "0.10.0").should eq(["0.10.0"])
@@ -140,26 +140,36 @@ module Shards
     end
 
     it "resolve gt" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "> 0.1.2").should eq(["0.2.0", "0.10.0"])
       Versions.resolve(versions, "> 0.1.1").should eq(["0.1.2", "0.2.0", "0.10.0"])
     end
 
     it "resolve gte" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, ">= 0.2.0").should eq(["0.2.0", "0.10.0"])
       Versions.resolve(versions, ">= 0.1.2").should eq(["0.1.2", "0.2.0", "0.10.0"])
     end
 
     it "resolve lt" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "< 0.1.0").should eq(["0.0.1"])
       Versions.resolve(versions, "< 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2"])
     end
 
     it "resolve lte" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "<= 0.1.0").should eq(["0.0.1", "0.1.0"])
       Versions.resolve(versions, "<= 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
     end
 
     it "resolve approximate" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
       Versions.resolve(versions, "~> 0.1.0").should eq(["0.1.0", "0.1.1", "0.1.2"])
       Versions.resolve(versions, "~> 0.1").should eq(["0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.10.0"])
 
