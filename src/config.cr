@@ -28,11 +28,19 @@ module Shards
       path = File.expand_path(candidate)
       return path if File.exists?(path)
 
-      begin
-        Dir.mkdir_p(path)
-        return path
-      rescue Errno
-      end
+      {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
+        begin
+          Dir.mkdir_p(path)
+          return path
+        rescue File::Error
+        end
+      {% else %}
+        begin
+          Dir.mkdir_p(path)
+          return path
+        rescue Errno
+        end
+      {% end %}
     end
 
     raise Error.new("Failed to find or create cache directory")
