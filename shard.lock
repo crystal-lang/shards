@@ -1,9 +1,5 @@
 version: 1.0
 shards:
-  minitest:
-    github: ysbaddaden/minitest.cr
-    version: 0.5.0
-
   molinillo:
     github: crystal-lang/crystal-molinillo
     commit: 4b78e8c577ac322c8c0363788f3e1109f19668d9
