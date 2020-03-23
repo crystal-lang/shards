@@ -1,17 +1,17 @@
 ENV["PATH"] = "#{File.expand_path("../../bin", __DIR__)}:#{ENV["PATH"]}"
 ENV["SHARDS_CACHE_PATH"] = ".shards"
 
+require "spec"
 require "../../src/config"
 require "../../src/lock"
 require "../../src/spec"
 require "../support/factories"
 require "../support/cli"
 
-run "rm -rf #{tmp_path}/*"
-setup_repositories
-
-# Setup repositories before spec module
-require "spec"
+Spec.before_suite do
+  run "rm -rf #{tmp_path}/*"
+  setup_repositories
+end
 
 private def setup_repositories
   # git dependencies for testing version resolution:
