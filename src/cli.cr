@@ -32,8 +32,8 @@ module Shards
       opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
       opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.logger.level = Logger::Severity::DEBUG }
-      opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.logger.level = Logger::Severity::WARN }
+      opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
+      opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
 
       opts.unknown_args do |args, options|
@@ -100,12 +100,12 @@ end
 begin
   Shards.run
 rescue ex : OptionParser::InvalidOption
-  Shards.logger.fatal ex.message
+  Shards::Log.fatal { ex.message }
   exit 1
 rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
 rescue ex : Shards::Error
-  Shards.logger.error ex.message
+  Shards::Log.error { ex.message }
   exit 1
 end

@@ -67,7 +67,7 @@ module Shards
       versions = versions_from_tags
 
       if versions.any?
-        Shards.logger.debug { "versions: #{versions.reverse.join(", ")}" }
+        Log.debug { "versions: #{versions.reverse.join(", ")}" }
         versions
       else
         ["HEAD"]
@@ -195,7 +195,7 @@ module Shards
       end
 
       return if Shards.local? || @updated_cache
-      Shards.logger.info "Fetching #{git_url}"
+      Log.info { "Fetching #{git_url}" }
 
       if cloned_repository?
         # repositories cloned with shards v0.8.0 won't fetch any new remote
@@ -226,7 +226,7 @@ module Shards
     end
 
     private def delete_repository
-      Shards.logger.debug "rm -rf '#{local_path}'"
+      Log.debug { "rm -rf '#{local_path}'" }
       FileUtils.rm_rf(local_path)
       @origin_url = nil
     end
@@ -302,7 +302,7 @@ module Shards
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
 
-      Shards.logger.debug command
+      Log.debug { command }
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new

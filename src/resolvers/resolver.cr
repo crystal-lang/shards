@@ -42,7 +42,7 @@ module Shards
 
     def run_script(name)
       if installed? && (command = installed_spec.try(&.scripts[name]?))
-        Shards.logger.info "#{name.capitalize} of #{dependency.name}: #{command}"
+        Log.info { "#{name.capitalize} of #{dependency.name}: #{command}" }
         Script.run(install_path, command, name, dependency.name)
       end
     end
@@ -52,7 +52,7 @@ module Shards
     end
 
     protected def cleanup_install_directory
-      Shards.logger.debug "rm -rf '#{Helpers::Path.escape(install_path)}'"
+      Log.debug { "rm -rf '#{Helpers::Path.escape(install_path)}'" }
       FileUtils.rm_rf(install_path)
     end
   end

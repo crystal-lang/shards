@@ -44,7 +44,7 @@ module Shards
       # can access transitive dependencies:
       unless resolver.is_a?(PathResolver)
         lib_path = File.join(resolver.install_path, "lib")
-        Shards.logger.debug { "Link #{Shards.install_path} to #{lib_path}" }
+        Log.debug { "Link #{Shards.install_path} to #{lib_path}" }
         File.symlink("../../lib", lib_path)
       end
     end
@@ -62,7 +62,7 @@ module Shards
       Dir.mkdir_p(Shards.bin_path)
 
       spec.executables.each do |name|
-        Shards.logger.debug { "Install bin/#{name}" }
+        Log.debug { "Install bin/#{name}" }
         source = File.join(resolver.install_path, "bin", name)
         destination = File.join(Shards.bin_path, name)
 

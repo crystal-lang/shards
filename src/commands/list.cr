@@ -18,7 +18,7 @@ module Shards
 
           # FIXME: duplicated from Check#verify
           unless _spec = resolver.installed_spec
-            Shards.logger.debug { "#{dependency.name}: not installed" }
+            Log.debug { "#{dependency.name}: not installed" }
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
           end
 

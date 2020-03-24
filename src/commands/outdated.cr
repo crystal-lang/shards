@@ -11,7 +11,7 @@ module Shards
       def run(@prereleases = false)
         return unless has_dependencies?
 
-        Shards.logger.info { "Resolving dependencies" }
+        Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec, @prereleases)
         solver.prepare(development: !Shards.production?)
@@ -20,10 +20,10 @@ module Shards
         packages.each { |package| analyze(package) }
 
         if @up_to_date
-          Shards.logger.info "Dependencies are up to date!"
+          Log.info { "Dependencies are up to date!" }
         else
           @output.rewind
-          Shards.logger.warn "Outdated dependencies:"
+          Log.warn { "Outdated dependencies:" }
           puts @output.to_s
         end
       end
@@ -33,7 +33,7 @@ module Shards
         installed = resolver.installed_spec.try(&.version)
 
         unless installed
-          Shards.logger.warn { "#{package.name}: not installed" }
+          Log.warn { "#{package.name}: not installed" }
           return
         end
 

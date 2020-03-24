@@ -1,5 +1,16 @@
-require "logger"
 require "colorize"
+
+module Shards
+  @@colors = true
+
+  def self.colors=(value)
+    @@colors = value
+  end
+end
+
+# Using Crystal < 0.34 logger module
+
+require "logger"
 
 module Shards
   LOGGER_COLORS = {
@@ -8,12 +19,6 @@ module Shards
     "INFO"  => :light_green,
     "DEBUG" => :light_gray,
   }
-
-  @@colors = true
-
-  def self.colors=(value)
-    @@colors = value
-  end
 
   @@logger : Logger?
 
@@ -38,5 +43,23 @@ module Shards
         end
       end
     end
+  end
+
+  def self.set_warning_log_level
+    logger.level = Logger::Severity::WARN
+  end
+
+  def self.set_debug_log_level
+    logger.level = Logger::Severity::DEBUG
+  end
+
+  module Log
+    {% for severity in %w(debug info warn error fatal) %}
+      def self.{{severity.id}}
+        Shards.logger.{{severity.id}} do
+          yield
+        end
+      end
+    {% end %}
   end
 end

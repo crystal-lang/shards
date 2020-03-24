@@ -11,7 +11,7 @@ module Shards
           verify(spec.development_dependencies) unless Shards.production?
         end
 
-        Shards.logger.info "Dependencies are satisfied"
+        Log.info { "Dependencies are satisfied" }
       end
 
       private def has_dependencies?
@@ -20,11 +20,11 @@ module Shards
 
       private def verify(dependencies)
         dependencies.each do |dependency|
-          Shards.logger.debug { "#{dependency.name}: checking..." }
+          Log.debug { "#{dependency.name}: checking..." }
           resolver = Shards.find_resolver(dependency)
 
           unless _spec = resolver.installed_spec
-            Shards.logger.debug { "#{dependency.name}: not installed" }
+            Log.debug { "#{dependency.name}: not installed" }
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
           end
 
@@ -38,13 +38,13 @@ module Shards
 
       private def installed?(dependency, spec)
         unless lock = locks.find { |d| d.name == spec.name }
-          Shards.logger.debug { "#{dependency.name}: not locked" }
+          Log.debug { "#{dependency.name}: not locked" }
           return false
         end
 
         if version = lock["version"]?
           if Versions.resolve([version], dependency.version).empty?
-            Shards.logger.debug { "#{dependency.name}: lock conflict" }
+            Log.debug { "#{dependency.name}: lock conflict" }
             return false
           else
             return spec.version == version
@@ -60,7 +60,7 @@ module Shards
         # end
 
         if Versions.resolve([spec.version], dependency.version).empty?
-          Shards.logger.debug { "#{dependency.name}: version mismatch" }
+          Log.debug { "#{dependency.name}: version mismatch" }
           return false
         end
 

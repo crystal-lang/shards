@@ -69,7 +69,7 @@ module Shards
                           end
 
     if File.exists?(legacy_install_path)
-      Shards.logger.warn "Shards now installs dependencies into the 'lib' folder. You may delete the legacy 'libs' folder."
+      Log.warn { "Shards now installs dependencies into the 'lib' folder. You may delete the legacy 'libs' folder." }
     end
   end
 
