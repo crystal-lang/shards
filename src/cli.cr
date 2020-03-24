@@ -15,7 +15,7 @@ module Shards
           lock [--update] [<shards>]     - Lock dependencies in `shard.lock` but doesn't install them.
           outdated [--pre]               - List dependencies that are outdated.
           prune                          - Remove unused dependencies from `lib` folder.
-          run [<target>]                 - Build and run specific target
+          run [<target>] [<options>]     - Build and run specific target
           update [<shards>]              - Update dependencies and `shard.lock`.
           version [<path>]               - Print the current version of the shard.
 
