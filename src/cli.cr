@@ -93,7 +93,7 @@ module Shards
         targets << arg
       end
     end
-    { targets, options }
+    {targets, options}
   end
 
   def self.check_and_install_dependencies(path)
