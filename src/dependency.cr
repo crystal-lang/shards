@@ -29,6 +29,10 @@ module Shards
       version { nil }
     end
 
+    def prerelease?
+      Versions.prerelease? version
+    end
+
     private def version
       if version = self["version"]?
         version
@@ -59,6 +63,10 @@ module Shards
       else
         "*"
       end
+    end
+
+    def to_s(io)
+      io << name << " " << version
     end
 
     def inspect(io)

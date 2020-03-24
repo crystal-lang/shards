@@ -13,24 +13,18 @@ module Shards
 
         Shards.logger.info { "Resolving dependencies" }
 
-        solver = Solver.new(spec, @prereleases)
+        solver = MolinilloSolver.new(spec, @prereleases)
         solver.prepare(development: !Shards.production?)
 
-        if packages = solver.solve
-          packages.each { |package| analyze(package) }
+        packages = handle_resolver_errors { solver.solve }
+        packages.each { |package| analyze(package) }
 
-          if @up_to_date
-            Shards.logger.info "Dependencies are up to date!"
-          else
-            @output.rewind
-            Shards.logger.warn "Outdated dependencies:"
-            puts @output.to_s
-          end
+        if @up_to_date
+          Shards.logger.info "Dependencies are up to date!"
         else
-          solver.each_conflict do |message|
-            Shards.logger.warn { "Conflict #{message}" }
-          end
-          raise Shards::Error.new("Failed to resolve dependencies")
+          @output.rewind
+          Shards.logger.warn "Outdated dependencies:"
+          puts @output.to_s
         end
       end
 

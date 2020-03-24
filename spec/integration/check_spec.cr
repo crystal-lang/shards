@@ -1,7 +1,7 @@
-require "../integration_helper"
+require "./spec_helper"
 
-class CheckCommandTest < Minitest::Test
-  def test_succeeds_when_all_dependencies_are_installed
+describe "check" do
+  it "succeeds when all dependencies are installed" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
       development_dependencies: {mock: "*"},
@@ -12,7 +12,7 @@ class CheckCommandTest < Minitest::Test
     end
   end
 
-  def test_succeeds_when_dependencies_match_loose_requirements
+  it "succeeds when dependencies match loose requirements" do
     with_shard({dependencies: {web: "1.2.0"}}) do
       run "shards install"
     end
@@ -22,21 +22,21 @@ class CheckCommandTest < Minitest::Test
     end
   end
 
-  def test_fails_without_lockfile
+  it "fails without lockfile" do
     with_shard({dependencies: {web: "*"}}) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
-      assert_match "Missing #{Shards::LOCK_FILENAME}", ex.stdout
-      assert_empty ex.stderr
+      ex = expect_raises(FailedCommand) { run "shards check --no-color" }
+      ex.stdout.should contain("Missing #{Shards::LOCK_FILENAME}")
+      ex.stderr.should be_empty
     end
   end
 
-  def test_succeeds_without_dependencies_and_lockfile
+  it "succeeds without dependencies and lockfile" do
     with_shard({name: "no_dependencies"}) do
       run "shards check --no-color"
     end
   end
 
-  def test_fails_when_dependencies_are_missing
+  it "fails when dependencies are missing" do
     with_shard({dependencies: {web: "*"}}) do
       run "shards install"
     end
@@ -46,21 +46,21 @@ class CheckCommandTest < Minitest::Test
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
-      assert_match "Dependencies aren't satisfied", ex.stdout
-      assert_empty ex.stderr
+      ex = expect_raises(FailedCommand) { run "shards check --no-color" }
+      ex.stdout.should contain("Dependencies aren't satisfied")
+      ex.stderr.should be_empty
     end
   end
 
-  def test_fails_when_wrong_versions_are_installed
+  it "fails when wrong versions are installed" do
     with_shard({dependencies: {web: "1.0.0"}}) do
       run "shards install"
     end
 
     with_shard({dependencies: {web: "2.0.0"}}) do
-      ex = assert_raises(FailedCommand) { run "shards check --no-color" }
-      assert_match "Dependencies aren't satisfied", ex.stdout
-      assert_empty ex.stderr
+      ex = expect_raises(FailedCommand) { run "shards check --no-color" }
+      ex.stdout.should contain("Dependencies aren't satisfied")
+      ex.stderr.should be_empty
     end
   end
 end

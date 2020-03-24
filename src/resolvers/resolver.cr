@@ -12,7 +12,7 @@ module Shards
     end
 
     def spec(version = nil)
-      Spec.from_yaml(read_spec(version))
+      Spec.from_yaml(read_spec(version)).tap { |spec| spec.resolver = self }
     end
 
     def specs(versions)
@@ -42,8 +42,8 @@ module Shards
 
     def run_script(name)
       if installed? && (command = installed_spec.try(&.scripts[name]?))
-        Shards.logger.info "#{name.capitalize} #{command}"
-        Script.run(install_path, command)
+        Shards.logger.info "#{name.capitalize} of #{dependency.name}: #{command}"
+        Script.run(install_path, command, name, dependency.name)
       end
     end
 

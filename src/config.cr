@@ -5,8 +5,8 @@ module Shards
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
 
-  VERSION_REFERENCE = /^v?\d+[-.][-.a-zA-Z\d]+$/
-  VERSION_TAG = /^v(\d+[-.][-.a-zA-Z\d]+)$/
+  VERSION_REFERENCE     = /^v?\d+[-.][-.a-zA-Z\d]+$/
+  VERSION_TAG           = /^v(\d+[-.][-.a-zA-Z\d]+)$/
   VERSION_AT_GIT_COMMIT = /\+git\.commit\.([0-9a-f]+)$/
 
   def self.cache_path
@@ -28,11 +28,19 @@ module Shards
       path = File.expand_path(candidate)
       return path if File.exists?(path)
 
-      begin
-        Dir.mkdir_p(path)
-        return path
-      rescue Errno
-      end
+      {% if compare_versions(Crystal::VERSION, "0.34.0-0") > 0 %}
+        begin
+          Dir.mkdir_p(path)
+          return path
+        rescue File::Error
+        end
+      {% else %}
+        begin
+          Dir.mkdir_p(path)
+          return path
+        rescue Errno
+        end
+      {% end %}
     end
 
     raise Error.new("Failed to find or create cache directory")

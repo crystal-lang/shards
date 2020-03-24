@@ -2,7 +2,9 @@
 
 CRYSTAL = crystal
 CRFLAGS =
-SOURCES = src/*.cr src/**/*.cr
+SHARDS_SOURCES = $(shell find src -name '*.cr')
+MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr')
+SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
 DESTDIR =
@@ -34,9 +36,9 @@ uninstall: phony
 test: test_unit test_integration
 
 test_unit: phony
-	$(CRYSTAL) run test/*_test.cr
+	$(CRYSTAL) spec ./spec/unit/*_spec.cr
 
 test_integration: bin/shards phony
-	$(CRYSTAL) run test/integration/*_test.cr
+	$(CRYSTAL) spec ./spec/integration/*_spec.cr
 
 phony:

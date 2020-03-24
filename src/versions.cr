@@ -2,7 +2,7 @@ module Shards
   module Versions
     # :nodoc:
     struct Segment
-      NON_ALPHANUMERIC = /[^a-zA-Z0-9]/
+      NON_ALPHANUMERIC                           = /[^a-zA-Z0-9]/
       NATURAL_SORT_EXTRACT_NEXT_CHARS_AND_DIGITS = /^(\D*)(\d*)(.*)$/
 
       protected getter! segment : String
@@ -121,7 +121,6 @@ module Shards
           if a_num && b_num
             # compare numbers (for natural 1, 2, ..., 10, 11 ordering):
             b_num <=> a_num
-
           elsif a_num
             # b is preliminary version:
             a_segment.only_zeroes? do
@@ -129,7 +128,6 @@ module Shards
               return -1
             end
             return -1
-
           elsif b_num
             # a is preliminary version:
             b_segment.only_zeroes? do
@@ -137,7 +135,6 @@ module Shards
               return 1
             end
             return 1
-
           else
             # compare strings:
             b_segment <=> a_segment

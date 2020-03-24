@@ -45,6 +45,10 @@ module Shards
       end
     end
 
+    def to_s(io)
+      io << name << " " << version
+    end
+
     def self.from_file(path, validate = false)
       path = File.join(path, SPEC_FILENAME) if File.directory?(path)
       raise Error.new("Missing #{File.basename(path)}") unless File.exists?(path)
@@ -69,6 +73,7 @@ module Shards
     getter description : String?
     getter license : String?
     getter crystal : String?
+    property resolver : Resolver?
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)

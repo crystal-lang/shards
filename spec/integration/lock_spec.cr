@@ -1,22 +1,22 @@
-require "../integration_helper"
+require "./spec_helper"
 
-class LockCommandTest < Minitest::Test
-  def test_fails_when_spec_is_missing
+describe "lock" do
+  it "fails when spec is missing" do
     Dir.cd(application_path) do
-      ex = assert_raises(FailedCommand) { run "shards lock --no-color" }
-      assert_match "Missing #{Shards::SPEC_FILENAME}", ex.stdout
-      assert_match "Please run 'shards init'", ex.stdout
+      ex = expect_raises(FailedCommand) { run "shards lock --no-color" }
+      ex.stdout.should contain("Missing #{Shards::SPEC_FILENAME}")
+      ex.stdout.should contain("Please run 'shards init'")
     end
   end
 
-  def test_doesnt_generate_lockfile_when_project_has_no_dependencies
+  it "doesn't generate lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
       run "shards lock"
-      refute File.exists?(File.join(application_path, "shard.lock"))
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
     end
   end
 
-  def test_creates_lockfile
+  it "creates lockfile" do
     metadata = {
       dependencies:             {web: "*", orm: "*", foo: {path: rel_path(:foo)}},
       development_dependencies: {mock: "*"},
@@ -44,7 +44,7 @@ class LockCommandTest < Minitest::Test
     end
   end
 
-  def test_locks_is_consistent_with_lockfile
+  it "locks is consistent with lockfile" do
     metadata = {
       dependencies:             {web: "*"},
       development_dependencies: {minitest: "~> 0.1"},
@@ -59,7 +59,7 @@ class LockCommandTest < Minitest::Test
     end
   end
 
-  def test_locks_new_dependencies
+  it "locks new dependencies" do
     metadata = {dependencies: {web: "~> 1.0.0", orm: "*"}}
     lock = {web: "1.0.0"}
 
@@ -72,7 +72,7 @@ class LockCommandTest < Minitest::Test
     end
   end
 
-  def test_removes_dependencies
+  it "removes dependencies" do
     metadata = {dependencies: {web: "~> 1.0.0"}}
     lock = {web: "1.0.0", orm: "0.5.0", pg: "0.2.1"}
 
@@ -85,7 +85,7 @@ class LockCommandTest < Minitest::Test
     end
   end
 
-  def test_updates_lockfile
+  it "updates lockfile" do
     metadata = {
       dependencies:             {web: "~> 1.0"},
       development_dependencies: {minitest: "~> 0.1"},

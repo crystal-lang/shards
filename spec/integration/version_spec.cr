@@ -1,17 +1,17 @@
-require "../integration_helper"
+require "./spec_helper"
 
-class VersionCommandTest < Minitest::Test
-  def test_version_default_directory
+describe "version" do
+  it "version default directory" do
     metadata = {
       version: "1.33.7",
     }
     with_shard(metadata) do
-      stdout = run "shards version", capture: true
-      assert_match "1.33.7", stdout
+      stdout = run "shards version"
+      stdout.should contain("1.33.7")
     end
   end
 
-  def test_version_within_directory
+  it "version within directory" do
     metadata = {
       version: "0.0.42",
     }
@@ -21,14 +21,14 @@ class VersionCommandTest < Minitest::Test
 
       outer_path = File.expand_path("..", application_path)
       Dir.cd(outer_path) do
-        stdout = run "shards version #{inner_path}", capture: true
-        assert_match "0.0.42", stdout
+        stdout = run "shards version #{inner_path}"
+        stdout.should contain("0.0.42")
       end
     end
   end
 
-  def test_fails_version
-    ex = assert_raises(FailedCommand) do
+  it "fails version" do
+    expect_raises(FailedCommand) do
       root = File.expand_path("/", Dir.current)
       run "shards version #{root}"
     end

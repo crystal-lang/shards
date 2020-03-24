@@ -35,7 +35,7 @@ module Shards
       refs = git_refs(version)
 
       if file_exists?(refs, SPEC_FILENAME)
-         capture("git show #{refs}:#{SPEC_FILENAME}")
+        capture("git show #{refs}:#{SPEC_FILENAME}")
       else
         raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
       end
@@ -47,7 +47,7 @@ module Shards
       versions.each do |version|
         refs = git_refs(version)
         yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-        specs[version] = Spec.from_yaml(yaml)
+        specs[version] = Spec.from_yaml(yaml).tap { |spec| spec.resolver = self }
       rescue Error
       end
 
@@ -131,7 +131,7 @@ module Shards
 
     def local_path
       @local_path ||= begin
-        uri = URI.parse(git_url)
+        uri = parse_uri(git_url)
 
         path = uri.path.to_s[1..-1]
         path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
@@ -242,8 +242,40 @@ module Shards
       false
     end
 
-    private def origin_changed?
-      (@origin_url ||= capture("git ls-remote --get-url origin").strip) != git_url
+    private def origin_url
+      @origin_url ||= capture("git ls-remote --get-url origin").strip
+    end
+
+    # Returns whether origin URLs have differing hosts and/or paths.
+    protected def origin_changed?
+      return false if origin_url == git_url
+      return true if origin_url.nil? || git_url.nil?
+
+      origin_parsed = parse_uri(origin_url)
+      git_parsed = parse_uri(git_url)
+
+      (origin_parsed.host != git_parsed.host) || (origin_parsed.path != git_parsed.path)
+    end
+
+    # Parses a URI string, with additional support for ssh+git URI schemes.
+    private def parse_uri(raw_uri)
+      # Try normal URI parsing first
+      uri = URI.parse(raw_uri)
+      return uri if uri.absolute? && !uri.opaque?
+
+      # Otherwise, assume and attempt to parse the scp-style ssh URIs
+      host, _, path = raw_uri.partition(':')
+
+      if host.includes?('@')
+        user, _, host = host.partition('@')
+      end
+
+      # Normalize leading slash, matching URI parsing
+      unless path.starts_with?('/')
+        path = '/' + path
+      end
+
+      URI.new(scheme: "ssh", host: host, path: path, user: user)
     end
 
     private def file_exists?(refs, path)

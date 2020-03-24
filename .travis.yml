@@ -2,7 +2,6 @@ language: crystal
 
 os:
   - linux
-  - osx
 
 before_script: |
   make
@@ -12,3 +11,4 @@ before_script: |
 
 script:
   - make test
+  - crystal tool format --check

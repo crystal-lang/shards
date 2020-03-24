@@ -1,5 +1,5 @@
 require "./command"
-require "../solver"
+require "../molinillo_solver"
 
 module Shards
   module Commands
@@ -7,7 +7,7 @@ module Shards
       def run
         Shards.logger.info { "Resolving dependencies" }
 
-        solver = Solver.new(spec)
+        solver = MolinilloSolver.new(spec)
 
         if lockfile?
           # install must be as conservative as possible:
@@ -16,23 +16,17 @@ module Shards
 
         solver.prepare(development: !Shards.production?)
 
-        if packages = solver.solve
-          return if packages.empty?
+        packages = handle_resolver_errors { solver.solve }
+        return if packages.empty?
 
-          if lockfile?
-            validate(packages)
-          end
+        if lockfile?
+          validate(packages)
+        end
 
-          install(packages)
+        install(packages)
 
-          if generate_lockfile?(packages)
-            write_lockfile(packages)
-          end
-        else
-          solver.each_conflict do |message|
-            Shards.logger.warn { "Conflict #{message}" }
-          end
-          raise Shards::Error.new("Failed to resolve dependencies")
+        if generate_lockfile?(packages)
+          write_lockfile(packages)
         end
       end
 

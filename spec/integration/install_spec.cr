@@ -1,7 +1,7 @@
-require "../integration_helper"
+require "./spec_helper"
 
-class InstallCommandTest < Minitest::Test
-  def test_installs_dependencies
+describe "install" do
+  it "installs dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*", foo: {path: rel_path(:foo)}},
       development_dependencies: {mock: "*"},
@@ -41,15 +41,15 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_fails_when_spec_is_missing
+  it "fails when spec is missing" do
     Dir.cd(application_path) do
-      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
-      assert_match "Missing #{Shards::SPEC_FILENAME}", ex.stdout
-      assert_match "Please run 'shards init'", ex.stdout
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Missing #{Shards::SPEC_FILENAME}")
+      ex.stdout.should contain("Please run 'shards init'")
     end
   end
 
-  def test_wont_install_prerelease_version
+  it "won't install prerelease version" do
     metadata = {
       dependencies: {unstable: "*"},
     }
@@ -60,7 +60,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_specified_prerelease_version
+  it "installs specified prerelease version" do
     metadata = {
       dependencies: {unstable: "0.3.0.alpha"},
     }
@@ -71,11 +71,11 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_prerelease_version_at_refs
+  it "installs prerelease version at refs" do
     metadata = {
       dependencies: {
-        unstable: {git: git_url(:unstable), branch: "master"}
-      }
+        unstable: {git: git_url(:unstable), branch: "master"},
+      },
     }
     with_shard(metadata) do
       run "shards install"
@@ -83,7 +83,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_dependencies_at_locked_version
+  it "installs dependencies at locked version" do
     metadata = {
       dependencies:             {web: "1.0.0"},
       development_dependencies: {minitest: "~> 0.1.2"},
@@ -101,7 +101,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_always_installs_locked_versions
+  it "always installs locked versions" do
     metadata = {dependencies: {minitest: "0.1.0"}}
     lock = {minitest: "0.1.0"}
 
@@ -121,16 +121,16 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_resolves_dependency_at_head_when_no_version_tags
+  it "resolves dependency at head when no version tags" do
     metadata = {dependencies: {"missing": "*"}}
     with_shard(metadata) { run "shards install" }
     assert_installed "missing", "0.1.0"
   end
 
-  def test_installs_dependency_at_locked_commit_when_refs_is_a_branch
+  it "installs dependency at locked commit when refs is a branch" do
     metadata = {
       dependencies: {
-        web: {git: git_url(:web), branch: "master"}
+        web: {git: git_url(:web), branch: "master"},
       },
     }
     lock = {web: git_commits(:web)[-5]}
@@ -141,7 +141,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_installs_dependency_at_locked_commit_when_refs_is_a_version_tag
+  it "installs dependency at locked commit when refs is a version tag" do
     metadata = {
       dependencies: {web: {git: git_url(:web), tag: "v1.1.1"}},
     }
@@ -153,7 +153,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_resolves_dependency_spec_at_locked_commit
+  it "resolves dependency spec at locked commit" do
     create_git_repository "locked"
     create_git_release "locked", "0.1.0", "name: locked\nversion: 0.1.0\n"
     create_git_release "locked", "0.2.0", "name: locked\nversion: 0.2.0\ndependencies:\n  pg:\n    git: #{git_path("pg")}\n"
@@ -161,10 +161,10 @@ class InstallCommandTest < Minitest::Test
     metadata = {
       dependencies: {
         "locked": {git: git_path(:"locked"), branch: "master"},
-      }
+      },
     }
     lock = {
-      "locked": git_commits(:"locked").last
+      "locked": git_commits(:"locked").last,
     }
     with_shard(metadata, lock) { run "shards install" }
 
@@ -172,7 +172,7 @@ class InstallCommandTest < Minitest::Test
     refute_installed "pg"
   end
 
-  def test_updates_locked_commit
+  it "updates locked commit" do
     metadata = {
       dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
@@ -188,19 +188,19 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_fails_to_install_when_dependency_requirement_changed
+  it "fails to install when dependency requirement changed" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
-      assert_match "Outdated shard.lock", ex.stdout
-      assert_empty ex.stderr
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
       refute_installed "web"
     end
   end
 
-  def test_installs_and_updates_lockfile_for_added_dependencies
+  it "installs and updates lockfile for added dependencies" do
     metadata = {
       dependencies: {
         web: "~> 1.0.0",
@@ -220,7 +220,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_updated_lockfile_on_removed_dependencies
+  it "updated lockfile on removed dependencies" do
     metadata = {dependencies: {web: "~> 1.0.0"}}
     lock = {web: "1.0.0", orm: "0.5.0"}
 
@@ -235,7 +235,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_locks_commit_when_installing_git_refs
+  it "locks commit when installing git refs" do
     metadata = {dependencies: {web: {git: git_url(:web), branch: "master"}}}
 
     with_shard(metadata) do
@@ -244,7 +244,7 @@ class InstallCommandTest < Minitest::Test
     end
   end
 
-  def test_production_doesnt_install_development_dependencies
+  it "production doesn't install development dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
       development_dependencies: {mock: "*"},
@@ -263,12 +263,11 @@ class InstallCommandTest < Minitest::Test
       refute_installed "minitest"
 
       # it didn't generate lock file
-      refute File.exists?(File.join(application_path, "shard.lock")),
-        "expected lock file to not have been generated"
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
     end
   end
 
-  def test_production_doesnt_install_new_dependencies
+  it "production doesn't install new dependencies" do
     metadata = {
       dependencies: {
         web: "~> 1.0.0",
@@ -278,61 +277,73 @@ class InstallCommandTest < Minitest::Test
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      ex = assert_raises(FailedCommand) { run "shards install --production --no-color" }
-      assert_match "Outdated shard.lock", ex.stdout
-      assert_empty ex.stderr
+      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
     end
   end
 
-  def test_doesnt_generate_lockfile_when_project_has_no_dependencies
+  it "doesn't generate lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
       run "shards install"
 
-      refute File.exists?(File.join(application_path, "shard.lock")),
-        "expected shard.lock to not have been generated"
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
     end
   end
 
-  def test_runs_postinstall_script
+  it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
-      run "shards install"
-      assert File.exists?(File.join(application_path, "lib", "post", "made.txt"))
+      output = run "shards install --no-color"
+      File.exists?(File.join(application_path, "lib", "post", "made.txt")).should be_true
+      output.should contain("Postinstall of post: make")
     end
   end
 
-  def test_prints_details_and_removes_dependency_when_postinstall_script_fails
+  it "prints details and removes dependency when postinstall script fails" do
     with_shard({dependencies: {fails: "*"}}) do
-      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
-      assert_match "E: Failed make:\n", ex.stdout
-      assert_match "test -n ''\n", ex.stdout
-      refute Dir.exists?(File.join(application_path, "lib", "fails"))
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
+      ex.stdout.should contain("test -n ''\n")
+      Dir.exists?(File.join(application_path, "lib", "fails")).should be_false
     end
   end
 
-  def test_runs_postinstall_with_transitive_dependencies
-    with_shard({ dependencies: {transitive: "*"} }) do
+  it "runs postinstall with transitive dependencies" do
+    with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
       binary = File.join(application_path, "lib", "transitive", "version")
-      assert File.exists?(binary)
-      assert_equal "version @ 0.1.0\n", `#{binary}`
+      File.exists?(binary).should be_true
+      `#{binary}`.should eq("version @ 0.1.0\n")
     end
   end
 
-  def test_fails_when_shard_name_doesnt_match
+  it "fails with circular dependencies" do
+    create_git_repository "a"
+    create_git_release "a", "0.1.0", "name: a\nversion: 0.1.0\ndependencies:\n  b:\n    git: #{git_path("b")}"
+    create_git_repository "b"
+    create_git_release "b", "0.1.0", "name: b\nversion: 0.1.0\ndependencies:\n  a:\n    git: #{git_path("a")}"
+
+    with_shard({dependencies: {a: "*"}}) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("There is a circular dependency between a and b")
+    end
+  end
+
+  it "fails when shard name doesn't match" do
     metadata = {
       dependencies: {
         typo: {git: git_url(:mock), version: "*"},
       },
     }
     with_shard(metadata) do
-      ex = assert_raises(FailedCommand) { run "shards install --no-color" }
-      assert_match "Error shard name (mock) doesn't match dependency name (typo)", ex.stdout
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (mock) doesn't match dependency name (typo)")
     end
   end
 
-  def test_installs_executables_at_version
+  it "installs executables at version" do
     metadata = {
-      dependencies: {binary: "0.1.0"}
+      dependencies: {binary: "0.1.0"},
     }
     with_shard(metadata) { run("shards install --no-color") }
 
@@ -340,18 +351,18 @@ class InstallCommandTest < Minitest::Test
     baz = File.join(application_path, "bin", "baz")
     foo = File.join(application_path, "bin", "foo")
 
-    assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
-    assert File.exists?(baz), "Expected to have installed bin/baz executable"
-    refute File.exists?(foo), "Expected not to have installed bin/foo executable"
+    File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
+    File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
+    File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
 
-    assert_equal "OK\n", `#{foobar}`
-    assert_equal "KO\n", `#{baz}`
+    `#{foobar}`.should eq("OK\n")
+    `#{baz}`.should eq("KO\n")
   end
 
-  def test_installs_executables_at_refs
+  it "installs executables at refs" do
     metadata = {
       dependencies: {
-        binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]}
+        binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]},
       },
     }
     with_shard(metadata) { run("shards install --no-color") }
@@ -360,8 +371,8 @@ class InstallCommandTest < Minitest::Test
     baz = File.join(application_path, "bin", "baz")
     foo = File.join(application_path, "bin", "foo")
 
-    assert File.exists?(foobar), "Expected to have installed bin/foobar executable"
-    assert File.exists?(baz), "Expected to have installed bin/baz executable"
-    refute File.exists?(foo), "Expected not to have installed bin/foo executable"
+    File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
+    File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
+    File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
   end
 end

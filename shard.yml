@@ -4,10 +4,9 @@ version: 0.9.0
 authors:
   - Julien Portalier <julien@portalier.com>
 
-development_dependencies:
-  minitest:
-    github: ysbaddaden/minitest.cr
-    version: ">= 0.5.0"
+dependencies:
+  molinillo:
+    github: crystal-lang/crystal-molinillo
 
 targets:
   shards:
