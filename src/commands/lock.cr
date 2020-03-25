@@ -5,7 +5,7 @@ module Shards
   module Commands
     class Lock < Command
       def run(shards : Array(String), print = false, update = false)
-        Shards.logger.info { "Resolving dependencies" }
+        Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec)
 

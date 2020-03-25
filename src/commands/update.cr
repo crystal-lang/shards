@@ -5,7 +5,7 @@ module Shards
   module Commands
     class Update < Command
       def run(shards : Array(String))
-        Shards.logger.info { "Resolving dependencies" }
+        Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec)
 
@@ -40,11 +40,11 @@ module Shards
 
       private def install(package : Package)
         if package.installed?
-          Shards.logger.info { "Using #{package.name} (#{package.report_version})" }
+          Log.info { "Using #{package.name} (#{package.report_version})" }
           return
         end
 
-        Shards.logger.info { "Installing #{package.name} (#{package.report_version})" }
+        Log.info { "Installing #{package.name} (#{package.report_version})" }
         package.install
         package
       end

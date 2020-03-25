@@ -9,7 +9,7 @@ require "../../src/resolvers/*"
 require "../support/factories"
 
 module Shards
-  logger.level = Logger::Severity::WARN
+  set_warning_log_level
 
   class Dependency
     def self.from_name_config(name, config) : self

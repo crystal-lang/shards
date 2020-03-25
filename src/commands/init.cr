@@ -13,7 +13,7 @@ module Shards
           ECR.embed "#{__DIR__}/../templates/shard.yml.ecr", "__str__"
         end)
 
-        Shards.logger.info "Created #{SPEC_FILENAME}"
+        Log.info { "Created #{SPEC_FILENAME}" }
       end
 
       private def name
