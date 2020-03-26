@@ -130,7 +130,9 @@ module Shards
         end
 
       if (locks = @locks) && (locked = locks.find { |dep| dep.name == dependency.name })
-        matching << locked.version
+        if Versions.matches?(locked.version, dependency.version)
+          matching << locked.version
+        end
       end
 
       if matching.size == 1 && matching.first == "HEAD"
