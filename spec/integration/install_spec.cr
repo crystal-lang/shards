@@ -188,26 +188,19 @@ describe "install" do
     end
   end
 
-  it "fails to install when dependency requirement changed" do
+  it "updates when dependency requirement changed" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("Outdated shard.lock")
-      ex.stderr.should be_empty
-      refute_installed "web"
+      run "shards install"
+
+      assert_installed "web", "2.0.0"
+      assert_locked "web", "2.0.0"
     end
   end
 
   it "install subdependency of new dependency respecting lock" do
-    create_git_repository "c"
-    create_git_release "c", "0.1.0", "name: c\nversion: 0.1.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.1.0\n"
-    create_git_release "c", "0.2.0", "name: c\nversion: 0.2.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.2.0\n"
-    create_git_repository "d"
-    create_git_release "d", "0.1.0", "name: d\nversion: 0.1.0\n"
-    create_git_release "d", "0.2.0", "name: d\nversion: 0.2.0\n"
-
     metadata = {dependencies: {c: "*", d: "*"}}
     lock = {d: "0.1.0"}
 

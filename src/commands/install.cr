@@ -19,7 +19,7 @@ module Shards
         packages = handle_resolver_errors { solver.solve }
         return if packages.empty?
 
-        if lockfile?
+        if lockfile? && Shards.production?
           validate(packages)
         end
 

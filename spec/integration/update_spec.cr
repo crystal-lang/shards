@@ -54,6 +54,18 @@ describe "update" do
     end
   end
 
+  it "unlocks subdependency" do
+    metadata = {dependencies: {c: "*"}}
+    lock = {c: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      run "shards update c"
+
+      assert_installed "c", "0.2.0"
+      assert_installed "d", "0.2.0"
+    end
+  end
+
   it "updates specified dependencies" do
     metadata = {dependencies: {web: "*", orm: "*", optional: "*"}}
     lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
