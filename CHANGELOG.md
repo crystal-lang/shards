@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## v0.10.0 - 2020-04-01
+
+Features:
+
+- Use [crystal-molinillo](https://github.com/crystal-lang/crystal-molinillo) to resolve dependencies, drop the SAT solver. [#322](https://github.com/crystal-lang/shards/pull/322), [#329](https://github.com/crystal-lang/shards/pull/329), [#336](https://github.com/crystal-lang/shards/pull/336).
+- Automatic unlock on install and update. [#337](https://github.com/crystal-lang/shards/pull/337)
+- Show the shard's name when running scripts. [#326](https://github.com/crystal-lang/shards/pull/326)
+- Support shard renames. [#327](https://github.com/crystal-lang/shards/pull/327)
+- Add SPEC for repository, homepage, documentation properties. [#265](https://github.com/crystal-lang/shards/pull/265)
+
+Fixes:
+
+- Allow changes in the source protocol without triggering an actual change in the source. [#315](https://github.com/crystal-lang/shards/pull/315)
+- Make shards reproducible via `SOURCE_DATE_EPOCH` environment variable. [#314](https://github.com/crystal-lang/shards/pull/314)
+- Check non hidden files are not pruned. [#330](https://github.com/crystal-lang/shards/pull/330)
+- Validation of changes in production mode for dependencies referenced by commit. [#340](https://github.com/crystal-lang/shards/pull/340)
+
+Others:
+
+- Upgrade to Crystal 0.34.0. [#296](https://github.com/crystal-lang/shards/pull/296), [#331](https://github.com/crystal-lang/shards/pull/331), [#335](https://github.com/crystal-lang/shards/pull/335)
+- Replace [minitest](https://github.com/ysbaddaden/minitest.cr) in favor of std-lib spec. [#334](https://github.com/crystal-lang/shards/pull/334)
+- CI improvements and housekeeping. [#333](https://github.com/crystal-lang/shards/pull/333), [#317](https://github.com/crystal-lang/shards/pull/317), [#323](https://github.com/crystal-lang/shards/pull/323), [#328](https://github.com/crystal-lang/shards/pull/328)
+
 ## v0.9.0 - 2019-06-13
 
 Fixes:
