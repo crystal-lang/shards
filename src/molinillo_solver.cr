@@ -49,7 +49,7 @@ module Shards
         deps.each do |dep|
           if lock = lock_index[dep.name]?
             if version = lock["version"]?
-              next if !Versions.matches?(version, dep.version)
+              next unless Versions.matches?(version, dep.version)
             end
 
             add_lock(base, lock_index, dep.name)
