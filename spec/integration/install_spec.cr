@@ -188,6 +188,18 @@ describe "install" do
     end
   end
 
+  it "fails to install when dependency requirement changed in production" do
+    metadata = {dependencies: {web: "2.0.0"}}
+    lock = {web: "1.0.0"}
+
+    with_shard(metadata, lock) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
+      refute_installed "web"
+    end
+  end
+
   it "updates when dependency requirement changed" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
