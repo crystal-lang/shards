@@ -85,6 +85,13 @@ private def setup_repositories
   create_git_release "binary", "0.1.0", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
   create_file "binary", "bin/foo", "echo 'FOO'", perm: 0o755
   create_git_release "binary", "0.2.0", "name: binary\nversion: 0.2.0\nexecutables:\n  - foobar\n  - baz\n  - foo"
+
+  create_git_repository "c"
+  create_git_release "c", "0.1.0", "name: c\nversion: 0.1.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.1.0\n"
+  create_git_release "c", "0.2.0", "name: c\nversion: 0.2.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.2.0\n"
+  create_git_repository "d"
+  create_git_release "d", "0.1.0", "name: d\nversion: 0.1.0\n"
+  create_git_release "d", "0.2.0", "name: d\nversion: 0.2.0\n"
 end
 
 private def assert(value, message, file, line)

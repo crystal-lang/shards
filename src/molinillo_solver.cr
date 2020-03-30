@@ -14,6 +14,27 @@ module Shards
     def prepare(@development = true)
     end
 
+    private def add_lock(base, lock_index, name)
+      if lock = lock_index.delete(name)
+        resolver = Shards.find_resolver(lock)
+
+        if version = lock["version"]?
+          spec = resolver.spec(version)
+        elsif commit = lock["commit"]?
+          spec = resolver.spec(commit)
+          lock["version"] = "#{spec.version}+git.commit.#{commit}"
+        else
+          return
+        end
+
+        base.add_vertex(lock.name, lock, true)
+
+        spec.dependencies.each do |dep|
+          add_lock(base, lock_index, dep.name)
+        end
+      end
+    end
+
     def solve : Array(Package)
       deps = if @development
                @spec.dependencies + @spec.development_dependencies
@@ -23,18 +44,16 @@ module Shards
 
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       if locks = @locks
-        locks.each do |lock|
-          if version = lock["version"]?
-            dep = deps.find { |d| d.name == lock.name }
-            next if dep && !Versions.matches?(version, dep.version)
-          end
+        lock_index = locks.to_h { |d| {d.name, d} }
 
-          if commit = lock["commit"]?
-            resolver = Shards.find_resolver(lock)
-            spec = resolver.spec(commit)
-            lock["version"] = "#{spec.version}+git.commit.#{commit}"
+        deps.each do |dep|
+          if lock = lock_index[dep.name]?
+            if version = lock["version"]?
+              next unless Versions.matches?(version, dep.version)
+            end
+
+            add_lock(base, lock_index, dep.name)
           end
-          base.add_vertex(lock.name, lock, true)
         end
       end
 
@@ -45,6 +64,7 @@ module Shards
 
       packages = [] of Package
       result.each do |v|
+        next unless v.payload
         spec = v.payload.as?(Spec) || raise "BUG: returned graph payload was not a Spec"
         v.requirements.each do |dependency|
           unless dependency.name == spec.name
@@ -140,7 +160,7 @@ module Shards
         #       to [HEAD], we must resolve the refs to an actual version:
         versions_for_refs("HEAD", dependency, resolver)
       else
-        matching
+        matching.uniq
       end
     end
 

@@ -19,7 +19,7 @@ module Shards
         packages = handle_resolver_errors { solver.solve }
         return if packages.empty?
 
-        if lockfile?
+        if lockfile? && Shards.production?
           validate(packages)
         end
 
@@ -40,14 +40,14 @@ module Shards
             else
               raise InvalidLock.new # unknown lock resolver
             end
-          elsif Shards.production?
+          else
             raise LockConflict.new("can't install new dependency #{package.name} in production")
           end
         end
       end
 
       private def validate_locked_version(package, version)
-        return if Shards.production? && package.version == version
+        return if package.version == version
         return if Versions.matches?(version, package.spec.version)
         raise LockConflict.new("#{package.name} requirements changed")
       end
