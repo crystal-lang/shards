@@ -33,10 +33,10 @@ module Shards
       private def validate(packages)
         packages.each do |package|
           if lock = locks.find { |d| d.name == package.name }
-            if version = lock.version?
-              validate_locked_version(package, version)
-            elsif commit = lock["commit"]?
+            if commit = lock["commit"]?
               validate_locked_commit(package, commit)
+            elsif version = lock.version?
+              validate_locked_version(package, version)
             else
               raise InvalidLock.new # unknown lock resolver
             end
@@ -48,12 +48,11 @@ module Shards
 
       private def validate_locked_version(package, version)
         return if package.version == version
-        return if Versions.matches?(version, package.spec.version)
         raise LockConflict.new("#{package.name} requirements changed")
       end
 
       private def validate_locked_commit(package, commit)
-        return if commit == package.commit
+        return if package.commit == commit
         raise LockConflict.new("#{package.name} requirements changed")
       end
 
