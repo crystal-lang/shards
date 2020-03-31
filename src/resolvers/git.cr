@@ -41,23 +41,12 @@ module Shards
       end
     end
 
-    def specs(versions)
-      specs = {} of String => Spec
-
-      versions.each do |version|
-        refs = git_refs(version)
-        yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-        specs[version] = Spec.from_yaml(yaml).tap { |spec| spec.resolver = self }
-      rescue Error
-      end
-
-      specs
+    def spec(version = nil)
+      Spec.from_yaml(read_spec(version)).tap { |spec| spec.resolver = self }
     end
 
-    def spec?(version)
-      refs = git_refs(version)
-      yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-      Spec.from_yaml(yaml)
+    private def spec?(version)
+      spec(version)
     rescue Error
     end
 

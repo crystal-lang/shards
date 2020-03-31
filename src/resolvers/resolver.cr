@@ -11,13 +11,12 @@ module Shards
     def initialize(@dependency)
     end
 
-    def spec(version = nil)
-      Spec.from_yaml(read_spec(version)).tap { |spec| spec.resolver = self }
-    end
-
     def specs(versions)
       specs = {} of String => Spec
-      versions.each { |version| specs[version] = spec(version) }
+      versions.each do |version|
+        specs[version] = spec(version)
+      rescue Error
+      end
       specs
     end
 
@@ -35,7 +34,7 @@ module Shards
     end
 
     abstract def read_spec(version = nil)
-    abstract def spec?(version)
+    abstract def spec(version)
     abstract def available_versions
     abstract def install(version = nil)
     abstract def installed_commit_hash

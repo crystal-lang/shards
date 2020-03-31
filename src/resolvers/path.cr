@@ -20,13 +20,10 @@ module Shards
       @dependency.path
     end
 
-    def spec?(version)
-      spec_path = File.join(local_path, SPEC_FILENAME)
-
-      if File.exists?(spec_path)
-        Spec.from_yaml(File.read(spec_path))
-        # TODO: fail if the spec isn't the expected version!
-      end
+    def spec(version = nil)
+      spec = Spec.from_yaml(read_spec(version))
+      spec.resolver = self
+      spec
     end
 
     def installed_spec
