@@ -42,7 +42,19 @@ module Shards
     end
 
     def spec(version = nil)
-      Spec.from_yaml(read_spec(version)).tap { |spec| spec.resolver = self }
+      spec = Spec.from_yaml(read_spec(version))
+      spec.resolver = self
+
+      if version && version =~ VERSION_REFERENCE
+        # In this case, we know that the version was looked up by git tag, so we
+        # validate the spec version against the tag version.
+        version = version.lstrip('v')
+        if spec.version != version
+          spec.mismatched_version = true
+        end
+      end
+
+      spec
     end
 
     private def spec?(version)
