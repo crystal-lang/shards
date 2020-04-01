@@ -376,27 +376,28 @@ describe "install" do
     end
   end
 
-  it "fails when shard.yml version doesn't match git tag" do
+  it "warns when shard.yml version doesn't match git tag" do
     metadata = {
       dependencies: {
         version_mismatch: {git: git_url(:version_mismatch), version: "0.2.0"},
       },
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("Error shard version (0.1.0) doesn't match tag version (0.2.0)")
-      refute_installed "version_mismatch"
+      stdout = run "shards install --no-color"
+      stdout.should contain("W: Shard version (0.1.0) doesn't match tag version (0.2.0)")
+      assert_installed "version_mismatch"
     end
   end
 
-  it "succeeds when version mismatch is fixed" do
+  it "doesn't warn when version mismatch is fixed" do
     metadata = {
       dependencies: {
         version_mismatch: {git: git_url(:version_mismatch), version: "0.2.1"},
       },
     }
     with_shard(metadata) do
-      run "shards install"
+      stdout = run "shards install --no-color"
+      stdout.should_not contain("doesn't match tag version")
       assert_installed "version_mismatch", "0.2.1"
     end
   end
