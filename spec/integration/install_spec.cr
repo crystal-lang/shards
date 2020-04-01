@@ -384,7 +384,7 @@ describe "install" do
     }
     with_shard(metadata) do
       stdout = run "shards install --no-color"
-      stdout.should contain("W: Shard version (0.1.0) doesn't match tag version (0.2.0)")
+      stdout.should contain("W: Shard \"version_mismatch\" version (0.1.0) doesn't match tag version (0.2.0)")
       assert_installed "version_mismatch"
     end
   end
