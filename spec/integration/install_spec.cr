@@ -376,6 +376,32 @@ describe "install" do
     end
   end
 
+  it "warns when shard.yml version doesn't match git tag" do
+    metadata = {
+      dependencies: {
+        version_mismatch: {git: git_url(:version_mismatch), version: "0.2.0"},
+      },
+    }
+    with_shard(metadata) do
+      stdout = run "shards install --no-color"
+      stdout.should contain("W: Shard \"version_mismatch\" version (0.1.0) doesn't match tag version (0.2.0)")
+      assert_installed "version_mismatch"
+    end
+  end
+
+  it "doesn't warn when version mismatch is fixed" do
+    metadata = {
+      dependencies: {
+        version_mismatch: {git: git_url(:version_mismatch), version: "0.2.1"},
+      },
+    }
+    with_shard(metadata) do
+      stdout = run "shards install --no-color"
+      stdout.should_not contain("doesn't match tag version")
+      assert_installed "version_mismatch", "0.2.1"
+    end
+  end
+
   it "test install old with version when shard was renamed" do
     metadata = {
       dependencies: {

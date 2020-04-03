@@ -41,23 +41,24 @@ module Shards
       end
     end
 
-    def specs(versions)
-      specs = {} of String => Spec
+    def spec(version = nil)
+      spec = Spec.from_yaml(read_spec(version))
+      spec.resolver = self
 
-      versions.each do |version|
-        refs = git_refs(version)
-        yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-        specs[version] = Spec.from_yaml(yaml).tap { |spec| spec.resolver = self }
-      rescue Error
+      if version && version =~ VERSION_REFERENCE
+        # In this case, we know that the version was looked up by git tag, so we
+        # validate the spec version against the tag version.
+        version = version.lstrip('v')
+        if spec.version != version
+          spec.mismatched_version = true
+        end
       end
 
-      specs
+      spec
     end
 
-    def spec?(version)
-      refs = git_refs(version)
-      yaml = capture("git show #{refs}:#{SPEC_FILENAME}")
-      Spec.from_yaml(yaml)
+    private def spec?(version)
+      spec(version)
     rescue Error
     end
 

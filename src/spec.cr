@@ -70,10 +70,12 @@ module Shards
 
     getter! name : String?
     getter! version : String?
+    getter! original_version : String?
     getter description : String?
     getter license : String?
     getter crystal : String?
     property resolver : Resolver?
+    property? mismatched_version = false
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
@@ -84,7 +86,7 @@ module Shards
         when "name"
           @name = pull.read_scalar
         when "version"
-          @version = pull.read_scalar
+          @original_version = @version = pull.read_scalar
         when "description"
           @description = pull.read_scalar
         when "license"

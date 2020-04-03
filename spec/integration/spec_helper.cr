@@ -66,6 +66,11 @@ private def setup_repositories
   create_git_release "renamed", "0.2.0", "name: new_name\nversion: 0.2.0"
   create_git_version_commit "renamed", "0.3.0", "name: another_name\nversion: 0.3.0"
 
+  create_git_repository "version_mismatch"
+  create_git_release "version_mismatch", "0.1.0", "name: version_mismatch\nversion: 0.1.0"
+  create_git_release "version_mismatch", "0.2.0", "name: version_mismatch\nversion: 0.1.0"
+  create_git_release "version_mismatch", "0.2.1", "name: version_mismatch\nversion: 0.2.1"
+
   create_git_repository "inprogress"
   create_git_version_commit "inprogress", "0.1.0"
   create_git_version_commit "inprogress", "0.1.0"
