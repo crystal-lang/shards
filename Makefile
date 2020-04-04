@@ -18,7 +18,7 @@ all: bin/shards
 clean: phony
 	rm -f bin/shards
 
-bin/shards: $(SOURCES) $(TEMPLATES)
+bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
 	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
 
@@ -35,10 +35,16 @@ uninstall: phony
 
 test: test_unit test_integration
 
-test_unit: phony
-	$(CRYSTAL) spec ./spec/unit/*_spec.cr
+test_unit: phony lib
+	$(CRYSTAL) spec ./spec/unit/
 
 test_integration: bin/shards phony
-	$(CRYSTAL) spec ./spec/integration/*_spec.cr
+	$(CRYSTAL) spec ./spec/integration/
+
+lib: shard.lock
+	shards install
+
+shard.lock: shard.yml
+	shards update
 
 phony:
