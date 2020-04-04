@@ -9,6 +9,7 @@ module Shards
       Commands:
           build [<targets>] [<options>]  - Build the specified <targets> in `bin` path.
           check                          - Verify all dependencies are installed.
+          info [<options>...]            - Show information about a shard. Pass `--help` for details.
           init                           - Initialize a `shard.yml` file.
           install                        - Install dependencies, creating or using the `shard.lock` file.
           list [--tree]                  - List installed dependencies.
@@ -32,7 +33,6 @@ module Shards
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
       opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
 
@@ -42,6 +42,8 @@ module Shards
           build(path, args)
         when "check"
           Commands::Check.run(path)
+        when "info"
+          Commands::Info.run(path, args)
         when "init"
           Commands::Init.run(path)
         when "install"
@@ -65,7 +67,7 @@ module Shards
             args.reject(&.starts_with?("--"))
           )
         when "version"
-          Commands::Version.run(args[1]? || path)
+          Commands::Info.run(args.shift? || path, ["--version"])
         when "--version"
           puts self.version_string
         when "-h", "--help"
