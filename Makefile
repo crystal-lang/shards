@@ -36,9 +36,9 @@ uninstall: phony
 test: test_unit test_integration
 
 test_unit: phony
-	$(CRYSTAL) spec ./spec/unit/*_spec.cr
+	$(CRYSTAL) spec ./spec/unit/
 
 test_integration: bin/shards phony
-	$(CRYSTAL) spec ./spec/integration/*_spec.cr
+	$(CRYSTAL) spec ./spec/integration/
 
 phony:

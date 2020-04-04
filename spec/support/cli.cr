@@ -1,3 +1,5 @@
+require "./factories"
+
 Spec.before_each do
   path = application_path
 
