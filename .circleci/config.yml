@@ -17,7 +17,7 @@ commands:
       - crystal/shards-install
       - run: make
       - run: make test
-      - crystal/format-check
+      - run: crystal tool format --check src spec
 
   with-brew-cache:
     parameters:

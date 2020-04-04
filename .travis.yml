@@ -11,4 +11,4 @@ before_script: |
 
 script:
   - make test
-  - crystal tool format --check
+  - crystal tool format --check src spec
