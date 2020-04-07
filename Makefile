@@ -4,7 +4,7 @@ CRYSTAL = crystal
 SHARDS = shards
 CRFLAGS =
 SHARDS_SOURCES = $(shell find src -name '*.cr')
-MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr')
+MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr' 2> /dev/null)
 SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
@@ -13,6 +13,9 @@ PREFIX = /usr/local
 BINDIR = $(DESTDIR)$(PREFIX)/bin
 MANDIR = $(DESTDIR)$(PREFIX)/share/man
 INSTALL = /usr/bin/install
+
+MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
+MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
 
 all: bin/shards
 
@@ -43,7 +46,8 @@ test_integration: bin/shards phony
 	$(CRYSTAL) spec ./spec/integration/
 
 lib: shard.lock
-	$(SHARDS) install
+	mkdir -p lib/molinillo
+	$(SHARDS) install || (curl -L $(MOLINILLO_URL) | tar -xzf - -C lib/molinillo --strip-components=1)
 
 shard.lock: shard.yml
 	$(SHARDS) update
