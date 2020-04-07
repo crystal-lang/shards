@@ -6,10 +6,13 @@ private def resolver(name)
 end
 
 module Shards
-  describe PathResolver do
+  describe GitResolver do
     before_each do
       create_git_repository "empty"
       create_git_commit "empty", "initial release"
+
+      create_git_repository "unreleased"
+      create_git_version_commit "unreleased", "0.1.0"
 
       create_git_repository "library", "0.0.1", "0.1.0", "0.1.1", "0.1.2"
       create_git_release "library", "0.2.0", shard: "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>"
@@ -23,11 +26,41 @@ module Shards
       resolver("library").available_versions.should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
     end
 
-    it "read spec" do
-      expect_raises(Error) { resolver("empty").read_spec }
-      resolver("library").read_spec.should eq("name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>")
-      resolver("library").read_spec("0.1.1").should eq("name: library\nversion: 0.1.1\n")
-      resolver("library").read_spec("0.1.1").should eq("name: library\nversion: 0.1.1\n")
+    it "available releases" do
+      resolver("empty").available_releases.should be_empty
+      resolver("library").available_releases.should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
+    end
+
+    it "latest version for ref" do
+      resolver("empty").latest_version_for_ref("master").should be_nil
+      resolver("empty").latest_version_for_ref(nil).should be_nil
+      resolver("unreleased").latest_version_for_ref("master").should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
+      resolver("unreleased").latest_version_for_ref(nil).should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
+      resolver("library").latest_version_for_ref("master").should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")
+      resolver("library").latest_version_for_ref(nil).should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")
+      resolver("library").latest_version_for_ref("foo").should be_nil
+    end
+
+    it "versions for" do
+      resolver("empty").versions_for(Dependency.new("empty")).should be_empty
+      resolver("library").versions_for(Dependency.new("library")).should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
+      resolver("library").versions_for(Dependency.new("library", version: "~> 0.1.0")).should eq(["0.1.0", "0.1.1", "0.1.2"])
+      resolver("library").versions_for(Dependency.new("library", branch: "master")).should eq(["0.2.0+git.commit.#{git_commits(:library)[0]}"])
+      resolver("unreleased").versions_for(Dependency.new("unreleased", branch: "master")).should eq(["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
+      resolver("unreleased").versions_for(Dependency.new("unreleased")).should eq(["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
+    end
+
+    it "read spec for release" do
+      spec = resolver("library").spec("0.1.1")
+      spec.original_version.should eq("0.1.1")
+      spec.version.should eq("0.1.1")
+    end
+
+    it "read spec for commit" do
+      version = "0.2.0+git.commit.#{git_commits(:library)[0]}"
+      spec = resolver("library").spec(version)
+      spec.original_version.should eq("0.2.0")
+      spec.version.should eq(version)
     end
 
     it "install" do
@@ -39,7 +72,7 @@ module Shards
       library.installed_spec.not_nil!.version.should eq("0.1.2")
       # File.exists?(install_path("library", "LICENSE")).should be_true
 
-      library.install
+      library.install("0.2.0")
       library.installed_spec.not_nil!.version.should eq("0.2.0")
     end
 

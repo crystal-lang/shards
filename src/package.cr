@@ -30,7 +30,7 @@ module Shards
 
     def installed?
       if spec = resolver.installed_spec
-        (commit && resolver.installed_commit_hash == commit) || spec.version == version
+        spec.version == version
       else
         false
       end

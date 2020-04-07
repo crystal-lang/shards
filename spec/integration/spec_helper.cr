@@ -142,18 +142,15 @@ def assert_installed_file(path, file = __FILE__, line = __LINE__)
   assert File.exists?(File.join(install_path(name), path)), "Expected #{path} to have been installed", file, line
 end
 
-def assert_locked(name, version = nil, file = __FILE__, line = __LINE__)
+def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
   path = File.join(application_path, "shard.lock")
   assert File.exists?(path), "expected shard.lock to have been generated", file, line
   locks = Shards::Lock.from_file(path)
   assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
   if lock && version
-    if version =~ Shards::VERSION_REFERENCE
-      assert version == lock.version, "expected #{name} dependency to have been locked at version #{version}", file, line
-    else
-      assert version == lock.refs, "expected #{name} dependency to have been locked at commit #{version}", file, line
-    end
+    expected_version = git ? "#{version}+git.commit.#{git}" : version
+    assert expected_version == lock.version, "expected #{name} dependency to have been locked at version #{version}", file, line
   end
 end
 

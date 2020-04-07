@@ -61,7 +61,7 @@ module Shards
       end
     end
 
-    def initialize(@name)
+    def initialize(@name, *, @version = nil, @branch = nil)
     end
 
     def_equals_and_hash @name, @version, @git, @path, @tag, @branch, @commit

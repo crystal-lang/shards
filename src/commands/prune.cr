@@ -16,10 +16,10 @@ module Shards
             Log.debug { "rm -rf '#{Helpers::Path.escape(path)}'" }
             FileUtils.rm_rf(path)
 
-            sha1 = "#{path}.sha1"
-            if File.exists?(sha1)
-              Log.debug { "rm '#{Helpers::Path.escape(sha1)}'" }
-              File.delete(sha1)
+            version_file = "#{path}.version"
+            if File.exists?(version_file)
+              Log.debug { "rm '#{Helpers::Path.escape(version_file)}'" }
+              File.delete(version_file)
             end
 
             Log.info { "Pruned #{File.join(File.basename(Shards.install_path), name)}" }

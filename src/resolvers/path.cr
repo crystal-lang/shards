@@ -6,7 +6,7 @@ module Shards
       "path"
     end
 
-    def read_spec(version = nil)
+    private def read_spec(version = nil)
       spec_path = File.join(local_path, SPEC_FILENAME)
 
       if File.exists?(spec_path)
@@ -28,9 +28,6 @@ module Shards
 
     def installed_spec
       Spec.from_yaml(read_spec) if installed?
-    end
-
-    def installed_commit_hash
     end
 
     def installed?
@@ -59,6 +56,13 @@ module Shards
       {% end %}
     end
 
+    def available_releases : Array(String)
+      [spec.version] of String
+    end
+
+    def latest_version_for_ref(ref : String?) : String?
+    end
+
     def available_versions
       [spec.version]
     end
@@ -73,10 +77,9 @@ module Shards
       end
     end
 
-    def install(version = nil)
+    def install_sources(version)
       path = expanded_local_path
 
-      cleanup_install_directory
       Dir.mkdir_p(File.dirname(install_path))
       File.symlink(path, install_path)
     end

@@ -275,7 +275,7 @@ describe "install" do
 
     with_shard(metadata) do
       run "shards install"
-      assert_locked "web", git_commits(:web).first
+      assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
   end
 

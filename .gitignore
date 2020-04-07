@@ -5,5 +5,5 @@
 /bin/shards.dwarf
 /spec/.repositories
 /spec/.shards
-/spec/.lib
+/spec/unit/.lib
 /tmp
