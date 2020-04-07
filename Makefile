@@ -2,7 +2,6 @@
 
 CRYSTAL = crystal
 SHARDS = shards
-CRFLAGS =
 SHARDS_SOURCES = $(shell find src -name '*.cr')
 MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr' 2> /dev/null)
 SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
@@ -24,7 +23,7 @@ clean: phony
 
 bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
-	$(CRYSTAL) build src/shards.cr -o bin/shards $(CRFLAGS)
+	$(CRYSTAL) build src/shards.cr -o bin/shards
 
 install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
