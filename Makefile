@@ -1,6 +1,7 @@
 .POSIX:
 
 CRYSTAL = crystal
+SHARDS = shards
 CRFLAGS =
 SHARDS_SOURCES = $(shell find src -name '*.cr')
 MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr')
@@ -42,9 +43,9 @@ test_integration: bin/shards phony
 	$(CRYSTAL) spec ./spec/integration/
 
 lib: shard.lock
-	shards install
+	$(SHARDS) install
 
 shard.lock: shard.yml
-	shards update
+	$(SHARDS) update
 
 phony:
