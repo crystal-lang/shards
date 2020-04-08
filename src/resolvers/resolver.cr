@@ -20,7 +20,7 @@ module Shards
       end
 
       spec = Spec.from_file(path)
-      spec.version = File.read(version_path)
+      spec.version = File.read(version_path) if File.exists?(version_path)
       spec
     end
 

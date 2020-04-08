@@ -49,6 +49,15 @@ describe "install" do
     end
   end
 
+  it "won't fail if version file is missing (backward compatibility)" do
+    metadata = {dependencies: {web: "*"}}
+    with_shard(metadata) do
+      run "shards install"
+      File.delete("lib/web.version")
+      run "shards install"
+    end
+  end
+
   it "won't install prerelease version" do
     metadata = {
       dependencies: {unstable: "*"},
