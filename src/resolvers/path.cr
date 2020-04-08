@@ -63,10 +63,6 @@ module Shards
     def latest_version_for_ref(ref : String?) : String?
     end
 
-    def available_versions
-      [spec.version]
-    end
-
     def local_path
       dependency.path.not_nil!
     end

@@ -21,11 +21,6 @@ module Shards
       create_git_tag "library", "99.9.9"
     end
 
-    it "available versions" do
-      resolver("empty").available_versions.should eq(["HEAD"])
-      resolver("library").available_versions.should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
-    end
-
     it "available releases" do
       resolver("empty").available_releases.should be_empty
       resolver("library").available_releases.should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])

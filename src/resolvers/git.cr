@@ -81,19 +81,6 @@ module Shards
       end
     end
 
-    def available_versions
-      update_local_cache
-
-      versions = versions_from_tags
-
-      if versions.any?
-        Log.debug { "versions: #{versions.reverse.join(", ")}" }
-        versions
-      else
-        ["HEAD"]
-      end
-    end
-
     protected def versions_from_tags
       capture("git tag --list #{GitResolver.git_column_never}")
         .split('\n')

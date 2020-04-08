@@ -62,7 +62,6 @@ module Shards
     end
 
     private abstract def read_spec(version : String)
-    abstract def available_versions
     abstract def install_sources(version : String)
 
     def install(version : String)

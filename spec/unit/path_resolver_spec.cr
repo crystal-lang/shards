@@ -12,7 +12,7 @@ module Shards
     end
 
     it "available versions" do
-      resolver("library").available_versions.should eq(["1.2.3"])
+      resolver("library").available_releases.should eq(["1.2.3"])
     end
 
     it "read spec" do
