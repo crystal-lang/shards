@@ -153,7 +153,8 @@ describe "update" do
 
     with_shard(metadata, lock) do
       run "shards update"
-      assert_installed "web", "2.1.0"
+      assert_installed "web", "2.1.0", git: git_commits(:web).first
+      assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
   end
 

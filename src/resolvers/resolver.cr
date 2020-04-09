@@ -54,6 +54,10 @@ module Shards
     abstract def available_releases : Array(String)
     abstract def latest_version_for_ref(ref : String?) : String?
 
+    def matches_ref?(ref : Dependency, version : String)
+      false
+    end
+
     def spec(version : String) : Spec
       spec = Spec.from_yaml(read_spec(version))
       spec.resolver = self

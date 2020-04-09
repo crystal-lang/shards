@@ -107,7 +107,7 @@ module Shards
     end
 
     def to_s(io)
-      io << name << " " << version
+      io << name << " (" << to_human_requirement << ")"
     end
 
     def inspect(io)

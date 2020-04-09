@@ -18,13 +18,19 @@ module Shards
       if lock = lock_index.delete(name)
         resolver = Shards.find_resolver(lock)
 
-        versions = resolver.versions_for(lock)
-        unless versions.size == 1
-          Log.warn { "Lock for shard \"#{name}\" is invalid" }
-          return
-        end
-        lock_version = versions.first
-        lock_dep = Dependency.new(name).tap { |dep| dep.version = lock_version }
+        lock_version =
+          if version = lock.version?
+            version
+          else
+            versions = resolver.versions_for(lock)
+            unless versions.size == 1
+              Log.warn { "Lock for shard \"#{name}\" is invalid" }
+              return
+            end
+            versions.first
+          end
+
+        lock_dep = Dependency.new(name, version: lock_version)
 
         # TODO: Remove this once the install command
         #       doesn't rely on the lock version
@@ -53,7 +59,7 @@ module Shards
         deps.each do |dep|
           if lock = lock_index[dep.name]?
             if version = lock.version?
-              next unless Versions.matches?(version, dep.version)
+              next unless matches?(dep, version)
             end
 
             add_lock(base, lock_index, dep.name)
@@ -134,19 +140,39 @@ module Shards
         end
       end
 
-      Versions.matches?(spec.version, requirement.version)
+      matches?(requirement, spec)
     end
 
     private def versions_for(dependency, resolver) : Array(String)
       matching = resolver.versions_for(dependency)
 
-      if (locks = @locks) && (locked = locks.find { |dep| dep.name == dependency.name })
-        if Versions.matches?(locked.version, dependency.version)
-          matching << locked.version
-        end
+      if (locks = @locks) &&
+         (locked = locks.find { |dep| dep.name == dependency.name }) &&
+         (locked_version = locked.version?) &&
+         matches?(dependency, locked_version)
+        matching << locked_version
       end
 
       matching.uniq
+    end
+
+    private def matches?(dep : Dependency, spec : Spec)
+      matches? dep, spec.version
+    end
+
+    private def matches?(dep : Dependency, version : String)
+      if dep.refs
+        resolver = Shards.find_resolver(dep)
+        resolver.matches_ref?(dep, version)
+      elsif req_version = dep.version?
+        if req_version.includes?("+")
+          req_version == version
+        else
+          Versions.matches?(version, req_version)
+        end
+      else
+        true
+      end
     end
 
     def before_resolution

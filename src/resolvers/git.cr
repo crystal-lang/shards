@@ -81,6 +81,15 @@ module Shards
       end
     end
 
+    def matches_ref?(ref : Dependency, version : String)
+      if commit = ref.commit
+        git_refs(version) == commit
+      else
+        # TODO: check branch and tags
+        true
+      end
+    end
+
     protected def versions_from_tags
       capture("git tag --list #{GitResolver.git_column_never}")
         .split('\n')

@@ -70,21 +70,12 @@ end
 def to_lock_yaml(lock)
   return unless lock
 
-  String.build do |yml|
-    yml << "version: 1.0\n"
-    yml << "shards:\n"
-
-    lock.each do |name, version|
-      yml << "  " << name << ":\n"
-      yml << "    git: " << git_url(name).inspect << '\n'
-
-      if version =~ /^[\d\.]+$/
-        yml << "    version: " << version.inspect << '\n'
-      else
-        yml << "    commit: " << version.inspect << '\n'
-      end
-    end
-  end
+  YAML.dump({
+    version: "1.0",
+    shards:  lock.to_a.to_h do |name, version|
+      {name, {git: git_url(name), version: version}}
+    end,
+  })
 end
 
 module Shards::Specs
