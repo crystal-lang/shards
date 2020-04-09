@@ -88,7 +88,7 @@ describe "install" do
     }
     with_shard(metadata) do
       run "shards install"
-      assert_installed "unstable", "0.3.0.beta"
+      assert_installed "unstable", "0.3.0.beta", git: git_commits(:unstable).first
     end
   end
 
@@ -133,7 +133,7 @@ describe "install" do
   it "resolves dependency at head when no version tags" do
     metadata = {dependencies: {"missing": "*"}}
     with_shard(metadata) { run "shards install" }
-    assert_installed "missing", "0.1.0"
+    assert_installed "missing", "0.1.0", git: git_commits(:missing).first
   end
 
   it "installs dependency at locked commit when refs is a branch" do
@@ -146,7 +146,7 @@ describe "install" do
 
     with_shard(metadata, lock) do
       run "shards install"
-      assert_installed "web", "1.2.0"
+      assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
   end
 
@@ -158,7 +158,7 @@ describe "install" do
 
     with_shard(metadata, lock) do
       run "shards install"
-      assert_installed "web", "1.1.1"
+      assert_installed "web", "1.1.1", git: git_commits(:web)[-3]
     end
   end
 
@@ -177,7 +177,7 @@ describe "install" do
     }
     with_shard(metadata, lock) { run "shards install" }
 
-    assert_installed "locked", "0.1.0"
+    assert_installed "locked", "0.1.0", git: git_commits(:locked).last
     refute_installed "pg"
   end
 
@@ -188,12 +188,12 @@ describe "install" do
 
     with_shard(metadata, {web: git_commits(:web)[-5]}) do
       run "shards install"
-      assert_installed "web", "1.2.0"
+      assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
 
     with_shard(metadata, {web: git_commits(:web)[0]}) do
       run "shards install"
-      assert_installed "web", "2.1.0"
+      assert_installed "web", "2.1.0", git: git_commits(:web)[0]
     end
   end
 
@@ -467,7 +467,7 @@ describe "install" do
     }
     with_shard(metadata) do
       run "shards install"
-      assert_installed "another_name", "0.3.0"
+      assert_installed "another_name", "0.3.0", git: git_commits(:renamed).first
     end
   end
 

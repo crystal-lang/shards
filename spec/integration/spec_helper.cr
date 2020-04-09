@@ -111,18 +111,12 @@ private def refute(value, message, file, line)
   fail(message, file, line) if value
 end
 
-def assert_installed(name, version = nil, file = __FILE__, line = __LINE__)
+def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
   assert Dir.exists?(install_path(name)), "expected #{name} dependency to have been installed", file, line
 
   if version
-    assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found", file, line
-    spec = Shards::Spec.from_file(install_path(name, "shard.yml"))
-
-    if spec.version == "0" && File.exists?(install_path("#{name}.sha1"))
-      File.read(install_path("#{name}.sha1")).should eq(version), file, line
-    else
-      spec.version.should eq(version), file, line
-    end
+    expected_version = git ? "#{version}+git.commit.#{git}" : version
+    File.read(install_path("#{name}.version")).should eq(expected_version), file, line
   end
 end
 
