@@ -6,26 +6,21 @@ module Shards
     getter name : String
     getter resolver : Resolver
     getter version : String
-    getter commit : String?
     @spec : Spec?
 
-    def initialize(@name, @resolver, @version, @commit)
+    def initialize(@name, @resolver, @version)
     end
 
     def report_version
       if (resolver = self.resolver).is_a?(PathResolver)
         "#{version} at #{resolver.dependency_path}"
       else
-        if commit
-          "#{version} at #{commit}"
-        else
-          version
-        end
+        version
       end
     end
 
     def spec
-      @spec ||= resolver.spec(commit || version)
+      @spec ||= resolver.spec(version)
     end
 
     def installed?
@@ -38,7 +33,7 @@ module Shards
 
     def install
       # install the shard:
-      resolver.install(commit || version)
+      resolver.install(version)
 
       # link the project's lib path as the shard's lib path, so the dependency
       # can access transitive dependencies:

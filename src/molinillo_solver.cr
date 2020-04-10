@@ -87,7 +87,7 @@ module Shards
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
-        packages << Package.new(spec.name, resolver, version, nil)
+        packages << Package.new(spec.name, resolver, version)
       end
 
       packages

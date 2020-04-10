@@ -78,8 +78,8 @@ module Shards
       end
 
       private def outdated_lockfile?(packages)
-        a = packages.map { |x| {x.name, x.version, x.commit} }
-        b = locks.map { |x| {x.name, x.version?, x.commit} }
+        a = packages.map { |x| {x.name, x.version} }
+        b = locks.map { |x| {x.name, x.version?} }
         a != b
       end
     end
