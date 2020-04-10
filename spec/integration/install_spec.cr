@@ -343,7 +343,17 @@ describe "install" do
     lock = {web: web_version}
 
     with_shard(metadata, lock) do
-      debug "shards install --production"
+      run "shards install --production"
+      assert_installed "web", "2.1.0", git: git_commits(:web).first
+    end
+  end
+
+  it "install in production mode with locked commit by a previous shards version" do
+    metadata = {dependencies: {web: "*"}}
+
+    with_shard(metadata) do
+      File.write "shard.lock", {version: "1.0", shards: {web: {git: git_url(:web), commit: git_commits(:web).first}}}
+      run "shards install --production"
       assert_installed "web", "2.1.0", git: git_commits(:web).first
     end
   end
