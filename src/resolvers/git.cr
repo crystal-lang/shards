@@ -41,7 +41,7 @@ module Shards
       @@git_column_never ||= Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
-    private def read_spec(version : String)
+    def read_spec(version : String)
       update_local_cache
       refs = git_refs(version)
 
