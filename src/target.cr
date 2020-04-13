@@ -1,21 +1,30 @@
 module Shards
-  class Target < Hash(String, String)
+  class Target
     property name : String
+    property main : String
 
     def self.new(pull : YAML::PullParser) : self
-      Target.new(pull.read_scalar).tap do |target|
-        pull.each_in_mapping do
-          target[pull.read_scalar] = pull.read_scalar
+      start_pos = pull.location
+      name = pull.read_scalar
+      main = nil
+
+      pull.each_in_mapping do
+        case key = pull.read_scalar
+        when "main"
+          main = pull.read_scalar
+        else
+          # ignore unknown dependency mapping for future extensions
         end
       end
+
+      unless main
+        raise YAML::ParseException.new(%(Missing property "main" for target #{name.inspect}), *start_pos)
+      end
+
+      Target.new(name, main)
     end
 
-    def initialize(@name)
-      super()
-    end
-
-    def main
-      self["main"]
+    def initialize(@name, @main)
     end
   end
 end
