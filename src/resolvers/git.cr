@@ -15,17 +15,6 @@ module Shards
       "git"
     end
 
-    def self.expand_resolver_url(url, resolver)
-      case resolver
-      when "git"
-        url
-      when "github", "bitbucket", "gitlab"
-        "https://#{resolver}.com/#{url}.git"
-      else
-        raise "Unknown resolver #{resolver}"
-      end
-    end
-
     protected def self.has_git_command?
       if @@has_git_command.nil?
         @@has_git_command = Process.run("command -v git", shell: true).success?
@@ -158,7 +147,7 @@ module Shards
     end
 
     def git_url
-      dependency.git.not_nil!
+      dependency["git"].to_s.strip
     end
 
     private def git_refs(version)

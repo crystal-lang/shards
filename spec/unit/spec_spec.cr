@@ -64,60 +64,19 @@ module Shards
       spec.dependencies.size.should eq(3)
 
       spec.dependencies[0].name.should eq("repo")
-      spec.dependencies[0].path.should be_nil
-      spec.dependencies[0].git.should eq("https://github.com/user/repo.git")
+      spec.dependencies[0]["github"].should eq("user/repo")
       spec.dependencies[0].version.should eq("1.2.3")
       spec.dependencies[0].refs.should be_nil
 
       spec.dependencies[1].name.should eq("example")
-      spec.dependencies[1].path.should be_nil
-      spec.dependencies[1].git.should eq("https://example.com/example-crystal.git")
+      spec.dependencies[1]["git"].should eq("https://example.com/example-crystal.git")
       spec.dependencies[1].version.should eq("*")
       spec.dependencies[1].refs.should eq("master")
 
       spec.dependencies[2].name.should eq("local")
-      spec.dependencies[2].path.should eq("/var/clones/local")
-      spec.dependencies[2].git.should be_nil
+      spec.dependencies[2]["path"].should eq("/var/clones/local")
       spec.dependencies[2].version.should eq("*")
       spec.dependencies[2].refs.should eq("unreleased")
-    end
-
-    it "fails dependency with duplicate resolver" do
-      expect_raises Shards::ParseError, %(Duplicate resolver mapping for dependency "foo" at line 6, column 5) do
-        Spec.from_yaml <<-YAML
-          name: orm
-          version: 1.0.0
-          dependencies:
-            foo:
-              github: user/repo
-              gitlab: user/repo
-          YAML
-      end
-    end
-
-    it "fails dependency with missing resolver" do
-      expect_raises Shards::ParseError, %(Missing resolver for dependency "foo" at line 4, column 3) do
-        Spec.from_yaml <<-YAML
-          name: orm
-          version: 1.0.0
-          dependencies:
-            foo:
-              branch: master
-          YAML
-      end
-    end
-
-    it "accepts dependency with extra attributes" do
-      spec = Spec.from_yaml <<-YAML
-        name: orm
-        version: 1.0.0
-        dependencies:
-          foo:
-            github: user/repo
-            extra: foobar
-        YAML
-      dep = Dependency.new("foo", git: "https://github.com/user/repo.git")
-      spec.dependencies[0].should eq dep
     end
 
     it "parse development dependencies" do
@@ -136,13 +95,11 @@ module Shards
       spec.development_dependencies.size.should eq(2)
 
       spec.development_dependencies[0].name.should eq("minitest")
-      spec.development_dependencies[0].path.should be_nil
-      spec.development_dependencies[0].git.should eq("https://github.com/ysbaddaden/minitest.cr.git")
+      spec.development_dependencies[0]["github"].should eq("ysbaddaden/minitest.cr")
       spec.development_dependencies[0].version.should eq("0.1.4")
 
       spec.development_dependencies[1].name.should eq("webmock")
-      spec.development_dependencies[1].path.should be_nil
-      spec.development_dependencies[1].git.should eq("https://github.com/manastech/webcmok-crystal.git")
+      spec.development_dependencies[1]["git"].should eq("https://github.com/manastech/webcmok-crystal.git")
       spec.development_dependencies[1].refs.should eq("master")
     end
 
@@ -164,18 +121,6 @@ module Shards
 
       spec.targets[1].name.should eq("cli")
       spec.targets[1].main.should eq("src/command/cli.cr")
-    end
-
-    it "fails target missing main" do
-      expect_raises Shards::ParseError, %(Missing property "main" for target "foo" at line 4, column 3) do
-        Spec.from_yaml <<-YAML
-          name: orm
-          version: 1.0.0
-          targets:
-            foo:
-              foo: bar
-          YAML
-      end
     end
 
     it "parse executables" do

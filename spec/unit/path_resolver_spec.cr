@@ -1,7 +1,8 @@
 require "./spec_helper"
 
-private def resolver(name)
-  dependency = Shards::Dependency.new(name, path: git_path(name))
+private def resolver(name, config = {} of String => String)
+  config["path"] = git_path(name)
+  dependency = Shards::Dependency.from_name_config(name, config)
   Shards::PathResolver.new(dependency)
 end
 

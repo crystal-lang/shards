@@ -65,13 +65,19 @@ module Shards
 
   def self.find_resolver(dependency)
     @@resolvers[dependency.name] ||= begin
-      if dependency.path
-        PathResolver.new(dependency)
-      elsif dependency.git
-        GitResolver.new(dependency)
-      else
-        raise Error.new("Failed can't resolve dependency #{dependency.name} (missing resolver)")
+      klass = get_resolver_class(dependency.keys)
+      raise Error.new("Failed can't resolve dependency #{dependency.name} (unsupported resolver)") unless klass
+      klass.new(dependency)
+    end
+  end
+
+  private def self.get_resolver_class(names)
+    names.each do |name|
+      if resolver = @@resolver_classes[name.to_s]?
+        return resolver
       end
     end
+
+    nil
   end
 end

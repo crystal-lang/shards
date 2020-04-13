@@ -1,7 +1,8 @@
 require "./spec_helper"
 
-private def resolver(name)
-  dependency = Shards::Dependency.new(name, git: git_url(name))
+private def resolver(name, config = {} of String => String)
+  config = config.merge({"git" => git_url(name)})
+  dependency = Shards::Dependency.from_name_config(name, config)
   Shards::GitResolver.new(dependency)
 end
 
@@ -44,7 +45,7 @@ module Shards
     end
 
     it "origin changed" do
-      dependency = Dependency.new("library", git: git_url("library"))
+      dependency = Dependency.new("library", {"git" => git_url("library")})
       library = GitResolver.new(dependency)
       library.install("0.1.2")
 
@@ -52,7 +53,7 @@ module Shards
       Dir.cd(library.local_path) do
         run "git remote set-url origin https://github.com/foo/bar"
       end
-      #
+
       # All of these alternatives should not trigger origin as changed
       same_origins = [
         "https://github.com/foo/bar",
@@ -67,7 +68,7 @@ module Shards
       ]
 
       same_origins.each do |origin|
-        dependency.git = origin
+        dependency["git"] = origin
         library.origin_changed?.should be_false
       end
 
@@ -83,7 +84,7 @@ module Shards
       ]
 
       changed_origins.each do |origin|
-        dependency.git = origin
+        dependency["git"] = origin
         library.origin_changed?.should be_true
       end
     end

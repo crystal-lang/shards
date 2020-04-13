@@ -33,7 +33,7 @@ module Shards
       private def validate(packages)
         packages.each do |package|
           if lock = locks.find { |d| d.name == package.name }
-            if commit = lock.commit
+            if commit = lock["commit"]?
               validate_locked_commit(package, commit)
             elsif version = lock.version?
               validate_locked_version(package, version)
@@ -86,7 +86,7 @@ module Shards
 
       private def outdated_lockfile?(packages)
         a = packages.map { |x| {x.name, x.version, x.commit} }
-        b = locks.map { |x| {x.name, x.version?, x.commit} }
+        b = locks.map { |x| {x.name, x["version"]?, x["commit"]?} }
         a != b
       end
     end
