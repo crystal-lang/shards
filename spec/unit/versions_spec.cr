@@ -1,5 +1,13 @@
 require "./spec_helper"
 
+private def resolve(versions : Array(String), req : String) : Array(String)
+  Shards::Versions.resolve(versions(versions), version_req req).map &.value
+end
+
+private def matches?(version : String, req : String) : Bool
+  Shards::Versions.matches?(version(version), version_req(req))
+end
+
 module Shards
   describe Versions do
     #   class VersionsTest < Minitest::Test
@@ -126,90 +134,90 @@ module Shards
     it "resolve any" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "*").should eq(versions)
+      resolve(versions, "*").should eq(versions)
     end
 
     it "resolve eq" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "0.2.0").should eq(["0.2.0"])
-      Versions.resolve(versions, "0.1.1").should eq(["0.1.1"])
-      Versions.resolve(versions, "0.10.0").should eq(["0.10.0"])
-      Versions.resolve(versions, "1.0.0").should be_empty
-      Versions.resolve(versions, "0.0.1.alpha").should be_empty
+      resolve(versions, "0.2.0").should eq(["0.2.0"])
+      resolve(versions, "0.1.1").should eq(["0.1.1"])
+      resolve(versions, "0.10.0").should eq(["0.10.0"])
+      resolve(versions, "1.0.0").should be_empty
+      resolve(versions, "0.0.1.alpha").should be_empty
     end
 
     it "resolve gt" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "> 0.1.2").should eq(["0.2.0", "0.10.0"])
-      Versions.resolve(versions, "> 0.1.1").should eq(["0.1.2", "0.2.0", "0.10.0"])
+      resolve(versions, "> 0.1.2").should eq(["0.2.0", "0.10.0"])
+      resolve(versions, "> 0.1.1").should eq(["0.1.2", "0.2.0", "0.10.0"])
     end
 
     it "resolve gte" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, ">= 0.2.0").should eq(["0.2.0", "0.10.0"])
-      Versions.resolve(versions, ">= 0.1.2").should eq(["0.1.2", "0.2.0", "0.10.0"])
+      resolve(versions, ">= 0.2.0").should eq(["0.2.0", "0.10.0"])
+      resolve(versions, ">= 0.1.2").should eq(["0.1.2", "0.2.0", "0.10.0"])
     end
 
     it "resolve lt" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "< 0.1.0").should eq(["0.0.1"])
-      Versions.resolve(versions, "< 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2"])
+      resolve(versions, "< 0.1.0").should eq(["0.0.1"])
+      resolve(versions, "< 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2"])
     end
 
     it "resolve lte" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "<= 0.1.0").should eq(["0.0.1", "0.1.0"])
-      Versions.resolve(versions, "<= 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
+      resolve(versions, "<= 0.1.0").should eq(["0.0.1", "0.1.0"])
+      resolve(versions, "<= 0.2.0").should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
     end
 
     it "resolve approximate" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      Versions.resolve(versions, "~> 0.1.0").should eq(["0.1.0", "0.1.1", "0.1.2"])
-      Versions.resolve(versions, "~> 0.1").should eq(["0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.10.0"])
+      resolve(versions, "~> 0.1.0").should eq(["0.1.0", "0.1.1", "0.1.2"])
+      resolve(versions, "~> 0.1").should eq(["0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.10.0"])
 
-      Versions.resolve(["0.1"], "~> 0.1").should eq(["0.1"])
-      Versions.resolve(["0.1"], "~> 0.1.0").should eq(["0.1"])
+      resolve(["0.1"], "~> 0.1").should eq(["0.1"])
+      resolve(["0.1"], "~> 0.1.0").should eq(["0.1"])
     end
 
     it "matches?" do
-      Versions.matches?("0.1.0", "*").should be_true
-      Versions.matches?("1.0.0", "*").should be_true
+      matches?("0.1.0", "*").should be_true
+      matches?("1.0.0", "*").should be_true
 
-      Versions.matches?("1.0.0", "1.0.0").should be_true
-      Versions.matches?("1.0.0", "1.0").should be_true
-      Versions.matches?("1.0.0", "1.0.1").should be_false
+      matches?("1.0.0", "1.0.0").should be_true
+      matches?("1.0.0", "1.0").should be_true
+      matches?("1.0.0", "1.0.1").should be_false
 
-      Versions.matches?("1.0.0", ">= 1.0.0").should be_true
-      Versions.matches?("1.0.0", ">= 1.0").should be_true
-      Versions.matches?("1.0.1", ">= 1.0.0").should be_true
-      Versions.matches?("1.0.0", ">= 1.0.1").should be_false
+      matches?("1.0.0", ">= 1.0.0").should be_true
+      matches?("1.0.0", ">= 1.0").should be_true
+      matches?("1.0.1", ">= 1.0.0").should be_true
+      matches?("1.0.0", ">= 1.0.1").should be_false
 
-      Versions.matches?("1.0.0", "> 1.0.0").should be_false
-      Versions.matches?("1.0.0", "> 1.0").should be_false
-      Versions.matches?("1.0.1", "> 1.0.0").should be_true
-      Versions.matches?("1.0.0", "> 1.0.1").should be_false
+      matches?("1.0.0", "> 1.0.0").should be_false
+      matches?("1.0.0", "> 1.0").should be_false
+      matches?("1.0.1", "> 1.0.0").should be_true
+      matches?("1.0.0", "> 1.0.1").should be_false
 
-      Versions.matches?("1.0.0", "<= 1.0.0").should be_true
-      Versions.matches?("1.0.0", "<= 1.0").should be_true
-      Versions.matches?("1.0.1", "<= 1.0.0").should be_false
-      Versions.matches?("1.0.0", "<= 1.0.1").should be_true
+      matches?("1.0.0", "<= 1.0.0").should be_true
+      matches?("1.0.0", "<= 1.0").should be_true
+      matches?("1.0.1", "<= 1.0.0").should be_false
+      matches?("1.0.0", "<= 1.0.1").should be_true
 
-      Versions.matches?("1.0.0", "< 1.0.0").should be_false
-      Versions.matches?("1.0.0", "< 1.0").should be_false
-      Versions.matches?("1.0.1", "< 1.0.0").should be_false
-      Versions.matches?("1.0.0", "< 1.0.1").should be_true
+      matches?("1.0.0", "< 1.0.0").should be_false
+      matches?("1.0.0", "< 1.0").should be_false
+      matches?("1.0.1", "< 1.0.0").should be_false
+      matches?("1.0.0", "< 1.0.1").should be_true
 
-      Versions.matches?("1.0.0", "~> 1.0.0").should be_true
-      Versions.matches?("1.0.0", "~> 1.0").should be_true
-      Versions.matches?("1.0.0", "~> 1.1").should be_false
-      Versions.matches?("1.0.1", "~> 1.0.0").should be_true
-      Versions.matches?("1.0.0", "~> 1.0.1").should be_false
+      matches?("1.0.0", "~> 1.0.0").should be_true
+      matches?("1.0.0", "~> 1.0").should be_true
+      matches?("1.0.0", "~> 1.1").should be_false
+      matches?("1.0.1", "~> 1.0.0").should be_true
+      matches?("1.0.0", "~> 1.0.1").should be_false
     end
   end
 end

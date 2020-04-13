@@ -5,18 +5,14 @@ module Shards
   class Package
     getter name : String
     getter resolver : Resolver
-    getter version : String
+    getter version : Version
     @spec : Spec?
 
     def initialize(@name, @resolver, @version)
     end
 
     def report_version
-      if (resolver = self.resolver).is_a?(PathResolver)
-        "#{version} at #{resolver.dependency_path}"
-      else
-        version
-      end
+      resolver.report_version(version)
     end
 
     def spec

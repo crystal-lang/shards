@@ -11,7 +11,7 @@ describe "init" do
       File.exists?(File.join(application_path, Shards::SPEC_FILENAME)).should be_true
       spec = Shards::Spec.from_file(shard_path)
       spec.name.should eq("integration")
-      spec.version.should eq("0.1.0")
+      spec.version.should eq(version "0.1.0")
     end
   end
 

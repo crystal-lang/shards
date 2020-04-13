@@ -4,6 +4,43 @@ require "../versions"
 require "../helpers/path"
 
 module Shards
+  struct GitBranchRef < Ref
+    def initialize(@branch : String)
+    end
+
+    def to_git_ref
+      "refs/heads/#{@branch}"
+    end
+  end
+
+  struct GitTagRef < Ref
+    def initialize(@tag : String)
+    end
+
+    def to_git_ref
+      "refs/tags/#{@tag}"
+    end
+  end
+
+  struct GitCommitRef < Ref
+    getter commit : String
+
+    def initialize(@commit : String)
+    end
+
+    def to_git_ref
+      @commit
+    end
+  end
+
+  struct GitHeadRef < Ref
+    def to_git_ref
+      "HEAD"
+    end
+  end
+
+  alias GitRef = GitBranchRef | GitTagRef | GitCommitRef | GitHeadRef
+
   class GitResolver < Resolver
     @@has_git_command : Bool?
     @@git_column_never : String?
@@ -15,15 +52,18 @@ module Shards
       "git"
     end
 
-    def self.expand_resolver_url(url, resolver)
-      case resolver
-      when "git"
-        url
-      when "github", "bitbucket", "gitlab"
-        "https://#{resolver}.com/#{url}.git"
-      else
-        raise "Unknown resolver #{resolver}"
-      end
+    def self.build(key : String, name : String, source : String)
+      expanded_source =
+        case key
+        when "git"
+          source
+        when "github", "bitbucket", "gitlab"
+          "https://#{key}.com/#{source}.git"
+        else
+          raise "Unknown resolver #{key}"
+        end
+
+      new(name, expanded_source)
     end
 
     protected def self.has_git_command?
@@ -41,22 +81,22 @@ module Shards
       @@git_column_never ||= Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
-    def read_spec(version : String)
+    def read_spec(version : Version)
       update_local_cache
-      refs = git_refs(version)
+      ref = git_ref(version)
 
-      if file_exists?(refs, SPEC_FILENAME)
-        capture("git show #{refs}:#{SPEC_FILENAME}")
+      if file_exists?(ref, SPEC_FILENAME)
+        capture("git show #{ref.to_git_ref}:#{SPEC_FILENAME}")
       else
-        raise Error.new("Missing \"#{refs}:#{SPEC_FILENAME}\" for #{dependency.name.inspect}")
+        raise Error.new("Missing \"#{ref}:#{SPEC_FILENAME}\" for #{name.inspect}")
       end
     end
 
-    private def spec_at_ref(ref : String) : Spec?
+    private def spec_at_ref(ref : GitRef) : Spec?
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("git show #{ref}:#{SPEC_FILENAME}")
+          spec_yaml = capture("git show #{ref.to_git_ref}:#{SPEC_FILENAME}")
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -69,21 +109,23 @@ module Shards
     rescue Error
     end
 
-    def available_releases : Array(String)
+    def available_releases : Array(Version)
       update_local_cache
       versions_from_tags
     end
 
-    def latest_version_for_ref(ref : String?) : String?
-      if spec = spec_at_ref(ref || "HEAD")
+    def latest_version_for_ref(ref : GitRef?) : Version?
+      ref ||= GitHeadRef.new
+      if spec = spec_at_ref(ref)
         commit = commit_sha1_at(ref)
-        "#{spec.version}+git.commit.#{commit}"
+        Version.new "#{spec.version.value}+git.commit.#{commit}"
       end
     end
 
-    def matches_ref?(ref : Dependency, version : String)
-      if commit = ref.commit
-        git_refs(version) == commit
+    def matches_ref?(ref : GitRef, version : Version)
+      case ref
+      when GitCommitRef
+        git_ref(version) == ref
       else
         # TODO: check branch and tags
         true
@@ -93,7 +135,7 @@ module Shards
     protected def versions_from_tags
       capture("git tag --list #{GitResolver.git_column_never}")
         .split('\n')
-        .compact_map { |tag| $1 if tag =~ VERSION_TAG }
+        .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
     def matches?(commit)
@@ -111,20 +153,20 @@ module Shards
       end
     end
 
-    def install_sources(version)
+    def install_sources(version : Version)
       update_local_cache
-      refs = git_refs(version)
+      ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      unless file_exists?(refs, SPEC_FILENAME)
+      unless file_exists?(ref, SPEC_FILENAME)
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
-      run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
+      run "git archive --format=tar --prefix= #{ref.to_git_ref} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
     end
 
-    def commit_sha1_at(refs)
-      capture("git log -n 1 --pretty=%H #{refs}").strip
+    def commit_sha1_at(ref : GitRef)
+      capture("git log -n 1 --pretty=%H #{ref.to_git_ref}").strip
     end
 
     def local_path
@@ -144,17 +186,48 @@ module Shards
     end
 
     def git_url
-      dependency.git.not_nil!
+      source.strip
     end
 
-    private def git_refs(version)
-      case version
+    def parse_requirement(pull : YAML::PullParser) : Requirement
+      if pull.kind.mapping_end?
+        Any
+      else
+        location = pull.location
+        case key = pull.read_scalar
+        when "version"
+          VersionReq.new pull.read_scalar
+        when "branch"
+          GitBranchRef.new pull.read_scalar
+        when "tag"
+          GitTagRef.new pull.read_scalar
+        when "commit"
+          GitCommitRef.new pull.read_scalar
+        else
+          raise_unknown_attribute(key, location)
+        end
+      end
+    end
+
+    record GitVersion, value : String, commit : String? = nil
+
+    private def parse_git_version(version : Version) : GitVersion
+      case version.value
       when VERSION_REFERENCE
-        "v#{version}"
+        GitVersion.new version.value
       when VERSION_AT_GIT_COMMIT
-        $1
+        GitVersion.new $1, $2
       else
         raise Error.new("Invalid version for git resolver: #{version}")
+      end
+    end
+
+    private def git_ref(version : Version) : GitRef
+      git_version = parse_git_version(version)
+      if commit = git_version.commit
+        GitCommitRef.new commit
+      else
+        GitTagRef.new "v#{git_version.value}"
       end
     end
 
@@ -248,8 +321,8 @@ module Shards
       URI.new(scheme: "ssh", host: host, path: path, user: user)
     end
 
-    private def file_exists?(refs, path)
-      files = capture("git ls-tree -r --full-tree --name-only #{refs} -- #{path}")
+    private def file_exists?(ref : GitRef, path)
+      files = capture("git ls-tree -r --full-tree --name-only #{ref.to_git_ref} -- #{path}")
       !files.strip.empty?
     end
 
@@ -288,7 +361,19 @@ module Shards
         raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
-  end
 
-  register_resolver GitResolver
+    def report_version(version : Version) : String
+      git_version = parse_git_version(version)
+      if commit = git_version.commit
+        "#{git_version.value} at #{commit[0...7]}"
+      else
+        version.value
+      end
+    end
+
+    register_resolver "git", GitResolver
+    register_resolver "github", GitResolver
+    register_resolver "gitlab", GitResolver
+    register_resolver "bitbucket", GitResolver
+  end
 end

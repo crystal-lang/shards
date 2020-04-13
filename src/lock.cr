@@ -25,7 +25,7 @@ module Shards
             case key = pull.read_scalar
             when "shards"
               pull.each_in_mapping do
-                dependencies << Dependency.new(pull)
+                dependencies << Dependency.new(pull, is_lock: true)
               end
             else
               pull.raise "No such attribute #{key} in lock version 1.0"
@@ -53,15 +53,11 @@ module Shards
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|
-        dependency = package.resolver.dependency
+        key = package.resolver.class.key
 
         io << "  " << package.name << ":\n"
-        if path = dependency.path
-          io << "    path: " << path << '\n'
-        else
-          io << "    git: " << dependency.git << '\n'
-        end
-        io << "    version: " << package.version << '\n'
+        io << "    " << key << ": " << package.resolver.source << '\n'
+        io << "    version: " << package.version.value << '\n'
         io << '\n'
       end
     end

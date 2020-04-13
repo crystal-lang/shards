@@ -6,9 +6,20 @@ require "../script"
 
 module Shards
   abstract class Resolver
-    getter dependency : Dependency
+    getter name : String
+    getter source : String
 
-    def initialize(@dependency)
+    def initialize(@name : String, @source : String)
+    end
+
+    def self.build(key : String, name : String, source : String)
+      self.new(name, source)
+    end
+
+    def ==(other : Resolver)
+      return true if super
+      return false unless self.class == other.class
+      name == other.name && source == other.source
     end
 
     def installed_spec
@@ -16,11 +27,11 @@ module Shards
 
       path = File.join(install_path, SPEC_FILENAME)
       unless File.exists?(path)
-        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
       end
 
       spec = Spec.from_file(path)
-      spec.version = File.read(version_path) if File.exists?(version_path)
+      spec.version = Version.new(File.read(version_path)) if File.exists?(version_path)
       spec
     end
 
@@ -28,90 +39,126 @@ module Shards
       File.exists?(install_path)
     end
 
-    def versions_for(dependency : Dependency) : Array(String)
-      if ref = dependency.refs
-        versions_for_ref(ref)
-      else
+    def versions_for(req : Requirement) : Array(Version)
+      case req
+      when Version then [req]
+      when Ref
+        versions_for_ref(req)
+      when VersionReq
+        Versions.resolve(available_releases, req)
+      when Any
         releases = available_releases
         if releases.empty?
           versions_for_ref(nil)
-        elsif version_req = dependency.version?
-          Versions.resolve(releases, version_req)
         else
           releases
         end
+      else
+        raise Error.new("Unexpected requirement type: #{req}")
       end
     end
 
-    private def versions_for_ref(ref : String?) : Array(String)
+    private def versions_for_ref(ref : Ref?) : Array(Version)
       if version = latest_version_for_ref(ref)
         [version]
       else
-        [] of String
+        [] of Version
       end
     end
 
-    abstract def available_releases : Array(String)
-    abstract def latest_version_for_ref(ref : String?) : String?
+    abstract def available_releases : Array(Version)
 
-    def matches_ref?(ref : Dependency, version : String)
+    def latest_version_for_ref(ref : Ref?) : Version?
+      raise "Unsupported ref type for this resolver: #{ref}"
+    end
+
+    def matches_ref?(ref : Ref, version : Version)
       false
     end
 
-    def spec(version : String) : Spec
+    def spec(version : Version) : Spec
       spec = Spec.from_yaml(read_spec(version))
       spec.resolver = self
       spec.version = version
       spec
     end
 
-    abstract def read_spec(version : String)
-    abstract def install_sources(version : String)
+    abstract def read_spec(version : Version)
+    abstract def install_sources(version : Version)
+    abstract def report_version(version : Version) : String
 
-    def install(version : String)
+    def install(version : Version)
       cleanup_install_directory
 
       install_sources(version)
-      File.write(version_path, version)
+      File.write(version_path, version.value)
     end
 
     def version_path
-      @version_path ||= File.join(Shards.install_path, "#{dependency.name}.version")
+      @version_path ||= File.join(Shards.install_path, "#{name}.version")
     end
 
     def run_script(name)
       if installed? && (command = installed_spec.try(&.scripts[name]?))
-        Log.info { "#{name.capitalize} of #{dependency.name}: #{command}" }
-        Script.run(install_path, command, name, dependency.name)
+        Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
+        Script.run(install_path, command, name, self.name)
       end
     end
 
     def install_path
-      File.join(Shards.install_path, dependency.name)
+      File.join(Shards.install_path, name)
     end
 
     protected def cleanup_install_directory
       Log.debug { "rm -rf '#{Helpers::Path.escape(install_path)}'" }
       FileUtils.rm_rf(install_path)
     end
-  end
 
-  @@resolver_classes = {} of String => Resolver.class
-  @@resolvers = {} of String => Resolver
-
-  def self.register_resolver(resolver)
-    @@resolver_classes[resolver.key] = resolver
-  end
-
-  def self.find_resolver(dependency)
-    @@resolvers[dependency.name] ||= begin
-      if dependency.path
-        PathResolver.new(dependency)
-      elsif dependency.git
-        GitResolver.new(dependency)
+    def parse_requirement(pull : YAML::PullParser) : Requirement
+      if pull.kind.mapping_end?
+        Any
       else
-        raise Error.new("Failed can't resolve dependency #{dependency.name} (missing resolver)")
+        location = pull.location
+        case key = pull.read_scalar
+        when "version"
+          VersionReq.new pull.read_scalar
+        else
+          raise_unknown_attribute(key, location)
+        end
       end
+    end
+
+    private RESOLVER_CLASSES = {} of String => Resolver.class
+    private RESOLVER_CACHE   = {} of String => Resolver
+
+    def self.register_resolver(key, resolver)
+      RESOLVER_CLASSES[key] = resolver
+    end
+
+    def self.clear_resolver_cache
+      RESOLVER_CACHE.clear
+    end
+
+    def self.find_class(key : String) : Resolver.class | Nil
+      RESOLVER_CLASSES[key]?
+    end
+
+    def self.find_resolver(key : String, name : String, source : String)
+      resolver_class =
+        if self == Resolver
+          RESOLVER_CLASSES[key]? ||
+            raise Error.new("Failed can't resolve dependency #{name} (unsupported resolver)")
+        else
+          self
+        end
+
+      RESOLVER_CACHE[name] ||= begin
+        resolver_class.build(key, name, source)
+      end
+    end
+
+    def raise_unknown_attribute(key, location)
+      raise YAML::ParseException.new("Unknown attribute #{key.inspect} for dependency #{@name.inspect}", *location)
     end
   end
 end

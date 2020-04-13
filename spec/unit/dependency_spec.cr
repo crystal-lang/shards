@@ -2,34 +2,83 @@ require "./spec_helper"
 
 module Shards
   describe Dependency do
-    it "version" do
-      dependency = Dependency.new("app")
-      dependency.version?.should be_nil
-
-      dependency = Dependency.new("app")
-      dependency.version = "<= 1.0.0"
-      dependency.version?.should eq("<= 1.0.0")
-      dependency.version.should eq("<= 1.0.0")
-
-      dependency = Dependency.new("app")
-      dependency.version = "<= 2.0.0"
-      dependency.version?.should eq("<= 2.0.0")
-      dependency.version.should eq("<= 2.0.0")
+    it "parse for path" do
+      parse_dependency({foo: {path: "/foo"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(PathResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(Any)
+      end
     end
 
-    it "version with tags" do
-      dependency = Dependency.new("app")
-      dependency.tag = "fix/something"
-      dependency.version.should eq("*")
+    it "parse for git" do
+      parse_dependency({foo: {git: "/foo"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(Any)
+      end
+    end
 
-      dependency = Dependency.new("app")
-      dependency.tag = "1.2.3"
-      dependency.version.should eq("*")
+    it "parse for git with version requirement" do
+      parse_dependency({foo: {git: "/foo", version: "~> 1.2"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(VersionReq.new("~> 1.2"))
+      end
+    end
 
-      # version tag is considered a version:
-      dependency = Dependency.new("app")
-      dependency.tag = "v1.2.3-pre1"
-      dependency.version.should eq("1.2.3-pre1")
+    it "parse for git with branch requirement" do
+      parse_dependency({foo: {git: "/foo", branch: "test"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(GitBranchRef.new("test"))
+      end
+    end
+
+    it "parse for git with tag requirement" do
+      parse_dependency({foo: {git: "/foo", tag: "test"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(GitTagRef.new("test"))
+      end
+    end
+
+    it "parse for git with commit requirement" do
+      parse_dependency({foo: {git: "/foo", commit: "7e2e840"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("/foo")
+        dep.requirement.should eq(GitCommitRef.new("7e2e840"))
+      end
+    end
+
+    it "parse for github" do
+      parse_dependency({foo: {github: "foo/bar"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(GitResolver).should be_true
+        dep.resolver.source.should eq("https://github.com/foo/bar.git")
+      end
+    end
+
+    it "fail with extra arguments" do
+      expect_raises YAML::ParseException, %(Unknown attribute "branch" for dependency "foo") do
+        parse_dependency({foo: {path: "/foo", branch: "master"}}) { }
+      end
+    end
+  end
+end
+
+private def parse_dependency(dep)
+  pull = YAML::PullParser.new(dep.to_yaml)
+  pull.read_stream do
+    pull.read_document do
+      pull.read_mapping do
+        yield Shards::Dependency.new(pull)
+      end
     end
   end
 end

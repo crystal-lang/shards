@@ -33,7 +33,7 @@ module Shards
       private def validate(packages)
         packages.each do |package|
           if lock = locks.find { |d| d.name == package.name }
-            if version = lock.version?
+            if version = lock.requirement.as?(Shards::Version)
               validate_locked_version(package, version)
             else
               raise InvalidLock.new # unknown lock resolver
@@ -79,7 +79,7 @@ module Shards
 
       private def outdated_lockfile?(packages)
         a = packages.map { |x| {x.name, x.version} }
-        b = locks.map { |x| {x.name, x.version?} }
+        b = locks.map { |x| {x.name, x.requirement.as?(Version)} }
         a != b
       end
     end

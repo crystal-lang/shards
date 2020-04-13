@@ -1,95 +1,52 @@
 require "./ext/yaml"
+require "./requirement"
 
 module Shards
   class Dependency
     property name : String
-    setter version : String?
-    property path : String?
-    property git : String?
-    property tag : String?
-    property branch : String?
-    property commit : String?
+    property resolver : Resolver
+    property requirement : Requirement
 
-    def self.new(pull : YAML::PullParser) : self
-      start_pos = pull.location
-      dependency = Dependency.new(pull.read_scalar)
+    def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
+    end
 
-      pull.each_in_mapping do
+    def initialize(pull : YAML::PullParser, *, is_lock = false)
+      @name = pull.read_scalar
+      @resolver, @requirement = pull.read_mapping do
         mapping_start = pull.location
-        case key = pull.read_scalar
-        when "version"
-          dependency.version = pull.read_scalar
-        when "tag"
-          dependency.tag = pull.read_scalar
-        when "branch"
-          dependency.branch = pull.read_scalar
-        when "commit"
-          dependency.commit = pull.read_scalar
-        when "path"
-          if dependency.path || dependency.git
-            raise YAML::ParseException.new("Duplicate resolver mapping for dependency #{dependency.name.inspect}", *mapping_start)
-          end
-
-          dependency.path = pull.read_scalar
-        when "git", "github", "gitlab", "bitbucket"
-          if dependency.path || dependency.git
-            raise YAML::ParseException.new("Duplicate resolver mapping for dependency #{dependency.name.inspect}", *mapping_start)
-          end
-
-          dependency.git = GitResolver.expand_resolver_url(pull.read_scalar, key)
-        else
-          # ignore unknown dependency mapping for future extensions
+        key = pull.read_scalar
+        source = pull.read_scalar
+        resolver_class = Resolver.find_class(key)
+        unless resolver_class
+          raise YAML::ParseException.new("Unknown resolver #{key.inspect} for dependency #{@name.inspect}", *mapping_start)
         end
-      end
 
-      unless dependency.git || dependency.path
-        raise YAML::ParseException.new("Missing resolver for dependency #{dependency.name.inspect}", *start_pos)
-      end
+        res = resolver_class.find_resolver(key, name, source)
+        req = res.parse_requirement(pull)
+        if is_lock && req.is_a?(VersionReq)
+          req = Version.new(req.pattern)
+        end
 
-      dependency
-    end
-
-    def self.new(name, *, git)
-      new(name).tap do |dependency|
-        dependency.git = git
-      end
-    end
-
-    def self.new(name, *, path)
-      new(name).tap do |dependency|
-        dependency.path = path
+        unless pull.kind.mapping_end?
+          location = pull.location
+          key = pull.read_scalar
+          raise YAML::ParseException.new("Unknown attribute #{key.inspect} for dependency #{@name.inspect}", *location)
+        end
+        {res, req}
       end
     end
 
-    def initialize(@name, *, @version = nil, @branch = nil)
-    end
-
-    def_equals_and_hash @name, @version, @git, @path, @tag, @branch, @commit
-
-    def version
-      version { "*" }
-    end
-
-    def version?
-      version { nil }
-    end
-
-    def version
-      if version = @version
-        version
-      elsif tag =~ VERSION_TAG
-        $1
-      else
-        yield
-      end
-    end
+    def_equals @name, @resolver, @requirement
 
     def prerelease?
-      Versions.prerelease? version
-    end
-
-    def refs
-      branch || tag || commit
+      case req = requirement
+      when Version
+        req.prerelease?
+      when VersionReq
+        req.prerelease?
+      else
+        false
+      end
     end
 
     def to_human_requirement
@@ -107,13 +64,20 @@ module Shards
     end
 
     def to_s(io)
-      io << name << " (" << to_human_requirement << ")"
+      io << name << " (" << requirement << ")"
     end
 
-    def inspect(io)
-      io << "#<" << self.class.name << " {" << name << " => "
-      super
-      io << "}>"
+    def matches?(version : Version)
+      case req = requirement
+      when Ref
+        resolver.matches_ref?(req, version)
+      when Version
+        req == version
+      when VersionReq
+        Versions.matches?(version, req)
+      when Any
+        true
+      end
     end
   end
 end

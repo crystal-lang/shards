@@ -69,8 +69,8 @@ module Shards
     end
 
     getter! name : String?
-    getter! version : String?
-    getter! original_version : String?
+    getter! version : Version?
+    getter! original_version : Version?
     getter description : String?
     getter license : String?
     getter crystal : String?
@@ -89,7 +89,7 @@ module Shards
         when "name"
           @name = pull.read_scalar
         when "version"
-          @original_version = @version = pull.read_scalar
+          @original_version = @version = Version.new(pull.read_scalar)
         when "description"
           @description = pull.read_scalar
         when "license"
@@ -143,7 +143,7 @@ module Shards
     def name=(@name : String)
     end
 
-    def version=(@version : String)
+    def version=(@version : Version)
     end
 
     def authors

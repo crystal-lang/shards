@@ -16,27 +16,21 @@ module Shards
 
     private def add_lock(base, lock_index, name)
       if lock = lock_index.delete(name)
-        resolver = Shards.find_resolver(lock)
+        resolver = lock.resolver
 
         lock_version =
-          if version = lock.version?
-            version
+          case lock_req = lock.requirement
+          when Version then lock_req
           else
-            versions = resolver.versions_for(lock)
+            versions = resolver.versions_for(lock_req)
             unless versions.size == 1
               Log.warn { "Lock for shard \"#{name}\" is invalid" }
               return
             end
-            versions.first
+            lock.requirement = versions.first
           end
 
-        lock_dep = Dependency.new(name, version: lock_version)
-
-        # TODO: Remove this once the install command
-        #       doesn't rely on the lock version
-        lock.version = lock_version
-
-        base.add_vertex(lock.name, lock_dep, true)
+        base.add_vertex(lock.name, lock, true)
         spec = resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
@@ -58,8 +52,8 @@ module Shards
 
         deps.each do |dep|
           if lock = lock_index[dep.name]?
-            if version = lock.version?
-              next unless matches?(dep, version)
+            if version = lock.requirement.as?(Version)
+              next unless dep.matches?(version)
             end
 
             add_lock(base, lock_index, dep.name)
@@ -81,7 +75,7 @@ module Shards
             raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
           end
           if spec.mismatched_version?
-            Log.warn { "Shard \"#{spec.name}\" version (#{spec.original_version}) doesn't match tag version (#{spec.version})" }
+            Log.warn { "Shard \"#{spec.name}\" version (#{spec.original_version.value}) doesn't match tag version (#{spec.version.value})" }
           end
         end
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
@@ -94,19 +88,19 @@ module Shards
     end
 
     def name_for(spec : Shards::Spec)
-      spec.resolver.not_nil!.dependency.name
+      spec.resolver.not_nil!.name
     end
 
     def name_for(dependency : Shards::Dependency)
       dependency.name
     end
 
-    @search_results = Hash({String, String}, Array(Spec)).new
-    @specs = Hash({String, String}, Spec).new
+    @search_results = Hash({String, Requirement}, Array(Spec)).new
+    @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      @search_results[{dependency.name, dependency.version}] ||= begin
-        resolver = Shards.find_resolver(dependency)
+      @search_results[{dependency.name, dependency.requirement}] ||= begin
+        resolver = dependency.resolver
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
@@ -132,47 +126,28 @@ module Shards
       specification.dependencies
     end
 
-    def requirement_satisfied_by?(requirement, activated, spec)
+    def requirement_satisfied_by?(dependency, activated, spec)
       unless @prereleases
-        if !spec.version.includes?("+git.commit.") && Versions.prerelease?(spec.version) && !requirement.prerelease?
+        if !spec.version.has_metadata? && spec.version.prerelease? && !dependency.prerelease?
           vertex = activated.vertex_named(spec.name)
           return false if !vertex || vertex.requirements.none?(&.prerelease?)
         end
       end
 
-      matches?(requirement, spec)
+      dependency.matches?(spec.version)
     end
 
-    private def versions_for(dependency, resolver) : Array(String)
-      matching = resolver.versions_for(dependency)
+    private def versions_for(dependency, resolver) : Array(Version)
+      matching = resolver.versions_for(dependency.requirement)
 
       if (locks = @locks) &&
          (locked = locks.find { |dep| dep.name == dependency.name }) &&
-         (locked_version = locked.version?) &&
-         matches?(dependency, locked_version)
+         (locked_version = locked.requirement.as?(Version)) &&
+         dependency.matches?(locked_version)
         matching << locked_version
       end
 
       matching.uniq
-    end
-
-    private def matches?(dep : Dependency, spec : Spec)
-      matches? dep, spec.version
-    end
-
-    private def matches?(dep : Dependency, version : String)
-      if dep.refs
-        resolver = Shards.find_resolver(dep)
-        resolver.matches_ref?(dep, version)
-      elsif req_version = dep.version?
-        if req_version.includes?("+")
-          req_version == version
-        else
-          Versions.matches?(version, req_version)
-        end
-      else
-        true
-      end
     end
 
     def before_resolution
