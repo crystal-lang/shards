@@ -49,6 +49,15 @@ describe "install" do
     end
   end
 
+  it "won't fail if version file is missing (backward compatibility)" do
+    metadata = {dependencies: {web: "*"}}
+    with_shard(metadata) do
+      run "shards install"
+      File.delete("lib/web.version")
+      run "shards install"
+    end
+  end
+
   it "won't install prerelease version" do
     metadata = {
       dependencies: {unstable: "*"},
@@ -79,7 +88,7 @@ describe "install" do
     }
     with_shard(metadata) do
       run "shards install"
-      assert_installed "unstable", "0.3.0.beta"
+      assert_installed "unstable", "0.3.0.beta", git: git_commits(:unstable).first
     end
   end
 
@@ -124,7 +133,7 @@ describe "install" do
   it "resolves dependency at head when no version tags" do
     metadata = {dependencies: {"missing": "*"}}
     with_shard(metadata) { run "shards install" }
-    assert_installed "missing", "0.1.0"
+    assert_installed "missing", "0.1.0", git: git_commits(:missing).first
   end
 
   it "installs dependency at locked commit when refs is a branch" do
@@ -133,11 +142,11 @@ describe "install" do
         web: {git: git_url(:web), branch: "master"},
       },
     }
-    lock = {web: git_commits(:web)[-5]}
+    lock = {web: "1.2.0+git.commit.#{git_commits(:web)[-5]}"}
 
     with_shard(metadata, lock) do
       run "shards install"
-      assert_installed "web", "1.2.0"
+      assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
   end
 
@@ -145,11 +154,11 @@ describe "install" do
     metadata = {
       dependencies: {web: {git: git_url(:web), tag: "v1.1.1"}},
     }
-    lock = {web: git_commits(:web)[-3]}
+    lock = {web: "1.1.1+git.commit.#{git_commits(:web)[-3]}"}
 
     with_shard(metadata, lock) do
       run "shards install"
-      assert_installed "web", "1.1.1"
+      assert_installed "web", "1.1.1", git: git_commits(:web)[-3]
     end
   end
 
@@ -164,11 +173,11 @@ describe "install" do
       },
     }
     lock = {
-      "locked": git_commits(:"locked").last,
+      "locked": "0.1.0+git.commit.#{git_commits(:"locked").last}",
     }
     with_shard(metadata, lock) { run "shards install" }
 
-    assert_installed "locked", "0.1.0"
+    assert_installed "locked", "0.1.0", git: git_commits(:locked).last
     refute_installed "pg"
   end
 
@@ -177,14 +186,14 @@ describe "install" do
       dependencies: {web: {git: git_url(:web), branch: "master"}},
     }
 
-    with_shard(metadata, {web: git_commits(:web)[-5]}) do
+    with_shard(metadata, {web: "1.2.0+git.commit.#{git_commits(:web)[-5]}"}) do
       run "shards install"
-      assert_installed "web", "1.2.0"
+      assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
 
-    with_shard(metadata, {web: git_commits(:web)[0]}) do
+    with_shard(metadata, {web: "2.1.0+git.commit.#{git_commits(:web)[0]}"}) do
       run "shards install"
-      assert_installed "web", "2.1.0"
+      assert_installed "web", "2.1.0", git: git_commits(:web)[0]
     end
   end
 
@@ -202,7 +211,7 @@ describe "install" do
 
   it "fails to install when dependency requirement (commit) changed in production" do
     metadata = {dependencies: {inprogress: {git: git_url(:inprogress), commit: git_commits(:inprogress)[1]}}}
-    lock = {inprogress: git_commits(:inprogress).first}
+    lock = {inprogress: "0.1.0+git.commit.#{git_commits(:inprogress).first}"}
 
     with_shard(metadata, lock) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
@@ -275,7 +284,7 @@ describe "install" do
 
     with_shard(metadata) do
       run "shards install"
-      assert_locked "web", git_commits(:web).first
+      assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
   end
 
@@ -315,6 +324,37 @@ describe "install" do
       ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
       ex.stdout.should contain("Outdated shard.lock")
       ex.stderr.should be_empty
+    end
+  end
+
+  it "install in production mode" do
+    metadata = {dependencies: {web: "*"}}
+    lock = {web: "1.0.0"}
+
+    with_shard(metadata, lock) do
+      run "shards install --production"
+      assert_installed "web", "1.0.0"
+    end
+  end
+
+  it "install in production mode with locked commit" do
+    metadata = {dependencies: {web: "*"}}
+    web_version = "2.1.0+git.commit.#{git_commits(:web).first}"
+    lock = {web: web_version}
+
+    with_shard(metadata, lock) do
+      run "shards install --production"
+      assert_installed "web", "2.1.0", git: git_commits(:web).first
+    end
+  end
+
+  it "install in production mode with locked commit by a previous shards version" do
+    metadata = {dependencies: {web: "*"}}
+
+    with_shard(metadata) do
+      File.write "shard.lock", {version: "1.0", shards: {web: {git: git_url(:web), commit: git_commits(:web).first}}}
+      run "shards install --production"
+      assert_installed "web", "2.1.0", git: git_commits(:web).first
     end
   end
 
@@ -458,7 +498,7 @@ describe "install" do
     }
     with_shard(metadata) do
       run "shards install"
-      assert_installed "another_name", "0.3.0"
+      assert_installed "another_name", "0.3.0", git: git_commits(:renamed).first
     end
   end
 

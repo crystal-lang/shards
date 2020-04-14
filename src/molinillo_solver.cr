@@ -18,16 +18,26 @@ module Shards
       if lock = lock_index.delete(name)
         resolver = Shards.find_resolver(lock)
 
-        if version = lock.version?
-          spec = resolver.spec(version)
-        elsif commit = lock.commit
-          spec = resolver.spec(commit)
-          lock.version = "#{spec.version}+git.commit.#{commit}"
-        else
-          return
-        end
+        lock_version =
+          if version = lock.version?
+            version
+          else
+            versions = resolver.versions_for(lock)
+            unless versions.size == 1
+              Log.warn { "Lock for shard \"#{name}\" is invalid" }
+              return
+            end
+            versions.first
+          end
 
-        base.add_vertex(lock.name, lock, true)
+        lock_dep = Dependency.new(name, version: lock_version)
+
+        # TODO: Remove this once the install command
+        #       doesn't rely on the lock version
+        lock.version = lock_version
+
+        base.add_vertex(lock.name, lock_dep, true)
+        spec = resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
           add_lock(base, lock_index, dep.name)
@@ -49,7 +59,7 @@ module Shards
         deps.each do |dep|
           if lock = lock_index[dep.name]?
             if version = lock.version?
-              next unless Versions.matches?(version, dep.version)
+              next unless matches?(dep, version)
             end
 
             add_lock(base, lock_index, dep.name)
@@ -77,12 +87,7 @@ module Shards
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
-        if plus = version.index("+git.commit.")
-          commit = version[(plus + 12)..-1]
-          version = version[0...plus]
-        end
-
-        packages << Package.new(spec.name, resolver, version, commit)
+        packages << Package.new(spec.name, resolver, version)
       end
 
       packages
@@ -135,48 +140,39 @@ module Shards
         end
       end
 
-      Versions.matches?(spec.version, requirement.version)
+      matches?(requirement, spec)
     end
 
     private def versions_for(dependency, resolver) : Array(String)
-      matching =
-        if requirement = dependency.version?
-          if requirement == "HEAD"
-            return versions_for_refs("HEAD", dependency, resolver)
-          else
-            Versions.resolve(resolver.available_versions, requirement)
-          end
-        elsif refs = dependency.refs
-          versions_for_refs(refs, dependency, resolver)
+      matching = resolver.versions_for(dependency)
+
+      if (locks = @locks) &&
+         (locked = locks.find { |dep| dep.name == dependency.name }) &&
+         (locked_version = locked.version?) &&
+         matches?(dependency, locked_version)
+        matching << locked_version
+      end
+
+      matching.uniq
+    end
+
+    private def matches?(dep : Dependency, spec : Spec)
+      matches? dep, spec.version
+    end
+
+    private def matches?(dep : Dependency, version : String)
+      if dep.refs
+        resolver = Shards.find_resolver(dep)
+        resolver.matches_ref?(dep, version)
+      elsif req_version = dep.version?
+        if req_version.includes?("+")
+          req_version == version
         else
-          resolver.available_versions
+          Versions.matches?(version, req_version)
         end
-
-      if (locks = @locks) && (locked = locks.find { |dep| dep.name == dependency.name })
-        if Versions.matches?(locked.version, dependency.version)
-          matching << locked.version
-        end
-      end
-
-      if matching.size == 1 && matching.first == "HEAD"
-        # NOTE: dependency doesn't have any version number tag, and defaults
-        #       to [HEAD], we must resolve the refs to an actual version:
-        versions_for_refs("HEAD", dependency, resolver)
       else
-        matching.uniq
+        true
       end
-    end
-
-    private def versions_for_refs(refs, dependency, resolver : GitResolver) : Array(String)
-      if version = resolver.version_at(refs)
-        ["#{version}+git.commit.#{resolver.commit_sha1_at(refs)}"]
-      else
-        raise Error.new "Failed to find #{dependency.name} version for git refs=#{refs}"
-      end
-    end
-
-    private def versions_for_refs(refs, dependency, resolver) : NoReturn
-      raise "unreachable"
     end
 
     def before_resolution

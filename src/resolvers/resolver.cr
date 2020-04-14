@@ -11,33 +11,73 @@ module Shards
     def initialize(@dependency)
     end
 
-    def specs(versions)
-      specs = {} of String => Spec
-      versions.each do |version|
-        specs[version] = spec(version)
-      rescue Error
-      end
-      specs
-    end
-
     def installed_spec
       return unless installed?
 
       path = File.join(install_path, SPEC_FILENAME)
-      return Spec.from_file(path) if File.exists?(path)
+      unless File.exists?(path)
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+      end
 
-      raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+      spec = Spec.from_file(path)
+      spec.version = File.read(version_path) if File.exists?(version_path)
+      spec
     end
 
     def installed?
       File.exists?(install_path)
     end
 
-    abstract def read_spec(version = nil)
-    abstract def spec(version)
-    abstract def available_versions
-    abstract def install(version = nil)
-    abstract def installed_commit_hash
+    def versions_for(dependency : Dependency) : Array(String)
+      if ref = dependency.refs
+        versions_for_ref(ref)
+      else
+        releases = available_releases
+        if releases.empty?
+          versions_for_ref(nil)
+        elsif version_req = dependency.version?
+          Versions.resolve(releases, version_req)
+        else
+          releases
+        end
+      end
+    end
+
+    private def versions_for_ref(ref : String?) : Array(String)
+      if version = latest_version_for_ref(ref)
+        [version]
+      else
+        [] of String
+      end
+    end
+
+    abstract def available_releases : Array(String)
+    abstract def latest_version_for_ref(ref : String?) : String?
+
+    def matches_ref?(ref : Dependency, version : String)
+      false
+    end
+
+    def spec(version : String) : Spec
+      spec = Spec.from_yaml(read_spec(version))
+      spec.resolver = self
+      spec.version = version
+      spec
+    end
+
+    abstract def read_spec(version : String)
+    abstract def install_sources(version : String)
+
+    def install(version : String)
+      cleanup_install_directory
+
+      install_sources(version)
+      File.write(version_path, version)
+    end
+
+    def version_path
+      @version_path ||= File.join(Shards.install_path, "#{dependency.name}.version")
+    end
 
     def run_script(name)
       if installed? && (command = installed_spec.try(&.scripts[name]?))

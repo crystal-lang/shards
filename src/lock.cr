@@ -61,13 +61,7 @@ module Shards
         else
           io << "    git: " << dependency.git << '\n'
         end
-
-        if package.commit
-          io << "    commit: " << package.commit << '\n'
-        else
-          io << "    version: " << package.version << '\n'
-        end
-
+        io << "    version: " << package.version << '\n'
         io << '\n'
       end
     end

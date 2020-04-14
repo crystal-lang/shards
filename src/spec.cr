@@ -75,7 +75,10 @@ module Shards
     getter license : String?
     getter crystal : String?
     property resolver : Resolver?
-    property? mismatched_version = false
+
+    def mismatched_version?
+      Versions.compare(version, original_version) != 0
+    end
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)

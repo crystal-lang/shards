@@ -30,9 +30,6 @@ module Shards
       Spec.from_yaml(read_spec) if installed?
     end
 
-    def installed_commit_hash
-    end
-
     def installed?
       File.symlink?(install_path) && check_install_path_target
     end
@@ -59,8 +56,11 @@ module Shards
       {% end %}
     end
 
-    def available_versions
-      [spec.version]
+    def available_releases : Array(String)
+      [spec.version] of String
+    end
+
+    def latest_version_for_ref(ref : String?) : String?
     end
 
     def local_path
@@ -73,10 +73,9 @@ module Shards
       end
     end
 
-    def install(version = nil)
+    def install_sources(version)
       path = expanded_local_path
 
-      cleanup_install_directory
       Dir.mkdir_p(File.dirname(install_path))
       File.symlink(path, install_path)
     end

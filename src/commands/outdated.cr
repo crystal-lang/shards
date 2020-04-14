@@ -40,9 +40,9 @@ module Shards
         # already the latest version?
         available_versions =
           if @prereleases
-            resolver.available_versions
+            resolver.available_releases
           else
-            Versions.without_prereleases(resolver.available_versions)
+            Versions.without_prereleases(resolver.available_releases)
           end
         latest = Versions.sort(available_versions).first
         return if latest == installed

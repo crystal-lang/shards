@@ -33,9 +33,7 @@ module Shards
       private def validate(packages)
         packages.each do |package|
           if lock = locks.find { |d| d.name == package.name }
-            if commit = lock.commit
-              validate_locked_commit(package, commit)
-            elsif version = lock.version?
+            if version = lock.version?
               validate_locked_version(package, version)
             else
               raise InvalidLock.new # unknown lock resolver
@@ -48,11 +46,6 @@ module Shards
 
       private def validate_locked_version(package, version)
         return if package.version == version
-        raise LockConflict.new("#{package.name} requirements changed")
-      end
-
-      private def validate_locked_commit(package, commit)
-        return if package.commit == commit
         raise LockConflict.new("#{package.name} requirements changed")
       end
 
@@ -85,8 +78,8 @@ module Shards
       end
 
       private def outdated_lockfile?(packages)
-        a = packages.map { |x| {x.name, x.version, x.commit} }
-        b = locks.map { |x| {x.name, x.version?, x.commit} }
+        a = packages.map { |x| {x.name, x.version} }
+        b = locks.map { |x| {x.name, x.version?} }
         a != b
       end
     end

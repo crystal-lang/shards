@@ -41,7 +41,7 @@ module Shards
       @@git_column_never ||= Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
-    def read_spec(version = "*")
+    def read_spec(version : String)
       update_local_cache
       refs = git_refs(version)
 
@@ -52,20 +52,16 @@ module Shards
       end
     end
 
-    def spec(version = nil)
-      spec = Spec.from_yaml(read_spec(version))
-      spec.resolver = self
-
-      if version && version =~ VERSION_REFERENCE
-        # In this case, we know that the version was looked up by git tag, so we
-        # validate the spec version against the tag version.
-        version = version.lstrip('v')
-        if spec.version != version
-          spec.mismatched_version = true
+    private def spec_at_ref(ref : String) : Spec?
+      update_local_cache
+      begin
+        if file_exists?(ref, SPEC_FILENAME)
+          spec_yaml = capture("git show #{ref}:#{SPEC_FILENAME}")
+          Spec.from_yaml(spec_yaml)
         end
+      rescue Error
+        nil
       end
-
-      spec
     end
 
     private def spec?(version)
@@ -73,23 +69,29 @@ module Shards
     rescue Error
     end
 
-    def available_versions
+    def available_releases : Array(String)
       update_local_cache
+      versions_from_tags
+    end
 
-      versions = versions_from_tags
-
-      if versions.any?
-        Log.debug { "versions: #{versions.reverse.join(", ")}" }
-        versions
-      else
-        ["HEAD"]
+    def latest_version_for_ref(ref : String?) : String?
+      if spec = spec_at_ref(ref || "HEAD")
+        commit = commit_sha1_at(ref)
+        "#{spec.version}+git.commit.#{commit}"
       end
     end
 
-    protected def versions_from_tags(refs = nil)
-      options = "--contains #{refs}" if refs
+    def matches_ref?(ref : Dependency, version : String)
+      if commit = ref.commit
+        git_refs(version) == commit
+      else
+        # TODO: check branch and tags
+        true
+      end
+    end
 
-      capture("git tag --list #{options} #{GitResolver.git_column_never}")
+    protected def versions_from_tags
+      capture("git tag --list #{GitResolver.git_column_never}")
         .split('\n')
         .compact_map { |tag| $1 if tag =~ VERSION_TAG }
     end
@@ -109,36 +111,20 @@ module Shards
       end
     end
 
-    def install(version = nil)
+    def install_sources(version)
       update_local_cache
-      refs = version && git_refs(version) || "HEAD"
+      refs = git_refs(version)
 
-      cleanup_install_directory
       Dir.mkdir_p(install_path)
-
       unless file_exists?(refs, SPEC_FILENAME)
         File.write(File.join(install_path, "shard.yml"), read_spec(version))
       end
 
       run "git archive --format=tar --prefix= #{refs} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
-
-      if version =~ VERSION_REFERENCE
-        File.delete(sha1_path) if File.exists?(sha1_path)
-      else
-        File.write(sha1_path, commit_sha1_at(version))
-      end
     end
 
     def commit_sha1_at(refs)
       capture("git log -n 1 --pretty=%H #{refs}").strip
-    end
-
-    def installed_commit_hash
-      File.read(sha1_path).strip if installed? && File.exists?(sha1_path)
-    end
-
-    def sha1_path
-      @sha1_path ||= File.join(Shards.install_path, "#{dependency.name}.sha1")
     end
 
     def local_path
@@ -164,40 +150,12 @@ module Shards
     private def git_refs(version)
       case version
       when VERSION_REFERENCE
-        if version && version.starts_with?('v')
-          version
-        else
-          "v#{version}"
-        end
+        "v#{version}"
       when VERSION_AT_GIT_COMMIT
         $1
-      when "*"
-        "HEAD"
       else
-        version || "HEAD"
+        raise Error.new("Invalid version for git resolver: #{version}")
       end
-    end
-
-    protected def version_at(refs)
-      update_local_cache
-
-      if spec = spec?(refs)
-        spec.version
-      else
-        # FIXME: return the latest release tag BEFORE or AT the refs exactly, but
-        #        never release tags AFTER the refs
-        versions_from_tags(refs).first?
-      end
-    end
-
-    private def refs_at(commit)
-      update_local_cache
-
-      refs = [] of String?
-      refs << commit
-      refs += capture("git tag --list --contains #{commit} #{GitResolver.git_column_never}").split('\n')
-      refs += capture("git branch --list --contains #{commit} #{GitResolver.git_column_never}").split(' ')
-      refs.compact.uniq
     end
 
     private def update_local_cache
