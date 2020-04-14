@@ -13,6 +13,9 @@ module Shards
 
       create_git_repository "unreleased"
       create_git_version_commit "unreleased", "0.1.0"
+      checkout_new_git_branch "unreleased", "branch"
+      create_git_commit "unreleased", "testing"
+      checkout_git_branch "unreleased", "master"
 
       create_git_repository "library", "0.0.1", "0.1.0", "0.1.1", "0.1.2"
       create_git_release "library", "0.2.0", shard: "name: library\nversion: 0.2.0\nauthors:\n  - julien <julien@portalier.com>"
@@ -30,6 +33,7 @@ module Shards
       resolver("empty").latest_version_for_ref("master").should be_nil
       resolver("empty").latest_version_for_ref(nil).should be_nil
       resolver("unreleased").latest_version_for_ref("master").should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
+      resolver("unreleased").latest_version_for_ref("branch").should eq("0.1.0+git.commit.#{git_commits(:unreleased, "branch")[0]}")
       resolver("unreleased").latest_version_for_ref(nil).should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
       resolver("library").latest_version_for_ref("master").should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")
       resolver("library").latest_version_for_ref(nil).should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")

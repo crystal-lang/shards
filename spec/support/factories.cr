@@ -59,6 +59,18 @@ def create_git_commit(project, message = "new commit")
   end
 end
 
+def checkout_new_git_branch(project, branch)
+  Dir.cd(git_path(project)) do
+    run "git checkout -b #{branch}"
+  end
+end
+
+def checkout_git_branch(project, branch)
+  Dir.cd(git_path(project)) do
+    run "git checkout #{branch}"
+  end
+end
+
 def create_shard(project, contents)
   create_file project, "shard.yml", contents
 end
@@ -71,9 +83,9 @@ def create_file(project, filename, contents, perm = nil)
   File.chmod(path, perm) if perm
 end
 
-def git_commits(project)
+def git_commits(project, rev = "HEAD")
   Dir.cd(git_path(project)) do
-    run("git log --format='%H'").strip.split('\n')
+    run("git log --format='%H' #{rev}").strip.split('\n')
   end
 end
 
