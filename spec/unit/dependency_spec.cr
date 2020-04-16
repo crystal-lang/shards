@@ -79,7 +79,7 @@ private def parse_dependency(dep)
   pull.read_stream do
     pull.read_document do
       pull.read_mapping do
-        yield Shards::Dependency.new(pull)
+        yield Shards::Dependency.from_yaml(pull)
       end
     end
   end

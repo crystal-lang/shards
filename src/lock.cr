@@ -25,7 +25,7 @@ module Shards
             case key = pull.read_scalar
             when "shards"
               pull.each_in_mapping do
-                dependencies << Dependency.new(pull, is_lock: true)
+                dependencies << Dependency.from_yaml(pull, is_lock: true)
               end
             else
               pull.raise "No such attribute #{key} in lock version 1.0"

@@ -10,10 +10,10 @@ module Shards
     def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
     end
 
-    def initialize(pull : YAML::PullParser, *, is_lock = false)
+    def self.from_yaml(pull : YAML::PullParser, *, is_lock = false)
       mapping_start = pull.location
-      @name = pull.read_scalar
-      @resolver, @requirement = pull.read_mapping do
+      name = pull.read_scalar
+      pull.read_mapping do
         resolver_data = nil
         params = Hash(String, String).new
 
@@ -23,7 +23,7 @@ module Shards
 
           if type = Resolver.find_class(key)
             if resolver_data
-              raise YAML::ParseException.new("Duplicate resolver mapping for dependency #{@name.inspect}", *location)
+              raise YAML::ParseException.new("Duplicate resolver mapping for dependency #{name.inspect}", *location)
             else
               resolver_data = {type: type, key: key, source: value}
             end
@@ -33,16 +33,16 @@ module Shards
         end
 
         unless resolver_data
-          raise YAML::ParseException.new("Missing resolver for dependency #{@name.inspect}", *mapping_start)
+          raise YAML::ParseException.new("Missing resolver for dependency #{name.inspect}", *mapping_start)
         end
 
-        res = resolver_data[:type].find_resolver(resolver_data[:key], @name, resolver_data[:source])
-        req = res.parse_requirement(params)
-        if is_lock && req.is_a?(VersionReq)
-          req = Version.new(req.pattern)
+        resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
+        requirement = resolver.parse_requirement(params)
+        if is_lock && requirement.is_a?(VersionReq)
+          requirement = Version.new(requirement.pattern)
         end
 
-        {res, req}
+        Dependency.new(name, resolver, requirement)
       end
     end
 

@@ -102,11 +102,11 @@ module Shards
           end
         when "dependencies"
           pull.each_in_mapping do
-            dependencies << Dependency.new(pull)
+            dependencies << Dependency.from_yaml(pull)
           end
         when "development_dependencies"
           pull.each_in_mapping do
-            development_dependencies << Dependency.new(pull)
+            development_dependencies << Dependency.from_yaml(pull)
           end
         when "targets"
           pull.each_in_mapping do
