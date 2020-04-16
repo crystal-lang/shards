@@ -11,27 +11,37 @@ module Shards
     end
 
     def initialize(pull : YAML::PullParser, *, is_lock = false)
+      mapping_start = pull.location
       @name = pull.read_scalar
       @resolver, @requirement = pull.read_mapping do
-        mapping_start = pull.location
-        key = pull.read_scalar
-        source = pull.read_scalar
-        resolver_class = Resolver.find_class(key)
-        unless resolver_class
-          raise YAML::ParseException.new("Unknown resolver #{key.inspect} for dependency #{@name.inspect}", *mapping_start)
+        resolver_data = nil
+        params = Hash(String, String).new
+
+        until pull.kind.mapping_end?
+          location = pull.location
+          key, value = pull.read_scalar, pull.read_scalar
+
+          if type = Resolver.find_class(key)
+            if resolver_data
+              raise YAML::ParseException.new("Duplicate resolver mapping for dependency #{@name.inspect}", *location)
+            else
+              resolver_data = {type: type, key: key, source: value}
+            end
+          else
+            params[key] = value
+          end
         end
 
-        res = resolver_class.find_resolver(key, name, source)
-        req = res.parse_requirement(pull)
+        unless resolver_data
+          raise YAML::ParseException.new("Missing resolver for dependency #{@name.inspect}", *mapping_start)
+        end
+
+        res = resolver_data[:type].find_resolver(resolver_data[:key], @name, resolver_data[:source])
+        req = res.parse_requirement(params)
         if is_lock && req.is_a?(VersionReq)
           req = Version.new(req.pattern)
         end
 
-        unless pull.kind.mapping_end?
-          location = pull.location
-          key = pull.read_scalar
-          raise YAML::ParseException.new("Unknown attribute #{key.inspect} for dependency #{@name.inspect}", *location)
-        end
         {res, req}
       end
     end

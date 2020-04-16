@@ -114,17 +114,11 @@ module Shards
       FileUtils.rm_rf(install_path)
     end
 
-    def parse_requirement(pull : YAML::PullParser) : Requirement
-      if pull.kind.mapping_end?
-        Any
+    def parse_requirement(params : Hash(String, String)) : Requirement
+      if version = params["version"]?
+        VersionReq.new version
       else
-        location = pull.location
-        case key = pull.read_scalar
-        when "version"
-          VersionReq.new pull.read_scalar
-        else
-          raise_unknown_attribute(key, location)
-        end
+        Any
       end
     end
 
@@ -155,10 +149,6 @@ module Shards
       RESOLVER_CACHE[name] ||= begin
         resolver_class.build(key, name, source)
       end
-    end
-
-    def raise_unknown_attribute(key, location)
-      raise YAML::ParseException.new("Unknown attribute #{key.inspect} for dependency #{@name.inspect}", *location)
     end
   end
 end

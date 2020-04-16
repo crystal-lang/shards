@@ -189,24 +189,20 @@ module Shards
       source.strip
     end
 
-    def parse_requirement(pull : YAML::PullParser) : Requirement
-      if pull.kind.mapping_end?
-        Any
-      else
-        location = pull.location
-        case key = pull.read_scalar
-        when "version"
-          VersionReq.new pull.read_scalar
+    def parse_requirement(params : Hash(String, String)) : Requirement
+      params.each do |key, value|
+        case key
         when "branch"
-          GitBranchRef.new pull.read_scalar
+          return GitBranchRef.new value
         when "tag"
-          GitTagRef.new pull.read_scalar
+          return GitTagRef.new value
         when "commit"
-          GitCommitRef.new pull.read_scalar
+          return GitCommitRef.new value
         else
-          raise_unknown_attribute(key, location)
         end
       end
+
+      super
     end
 
     record GitVersion, value : String, commit : String? = nil

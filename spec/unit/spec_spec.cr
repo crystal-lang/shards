@@ -75,8 +75,21 @@ module Shards
       spec.dependencies[2].requirement.should eq(Any)
     end
 
+    it "fails dependency with duplicate resolver" do
+      expect_raises Shards::ParseError, %(Duplicate resolver mapping for dependency "foo" at line 6, column 5) do
+        Spec.from_yaml <<-YAML
+          name: orm
+          version: 1.0.0
+          dependencies:
+            foo:
+              github: user/repo
+              gitlab: user/repo
+          YAML
+      end
+    end
+
     it "fails dependency with missing resolver" do
-      expect_raises Shards::ParseError, %(Unknown resolver "branch" for dependency "foo" at line 5, column 5) do
+      expect_raises Shards::ParseError, %(Missing resolver for dependency "foo" at line 4, column 3) do
         Spec.from_yaml <<-YAML
           name: orm
           version: 1.0.0
@@ -87,9 +100,8 @@ module Shards
       end
     end
 
-    it "fails dependency with extra attributes" do
-      expect_raises Shards::ParseError, %(Unknown attribute "extra" for dependency "foo" at line 6, column 5) do
-        Spec.from_yaml <<-YAML
+    it "accepts dependency with extra attributes" do
+      spec = Spec.from_yaml <<-YAML
         name: orm
         version: 1.0.0
         dependencies:
@@ -97,20 +109,8 @@ module Shards
             github: user/repo
             extra: foobar
         YAML
-      end
-    end
-
-    it "fails dependency with unexpected attributes" do
-      expect_raises Shards::ParseError, %(Unknown attribute "extra" for dependency "foo" at line 6, column 5) do
-        Spec.from_yaml <<-YAML
-        name: orm
-        version: 1.0.0
-        dependencies:
-          foo:
-            path: ../path
-            extra: foobar
-        YAML
-      end
+      dep = Dependency.new("foo", GitResolver.new("foo", "https://github.com/user/repo.git"), Any)
+      spec.dependencies[0].should eq dep
     end
 
     it "parse development dependencies" do

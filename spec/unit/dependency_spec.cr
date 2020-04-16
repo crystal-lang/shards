@@ -64,9 +64,11 @@ module Shards
       end
     end
 
-    it "fail with extra arguments" do
-      expect_raises YAML::ParseException, %(Unknown attribute "branch" for dependency "foo") do
-        parse_dependency({foo: {path: "/foo", branch: "master"}}) { }
+    it "allow extra arguments" do
+      parse_dependency({foo: {path: "/foo", branch: "master"}}) do |dep|
+        dep.name.should eq("foo")
+        dep.resolver.is_a?(PathResolver).should be_true
+        dep.requirement.should eq(Any)
       end
     end
   end
