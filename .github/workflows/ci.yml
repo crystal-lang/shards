@@ -1,0 +1,43 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+
+    container:
+      image: crystallang/crystal
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure Git
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git config --global column.ui always
+      - name: Install dependencies
+        run: shards install
+      - name: Run tests
+        run: make test
+
+  test-osx:
+    runs-on: macos-latest
+
+    steps:
+      - uses: MeilCli/setup-crystal-action@v2
+        with:
+          shards_version: skip
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - name: Configure Git
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git config --global column.ui always
+      - name: Install dependencies
+        run: make lib
+      - name: Run tests
+        run: make test
