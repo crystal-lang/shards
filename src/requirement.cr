@@ -8,6 +8,10 @@ module Shards
     def prerelease?
       Versions.prerelease? @pattern
     end
+
+    def to_s(io)
+      io << pattern
+    end
   end
 
   struct Version
@@ -23,6 +27,10 @@ module Shards
     def prerelease?
       Versions.prerelease? @value
     end
+
+    def to_s(io)
+      io << value
+    end
   end
 
   abstract struct Ref
@@ -30,6 +38,10 @@ module Shards
 
   module Any
     extend self
+
+    def to_s(io)
+      io << "*"
+    end
   end
 
   alias Requirement = VersionReq | Version | Ref | Any

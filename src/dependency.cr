@@ -59,8 +59,17 @@ module Shards
       end
     end
 
+    private def report_requirement
+      case req = requirement
+      when Version
+        resolver.report_version(req)
+      else
+        req.to_s
+      end
+    end
+
     def to_s(io)
-      io << name << " (" << requirement << ")"
+      io << name << " (" << report_requirement << ")"
     end
 
     def matches?(version : Version)
