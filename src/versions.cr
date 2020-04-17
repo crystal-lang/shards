@@ -88,7 +88,11 @@ module Shards
       versions.sort { |a, b| compare(a, b) }
     end
 
-    def self.compare(a, b)
+    def self.compare(a : Version, b : Version)
+      compare(a.value, b.value)
+    end
+
+    def self.compare(a : String, b : String)
       if a == b
         return 0
       end
@@ -146,7 +150,7 @@ module Shards
       end
     end
 
-    def self.prerelease?(str)
+    def self.prerelease?(str : String)
       str.each_char do |char|
         return true if char.ascii_letter?
         break if char == '+'
@@ -154,42 +158,25 @@ module Shards
       false
     end
 
-    protected def self.without_prereleases(versions)
-      versions.reject { |v| prerelease?(v) }
+    def self.has_metadata?(str : String)
+      str.includes? '+'
     end
 
-    def self.resolve(versions, requirements : Enumerable(String), prereleases = false)
-      unless prereleases || requirements.any? { |r| prerelease?(r) }
-        versions = without_prereleases(versions)
-      end
-
-      matching_versions = requirements
-        .map { |requirement| resolve(versions, requirement) }
-        .reduce(versions) { |a, e| a & e }
-
-      sort(matching_versions)
+    protected def self.without_prereleases(versions : Array(Version))
+      versions.reject { |v| prerelease?(v.value) }
     end
 
-    def self.resolve(versions, requirement : String)
-      case requirement
+    def self.resolve(versions : Array(Version), requirement : VersionReq)
+      case requirement.pattern
       when "*", ""
         versions
-      when /~>\s*([^\s]+)/
-        ver = if idx = $1.rindex('.')
-                $1[0...idx]
-              else
-                $1
-              end
-        versions.select { |version| matches_approximate?(version, $1, ver) }
-      when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
-        versions.select { |version| matches_operator?(version, $1, $2) }
       else
-        versions.select { |version| matches_operator?(version, "=", requirement) }
+        versions.select { |version| matches?(version, requirement) }
       end
     end
 
-    def self.matches?(version : String, requirement : String)
-      case requirement
+    def self.matches?(version : Version, requirement : VersionReq)
+      case requirement.pattern
       when "*", ""
         true
       when /~>\s*([^\s]+)\d*/
@@ -198,11 +185,11 @@ module Shards
               else
                 $1
               end
-        matches_approximate?(version, $1, ver)
+        matches_approximate?(version.value, $1, ver)
       when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
-        matches_operator?(version, $1, $2)
+        matches_operator?(version.value, $1, $2)
       else
-        matches_operator?(version, "=", requirement)
+        matches_operator?(version.value, "=", requirement.pattern)
       end
     end
 

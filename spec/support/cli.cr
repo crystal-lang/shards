@@ -34,7 +34,7 @@ def to_shard_yaml(metadata)
             case version
             when String
               yml << "    git: " << git_url(name).inspect << '\n'
-              yml << "    version: " << version.inspect << '\n'
+              yml << "    version: " << version.inspect << '\n' unless version == "*"
               # when Hash
               #  version.each do |k, v|
               #    yml << "    " << k << ": " << v.inspect << '\n'

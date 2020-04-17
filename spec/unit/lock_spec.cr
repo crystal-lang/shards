@@ -18,14 +18,12 @@ module Shards
       shards.size.should eq(2)
 
       shards[0].name.should eq("repo")
-      shards[0].path.should be_nil
-      shards[0].git.should eq("https://github.com/user/repo.git")
-      shards[0].version.should eq("1.2.3")
+      shards[0].resolver.should eq(GitResolver.new("repo", "https://github.com/user/repo.git"))
+      shards[0].requirement.should eq(version "1.2.3")
 
       shards[1].name.should eq("example")
-      shards[1].path.should be_nil
-      shards[1].git.should eq("https://example.com/example-crystal.git")
-      shards[1].refs.should eq("0d246ee6c52d4e758651b8669a303f04be9a2a96")
+      shards[1].resolver.should eq(GitResolver.new("example", "https://example.com/example-crystal.git"))
+      shards[1].requirement.should eq(commit "0d246ee6c52d4e758651b8669a303f04be9a2a96")
     end
 
     it "raises on unknown version" do

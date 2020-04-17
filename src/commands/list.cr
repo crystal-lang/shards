@@ -14,7 +14,7 @@ module Shards
 
       private def list(dependencies, level = 1)
         dependencies.each do |dependency|
-          resolver = Shards.find_resolver(dependency)
+          resolver = dependency.resolver
 
           # FIXME: duplicated from Check#verify
           unless _spec = resolver.installed_spec
@@ -23,7 +23,7 @@ module Shards
           end
 
           indent = "  " * level
-          puts "#{indent}* #{_spec.name} (#{_spec.version})"
+          puts "#{indent}* #{_spec.name} (#{resolver.report_version _spec.version})"
 
           indent_level = @tree ? level + 1 : level
           list(_spec.dependencies, indent_level)

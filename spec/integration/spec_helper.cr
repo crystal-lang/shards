@@ -7,6 +7,7 @@ require "../../src/lock"
 require "../../src/spec"
 require "../support/factories"
 require "../support/cli"
+require "../support/requirement"
 
 Spec.before_suite do
   run "rm -rf #{tmp_path}/*"
@@ -144,7 +145,7 @@ def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git 
 
   if lock && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    assert expected_version == lock.version, "expected #{name} dependency to have been locked at version #{version}", file, line
+    assert expected_version == lock.requirement.as(Shards::Version).value, "expected #{name} dependency to have been locked at version #{version}", file, line
   end
 end
 

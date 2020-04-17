@@ -1,11 +1,16 @@
 require "./spec_helper"
 
 private def resolver(name)
-  dependency = Shards::Dependency.new(name, git: git_url(name))
-  Shards::GitResolver.new(dependency)
+  Shards::GitResolver.new(name, git_url(name))
 end
 
 module Shards
+  # Allow overriding `source` for the specs
+  class GitResolver
+    def source=(@source)
+    end
+  end
+
   describe GitResolver do
     before_each do
       create_git_repository "empty"
@@ -26,59 +31,64 @@ module Shards
 
     it "available releases" do
       resolver("empty").available_releases.should be_empty
-      resolver("library").available_releases.should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
+      resolver("library").available_releases.should eq(versions ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
     end
 
     it "latest version for ref" do
-      resolver("empty").latest_version_for_ref("master").should be_nil
+      resolver("empty").latest_version_for_ref(branch "master").should be_nil
       resolver("empty").latest_version_for_ref(nil).should be_nil
-      resolver("unreleased").latest_version_for_ref("master").should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
-      resolver("unreleased").latest_version_for_ref("branch").should eq("0.1.0+git.commit.#{git_commits(:unreleased, "branch")[0]}")
-      resolver("unreleased").latest_version_for_ref(nil).should eq("0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
-      resolver("library").latest_version_for_ref("master").should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")
-      resolver("library").latest_version_for_ref(nil).should eq("0.2.0+git.commit.#{git_commits(:library)[0]}")
-      resolver("library").latest_version_for_ref("foo").should be_nil
+      resolver("unreleased").latest_version_for_ref(branch "master").should eq(version "0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
+      resolver("unreleased").latest_version_for_ref(branch "branch").should eq(version "0.1.0+git.commit.#{git_commits(:unreleased, "branch")[0]}")
+      resolver("unreleased").latest_version_for_ref(nil).should eq(version "0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
+      resolver("library").latest_version_for_ref(branch "master").should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
+      resolver("library").latest_version_for_ref(nil).should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
+      resolver("library").latest_version_for_ref(branch "foo").should be_nil
     end
 
     it "versions for" do
-      resolver("empty").versions_for(Dependency.new("empty")).should be_empty
-      resolver("library").versions_for(Dependency.new("library")).should eq(["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
-      resolver("library").versions_for(Dependency.new("library", version: "~> 0.1.0")).should eq(["0.1.0", "0.1.1", "0.1.2"])
-      resolver("library").versions_for(Dependency.new("library", branch: "master")).should eq(["0.2.0+git.commit.#{git_commits(:library)[0]}"])
-      resolver("unreleased").versions_for(Dependency.new("unreleased", branch: "master")).should eq(["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
-      resolver("unreleased").versions_for(Dependency.new("unreleased")).should eq(["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
+      resolver("empty").versions_for(Any).should be_empty
+      resolver("library").versions_for(Any).should eq(versions ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
+      resolver("library").versions_for(VersionReq.new "~> 0.1.0").should eq(versions ["0.1.0", "0.1.1", "0.1.2"])
+      resolver("library").versions_for(branch "master").should eq(versions ["0.2.0+git.commit.#{git_commits(:library)[0]}"])
+      resolver("unreleased").versions_for(branch "master").should eq(versions ["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
+      resolver("unreleased").versions_for(Any).should eq(versions ["0.1.0+git.commit.#{git_commits(:unreleased)[0]}"])
     end
 
     it "read spec for release" do
-      spec = resolver("library").spec("0.1.1")
-      spec.original_version.should eq("0.1.1")
-      spec.version.should eq("0.1.1")
+      spec = resolver("library").spec(version "0.1.1")
+      spec.original_version.should eq(version "0.1.1")
+      spec.version.should eq(version "0.1.1")
     end
 
     it "read spec for commit" do
-      version = "0.2.0+git.commit.#{git_commits(:library)[0]}"
+      version = version("0.2.0+git.commit.#{git_commits(:library)[0]}")
       spec = resolver("library").spec(version)
-      spec.original_version.should eq("0.2.0")
+      spec.original_version.should eq(version "0.2.0")
       spec.version.should eq(version)
     end
 
     it "install" do
       library = resolver("library")
 
-      library.install("0.1.2")
+      library.install(version "0.1.2")
       File.exists?(install_path("library", "src/library.cr")).should be_true
       File.exists?(install_path("library", "shard.yml")).should be_true
-      library.installed_spec.not_nil!.version.should eq("0.1.2")
-      # File.exists?(install_path("library", "LICENSE")).should be_true
+      library.installed_spec.not_nil!.version.should eq(version "0.1.2")
 
-      library.install("0.2.0")
-      library.installed_spec.not_nil!.version.should eq("0.2.0")
+      library.install(version "0.2.0")
+      library.installed_spec.not_nil!.version.should eq(version "0.2.0")
+    end
+
+    it "install commit" do
+      library = resolver("library")
+      version = version "0.2.0+git.commit.#{git_commits(:library)[0]}"
+      library.install(version)
+      library.installed_spec.not_nil!.version.should eq(version)
     end
 
     it "origin changed" do
-      dependency = Dependency.new("library", git: git_url("library"))
-      library = GitResolver.new(dependency)
-      library.install("0.1.2")
+      library = GitResolver.new("library", git_url("library"))
+      library.install(version "0.1.2")
 
       # Change the origin in the cache repo to https://github.com/foo/bar
       Dir.cd(library.local_path) do
@@ -99,7 +109,7 @@ module Shards
       ]
 
       same_origins.each do |origin|
-        dependency.git = origin
+        library.source = origin
         library.origin_changed?.should be_false
       end
 
@@ -115,15 +125,14 @@ module Shards
       ]
 
       changed_origins.each do |origin|
-        dependency.git = origin
+        library.source = origin
         library.origin_changed?.should be_true
       end
     end
 
-    pending "install refs" do
-      # TODO: install commit (whatever the version)
-      # TODO: install branch (whatever the version)
-      # TODO: install tag (whatever the version)
+    it "renders report version" do
+      resolver("library").report_version(version "1.2.3").should eq("1.2.3")
+      resolver("library").report_version(version "1.2.3+git.commit.654875c9dbfa8d72fba70d65fd548d51ffb85aff").should eq("1.2.3 at 654875c")
     end
   end
 end

@@ -50,15 +50,15 @@ module Shards
         @up_to_date = false
 
         @output << "  * " << package.name
-        @output << " (installed: " << installed
+        @output << " (installed: " << resolver.report_version(installed)
 
         unless installed == package.version
-          @output << ", available: " << package.version
+          @output << ", available: " << resolver.report_version(package.version)
         end
 
         # also report latest version:
         if Versions.compare(latest, package.version) < 0
-          @output << ", latest: " << latest
+          @output << ", latest: " << resolver.report_version(latest)
         end
 
         @output.puts ')'

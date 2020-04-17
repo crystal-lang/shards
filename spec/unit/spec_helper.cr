@@ -7,6 +7,7 @@ require "../../src/logger"
 require "../../src/resolvers/*"
 
 require "../support/factories"
+require "../support/requirement"
 
 module Shards
   set_warning_log_level
@@ -14,6 +15,7 @@ end
 
 Spec.before_each do
   clear_repositories
+  Shards::Resolver.clear_resolver_cache
 end
 
 private def clear_repositories

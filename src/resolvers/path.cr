@@ -12,22 +12,14 @@ module Shards
       if File.exists?(spec_path)
         File.read(spec_path)
       else
-        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{dependency.name.inspect}")
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
       end
-    end
-
-    def dependency_path
-      local_path
     end
 
     def spec(version = nil)
       spec = Spec.from_yaml(read_spec(version))
       spec.resolver = self
       spec
-    end
-
-    def installed_spec
-      Spec.from_yaml(read_spec) if installed?
     end
 
     def installed?
@@ -56,15 +48,15 @@ module Shards
       {% end %}
     end
 
-    def available_releases : Array(String)
-      [spec.version] of String
+    def available_releases : Array(Version)
+      [spec(nil).version]
     end
 
-    def latest_version_for_ref(ref : String?) : String?
+    def latest_version_for_ref(ref : Ref?) : Version?
     end
 
     def local_path
-      dependency.path.not_nil!
+      source
     end
 
     private def expanded_local_path
@@ -79,7 +71,11 @@ module Shards
       Dir.mkdir_p(File.dirname(install_path))
       File.symlink(path, install_path)
     end
-  end
 
-  register_resolver PathResolver
+    def report_version(version : Version) : String
+      "#{version.value} at #{source}"
+    end
+
+    register_resolver "path", PathResolver
+  end
 end

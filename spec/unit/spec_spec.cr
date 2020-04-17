@@ -5,7 +5,7 @@ module Shards
     it "parse minimal shard" do
       spec = Spec.from_yaml("name: shards\nversion: 0.1.0\n")
       spec.name.should eq("shards")
-      spec.version.should eq("0.1.0")
+      spec.version.should eq(version "0.1.0")
       spec.description.should be_nil
       spec.license.should be_nil
       spec.authors.should be_empty
@@ -58,28 +58,21 @@ module Shards
           branch: master
         local:
           path: /var/clones/local
-          tag: unreleased
       YAML
 
       spec.dependencies.size.should eq(3)
 
       spec.dependencies[0].name.should eq("repo")
-      spec.dependencies[0].path.should be_nil
-      spec.dependencies[0].git.should eq("https://github.com/user/repo.git")
-      spec.dependencies[0].version.should eq("1.2.3")
-      spec.dependencies[0].refs.should be_nil
+      spec.dependencies[0].resolver.should eq(GitResolver.new("repo", "https://github.com/user/repo.git"))
+      spec.dependencies[0].requirement.should eq(version_req "1.2.3")
 
       spec.dependencies[1].name.should eq("example")
-      spec.dependencies[1].path.should be_nil
-      spec.dependencies[1].git.should eq("https://example.com/example-crystal.git")
-      spec.dependencies[1].version.should eq("*")
-      spec.dependencies[1].refs.should eq("master")
+      spec.dependencies[1].resolver.should eq(GitResolver.new("example", "https://example.com/example-crystal.git"))
+      spec.dependencies[1].requirement.should eq(branch "master")
 
       spec.dependencies[2].name.should eq("local")
-      spec.dependencies[2].path.should eq("/var/clones/local")
-      spec.dependencies[2].git.should be_nil
-      spec.dependencies[2].version.should eq("*")
-      spec.dependencies[2].refs.should eq("unreleased")
+      spec.dependencies[2].resolver.should eq(PathResolver.new("local", "/var/clones/local"))
+      spec.dependencies[2].requirement.should eq(Any)
     end
 
     it "fails dependency with duplicate resolver" do
@@ -116,7 +109,7 @@ module Shards
             github: user/repo
             extra: foobar
         YAML
-      dep = Dependency.new("foo", git: "https://github.com/user/repo.git")
+      dep = Dependency.new("foo", GitResolver.new("foo", "https://github.com/user/repo.git"), Any)
       spec.dependencies[0].should eq dep
     end
 
@@ -136,14 +129,12 @@ module Shards
       spec.development_dependencies.size.should eq(2)
 
       spec.development_dependencies[0].name.should eq("minitest")
-      spec.development_dependencies[0].path.should be_nil
-      spec.development_dependencies[0].git.should eq("https://github.com/ysbaddaden/minitest.cr.git")
-      spec.development_dependencies[0].version.should eq("0.1.4")
+      spec.development_dependencies[0].resolver.should eq(GitResolver.new("minitest", "https://github.com/ysbaddaden/minitest.cr.git"))
+      spec.development_dependencies[0].requirement.should eq(version_req "0.1.4")
 
       spec.development_dependencies[1].name.should eq("webmock")
-      spec.development_dependencies[1].path.should be_nil
-      spec.development_dependencies[1].git.should eq("https://github.com/manastech/webcmok-crystal.git")
-      spec.development_dependencies[1].refs.should eq("master")
+      spec.development_dependencies[1].resolver.should eq(GitResolver.new("webmock", "https://github.com/manastech/webcmok-crystal.git"))
+      spec.development_dependencies[1].requirement.should eq(branch "master")
     end
 
     it "parse targets" do
@@ -239,11 +230,11 @@ module Shards
     it "skips unknown attributes" do
       spec = Spec.from_yaml("\nanme: test\ncustom:\n  test: more\nname: test\nversion: 1\n")
       spec.name.should eq("test")
-      spec.version.should eq("1")
+      spec.version.should eq(version "1")
 
       spec = Spec.from_yaml("\nanme:\nname: test\nversion: 1\n")
       spec.name.should eq("test")
-      spec.version.should eq("1")
+      spec.version.should eq(version "1")
     end
 
     it "raises on unknown attributes if validating" do
