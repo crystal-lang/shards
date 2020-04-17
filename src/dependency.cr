@@ -59,20 +59,6 @@ module Shards
       end
     end
 
-    def to_human_requirement
-      if version?
-        version
-      elsif branch
-        "branch #{branch}"
-      elsif tag
-        "tag #{tag}"
-      elsif commit
-        "commit #{commit}"
-      else
-        "*"
-      end
-    end
-
     def to_s(io)
       io << name << " (" << requirement << ")"
     end
