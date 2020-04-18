@@ -54,7 +54,8 @@ module Shards
         installed = packages.compact_map { |package| install(package) }
 
         # then execute the postinstall script of installed dependencies (with
-        # access to all transitive dependencies):
+        # access to all transitive dependencies), ensuring that we work our way
+        # up the dependency tree:
         installed.reverse_each(&.postinstall)
 
         # always install executables because the path resolver never actually
