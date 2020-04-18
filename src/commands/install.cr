@@ -55,7 +55,7 @@ module Shards
 
         # then execute the postinstall script of installed dependencies (with
         # access to all transitive dependencies):
-        installed.each(&.postinstall)
+        installed.reverse_each(&.postinstall)
 
         # always install executables because the path resolver never actually
         # installs dependencies:
