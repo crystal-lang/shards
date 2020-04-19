@@ -11,6 +11,10 @@ module Shards
     def to_git_ref
       "refs/heads/#{@branch}"
     end
+
+    def to_s(io)
+      io << "branch " << @branch
+    end
   end
 
   struct GitTagRef < Ref
@@ -19,6 +23,10 @@ module Shards
 
     def to_git_ref
       "refs/tags/#{@tag}"
+    end
+
+    def to_s(io)
+      io << "tag " << @tag
     end
   end
 
@@ -31,11 +39,19 @@ module Shards
     def to_git_ref
       @commit
     end
+
+    def to_s(io)
+      io << "commit " << @commit[0...7]
+    end
   end
 
   struct GitHeadRef < Ref
     def to_git_ref
       "HEAD"
+    end
+
+    def to_s(io)
+      io << "HEAD"
     end
   end
 

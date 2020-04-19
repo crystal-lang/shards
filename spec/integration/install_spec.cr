@@ -536,4 +536,23 @@ describe "install" do
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
     File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
   end
+
+  it "shows conflict message" do
+    metadata = {
+      dependencies: {
+        c: "~> 0.1.0",
+        d: ">= 0.2.0",
+      },
+    }
+
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain <<-ERROR
+        E: Unable to satisfy the following requirements:
+
+        - `d (>= 0.2.0)` required by `shard.yml`
+        - `d (0.1.0)` required by `c 0.1.0`
+        ERROR
+    end
+  end
 end
