@@ -48,6 +48,10 @@ private def setup_repositories
   create_shard "missing", "name: missing\nversion: 0.1.0\n"
   create_git_commit "missing", "initial release"
 
+  create_git_repository "noshardyml"
+  create_git_release "noshardyml", "0.1.0", false
+  create_git_release "noshardyml", "0.2.0"
+
   # dependencies with postinstall scripts:
   create_git_repository "post"
   create_file "post", "Makefile", "all:\n\ttouch made.txt\n"

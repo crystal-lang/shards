@@ -74,8 +74,12 @@ module Shards
           unless dependency.name == spec.name
             raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
           end
-          if spec.mismatched_version?
-            Log.warn { "Shard \"#{spec.name}\" version (#{spec.original_version.value}) doesn't match tag version (#{spec.version.value})" }
+          if spec.read_from_yaml?
+            if spec.mismatched_version?
+              Log.warn { "Shard \"#{spec.name}\" version (#{spec.original_version.value}) doesn't match tag version (#{spec.version.value})" }
+            end
+          else
+            Log.warn { "Shard \"#{spec.name}\" version (#{spec.version}) doesn't have a shard.yml file" }
           end
         end
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"

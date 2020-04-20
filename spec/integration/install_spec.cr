@@ -555,4 +555,30 @@ describe "install" do
         ERROR
     end
   end
+
+  it "installs dependency with shard.yml created in latest version" do
+    metadata = {dependencies: {noshardyml: "*"}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "noshardyml", "0.2.0"
+    end
+  end
+
+  it "shows missing shard.yml in debug info" do
+    metadata = {dependencies: {noshardyml: "*"}}
+    with_shard(metadata) do
+      stdout = run "shards install --no-color -v"
+      assert_installed "noshardyml", "0.2.0"
+      stdout.should contain(%(D: Missing "shard.yml" for "noshardyml" at tag v0.1.0))
+    end
+  end
+
+  it "install dependency with no shard.yml and show warning" do
+    metadata = {dependencies: {noshardyml: "0.1.0"}}
+    with_shard(metadata) do
+      stdout = run "shards install --no-color"
+      assert_installed "noshardyml", "0.1.0"
+      stdout.should contain(%(W: Shard "noshardyml" version (0.1.0) doesn't have a shard.yml file))
+    end
+  end
 end

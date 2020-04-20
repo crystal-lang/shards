@@ -9,6 +9,13 @@ module Shards
       spec.description.should be_nil
       spec.license.should be_nil
       spec.authors.should be_empty
+      spec.read_from_yaml?.should be_true
+    end
+
+    it "create without yaml" do
+      spec = Spec.new("name", version "0.1.0")
+      spec.version.should eq(version "0.1.0")
+      spec.read_from_yaml?.should be_false
     end
 
     it "parse description" do

@@ -68,6 +68,11 @@ module Shards
       parser.close if parser
     end
 
+    def initialize(@name : String, @version : Version)
+      @original_version = @version
+      @read_from_yaml = false
+    end
+
     getter! name : String?
     getter! version : Version?
     getter! original_version : Version?
@@ -75,6 +80,7 @@ module Shards
     getter license : String?
     getter crystal : String?
     property resolver : Resolver?
+    getter? read_from_yaml : Bool
 
     def mismatched_version?
       Versions.compare(version, original_version) != 0
@@ -138,6 +144,7 @@ module Shards
           pull.raise "missing required attribute: {{ attr.id }}"
         end
       {% end %}
+      @read_from_yaml = true
     end
 
     def name=(@name : String)

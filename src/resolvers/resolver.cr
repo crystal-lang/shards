@@ -26,12 +26,17 @@ module Shards
       return unless installed?
 
       path = File.join(install_path, SPEC_FILENAME)
+      version = Version.new(File.read(version_path)) if File.exists?(version_path)
       unless File.exists?(path)
-        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
+        if version
+          return Spec.new(name, version)
+        else
+          raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
+        end
       end
 
       spec = Spec.from_file(path)
-      spec.version = Version.new(File.read(version_path)) if File.exists?(version_path)
+      spec.version = version if version
       spec
     end
 
@@ -77,13 +82,18 @@ module Shards
     end
 
     def spec(version : Version) : Spec
-      spec = Spec.from_yaml(read_spec(version))
+      spec =
+        if spec_yaml = read_spec(version)
+          Spec.from_yaml(spec_yaml)
+        else
+          Spec.new(name, version)
+        end
       spec.resolver = self
       spec.version = version
       spec
     end
 
-    abstract def read_spec(version : Version)
+    abstract def read_spec(version : Version) : String?
     abstract def install_sources(version : Version)
     abstract def report_version(version : Version) : String
 
