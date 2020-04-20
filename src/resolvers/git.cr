@@ -97,14 +97,15 @@ module Shards
       @@git_column_never ||= Versions.compare(git_version, "1.7.11") < 0 ? "--column=never" : ""
     end
 
-    def read_spec(version : Version)
+    def read_spec(version : Version) : String?
       update_local_cache
       ref = git_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
         capture("git show #{ref.to_git_ref}:#{SPEC_FILENAME}")
       else
-        raise Error.new("Missing \"#{ref}:#{SPEC_FILENAME}\" for #{name.inspect}")
+        Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
+        nil
       end
     end
 
@@ -174,10 +175,6 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      unless file_exists?(ref, SPEC_FILENAME)
-        File.write(File.join(install_path, "shard.yml"), read_spec(version))
-      end
-
       run "git archive --format=tar --prefix= #{ref.to_git_ref} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
     end
 
