@@ -63,4 +63,16 @@ describe "check" do
       ex.stderr.should be_empty
     end
   end
+
+  it "succeeds when shard.yml version doesn't match git tag" do
+    metadata = {
+      dependencies: {
+        version_mismatch: {git: git_url(:version_mismatch), version: "0.2.0"},
+      },
+    }
+    with_shard(metadata) do
+      run "shards install"
+      run "shards check"
+    end
+  end
 end
