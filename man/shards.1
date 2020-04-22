@@ -21,7 +21,7 @@ more information on its format.
 Builds the specified \fItargets\fR in \fBbin\fR path. If no targets are specified, all are built.
 This command ensures all dependencies are installed, so it is not necessary to run \fBshards install\fR before.
 .PP
-All \fIoptions\fP following the command are delegated to \fBcrystal build\fR.
+All \fIbuild_options\fP following the command are delegated to \fBcrystal build\fR.
 .RE
 .PP
 \fBcheck\fR
@@ -92,7 +92,7 @@ Eventually generates a new \fIshard.lock\fR file.
 .RS 4
 Print the current version of the shard located at \fIpath\fR.
 .RE
-.SH OPTIONS
+.SH GENERAL OPTIONS
 .PP
 \fB\-\-version\fR
 .RS 4
