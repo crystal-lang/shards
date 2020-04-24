@@ -12,6 +12,11 @@ module Shards
     def to_s(io)
       io << pattern
     end
+
+    def to_yaml(yaml)
+      yaml.scalar "version"
+      yaml.scalar @pattern
+    end
   end
 
   struct Version
@@ -31,6 +36,11 @@ module Shards
     def to_s(io)
       io << value
     end
+
+    def to_yaml(yaml)
+      yaml.scalar "version"
+      yaml.scalar value
+    end
   end
 
   abstract struct Ref
@@ -41,6 +51,9 @@ module Shards
 
     def to_s(io)
       io << "*"
+    end
+
+    def to_yaml(yaml)
     end
   end
 

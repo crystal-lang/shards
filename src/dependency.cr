@@ -46,6 +46,15 @@ module Shards
       end
     end
 
+    def to_yaml(yaml : YAML::Builder)
+      yaml.scalar name
+      yaml.mapping do
+        yaml.scalar resolver.class.key
+        yaml.scalar resolver.source
+        requirement.to_yaml(yaml)
+      end
+    end
+
     def_equals @name, @resolver, @requirement
 
     def prerelease?

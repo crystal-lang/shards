@@ -15,6 +15,11 @@ module Shards
     def to_s(io)
       io << "branch " << @branch
     end
+
+    def to_yaml(yaml)
+      yaml.scalar "branch"
+      yaml.scalar @branch
+    end
   end
 
   struct GitTagRef < Ref
@@ -27,6 +32,11 @@ module Shards
 
     def to_s(io)
       io << "tag " << @tag
+    end
+
+    def to_yaml(yaml)
+      yaml.scalar "tag"
+      yaml.scalar @tag
     end
   end
 
@@ -43,6 +53,11 @@ module Shards
     def to_s(io)
       io << "commit " << @commit[0...7]
     end
+
+    def to_yaml(yaml)
+      yaml.scalar "commit"
+      yaml.scalar @commit
+    end
   end
 
   struct GitHeadRef < Ref
@@ -52,6 +67,10 @@ module Shards
 
     def to_s(io)
       io << "HEAD"
+    end
+
+    def to_yaml(yaml)
+      raise NotImplementedError.new("GitHeadRef is for internal use only")
     end
   end
 

@@ -132,6 +132,8 @@ module Shards
       end
     end
 
+    # abstract def write_requirement(req : Requirement, yaml : YAML::Builder)
+
     private RESOLVER_CLASSES = {} of String => Resolver.class
     private RESOLVER_CACHE   = {} of String => Resolver
 

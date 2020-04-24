@@ -1,3 +1,5 @@
+require "./info"
+
 module Shards
   SPEC_FILENAME = "shard.yml"
   LOCK_FILENAME = "shard.lock"
