@@ -7,7 +7,7 @@ module Shards
       shards [<options>...] [<command>]
 
       Commands:
-          build [<targets>] [<build_options>]  - Build the specified <targets> in `bin` path.
+          build [<targets>] [<build_options>]  - Build the specified <targets> in `bin` path, all build_options are delegated to `crystal build`.
           check                                - Verify all dependencies are installed.
           init                                 - Initialize a `shard.yml` file.
           install                              - Install dependencies, creating or using the `shard.lock` file.
@@ -17,10 +17,7 @@ module Shards
           prune                                - Remove unused dependencies from `lib` folder.
           update [<shards>]                    - Update dependencies and `shard.lock`.
           version [<path>]                     - Print the current version of the shard.
-      
-      Build options:
-          Use "crystal build --help" to see available build options.
-      
+
       General options:
       HELP
     puts opts
