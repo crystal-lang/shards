@@ -3,7 +3,7 @@ require "./spec_helper"
 module Shards
   describe Info do
     before_each do
-      run "rm -rf #{Shards.install_path}/.shards.info"
+      run "rm -rf #{Shards.install_path}"
     end
 
     it "create with default install directory" do
@@ -13,6 +13,7 @@ module Shards
     end
 
     it "reads existing file" do
+      Dir.mkdir_p(install_path)
       File.write File.join(install_path, ".shards.info"), SAMPLE_INFO
       info = Info.new
       info.installed.should eq({

@@ -16,6 +16,7 @@ class Shards::Info
   end
 
   def save
+    Dir.mkdir_p(@install_path)
     File.open(info_path, "w") do |file|
       YAML.build(file) do |yaml|
         yaml.mapping do
