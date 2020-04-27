@@ -61,6 +61,10 @@ module Shards
   def self.install_path=(@@install_path : String)
   end
 
+  def self.info
+    @@info ||= Info.new
+  end
+
   private def self.warn_about_legacy_libs_path
     # TODO: drop me in a future release
 

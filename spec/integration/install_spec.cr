@@ -49,11 +49,11 @@ describe "install" do
     end
   end
 
-  it "won't fail if version file is missing (backward compatibility)" do
+  it "won't fail if info file is missing (backward compatibility)" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
       run "shards install"
-      File.delete("lib/web.version")
+      File.delete("lib/.shards.info")
       run "shards install"
     end
   end

@@ -121,7 +121,8 @@ def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, g
 
   if version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    File.read(install_path("#{name}.version")).should eq(expected_version), file, line
+    info = Shards::Info.new(install_path)
+    info.installed[name]?.try &.requirement.should eq(version expected_version), file, line
   end
 end
 
@@ -160,8 +161,8 @@ def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)
   refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked", file, line
 end
 
-def install_path(project, *path_names)
-  File.join(application_path, "lib", project, *path_names)
+def install_path(*path_names)
+  File.join(application_path, "lib", *path_names)
 end
 
 def debug(command)
