@@ -7,18 +7,18 @@ module Shards
       shards [<options>...] [<command>]
 
       Commands:
-          build [<targets>] [<options>]  - Build the specified <targets> in `bin` path.
-          check                          - Verify all dependencies are installed.
-          init                           - Initialize a `shard.yml` file.
-          install                        - Install dependencies, creating or using the `shard.lock` file.
-          list [--tree]                  - List installed dependencies.
-          lock [--update] [<shards>]     - Lock dependencies in `shard.lock` but doesn't install them.
-          outdated [--pre]               - List dependencies that are outdated.
-          prune                          - Remove unused dependencies from `lib` folder.
-          update [<shards>]              - Update dependencies and `shard.lock`.
-          version [<path>]               - Print the current version of the shard.
+          build [<targets>] [<build_options>]  - Build the specified <targets> in `bin` path, all build_options are delegated to `crystal build`.
+          check                                - Verify all dependencies are installed.
+          init                                 - Initialize a `shard.yml` file.
+          install                              - Install dependencies, creating or using the `shard.lock` file.
+          list [--tree]                        - List installed dependencies.
+          lock [--update] [<shards>]           - Lock dependencies in `shard.lock` but doesn't install them.
+          outdated [--pre]                     - List dependencies that are outdated.
+          prune                                - Remove unused dependencies from `lib` folder.
+          update [<shards>]                    - Update dependencies and `shard.lock`.
+          version [<path>]                     - Print the current version of the shard.
 
-      Options:
+      General options:
       HELP
     puts opts
     exit
