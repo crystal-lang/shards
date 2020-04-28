@@ -1,3 +1,5 @@
+require "./info"
+
 module Shards
   SPEC_FILENAME = "shard.yml"
   LOCK_FILENAME = "shard.lock"
@@ -57,6 +59,10 @@ module Shards
   end
 
   def self.install_path=(@@install_path : String)
+  end
+
+  def self.info
+    @@info ||= Info.new
   end
 
   private def self.warn_about_legacy_libs_path

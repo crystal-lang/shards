@@ -3,7 +3,7 @@ require "./spec_helper"
 private def installed_dependencies
   Dir.glob(File.join(application_path, "lib", "*"), match_hidden: true)
     .map { |path| File.basename(path) }
-    .reject(&.ends_with?(".version"))
+    .reject(".shards.info")
 end
 
 describe "prune" do

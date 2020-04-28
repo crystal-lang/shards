@@ -26,7 +26,10 @@ module Shards
       return unless installed?
 
       path = File.join(install_path, SPEC_FILENAME)
-      version = Version.new(File.read(version_path)) if File.exists?(version_path)
+      if installed = Shards.info.installed[name]?
+        version = installed.requirement.as?(Version)
+      end
+
       unless File.exists?(path)
         if version
           return Spec.new(name, version)
@@ -101,11 +104,8 @@ module Shards
       cleanup_install_directory
 
       install_sources(version)
-      File.write(version_path, version.value)
-    end
-
-    def version_path
-      @version_path ||= File.join(Shards.install_path, "#{name}.version")
+      Shards.info.installed[name] = Dependency.new(name, self, version)
+      Shards.info.save
     end
 
     def run_script(name)
@@ -131,6 +131,8 @@ module Shards
         Any
       end
     end
+
+    # abstract def write_requirement(req : Requirement, yaml : YAML::Builder)
 
     private RESOLVER_CLASSES = {} of String => Resolver.class
     private RESOLVER_CACHE   = {} of String => Resolver
