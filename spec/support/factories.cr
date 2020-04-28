@@ -117,10 +117,9 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command)
-  # puts command
+def run(command, *, env = nil)
   output, error = IO::Memory.new, IO::Memory.new
-  status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
+  status = Process.run("/bin/sh", env: env, input: IO::Memory.new(command), output: output, error: error)
 
   if status.success?
     output.to_s

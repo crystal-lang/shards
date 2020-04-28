@@ -3,7 +3,7 @@ require "./info"
 module Shards
   SPEC_FILENAME = "shard.yml"
   LOCK_FILENAME = "shard.lock"
-  INSTALL_DIR   = "lib"
+  INSTALL_DIR   = "crystal_shards"
 
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
