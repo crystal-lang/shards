@@ -223,7 +223,7 @@ describe "update" do
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
       run "shards update"
-      binary = File.join(application_path, "lib", "transitive", "version")
+      binary = install_path("transitive", "version")
       File.exists?(binary).should be_true
       `#{binary}`.should eq("version @ 0.1.0\n")
     end

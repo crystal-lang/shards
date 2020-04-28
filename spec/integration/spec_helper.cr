@@ -173,7 +173,7 @@ def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)
 end
 
 def install_path(*path_names)
-  File.join(application_path, "lib", *path_names)
+  File.join(application_path, Shards::INSTALL_DIR, *path_names)
 end
 
 def debug(command)
