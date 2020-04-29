@@ -392,6 +392,18 @@ describe "install" do
     end
   end
 
+  it "runs install and postinstall in reverse topological order" do
+    with_shard({dependencies: {transitive_2: "*"}}) do
+      output = run "shards install --no-color"
+      install_lines = output.lines.select /^\w: (Installing|Postinstall)/
+      install_lines[0].should match(/Installing version /)
+      install_lines[1].should match(/Installing transitive /)
+      install_lines[2].should match(/Postinstall of transitive:/)
+      install_lines[3].should match(/Installing transitive_2 /)
+      install_lines[4].should match(/Postinstall of transitive_2:/)
+    end
+  end
+
   it "fails with circular dependencies" do
     create_git_repository "a"
     create_git_release "a", "0.1.0", "name: a\nversion: 0.1.0\ndependencies:\n  b:\n    git: #{git_path("b")}"
