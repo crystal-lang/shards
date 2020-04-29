@@ -23,7 +23,7 @@ describe "prune" do
   it "removes unused dependencies" do
     Dir.cd(application_path) { run "shards prune" }
     installed_dependencies.should eq(["web"])
-    File.exists?(File.join(application_path, "lib", "orm.sha1")).should be_false
+    Shards::Info.new(install_path).installed.keys.should eq(["web"])
   end
 
   it "removes directories" do
