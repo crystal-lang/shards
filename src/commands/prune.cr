@@ -16,15 +16,12 @@ module Shards
             Log.debug { "rm -rf '#{Helpers::Path.escape(path)}'" }
             FileUtils.rm_rf(path)
 
-            version_file = "#{path}.version"
-            if File.exists?(version_file)
-              Log.debug { "rm '#{Helpers::Path.escape(version_file)}'" }
-              File.delete(version_file)
-            end
-
+            Shards.info.installed.delete(name)
             Log.info { "Pruned #{File.join(File.basename(Shards.install_path), name)}" }
           end
         end
+
+        Shards.info.save
       end
     end
   end
