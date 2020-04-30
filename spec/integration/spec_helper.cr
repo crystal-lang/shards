@@ -92,6 +92,17 @@ private def setup_repositories
       postinstall: crystal build src/version.cr
     YAML
 
+  create_git_repository "transitive_2"
+  create_git_release "transitive_2", "0.1.0", <<-YAML
+    name: transitive_2
+    version: 0.1.0
+    dependencies:
+      transitive:
+        git: #{git_path(:transitive)}
+    scripts:
+      postinstall: ../transitive/version
+    YAML
+
   # dependencies with executables:
   create_git_repository "binary"
   create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755

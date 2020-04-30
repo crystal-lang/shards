@@ -67,7 +67,7 @@ module Shards
           .resolve(deps, base)
 
       packages = [] of Package
-      result.each do |v|
+      tsort(result).each do |v|
         next unless v.payload
         spec = v.payload.as?(Spec) || raise "BUG: returned graph payload was not a Spec"
         v.requirements.each do |dependency|
@@ -89,6 +89,28 @@ module Shards
       end
 
       packages
+    end
+
+    private def tsort(graph)
+      sorted_vertices = typeof(graph.vertices).new
+
+      graph.vertices.values.each do |vertex|
+        if vertex.incoming_edges.empty?
+          tsort_visit(vertex, sorted_vertices)
+        end
+      end
+
+      sorted_vertices.values
+    end
+
+    private def tsort_visit(vertex, sorted_vertices)
+      vertex.successors.each do |succ|
+        unless sorted_vertices.has_key?(succ.name)
+          tsort_visit(succ, sorted_vertices)
+        end
+      end
+
+      sorted_vertices[vertex.name] = vertex
     end
 
     def name_for(spec : Shards::Spec)

@@ -50,16 +50,20 @@ module Shards
       end
 
       private def install(packages : Array(Package))
-        # first install all dependencies:
-        installed = packages.compact_map { |package| install(package) }
+        # packages are returned by the solver in reverse topological order,
+        # so transitive dependencies are installed first
+        packages.each do |package|
+          # first install the dependency:
+          next unless install(package)
 
-        # then execute the postinstall script of installed dependencies (with
-        # access to all transitive dependencies):
-        installed.each(&.postinstall)
+          # then execute the postinstall script
+          # (with access to all transitive dependencies):
+          package.postinstall
 
-        # always install executables because the path resolver never actually
-        # installs dependencies:
-        packages.each(&.install_executables)
+          # always install executables because the path resolver never actually
+          # installs dependencies:
+          package.install_executables
+        end
       end
 
       private def install(package : Package)
