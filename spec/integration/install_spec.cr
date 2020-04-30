@@ -366,6 +366,18 @@ describe "install" do
     end
   end
 
+  it "doesn't overwrite lockfile if no new dependencies are installed" do
+    metadata = {dependencies: {d: "*", c: "*"}}
+
+    with_shard(metadata) do
+      run "shards install"
+      File.touch "shard.lock", Time.utc(1900, 1, 1)
+      mtime = File.info("shard.lock").modification_time
+      run "shards install"
+      File.info("shard.lock").modification_time.should eq(mtime)
+    end
+  end
+
   it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
       output = run "shards install --no-color"
