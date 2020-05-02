@@ -1,4 +1,5 @@
 require "molinillo"
+require "./package"
 
 module Shards
   class MolinilloSolver
