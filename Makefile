@@ -1,17 +1,17 @@
 .POSIX:
 
-CRYSTAL = crystal
-SHARDS = shards
+CRYSTAL ?= crystal
+SHARDS ?= shards
 SHARDS_SOURCES = $(shell find src -name '*.cr')
 MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr' 2> /dev/null)
 SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
-DESTDIR =
-PREFIX = /usr/local
-BINDIR = $(DESTDIR)$(PREFIX)/bin
-MANDIR = $(DESTDIR)$(PREFIX)/share/man
-INSTALL = /usr/bin/install
+DESTDIR ?=
+PREFIX ?= /usr/local
+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
+INSTALL ?= /usr/bin/install
 
 MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
 MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
