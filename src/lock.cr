@@ -1,6 +1,5 @@
 require "./ext/yaml"
 require "./dependency"
-require "./package"
 
 module Shards
   module Lock

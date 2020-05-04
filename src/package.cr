@@ -1,5 +1,4 @@
 require "file_utils"
-require "./resolvers/*"
 
 module Shards
   class Package

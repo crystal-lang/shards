@@ -164,3 +164,5 @@ module Shards
     end
   end
 end
+
+require "./*"

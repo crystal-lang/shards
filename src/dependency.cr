@@ -1,5 +1,6 @@
 require "./ext/yaml"
 require "./requirement"
+require "./resolvers/resolver"
 
 module Shards
   class Dependency
