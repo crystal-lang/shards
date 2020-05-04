@@ -47,6 +47,7 @@ test_integration: bin/shards phony
 lib: shard.lock
 	mkdir -p lib/molinillo
 	$(SHARDS) install || (curl -L $(MOLINILLO_URL) | tar -xzf - -C lib/molinillo --strip-components=1)
+	touch lib
 
 shard.lock: shard.yml
 	$(SHARDS) update
