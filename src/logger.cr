@@ -32,8 +32,8 @@ end
 
     LOGGER_COLORS = {
       ::Log::Severity::Error   => :red,
-      ::Log::Severity::Warning => :light_yellow,
-      ::Log::Severity::Info    => :light_green,
+      ::Log::Severity::Warning => :yellow,
+      ::Log::Severity::Info    => :green,
       ::Log::Severity::Debug   => :light_gray,
     }
 
@@ -61,8 +61,8 @@ end
   module Shards
     LOGGER_COLORS = {
       "ERROR" => :red,
-      "WARN"  => :light_yellow,
-      "INFO"  => :light_green,
+      "WARN"  => :yellow,
+      "INFO"  => :green,
       "DEBUG" => :light_gray,
     }
 
