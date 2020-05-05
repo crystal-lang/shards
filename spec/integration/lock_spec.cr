@@ -99,4 +99,23 @@ describe "lock" do
       assert_locked "minitest", "0.1.3"
     end
   end
+
+  it "doesn't change lockfile if there are no changes" do
+    metadata = {
+      dependencies:             {web: "~> 1.0"},
+      development_dependencies: {minitest: "~> 0.1"},
+    }
+
+    lock_path = File.join(application_path, "shard.lock")
+
+    with_shard(metadata) do
+      run "shards lock"
+      mtime_before = File.info(lock_path).modification_time
+      sleep 1
+      run "shards lock"
+      mtime_after = File.info(lock_path).modification_time
+
+      mtime_after.should eq mtime_before
+    end
+  end
 end

@@ -42,6 +42,14 @@ module Shards
     end
 
     def self.write(packages : Array(Package), path : String)
+      File.open("/tmp/shards.log", "a+") do |log|
+        log.puts File.exists?(path)
+        log.puts packages.inspect
+        log.puts from_file(path).inspect if File.exists?(path)
+      end
+
+      return if File.exists?(path) && unchanged?(packages, from_file(path))
+
       File.open(path, "w") do |file|
         write(packages, file)
       end
@@ -58,6 +66,15 @@ module Shards
         io << "    " << key << ": " << package.resolver.source << '\n'
         io << "    version: " << package.version.value << '\n'
         io << '\n'
+      end
+    end
+
+    private def self.unchanged?(packages, dependencies)
+      return false if packages.size != dependencies.size
+
+      packages.all? do |package|
+        dependency = Dependency.new(package.name, package.resolver, package.version)
+        dependencies.includes?(dependency)
       end
     end
   end
