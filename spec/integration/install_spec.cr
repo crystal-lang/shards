@@ -45,14 +45,14 @@ describe "install" do
     with_shard(NamedTuple.new) do
       Dir.mkdir "lib"
       stdout = run "shards install --no-color"
-      stdout.should contain(%(W: Shards now installs dependencies into the 'crystal_shards' directory. You may move or delete the legacy 'lib' directory.\n))
+      stdout.should contain(%(W: Shards now installs dependencies into the '_crystal/shards' directory. You may move or delete the legacy 'lib' directory.\n))
     end
   end
 
   it "doesn't show warning if both legacy and current install path are present" do
     with_shard(NamedTuple.new) do
       Dir.mkdir "lib"
-      Dir.mkdir Shards::INSTALL_DIR
+      Dir.mkdir_p Shards::INSTALL_DIR
       stdout = run "shards install --no-color"
       stdout.should eq(%(I: Resolving dependencies\n))
     end
