@@ -423,11 +423,7 @@ describe "install" do
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
-      # Passing this env is needed until the next Crystal release
-      env = {
-        "CRYSTAL_PATH" => "#{Shards::INSTALL_DIR}:#{`crystal env CRYSTAL_PATH`.chomp}",
-      }
-      run "shards install", env: env
+      run "shards install"
       binary = install_path("transitive", "version")
       File.exists?(binary).should be_true
       `#{binary}`.should eq("version @ 0.1.0\n")

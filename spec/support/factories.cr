@@ -118,8 +118,12 @@ def tmp_path
 end
 
 def run(command, *, env = nil)
+  cmd_env = {
+    "CRYSTAL_PATH" => "#{Shards::INSTALL_DIR}:#{`crystal env CRYSTAL_PATH`.chomp}",
+  }
+  cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
-  status = Process.run("/bin/sh", env: env, input: IO::Memory.new(command), output: output, error: error)
+  status = Process.run("/bin/sh", env: cmd_env, input: IO::Memory.new(command), output: output, error: error)
 
   if status.success?
     output.to_s
