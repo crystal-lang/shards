@@ -31,12 +31,12 @@ module Shards
       shards[1].name.should eq("example")
       shards[1].resolver.should eq(GitResolver.new("example", "https://example.com/example-crystal.git"))
       shards[1].requirement.should eq(commit "0d246ee6c52d4e758651b8669a303f04be9a2a96")
-      shards[1].to_s.should eq("example (commit 0d246ee)")
+      shards[1].to_s.should eq("example (commit 0d246ee6c52d4e758651b8669a303f04be9a2a96)")
 
       shards[2].name.should eq("new_git")
       shards[2].resolver.should eq(GitResolver.new("new_git", "https://example.com/new.git"))
       shards[2].requirement.should eq(version "1.2.3+git.commit.0d246ee6c52d4e758651b8669a303f04be9a2a96")
-      shards[2].to_s.should eq("new_git (1.2.3 at 0d246ee)")
+      shards[2].to_s.should eq("new_git (1.2.3 at 0d246ee6c52d4e758651b8669a303f04be9a2a96)")
 
       shards[3].name.should eq("new_path")
       shards[3].resolver.should eq(PathResolver.new("new_path", "../path"))

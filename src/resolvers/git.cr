@@ -54,8 +54,8 @@ module Shards
       @commit
     end
 
-    def to_s(io)
-      io << "commit " << @commit[0...7]
+    def to_s(io, *, commit_length = nil)
+      io << "commit " << @commit[0...commit_length]
     end
 
     def to_yaml(yaml)

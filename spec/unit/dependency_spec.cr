@@ -69,7 +69,7 @@ module Shards
       parse_dependency({foo: {git: "", version: "~> 1.0"}}).to_s.should eq("foo (~> 1.0)")
       parse_dependency({foo: {git: "", branch: "feature"}}).to_s.should eq("foo (branch feature)")
       parse_dependency({foo: {git: "", tag: "rc-1.0"}}).to_s.should eq("foo (tag rc-1.0)")
-      parse_dependency({foo: {git: "", commit: "4478d8afe8c728f44b47d3582a270423cd7fc07d"}}).to_s.should eq("foo (commit 4478d8a)")
+      parse_dependency({foo: {git: "", commit: "4478d8afe8c728f44b47d3582a270423cd7fc07d"}}).to_s.should eq("foo (commit 4478d8afe8c728f44b47d3582a270423cd7fc07d)")
     end
   end
 end
