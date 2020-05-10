@@ -264,5 +264,47 @@ module Shards
       YAML
       expect_raises(ParseError) { Spec.from_yaml(str) }
     end
+
+    it "errors on duplicate attributes" do
+      expect_raises(ParseError, "duplicate attribute: name") do
+        Spec.from_yaml <<-YAML
+          name: foo
+          name: foo
+        YAML
+      end
+      expect_raises(ParseError, "duplicate attribute: version") do
+        Spec.from_yaml <<-YAML
+          name: foo
+          version: 1.0.0
+          version: 1.0.0
+        YAML
+      end
+      expect_raises(ParseError, "duplicate attribute: dependencies") do
+        Spec.from_yaml <<-YAML
+          name: foo
+          version: 1.0.0
+
+          dependencies:
+            bar:
+              github: foo/bar
+          dependencies:
+            baz:
+              github: foo/baz
+        YAML
+      end
+      expect_raises(ParseError, "duplicate attribute: development_dependencies") do
+        Spec.from_yaml <<-YAML
+          name: foo
+          version: 1.0.0
+
+          development_dependencies:
+            bar:
+              github: foo/bar
+          development_dependencies:
+            baz:
+              github: foo/baz
+        YAML
+      end
+    end
   end
 end
