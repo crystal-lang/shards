@@ -3,7 +3,7 @@ require "./info"
 module Shards
   SPEC_FILENAME = "shard.yml"
   LOCK_FILENAME = "shard.lock"
-  INSTALL_DIR   = "_crystal/shards"
+  INSTALL_DIR   = ".crystal/shards"
 
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
@@ -63,7 +63,7 @@ module Shards
     legacy_install_path = File.join(Dir.current, "lib")
 
     if File.exists?(legacy_install_path) && !File.exists?(install_path)
-      Log.warn { "Shards now installs dependencies into the '_crystal/shards' directory. You may move or delete the legacy 'lib' directory." }
+      Log.warn { "Shards now installs dependencies into the '.crystal/shards' directory. You may move or delete the legacy 'lib' directory." }
     end
   end
 

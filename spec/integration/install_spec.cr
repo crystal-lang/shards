@@ -45,7 +45,7 @@ describe "install" do
     with_shard(NamedTuple.new) do
       Dir.mkdir "lib"
       stdout = run "shards install --no-color"
-      stdout.should contain(%(W: Shards now installs dependencies into the '_crystal/shards' directory. You may move or delete the legacy 'lib' directory.\n))
+      stdout.should contain(%(W: Shards now installs dependencies into the '.crystal/shards' directory. You may move or delete the legacy 'lib' directory.\n))
     end
   end
 
