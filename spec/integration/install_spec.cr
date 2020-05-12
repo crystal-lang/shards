@@ -162,6 +162,18 @@ describe "install" do
     assert_installed "missing", "0.1.0", git: git_commits(:missing).first
   end
 
+  it "install specific commit" do
+    metadata = {dependencies: {"web": {git: git_url(:web), commit: git_commits(:web)[2]}}}
+    with_shard(metadata) { run "shards install" }
+    assert_installed "web", "1.2.0", git: git_commits(:web)[2]
+  end
+
+  it "install specific abbreviated commit" do
+    metadata = {dependencies: {"web": {git: git_url(:web), commit: git_commits(:web)[2][0...5]}}}
+    with_shard(metadata) { debug "shards install" }
+    assert_installed "web", "1.2.0", git: git_commits(:web)[2]
+  end
+
   it "installs dependency at locked commit when refs is a branch" do
     metadata = {
       dependencies: {

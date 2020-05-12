@@ -134,5 +134,12 @@ module Shards
       resolver("library").report_version(version "1.2.3").should eq("1.2.3")
       resolver("library").report_version(version "1.2.3+git.commit.654875c9dbfa8d72fba70d65fd548d51ffb85aff").should eq("1.2.3 at 654875c")
     end
+
+    it "#matches_ref" do
+      resolver = GitResolver.new("", "")
+      resolver.matches_ref?(GitCommitRef.new("1234567890abcdef"), Shards::Version.new("0.1.0.+git.commit.1234567")).should be_true
+      resolver.matches_ref?(GitCommitRef.new("1234567890abcdef"), Shards::Version.new("0.1.0.+git.commit.1234567890abcdef")).should be_true
+      resolver.matches_ref?(GitCommitRef.new("1234567"), Shards::Version.new("0.1.0.+git.commit.1234567890abcdef")).should be_true
+    end
   end
 end

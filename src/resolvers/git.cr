@@ -46,6 +46,10 @@ module Shards
     def initialize(@commit : String)
     end
 
+    def =~(other : GitCommitRef)
+      commit.starts_with?(other.commit) || other.commit.starts_with?(commit)
+    end
+
     def to_git_ref
       @commit
     end
@@ -161,7 +165,7 @@ module Shards
     def matches_ref?(ref : GitRef, version : Version)
       case ref
       when GitCommitRef
-        git_ref(version) == ref
+        ref =~ git_ref(version)
       else
         # TODO: check branch and tags
         true
