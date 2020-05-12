@@ -76,7 +76,7 @@ module Shards
 
     abstract def available_releases : Array(Version)
 
-    def latest_version_for_ref(ref : Ref?) : Version?
+    def latest_version_for_ref(ref : Ref?) : Version
       raise "Unsupported ref type for this resolver: #{ref}"
     end
 

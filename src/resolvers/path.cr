@@ -39,9 +39,6 @@ module Shards
       [spec(nil).version]
     end
 
-    def latest_version_for_ref(ref : Ref?) : Version?
-    end
-
     def local_path
       source
     end

@@ -35,18 +35,26 @@ module Shards
     end
 
     it "latest version for ref" do
-      resolver("empty").latest_version_for_ref(branch "master").should be_nil
-      resolver("empty").latest_version_for_ref(nil).should be_nil
+      expect_raises(Shards::Error, "No shard.yml was found for shard \"empty\" at commit #{git_commits(:empty)[0]}") do
+        resolver("empty").latest_version_for_ref(branch "master")
+      end
+      expect_raises(Shards::Error, "No shard.yml was found for shard \"empty\" at commit #{git_commits(:empty)[0]}") do
+        resolver("empty").latest_version_for_ref(nil)
+      end
       resolver("unreleased").latest_version_for_ref(branch "master").should eq(version "0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
       resolver("unreleased").latest_version_for_ref(branch "branch").should eq(version "0.1.0+git.commit.#{git_commits(:unreleased, "branch")[0]}")
       resolver("unreleased").latest_version_for_ref(nil).should eq(version "0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
       resolver("library").latest_version_for_ref(branch "master").should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
       resolver("library").latest_version_for_ref(nil).should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
-      resolver("library").latest_version_for_ref(branch "foo").should be_nil
+      expect_raises(Shards::Error, "Could not find branch foo in the repository file://#{git_path(:library)} for shard \"library\"") do
+        resolver("library").latest_version_for_ref(branch "foo")
+      end
     end
 
     it "versions for" do
-      resolver("empty").versions_for(Any).should be_empty
+      expect_raises(Shards::Error, "No shard.yml was found for shard \"empty\" at commit #{git_commits(:empty)[0]}") do
+        resolver("empty").versions_for(Any)
+      end
       resolver("library").versions_for(Any).should eq(versions ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
       resolver("library").versions_for(VersionReq.new "~> 0.1.0").should eq(versions ["0.1.0", "0.1.1", "0.1.2"])
       resolver("library").versions_for(branch "master").should eq(versions ["0.2.0+git.commit.#{git_commits(:library)[0]}"])
