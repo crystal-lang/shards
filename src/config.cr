@@ -3,6 +3,7 @@ require "./info"
 module Shards
   SPEC_FILENAME = "shard.yml"
   LOCK_FILENAME = "shard.lock"
+  INSTALL_DIR   = ".crystal/shards"
 
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
@@ -45,8 +46,7 @@ module Shards
 
   def self.install_path
     @@install_path ||= begin
-      warn_about_legacy_libs_path
-      ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, "lib") }
+      ENV.fetch("SHARDS_INSTALL_PATH") { File.join(Dir.current, INSTALL_DIR) }
     end
   end
 
@@ -57,17 +57,13 @@ module Shards
     @@info ||= Info.new
   end
 
-  private def self.warn_about_legacy_libs_path
-    # TODO: drop me in a future release
+  def self.warn_about_legacy_libs_path
+    return if ENV["SHARDS_INSTALL_PATH"]?
 
-    legacy_install_path = if path = ENV["SHARDS_INSTALL_PATH"]?
-                            File.join(File.dirname(path), "libs")
-                          else
-                            File.join(Dir.current, "libs")
-                          end
+    legacy_install_path = File.join(Dir.current, "lib")
 
-    if File.exists?(legacy_install_path)
-      Log.warn { "Shards now installs dependencies into the 'lib' folder. You may delete the legacy 'libs' folder." }
+    if File.exists?(legacy_install_path) && !File.exists?(install_path)
+      Log.warn { "Shards now installs dependencies into the '.crystal/shards' directory. You may move or delete the legacy 'lib' directory." }
     end
   end
 

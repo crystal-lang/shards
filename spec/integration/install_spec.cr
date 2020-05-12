@@ -41,6 +41,32 @@ describe "install" do
     end
   end
 
+  it "shows warning if legacy path is present" do
+    with_shard(NamedTuple.new) do
+      Dir.mkdir "lib"
+      stdout = run "shards install --no-color"
+      stdout.should contain(%(W: Shards now installs dependencies into the '.crystal/shards' directory. You may move or delete the legacy 'lib' directory.\n))
+    end
+  end
+
+  it "doesn't show warning if both legacy and current install path are present" do
+    with_shard(NamedTuple.new) do
+      Dir.mkdir "lib"
+      Dir.mkdir_p Shards::INSTALL_DIR
+      stdout = run "shards install --no-color"
+      stdout.should eq(%(I: Resolving dependencies\n))
+    end
+  end
+
+  it "doesn't show warning when explicit install path is set" do
+    with_shard(NamedTuple.new) do
+      Dir.mkdir "lib"
+      env = {"SHARDS_INSTALL_PATH" => "foo"}
+      stdout = run "shards install --no-color", env: env
+      stdout.should eq(%(I: Resolving dependencies\n))
+    end
+  end
+
   it "fails when spec is missing" do
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
@@ -53,7 +79,7 @@ describe "install" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
       run "shards install"
-      File.delete("lib/.shards.info")
+      File.delete("#{Shards::INSTALL_DIR}/.shards.info")
       run "shards install"
     end
   end
@@ -381,7 +407,7 @@ describe "install" do
   it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
       output = run "shards install --no-color"
-      File.exists?(File.join(application_path, "lib", "post", "made.txt")).should be_true
+      File.exists?(install_path("post", "made.txt")).should be_true
       output.should contain("Postinstall of post: make")
     end
   end
@@ -391,14 +417,14 @@ describe "install" do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
       ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
       ex.stdout.should contain("test -n ''\n")
-      Dir.exists?(File.join(application_path, "lib", "fails")).should be_false
+      Dir.exists?(install_path("fails")).should be_false
     end
   end
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
-      binary = File.join(application_path, "lib", "transitive", "version")
+      binary = install_path("transitive", "version")
       File.exists?(binary).should be_true
       `#{binary}`.should eq("version @ 0.1.0\n")
     end

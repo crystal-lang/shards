@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 private def installed_dependencies
-  Dir.glob(File.join(application_path, "lib", "*"), match_hidden: true)
+  Dir.glob(install_path("*"), match_hidden: true)
     .map { |path| File.basename(path) }
     .reject(".shards.info")
 end
@@ -27,14 +27,14 @@ describe "prune" do
   end
 
   it "removes directories" do
-    Dir.mkdir(File.join(application_path, "lib", "test"))
+    Dir.mkdir(install_path("test"))
     Dir.cd(application_path) { run "shards prune" }
     installed_dependencies.should eq(["web"])
   end
 
   it "won't remove files" do
-    File.write(File.join(application_path, "lib", ".keep_hidden"), "")
-    File.write(File.join(application_path, "lib", "keep_not_hidden"), "")
+    File.write(install_path(".keep_hidden"), "")
+    File.write(install_path("keep_not_hidden"), "")
     Dir.cd(application_path) { run "shards prune" }
     installed_dependencies.sort.should eq([".keep_hidden", "keep_not_hidden", "web"])
   end
