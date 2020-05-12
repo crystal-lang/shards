@@ -93,40 +93,52 @@ module Shards
 
         case key = pull.read_scalar
         when "name"
+          check_duplicate(@name, "name", line, column)
           @name = pull.read_scalar
         when "version"
+          check_duplicate(@version, "version", line, column)
           @original_version = @version = Version.new(pull.read_scalar)
         when "description"
+          check_duplicate(@description, "description", line, column)
           @description = pull.read_scalar
         when "license"
+          check_duplicate(@license, "license", line, column)
           @license = pull.read_scalar
         when "crystal"
+          check_duplicate(@crystal, "crystal", line, column)
           @crystal = pull.read_scalar
         when "authors"
+          check_duplicate(@authors, "authors", line, column)
           pull.each_in_sequence do
             authors << Author.new(pull.read_scalar)
           end
         when "dependencies"
+          check_duplicate(@dependencies, "dependencies", line, column)
           pull.each_in_mapping do
             dependencies << Dependency.from_yaml(pull)
           end
         when "development_dependencies"
+          check_duplicate(@development_dependencies, "development_dependencies", line, column)
           pull.each_in_mapping do
             development_dependencies << Dependency.from_yaml(pull)
           end
         when "targets"
+          check_duplicate(@targets, "targets", line, column)
           pull.each_in_mapping do
             targets << Target.new(pull)
           end
         when "executables"
+          check_duplicate(@executables, "executables", line, column)
           pull.each_in_sequence do
             executables << pull.read_scalar
           end
         when "libraries"
+          check_duplicate(@libraries, "libraries", line, column)
           pull.each_in_mapping do
             libraries << Library.new(pull)
           end
         when "scripts"
+          check_duplicate(@scripts, "scripts", line, column)
           pull.each_in_mapping do
             scripts[pull.read_scalar] = pull.read_scalar
           end
@@ -145,6 +157,12 @@ module Shards
         end
       {% end %}
       @read_from_yaml = true
+    end
+
+    private def check_duplicate(argument, name, line, column)
+      unless argument.nil?
+        raise YAML::ParseException.new("duplicate attribute: #{name}", line, column)
+      end
     end
 
     def name=(@name : String)
