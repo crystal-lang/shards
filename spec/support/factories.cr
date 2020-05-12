@@ -48,7 +48,7 @@ end
 
 def create_git_tag(project, version)
   Dir.cd(git_path(project)) do
-    run "git tag #{version}"
+    run "git tag --no-sign #{version}"
   end
 end
 
