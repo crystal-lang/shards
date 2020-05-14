@@ -28,19 +28,32 @@ module Shards
   Log = ::Log.for(self)
 
   def self.set_warning_log_level
-    Log.level = ::Log::Severity::Warning
+    {% if compare_versions(Crystal::VERSION, "0.35.0-0") > 0 %}
+      Log.level = ::Log::Severity::Warn
+    {% else %}
+      Log.level = ::Log::Severity::Warning
+    {% end %}
   end
 
   def self.set_debug_log_level
     Log.level = ::Log::Severity::Debug
   end
 
-  LOGGER_COLORS = {
-    ::Log::Severity::Error   => :red,
-    ::Log::Severity::Warning => :yellow,
-    ::Log::Severity::Info    => :green,
-    ::Log::Severity::Debug   => :light_gray,
-  }
+  {% if compare_versions(Crystal::VERSION, "0.35.0-0") > 0 %}
+    LOGGER_COLORS = {
+      ::Log::Severity::Error => :red,
+      ::Log::Severity::Warn  => :yellow,
+      ::Log::Severity::Info  => :green,
+      ::Log::Severity::Debug => :light_gray,
+    }
+  {% else %}
+    LOGGER_COLORS = {
+      ::Log::Severity::Error   => :red,
+      ::Log::Severity::Warning => :yellow,
+      ::Log::Severity::Info    => :green,
+      ::Log::Severity::Debug   => :light_gray,
+    }
+  {% end %}
 
   FORMATTER = ::Log::Formatter.new do |entry, io|
     message = entry.message
