@@ -3,7 +3,6 @@ Spec.before_each do
 
   if File.exists?(path)
     run("rm -rf #{path}/*")
-    run("rm -rf #{path}/.crystal")
     run("rm -rf #{path}/.shards")
   else
     Dir.mkdir_p(path)
