@@ -46,7 +46,7 @@ module Shards
       resolver("unreleased").latest_version_for_ref(nil).should eq(version "0.1.0+git.commit.#{git_commits(:unreleased)[0]}")
       resolver("library").latest_version_for_ref(branch "master").should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
       resolver("library").latest_version_for_ref(nil).should eq(version "0.2.0+git.commit.#{git_commits(:library)[0]}")
-      expect_raises(Shards::Error, "Could not find branch foo in the repository file://#{git_path(:library)} for shard \"library\"") do
+      expect_raises(Shards::Error, "Could not find branch foo for shard \"library\" in the repository file://#{git_path(:library)}") do
         resolver("library").latest_version_for_ref(branch "foo")
       end
     end

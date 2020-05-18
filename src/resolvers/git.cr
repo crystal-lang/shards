@@ -164,7 +164,7 @@ module Shards
       begin
         commit = commit_sha1_at(ref)
       rescue Error
-        raise Error.new "Could not find #{ref.full_info} in the repository #{source} for shard #{name.inspect}"
+        raise Error.new "Could not find #{ref.full_info} for shard #{name.inspect} in the repository #{source}"
       end
 
       if spec = spec_at_ref(ref)
