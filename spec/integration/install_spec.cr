@@ -41,32 +41,6 @@ describe "install" do
     end
   end
 
-  it "shows warning if legacy path is present" do
-    with_shard(NamedTuple.new) do
-      Dir.mkdir "lib"
-      stdout = run "shards install --no-color"
-      stdout.should contain(%(W: Shards now installs dependencies into the '.crystal/shards' directory. You may move or delete the legacy 'lib' directory.\n))
-    end
-  end
-
-  it "doesn't show warning if both legacy and current install path are present" do
-    with_shard(NamedTuple.new) do
-      Dir.mkdir "lib"
-      Dir.mkdir_p Shards::INSTALL_DIR
-      stdout = run "shards install --no-color"
-      stdout.should eq(%(I: Resolving dependencies\n))
-    end
-  end
-
-  it "doesn't show warning when explicit install path is set" do
-    with_shard(NamedTuple.new) do
-      Dir.mkdir "lib"
-      env = {"SHARDS_INSTALL_PATH" => "foo"}
-      stdout = run "shards install --no-color", env: env
-      stdout.should eq(%(I: Resolving dependencies\n))
-    end
-  end
-
   it "fails when spec is missing" do
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }

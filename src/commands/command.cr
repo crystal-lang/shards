@@ -24,7 +24,6 @@ module Shards
     abstract def run(*args, **kwargs)
 
     def self.run(path, *args, **kwargs)
-      Shards.warn_about_legacy_libs_path
       new(path).run(*args, **kwargs)
     end
 
