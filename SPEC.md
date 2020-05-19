@@ -167,7 +167,7 @@ A version requirement (String).
 - It may be a version number.
 - It may be `"*"` if any version will do.
 - The version number may be prefixed by an operator: `<`, `<=`, `>`, `>=` or `~>`.
-- Many expressions can be separated by commas.
+- Multiple requirements can be separated by commas.
 
 Examples: `1.2.3`, `>= 1.0.0`, `>= 1.0.0, < 2.0` or `~> 2.0`.
 
