@@ -64,6 +64,10 @@ module Shards
   def self.bin_path=(@@bin_path : String)
   end
 
+  def self.crystal_version
+    ENV["CRYSTAL_VERSION"]? || `crystal env CRYSTAL_VERSION`.chomp
+  end
+
   class_property? production = false
   class_property? local = false
 end

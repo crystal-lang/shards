@@ -23,15 +23,20 @@ private def setup_repositories
   create_git_repository "minitest", "0.1.0", "0.1.1", "0.1.2", "0.1.3"
 
   create_git_repository "mock"
-  create_git_release "mock", "0.1.0", "name: mock\nversion: 0.1.0\n" +
-                                      "dependencies:\n  shoulda:\n    git: #{git_path("shoulda")}\n    version: < 0.3.0\n" +
-                                      "development_dependencies:\n  minitest:\n    git: #{git_path("minitest")}\n"
+  create_git_release "mock", "0.1.0", {
+    dependencies:             {shoulda: {git: git_path("shoulda"), version: "< 0.3.0"}},
+    development_dependencies: {minitest: {git: git_path("minitest")}},
+  }
 
   create_git_repository "orm", "0.1.0", "0.2.0", "0.3.0", "0.3.1", "0.3.2", "0.4.0"
-  create_git_release "orm", "0.5.0", "name: orm\nversion: 0.5.0\ndependencies:\n  pg:\n    git: #{git_path("pg")}\n    version: < 0.3.0\n"
+  create_git_release "orm", "0.5.0", {
+    dependencies: {pg: {git: git_path("pg"), version: "< 0.3.0"}},
+  }
 
   create_git_repository "release", "0.2.0", "0.2.1", "0.2.2"
-  create_git_release "release", "0.3.0", "name: release\nversion: 0.3.0\ncustom_dependencies:\n  pg:\n    git: #{git_path("optional")}\n"
+  create_git_release "release", "0.3.0", {
+    ncustom_dependencies: {pg: {git: git_path("optional")}},
+  }
 
   # git dependencies with prereleases:
   create_git_repository "unstable", "0.1.0", "0.2.0", "0.3.0.alpha", "0.3.0.beta"
@@ -45,7 +50,7 @@ private def setup_repositories
   # create_git_commit "empty", "initial release"
 
   create_git_repository "missing"
-  create_shard "missing", "name: missing\nversion: 0.1.0\n"
+  create_shard "missing", "0.1.0"
   create_git_commit "missing", "initial release"
 
   create_git_repository "noshardyml"
@@ -55,11 +60,11 @@ private def setup_repositories
   # dependencies with postinstall scripts:
   create_git_repository "post"
   create_file "post", "Makefile", "all:\n\ttouch made.txt\n"
-  create_git_release "post", "0.1.0", "name: post\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
+  create_git_release "post", "0.1.0", {scripts: {postinstall: "make"}}
 
   create_git_repository "fails"
   create_file "fails", "Makefile", "all:\n\ttest -n ''\n"
-  create_git_release "fails", "0.1.0", "name: fails\nversion: 0.1.0\nscripts:\n  postinstall: make\n"
+  create_git_release "fails", "0.1.0", {scripts: {postinstall: "make"}}
 
   # transitive dependencies in postinstall scripts:
   create_git_repository "version"
@@ -67,14 +72,14 @@ private def setup_repositories
   create_git_release "version", "0.1.0"
 
   create_git_repository "renamed"
-  create_git_release "renamed", "0.1.0", "name: old_name\nversion: 0.1.0"
-  create_git_release "renamed", "0.2.0", "name: new_name\nversion: 0.2.0"
-  create_git_version_commit "renamed", "0.3.0", "name: another_name\nversion: 0.3.0"
+  create_git_release "renamed", "0.1.0", {name: "old_name"}
+  create_git_release "renamed", "0.2.0", {name: "new_name"}
+  create_git_version_commit "renamed", "0.3.0", {name: "another_name"}
 
   create_git_repository "version_mismatch"
-  create_git_release "version_mismatch", "0.1.0", "name: version_mismatch\nversion: 0.1.0"
-  create_git_release "version_mismatch", "0.2.0", "name: version_mismatch\nversion: 0.1.0"
-  create_git_release "version_mismatch", "0.2.1", "name: version_mismatch\nversion: 0.2.1"
+  create_git_release "version_mismatch", "0.1.0"
+  create_git_release "version_mismatch", "0.2.0", {version: "0.1.0"}
+  create_git_release "version_mismatch", "0.2.1"
 
   create_git_repository "inprogress"
   create_git_version_commit "inprogress", "0.1.0"
@@ -82,41 +87,42 @@ private def setup_repositories
 
   create_git_repository "transitive"
   create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)
-  create_git_release "transitive", "0.2.0", <<-YAML
-    name: transitive
-    version: 0.2.0
-    dependencies:
-      version:
-        git: #{git_path(:version)}
-    scripts:
-      postinstall: crystal build src/version.cr
-    YAML
+  create_git_release "transitive", "0.2.0", {
+    dependencies: {version: {git: git_path(:version)}},
+    scripts:      {
+      postinstall: "crystal build src/version.cr",
+    },
+  }
 
   create_git_repository "transitive_2"
-  create_git_release "transitive_2", "0.1.0", <<-YAML
-    name: transitive_2
-    version: 0.1.0
-    dependencies:
-      transitive:
-        git: #{git_path(:transitive)}
-    scripts:
-      postinstall: ../transitive/version
-    YAML
+  create_git_release "transitive_2", "0.1.0", {
+    dependencies: {
+      transitive: {git: git_path(:transitive)},
+    },
+    scripts: {
+      postinstall: "../transitive/version",
+    },
+  }
 
   # dependencies with executables:
   create_git_repository "binary"
   create_file "binary", "bin/foobar", "#! /usr/bin/env sh\necho 'OK'", perm: 0o755
   create_file "binary", "bin/baz", "#! /usr/bin/env sh\necho 'KO'", perm: 0o755
-  create_git_release "binary", "0.1.0", "name: binary\nversion: 0.1.0\nexecutables:\n  - foobar\n  - baz\n"
+  create_git_release "binary", "0.1.0", {executables: ["foobar", "baz"]}
   create_file "binary", "bin/foo", "echo 'FOO'", perm: 0o755
-  create_git_release "binary", "0.2.0", "name: binary\nversion: 0.2.0\nexecutables:\n  - foobar\n  - baz\n  - foo"
+  create_git_release "binary", "0.2.0", {executables: ["foobar", "baz", "foo"]}
 
   create_git_repository "c"
-  create_git_release "c", "0.1.0", "name: c\nversion: 0.1.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.1.0\n"
-  create_git_release "c", "0.2.0", "name: c\nversion: 0.2.0\ndependencies:\n  d:\n    git: #{git_path("d")}\n    version: 0.2.0\n"
+  create_git_release "c", "0.1.0", {dependencies: {d: {git: git_path("d"), version: "0.1.0"}}}
+  create_git_release "c", "0.2.0", {dependencies: {d: {git: git_path("d"), version: "0.2.0"}}}
   create_git_repository "d"
-  create_git_release "d", "0.1.0", "name: d\nversion: 0.1.0\n"
-  create_git_release "d", "0.2.0", "name: d\nversion: 0.2.0\n"
+  create_git_release "d", "0.1.0"
+  create_git_release "d", "0.2.0"
+
+  create_git_repository "incompatible"
+  create_git_release "incompatible", "0.1.0", {crystal: "0.1.0"}
+  create_git_release "incompatible", "0.2.0", {crystal: "0.2.0"}
+  create_git_release "incompatible", "1.0.0", {crystal: "1.0.0"}
 end
 
 private def assert(value, message, file, line)
