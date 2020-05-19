@@ -4,7 +4,13 @@ require "../versions"
 require "../helpers/path"
 
 module Shards
-  struct GitBranchRef < Ref
+  abstract struct GitRef < Ref
+    def full_info
+      to_s
+    end
+  end
+
+  struct GitBranchRef < GitRef
     def initialize(@branch : String)
     end
 
@@ -22,7 +28,7 @@ module Shards
     end
   end
 
-  struct GitTagRef < Ref
+  struct GitTagRef < GitRef
     def initialize(@tag : String)
     end
 
@@ -40,7 +46,7 @@ module Shards
     end
   end
 
-  struct GitCommitRef < Ref
+  struct GitCommitRef < GitRef
     getter commit : String
 
     def initialize(@commit : String)
@@ -58,13 +64,17 @@ module Shards
       io << "commit " << @commit[0...7]
     end
 
+    def full_info
+      "commit #{@commit}"
+    end
+
     def to_yaml(yaml)
       yaml.scalar "commit"
       yaml.scalar @commit
     end
   end
 
-  struct GitHeadRef < Ref
+  struct GitHeadRef < GitRef
     def to_git_ref
       "HEAD"
     end
@@ -77,8 +87,6 @@ module Shards
       raise NotImplementedError.new("GitHeadRef is for internal use only")
     end
   end
-
-  alias GitRef = GitBranchRef | GitTagRef | GitCommitRef | GitHeadRef
 
   class GitResolver < Resolver
     @@has_git_command : Bool?
@@ -154,11 +162,19 @@ module Shards
       versions_from_tags
     end
 
-    def latest_version_for_ref(ref : GitRef?) : Version?
+    def latest_version_for_ref(ref : GitRef?) : Version
+      update_local_cache
       ref ||= GitHeadRef.new
-      if spec = spec_at_ref(ref)
+      begin
         commit = commit_sha1_at(ref)
+      rescue Error
+        raise Error.new "Could not find #{ref.full_info} for shard #{name.inspect} in the repository #{source}"
+      end
+
+      if spec = spec_at_ref(ref)
         Version.new "#{spec.version.value}+git.commit.#{commit}"
+      else
+        raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
       end
     end
 

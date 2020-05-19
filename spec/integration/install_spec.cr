@@ -617,4 +617,36 @@ describe "install" do
       stdout.should contain(%(W: Shard "noshardyml" version (0.1.0) doesn't have a shard.yml file))
     end
   end
+
+  it "shows error when branch does not exist" do
+    metadata = {dependencies: {web: {git: git_url(:web), branch: "foo"}}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain(%(E: Could not find branch foo for shard "web" in the repository #{git_url(:web)}))
+    end
+  end
+
+  it "shows error when tag does not exist" do
+    metadata = {dependencies: {web: {git: git_url(:web), tag: "foo"}}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain(%(E: Could not find tag foo for shard "web" in the repository #{git_url(:web)}))
+    end
+  end
+
+  it "shows error when commit does not exist" do
+    metadata = {dependencies: {web: {git: git_url(:web), commit: "f8f67cc67d6bd3479811825a49a16260a8c767a3"}}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain(%(E: Could not find commit f8f67cc67d6bd3479811825a49a16260a8c767a3 for shard "web" in the repository #{git_url(:web)}))
+    end
+  end
+
+  it "shows error when installing by ref and shard.yml doesn't exist" do
+    metadata = {dependencies: {noshardyml: {git: git_url(:noshardyml), tag: "v0.1.0"}}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain(%(E: No shard.yml was found for shard "noshardyml" at commit #{git_commits(:noshardyml)[1]}))
+    end
+  end
 end

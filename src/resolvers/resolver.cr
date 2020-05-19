@@ -51,13 +51,13 @@ module Shards
       case req
       when Version then [req]
       when Ref
-        versions_for_ref(req)
+        [latest_version_for_ref(req)]
       when VersionReq
         Versions.resolve(available_releases, req)
       when Any
         releases = available_releases
         if releases.empty?
-          versions_for_ref(nil)
+          [latest_version_for_ref(nil)]
         else
           releases
         end
@@ -66,17 +66,9 @@ module Shards
       end
     end
 
-    private def versions_for_ref(ref : Ref?) : Array(Version)
-      if version = latest_version_for_ref(ref)
-        [version]
-      else
-        [] of Version
-      end
-    end
-
     abstract def available_releases : Array(Version)
 
-    def latest_version_for_ref(ref : Ref?) : Version?
+    def latest_version_for_ref(ref : Ref?) : Version
       raise "Unsupported ref type for this resolver: #{ref}"
     end
 
