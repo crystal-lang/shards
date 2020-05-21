@@ -41,6 +41,14 @@ describe "install" do
     end
   end
 
+  it "resolves intersection" do
+    metadata = {dependencies: {web: ">= 1.1.0, < 2.0"}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_installed "web", "1.2.0"
+    end
+  end
+
   it "fails when spec is missing" do
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }

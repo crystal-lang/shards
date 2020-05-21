@@ -167,16 +167,17 @@ module Shards
     end
 
     def self.resolve(versions : Array(Version), requirement : VersionReq)
-      case requirement.pattern
-      when "*", ""
-        versions
-      else
-        versions.select { |version| matches?(version, requirement) }
-      end
+      versions.select { |version| matches?(version, requirement) }
     end
 
     def self.matches?(version : Version, requirement : VersionReq)
-      case requirement.pattern
+      requirement.patterns.all? do |pattern|
+        matches_single_pattern?(version, pattern)
+      end
+    end
+
+    private def self.matches_single_pattern?(version : Version, pattern : String)
+      case pattern
       when "*", ""
         true
       when /~>\s*([^\s]+)\d*/
@@ -189,7 +190,7 @@ module Shards
       when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
         matches_operator?(version.value, $1, $2)
       else
-        matches_operator?(version.value, "=", requirement.pattern)
+        matches_operator?(version.value, "=", pattern)
       end
     end
 

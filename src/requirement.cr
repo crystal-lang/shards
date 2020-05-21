@@ -1,21 +1,24 @@
 module Shards
   struct VersionReq
-    getter pattern : String
+    getter patterns : Array(String)
 
-    def initialize(@pattern)
+    def initialize(patterns)
+      @patterns = patterns.split(',', remove_empty: true).map &.strip
     end
 
     def prerelease?
-      Versions.prerelease? @pattern
+      patterns.any? do |pattern|
+        Versions.prerelease? pattern
+      end
     end
 
     def to_s(io)
-      io << pattern
+      patterns.join(", ", io)
     end
 
     def to_yaml(yaml)
       yaml.scalar "version"
-      yaml.scalar @pattern
+      yaml.scalar to_s
     end
   end
 

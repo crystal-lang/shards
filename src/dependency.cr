@@ -40,7 +40,7 @@ module Shards
         resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
         requirement = resolver.parse_requirement(params)
         if is_lock && requirement.is_a?(VersionReq)
-          requirement = Version.new(requirement.pattern)
+          requirement = Version.new(requirement.to_s)
         end
 
         Dependency.new(name, resolver, requirement)

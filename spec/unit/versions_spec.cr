@@ -185,6 +185,12 @@ module Shards
       resolve(["0.1"], "~> 0.1.0").should eq(["0.1"])
     end
 
+    it "resolve intersection" do
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+
+      resolve(versions, ">= 0.1.0, < 0.2.0").should eq(["0.1.0", "0.1.1", "0.1.2"])
+    end
+
     it "matches?" do
       matches?("0.1.0", "*").should be_true
       matches?("1.0.0", "*").should be_true
@@ -218,6 +224,9 @@ module Shards
       matches?("1.0.0", "~> 1.1").should be_false
       matches?("1.0.1", "~> 1.0.0").should be_true
       matches?("1.0.0", "~> 1.0.1").should be_false
+
+      matches?("1.0.0", "> 0.1.0, < 1.0.1").should be_true
+      matches?("1.0.1", "> 0.1.0, < 1.0.1").should be_false
     end
   end
 end
