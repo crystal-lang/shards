@@ -65,7 +65,17 @@ module Shards
   end
 
   def self.crystal_version
-    ENV["CRYSTAL_VERSION"]? || `crystal env CRYSTAL_VERSION`.chomp
+    @@crystal_version = ENV["CRYSTAL_VERSION"]? || begin
+      output = IO::Memory.new
+      error = IO::Memory.new
+      status = begin
+        Process.run("crystal", {"env", "CRYSTAL_VERSION"}, output: output, error: error)
+      rescue e
+        raise Error.new("Could not execute 'crystal': #{e.message}")
+      end
+      raise Error.new("Error executing crystal:\n#{error}") unless status.success?
+      output.to_s.strip
+    end
   end
 
   class_property? production = false
