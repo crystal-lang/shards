@@ -65,7 +65,7 @@ module Shards
   end
 
   def self.crystal_version
-    @@crystal_version = ENV["CRYSTAL_VERSION"]? || begin
+    @@crystal_version ||= without_prerelease(ENV["CRYSTAL_VERSION"]? || begin
       output = IO::Memory.new
       error = IO::Memory.new
       status = begin
@@ -75,6 +75,17 @@ module Shards
       end
       raise Error.new("Error executing crystal:\n#{error}") unless status.success?
       output.to_s.strip
+    end)
+  end
+
+  def self.crystal_version(@@crystal_version : String)
+  end
+
+  private def self.without_prerelease(version)
+    if version =~ /^(\d+)\.(\d+)\.(\d+)([^\w]\w+)$/
+      "#{$1}.#{$2}.#{$3}"
+    else
+      version
     end
   end
 

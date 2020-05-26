@@ -673,4 +673,12 @@ describe "install" do
       refute_installed "incompatible"
     end
   end
+
+  it "does match crystal prerelease" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      run "shards install", env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
+      assert_installed "incompatible", "1.0.0"
+    end
+  end
 end
