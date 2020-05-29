@@ -77,11 +77,11 @@ module Shards
         when "version"
           Commands::Version.run(args[1]? || path)
         else
-          process_name = "shards-#{args[0]}"
-          if Process.find_executable(process_name).nil?
-            display_help_and_exit(opts)
+          program_name = "shards-#{args[0]}"
+          if Process.find_executable(program_name)
+            run_shards_subcommand(program_name, args)
           else
-            run_shards_subcommand(process_name, args)
+            display_help_and_exit(opts)
           end
         end
 
