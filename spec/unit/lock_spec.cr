@@ -4,7 +4,7 @@ require "../../src/lock"
 module Shards
   describe Lock do
     it "parses" do
-      shards = Lock.from_yaml <<-YAML
+      lock = Lock.from_yaml <<-YAML
       version: 1.0
       shards:
         repo:
@@ -21,6 +21,9 @@ module Shards
           version: 0.1.2
       YAML
 
+      lock.version.should eq("1.0")
+
+      shards = lock.shards
       shards.size.should eq(4)
 
       shards[0].name.should eq("repo")

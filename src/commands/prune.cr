@@ -12,7 +12,7 @@ module Shards
           next unless File.directory?(path)
           name = File.basename(path)
 
-          if locks.none? { |d| d.name == name }
+          if locks.shards.none? { |d| d.name == name }
             Log.debug { "rm -rf '#{Helpers::Path.escape(path)}'" }
             FileUtils.rm_rf(path)
 
