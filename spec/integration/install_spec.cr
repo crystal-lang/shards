@@ -57,12 +57,15 @@ describe "install" do
     end
   end
 
-  it "won't fail if info file is missing (backward compatibility)" do
+  it "reinstall if info file is missing" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
       run "shards install"
-      File.delete("#{Shards::INSTALL_DIR}/.shards.info")
+      File.delete "#{Shards::INSTALL_DIR}/.shards.info"
+      File.touch "#{Shards::INSTALL_DIR}/web/foo.txt"
       run "shards install"
+      File.exists?("#{Shards::INSTALL_DIR}/web/foo.txt").should be_false
+      assert_installed "web", "2.1.0"
     end
   end
 
