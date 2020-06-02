@@ -71,7 +71,7 @@ def to_lock_yaml(lock)
   return unless lock
 
   YAML.dump({
-    version: "1.0",
+    version: Shards::Lock::CURRENT_VERSION,
     shards:  lock.to_a.to_h do |name, version|
       {name, {git: git_url(name), version: version}}
     end,

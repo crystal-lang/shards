@@ -6,6 +6,8 @@ module Shards
     property version : String
     property shards : Array(Dependency)
 
+    CURRENT_VERSION = "2.0"
+
     def initialize(@version : String, @shards : Array(Dependency))
     end
 
@@ -23,7 +25,7 @@ module Shards
           pull.read_mapping do
             key, version = pull.read_scalar, pull.read_scalar
 
-            unless key == "version" && version == "1.0"
+            unless key == "version" && version.in?("1.0", "2.0")
               raise InvalidLock.new
             end
 
@@ -33,7 +35,7 @@ module Shards
                 dependencies << Dependency.from_yaml(pull, is_lock: true)
               end
             else
-              pull.raise "No such attribute #{key} in lock version 1.0"
+              pull.raise "No such attribute #{key} in lock version #{version}"
             end
 
             Lock.new(version, dependencies)
@@ -53,7 +55,7 @@ module Shards
     end
 
     def self.write(packages : Array(Package), io : IO)
-      io << "version: 1.0\n"
+      io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|
