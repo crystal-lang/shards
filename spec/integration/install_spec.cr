@@ -8,7 +8,7 @@ describe "install" do
     }
 
     with_shard(metadata) do
-      debug "shards install"
+      run "shards install"
 
       # it installed dependencies (recursively)
       assert_installed "web", "2.1.0"
