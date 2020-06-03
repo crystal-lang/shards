@@ -163,7 +163,7 @@ def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git 
   path = File.join(application_path, "shard.lock")
   assert File.exists?(path), "expected shard.lock to have been generated", file, line
   locks = Shards::Lock.from_file(path)
-  assert lock = locks.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
+  assert lock = locks.shards.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
   if lock && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
@@ -175,7 +175,7 @@ def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)
   path = File.join(application_path, "shard.lock")
   assert File.exists?(path), "expected shard.lock to have been generated", file, line
   locks = Shards::Lock.from_file(path)
-  refute locks.find { |d| d.name == name }, "expected #{name} dependency to not have been locked", file, line
+  refute locks.shards.find { |d| d.name == name }, "expected #{name} dependency to not have been locked", file, line
 end
 
 def install_path(*path_names)

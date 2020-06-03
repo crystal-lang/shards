@@ -11,7 +11,7 @@ module Shards
 
         if lockfile?
           # install must be as conservative as possible:
-          solver.locks = locks
+          solver.locks = locks.shards
         end
 
         solver.prepare(development: !Shards.production?)
@@ -32,7 +32,7 @@ module Shards
 
       private def validate(packages)
         packages.each do |package|
-          if lock = locks.find { |d| d.name == package.name }
+          if lock = locks.shards.find { |d| d.name == package.name }
             if version = lock.requirement.as?(Shards::Version)
               validate_locked_version(package, version)
             else
@@ -82,9 +82,10 @@ module Shards
       end
 
       private def outdated_lockfile?(packages)
-        return true if packages.size != locks.size
+        return true if locks.version != Shards::Lock::CURRENT_VERSION
+        return true if packages.size != locks.shards.size
         a = packages.to_h { |x| {x.name, x.version} }
-        b = locks.to_h { |x| {x.name, x.requirement.as?(Shards::Version)} }
+        b = locks.shards.to_h { |x| {x.name, x.requirement.as?(Shards::Version)} }
         a != b
       end
     end

@@ -8,7 +8,7 @@ module Shards
     getter lockfile_path : String
 
     @spec : Spec?
-    @locks : Array(Dependency)?
+    @locks : Lock?
 
     def initialize(path)
       if File.directory?(path)

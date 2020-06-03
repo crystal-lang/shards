@@ -2,7 +2,15 @@ require "./ext/yaml"
 require "./dependency"
 
 module Shards
-  module Lock
+  class Lock
+    property version : String
+    property shards : Array(Dependency)
+
+    CURRENT_VERSION = "2.0"
+
+    def initialize(@version : String, @shards : Array(Dependency))
+    end
+
     def self.from_file(path)
       raise Error.new("Missing #{File.basename(path)}") unless File.exists?(path)
       from_yaml(File.read(path))
@@ -15,9 +23,9 @@ module Shards
       pull.read_stream do
         pull.read_document do
           pull.read_mapping do
-            key, value = pull.read_scalar, pull.read_scalar
+            key, version = pull.read_scalar, pull.read_scalar
 
-            unless key == "version" && value == "1.0"
+            unless key == "version" && version.in?("1.0", "2.0")
               raise InvalidLock.new
             end
 
@@ -27,15 +35,14 @@ module Shards
                 dependencies << Dependency.from_yaml(pull, is_lock: true)
               end
             else
-              pull.raise "No such attribute #{key} in lock version 1.0"
+              pull.raise "No such attribute #{key} in lock version #{version}"
             end
+
+            Lock.new(version, dependencies)
           end
         end
       end
-
-      dependencies
     rescue ex : YAML::ParseException
-      # raise ParseError.new(ex.message, str, LOCK_FILENAME, ex.line_number, ex.column_number)
       raise Error.new("Invalid #{LOCK_FILENAME}. Please delete it and run install again.")
     ensure
       pull.close if pull
@@ -48,7 +55,7 @@ module Shards
     end
 
     def self.write(packages : Array(Package), io : IO)
-      io << "version: 1.0\n"
+      io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|

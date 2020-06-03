@@ -11,7 +11,7 @@ class Shards::Info
   def reload
     path = info_path
     if File.exists?(path)
-      @installed = Lock.from_file(path).index_by &.name
+      @installed = Lock.from_file(path).shards.index_by &.name
     end
   end
 

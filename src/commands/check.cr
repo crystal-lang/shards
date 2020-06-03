@@ -36,7 +36,7 @@ module Shards
       end
 
       private def installed?(dependency, spec)
-        unless lock = locks.find { |d| d.name == spec.name }
+        unless lock = locks.shards.find { |d| d.name == spec.name }
           Log.debug { "#{dependency.name}: not locked" }
           return false
         end

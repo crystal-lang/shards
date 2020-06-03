@@ -12,7 +12,7 @@ module Shards
         if lockfile? && !shards.empty?
           # update selected dependencies to latest possible versions, but
           # avoid to update unspecified dependencies, if possible:
-          solver.locks = locks.reject { |d| shards.includes?(d.name) }
+          solver.locks = locks.shards.reject { |d| shards.includes?(d.name) }
         end
 
         solver.prepare(development: !Shards.production?)

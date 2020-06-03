@@ -311,6 +311,21 @@ describe "install" do
     end
   end
 
+  it "upgrade lock file from 1.0" do
+    metadata = {dependencies: {web: "*"}}
+
+    with_shard(metadata) do
+      File.write "shard.lock", YAML.dump({
+        version: "1.0",
+        shards:  {web: {git: git_url(:web), commit: git_commits(:web).first}},
+      })
+
+      run "shards install"
+      Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
+      assert_locked "web", "2.1.0", git: git_commits(:web).first
+    end
+  end
+
   it "production doesn't install development dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
