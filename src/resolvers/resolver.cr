@@ -44,7 +44,7 @@ module Shards
     end
 
     def installed?
-      File.exists?(install_path)
+      File.exists?(install_path) && Shards.info.installed.has_key?(name)
     end
 
     def versions_for(req : Requirement) : Array(Version)

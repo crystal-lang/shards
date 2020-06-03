@@ -139,7 +139,7 @@ def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, g
   if version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
     info = Shards::Info.new(install_path)
-    info.installed[name]?.try &.requirement.should eq(version expected_version), file, line
+    info.installed[name]?.try(&.requirement).should eq(version expected_version), file, line
   end
 end
 
