@@ -17,6 +17,11 @@ class Shards::Info
 
   def save
     Dir.mkdir_p(@install_path)
+
+    unless File.exists?(info_path)
+      Dir[File.join @install_path, "*.sha1"].each { |p| File.delete(p) }
+    end
+
     File.open(info_path, "w") do |file|
       YAML.build(file) do |yaml|
         yaml.mapping do

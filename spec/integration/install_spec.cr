@@ -66,6 +66,16 @@ describe "install" do
     end
   end
 
+  it "deletes old .sha1 files" do
+    metadata = {dependencies: {web: "*"}}
+    with_shard(metadata) do
+      Dir.mkdir_p(Shards::INSTALL_DIR)
+      File.touch("#{Shards::INSTALL_DIR}/web.sha1")
+      run "shards install"
+      File.exists?("#{Shards::INSTALL_DIR}/web.sha1").should be_false
+    end
+  end
+
   it "won't install prerelease version" do
     metadata = {
       dependencies: {unstable: "*"},
