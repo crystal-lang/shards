@@ -5,11 +5,15 @@ module Shards
   class MolinilloSolver
     setter locks : Array(Dependency)?
     @solution : Array(Package)?
+    @prereleases : Bool
+    @ignore_crystal_version : Bool
 
     include Molinillo::SpecificationProvider(Shards::Dependency, Shards::Spec)
     include Molinillo::UI
 
-    def initialize(@spec : Spec, @prereleases = false)
+    def initialize(@spec : Spec, *, prereleases = false, ignore_crystal_version = false)
+      @prereleases = prereleases
+      @ignore_crystal_version = ignore_crystal_version
     end
 
     def prepare(@development = true)
@@ -71,6 +75,7 @@ module Shards
       tsort(result).each do |v|
         next unless v.payload
         spec = v.payload.as?(Spec) || raise "BUG: returned graph payload was not a Spec"
+        next if spec.name == "crystal"
         v.requirements.each do |dependency|
           unless dependency.name == spec.name
             raise Error.new("Error shard name (#{spec.name}) doesn't match dependency name (#{dependency.name})")
@@ -150,7 +155,22 @@ module Shards
     end
 
     def dependencies_for(specification : S) : Array(R)
-      specification.dependencies
+      return specification.dependencies if specification.name == "crystal"
+      return specification.dependencies if @ignore_crystal_version
+
+      crystal_pattern =
+        if crystal_version = specification.crystal
+          if crystal_version =~ /^(\d+)\.(\d+)\.(\d+)$/
+            "~> #{$1}.#{$2}, >= #{crystal_version}"
+          else
+            crystal_version
+          end
+        else
+          "< 1.0.0"
+        end
+      crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, VersionReq.new(crystal_pattern))
+
+      specification.dependencies + [crystal_dependency]
     end
 
     def requirement_satisfied_by?(dependency, activated, spec)

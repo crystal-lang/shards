@@ -8,12 +8,12 @@ module Shards
       @up_to_date = true
       @output = IO::Memory.new
 
-      def run(@prereleases = false)
+      def run(@prereleases = false, *, ignore_crystal_version = false)
         return unless has_dependencies?
 
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, @prereleases)
+        solver = MolinilloSolver.new(spec, prereleases: @prereleases, ignore_crystal_version: ignore_crystal_version)
         solver.prepare(development: !Shards.production?)
 
         packages = handle_resolver_errors { solver.solve }

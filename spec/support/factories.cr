@@ -10,7 +10,7 @@ end
 def create_path_repository(project, version = nil)
   Dir.mkdir_p(File.join(git_path(project), "src"))
   File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
-  create_shard project, "name: #{project}\nversion: #{version}\n" if version
+  create_shard project, version if version
 end
 
 def create_git_repository(project, *versions)
@@ -28,11 +28,11 @@ def create_git_repository(project, *versions)
   versions.each { |version| create_git_release project, version }
 end
 
-def create_git_version_commit(project, version, shard = true)
+def create_git_version_commit(project, version, shard : Bool | NamedTuple = true)
   Dir.cd(git_path(project)) do
     if shard
-      contents = shard.is_a?(String) ? shard : "name: #{project}\nversion: #{version}\n"
-      create_shard project, contents
+      contents = shard.is_a?(NamedTuple) ? shard : nil
+      create_shard project, version, contents
     end
     Dir.cd(git_path(project)) do
       run "git add src/#{project}.cr"
@@ -41,7 +41,7 @@ def create_git_version_commit(project, version, shard = true)
   end
 end
 
-def create_git_release(project, version, shard = true)
+def create_git_release(project, version, shard : Bool | NamedTuple = true)
   create_git_version_commit(project, version, shard)
   create_git_tag(project, "v#{version}")
 end
@@ -71,8 +71,10 @@ def checkout_git_branch(project, branch)
   end
 end
 
-def create_shard(project, contents)
-  create_file project, "shard.yml", contents
+def create_shard(project, version, contents : NamedTuple? = nil)
+  spec = {name: project, version: version, crystal: Shards.crystal_version}
+  spec = spec.merge(contents) if contents
+  create_file project, "shard.yml", spec.to_yaml
 end
 
 def create_file(project, filename, contents, perm = nil)

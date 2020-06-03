@@ -184,8 +184,8 @@ describe "install" do
 
   it "resolves dependency spec at locked commit" do
     create_git_repository "locked"
-    create_git_release "locked", "0.1.0", "name: locked\nversion: 0.1.0\n"
-    create_git_release "locked", "0.2.0", "name: locked\nversion: 0.2.0\ndependencies:\n  pg:\n    git: #{git_path("pg")}\n"
+    create_git_release "locked", "0.1.0"
+    create_git_release "locked", "0.2.0", {dependencies: {pg: {git: git_path("pg")}}}
 
     metadata = {
       dependencies: {
@@ -438,9 +438,9 @@ describe "install" do
 
   it "fails with circular dependencies" do
     create_git_repository "a"
-    create_git_release "a", "0.1.0", "name: a\nversion: 0.1.0\ndependencies:\n  b:\n    git: #{git_path("b")}"
+    create_git_release "a", "0.1.0", {dependencies: {b: {git: git_path("b")}}}
     create_git_repository "b"
-    create_git_release "b", "0.1.0", "name: b\nversion: 0.1.0\ndependencies:\n  a:\n    git: #{git_path("a")}"
+    create_git_release "b", "0.1.0", {dependencies: {a: {git: git_path("a")}}}
 
     with_shard({dependencies: {a: "*"}}) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
@@ -620,7 +620,7 @@ describe "install" do
   it "install dependency with no shard.yml and show warning" do
     metadata = {dependencies: {noshardyml: "0.1.0"}}
     with_shard(metadata) do
-      stdout = run "shards install --no-color"
+      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "0.34.0"}
       assert_installed "noshardyml", "0.1.0"
       stdout.should contain(%(W: Shard "noshardyml" version (0.1.0) doesn't have a shard.yml file))
     end
@@ -655,6 +655,38 @@ describe "install" do
     with_shard(metadata) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
       ex.stdout.should contain(%(E: No shard.yml was found for shard "noshardyml" at commit #{git_commits(:noshardyml)[1]}))
+    end
+  end
+
+  it "install version according to current crystal version" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      run "shards install", env: {"CRYSTAL_VERSION" => "0.3.0"}
+      assert_installed "incompatible", "0.2.0"
+    end
+  end
+
+  it "install version ignoring current crystal version if --ignore-crystal-version" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      run "shards install --ignore-crystal-version", env: {"CRYSTAL_VERSION" => "0.3.0"}
+      assert_installed "incompatible", "1.0.0"
+    end
+  end
+
+  it "doesn't match crystal version for major upgrade" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"CRYSTAL_VERSION" => "2.0.0"} }
+      refute_installed "incompatible"
+    end
+  end
+
+  it "does match crystal prerelease" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      run "shards install", env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
+      assert_installed "incompatible", "1.0.0"
     end
   end
 end

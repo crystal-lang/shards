@@ -64,6 +64,31 @@ module Shards
   def self.bin_path=(@@bin_path : String)
   end
 
+  def self.crystal_version
+    @@crystal_version ||= without_prerelease(ENV["CRYSTAL_VERSION"]? || begin
+      output = IO::Memory.new
+      error = IO::Memory.new
+      status = begin
+        Process.run("crystal", {"env", "CRYSTAL_VERSION"}, output: output, error: error)
+      rescue e
+        raise Error.new("Could not execute 'crystal': #{e.message}")
+      end
+      raise Error.new("Error executing crystal:\n#{error}") unless status.success?
+      output.to_s.strip
+    end)
+  end
+
+  def self.crystal_version(@@crystal_version : String)
+  end
+
+  private def self.without_prerelease(version)
+    if version =~ /^(\d+)\.(\d+)\.(\d+)([^\w]\w+)$/
+      "#{$1}.#{$2}.#{$3}"
+    else
+      version
+    end
+  end
+
   class_property? production = false
   class_property? local = false
 end
