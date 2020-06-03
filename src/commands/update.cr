@@ -4,10 +4,10 @@ require "../molinillo_solver"
 module Shards
   module Commands
     class Update < Command
-      def run(shards : Array(String))
+      def run(shards : Array(String), *, ignore_crystal_version = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec)
+        solver = MolinilloSolver.new(spec, ignore_crystal_version: ignore_crystal_version)
 
         if lockfile? && !shards.empty?
           # update selected dependencies to latest possible versions, but

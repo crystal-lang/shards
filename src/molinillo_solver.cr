@@ -5,11 +5,15 @@ module Shards
   class MolinilloSolver
     setter locks : Array(Dependency)?
     @solution : Array(Package)?
+    @prereleases : Bool
+    @ignore_crystal_version : Bool
 
     include Molinillo::SpecificationProvider(Shards::Dependency, Shards::Spec)
     include Molinillo::UI
 
-    def initialize(@spec : Spec, @prereleases = false)
+    def initialize(@spec : Spec, *, prereleases = false, ignore_crystal_version = false)
+      @prereleases = prereleases
+      @ignore_crystal_version = ignore_crystal_version
     end
 
     def prepare(@development = true)
@@ -152,6 +156,8 @@ module Shards
 
     def dependencies_for(specification : S) : Array(R)
       return specification.dependencies if specification.name == "crystal"
+      return specification.dependencies if @ignore_crystal_version
+
       crystal_pattern =
         if crystal_version = specification.crystal
           if crystal_version =~ /^(\d+)\.(\d+)\.(\d+)$/

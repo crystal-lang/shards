@@ -45,7 +45,10 @@ module Shards
         when "init"
           Commands::Init.run(path)
         when "install"
-          Commands::Install.run(path)
+          Commands::Install.run(
+            path,
+            ignore_crystal_version: args.includes?("--ignore-crystal-version")
+          )
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
         when "lock"
@@ -53,16 +56,22 @@ module Shards
             path,
             args[1..-1].reject(&.starts_with?("--")),
             print: args.includes?("--print"),
-            update: args.includes?("--update")
+            update: args.includes?("--update"),
+            ignore_crystal_version: args.includes?("--ignore-crystal-version")
           )
         when "outdated"
-          Commands::Outdated.run(path, prereleases: args.includes?("--pre"))
+          Commands::Outdated.run(
+            path,
+            prereleases: args.includes?("--pre"),
+            ignore_crystal_version: args.includes?("--ignore-crystal-version")
+          )
         when "prune"
           Commands::Prune.run(path)
         when "update"
           Commands::Update.run(
             path,
-            args[1..-1].reject(&.starts_with?("--"))
+            args[1..-1].reject(&.starts_with?("--")),
+            ignore_crystal_version: args.includes?("--ignore-crystal-version")
           )
         when "version"
           Commands::Version.run(args[1]? || path)

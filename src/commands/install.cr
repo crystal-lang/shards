@@ -4,10 +4,10 @@ require "../molinillo_solver"
 module Shards
   module Commands
     class Install < Command
-      def run
+      def run(*, ignore_crystal_version = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec)
+        solver = MolinilloSolver.new(spec, ignore_crystal_version: ignore_crystal_version)
 
         if lockfile?
           # install must be as conservative as possible:
