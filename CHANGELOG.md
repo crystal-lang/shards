@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## v0.11.0 - 2020-06-05
+
+Features:
+
+-  **(breaking-change)** Use `crystal:` property to filter candidates version. ([#395](https://github.com/crystal-lang/shards/pull/395), thanks @waj, @bcardiff)
+- Introduce `shard.lock` 2.0 format, run `shards install` to migrate. ([#349](https://github.com/crystal-lang/shards/pull/349), [#400](https://github.com/crystal-lang/shards/pull/400), thanks @waj)
+- Support intersection in requirements `version: >= 1.0.0, < 2.0`. ([#394](https://github.com/crystal-lang/shards/pull/394), thanks @waj)
+- Install dependencies in reverse topological order. ([#369](https://github.com/crystal-lang/shards/pull/369), thanks @waj)
+- Use less bright colors for output. ([#373](https://github.com/crystal-lang/shards/pull/373), thanks @waj)
+- Add error on duplicate arguments in `shard.yml`. ([#387](https://github.com/crystal-lang/shards/pull/387), thanks @straight-shoota)
+- Replace `.sha1` files with a single `.shards.info`. ([#349](https://github.com/crystal-lang/shards/pull/349), [#366](https://github.com/crystal-lang/shards/pull/366), [#368](https://github.com/crystal-lang/shards/pull/368), [#401](https://github.com/crystal-lang/shards/pull/401), thanks @waj)
+
+Fixes:
+
+- Improve `GitRef` dependencies and locks. ([#388](https://github.com/crystal-lang/shards/pull/388), [#389](https://github.com/crystal-lang/shards/pull/389), thanks @waj,  @straight-shoota)
+- Fix crash when a shard version didn't contain a `shard.yml`. ([#362](https://github.com/crystal-lang/shards/pull/362), thanks @waj)
+- Avoid `shard.lock` being overwritten when dependencies are up to date. ([#370](https://github.com/crystal-lang/shards/pull/370), thanks @waj)
+- Detect version mismatches between `shard.yml` and git tags . ([#341](https://github.com/crystal-lang/shards/pull/341), thanks @RX14)
+
+Others:
+
+- Add compatibility with Crystal 0.35. Drop compatibility with < 0.34. ([#379](https://github.com/crystal-lang/shards/pull/379), [#391](https://github.com/crystal-lang/shards/pull/391), [#397](https://github.com/crystal-lang/shards/pull/397), thanks @waj, @bcardiff)
+- Explicitly state build_options in help output. ([#364](https://github.com/crystal-lang/shards/pull/364), thanks @Darwinnn)
+- Use YAML parser for `Dependency` and `Target`. ([#306](https://github.com/crystal-lang/shards/pull/306), thanks @straight-shoota)
+- Add lib to Makefile. ([#344](https://github.com/crystal-lang/shards/pull/344), [#380](https://github.com/crystal-lang/shards/pull/380), thanks @straight-shoota, @waj)
+- Allow Makefile envvars to be overwritten from a command line. ([#378](https://github.com/crystal-lang/shards/pull/378), thanks @anatol)
+- Rework of dependency and requirements. ([#354](https://github.com/crystal-lang/shards/pull/354), [#358](https://github.com/crystal-lang/shards/pull/358), thanks @waj)
+- Add spec to check when there is a version mismatch. ([#361](https://github.com/crystal-lang/shards/pull/361), thanks @waj)
+- Make sure tags in specs aren't signed. ([#382](https://github.com/crystal-lang/shards/pull/382), thanks @repomaa)
+- Code clean-up. ([#356](https://github.com/crystal-lang/shards/pull/356), [#375](https://github.com/crystal-lang/shards/pull/375), thanks @straight-shoota)
+
 ## v0.10.0 - 2020-04-01
 
 Features:

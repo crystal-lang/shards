@@ -115,14 +115,27 @@ An [OSI license](http://opensource.org/) name or an URL to a license file
 
 ### crystal
 
-The last known Crystal version that is capable to compile the Shard (String).
+A restriction to indicate which are the supported crystal versions. This will
+usually express a lower and upper-bound constraints.
 
-Purely informational, this may help developers to understand why a Shard is no
-longer compatible, or help tools to choose a compatible version of Crystal to
-work with the project (e.g., an automated documentation generator).
+When resolving dependencies, only the versions that comply with the current
+crystal will be candidates. You can pass `--ignore-crystal-version` to disregard this
+behavior.
+
+The valid values are the same as [dependencies.version](#version-1):
+
+- It may be a version number.
+- It may be `"*"` if any version will do.
+- The version number may be prefixed by an operator: `<`, `<=`, `>`, `>=` or `~>`.
+- Multiple requirements can be separated by commas.
+
+When just a version number is used it has a different semantic compared to dependencies:
+`x.y.z` will be interpreted as `~> x.y, >= x.y.z` (ie: `>= x.y.z, < (x+1).0.0`) honoring semver.
+
+If this property is not included it will be treated as `< 1.0.0`.
 
 ```yaml
-crystal: 0.19.2
+crystal: 0.34.0
 ```
 
 ### repository
