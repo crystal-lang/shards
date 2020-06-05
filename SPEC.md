@@ -119,7 +119,7 @@ A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper-bound constraints.
 
 When resolving dependencies, only the versions that comply with the current
-crystal will be candidate. You can pass `--ignore-crystal-version` to disregard this
+crystal will be candidates. You can pass `--ignore-crystal-version` to disregard this
 behavior.
 
 The valid values are the same as [dependencies.version](#version-1):
