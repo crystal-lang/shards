@@ -162,6 +162,8 @@ module Shards
         if crystal_version = specification.crystal
           if crystal_version =~ /^(\d+)\.(\d+)\.(\d+)$/
             "~> #{$1}.#{$2}, >= #{crystal_version}"
+          elsif crystal_version =~ /^(\d+)\.(\d+)$/
+            "~> #{$1}.#{$2}, >= #{crystal_version}.0"
           else
             crystal_version
           end
