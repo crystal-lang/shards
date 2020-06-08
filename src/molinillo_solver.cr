@@ -160,7 +160,7 @@ module Shards
 
       crystal_pattern =
         if crystal_version = specification.crystal
-          if crystal_version =~ /^(\d+)\.(\d+)\.(\d+)$/
+          if crystal_version =~ /^(\d+)\.(\d+)(\.(\d+))?$/
             "~> #{$1}.#{$2}, >= #{crystal_version}"
           else
             crystal_version

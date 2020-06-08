@@ -694,6 +694,14 @@ describe "install" do
     end
   end
 
+  it "install version according to current crystal version (major-minor only)" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      run "shards install", env: {"CRYSTAL_VERSION" => "0.4.1"}
+      assert_installed "incompatible", "0.3.0"
+    end
+  end
+
   it "install version ignoring current crystal version if --ignore-crystal-version" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
