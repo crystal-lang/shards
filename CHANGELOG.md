@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.11.1 - 2020-06-08
+
+Fixes:
+
+- Support `crystal: x.y` values (without patch). ([#404](https://github.com/crystal-lang/shards/pull/404), thanks @bcardiff)
+
 ## v0.11.0 - 2020-06-05
 
 Features:
