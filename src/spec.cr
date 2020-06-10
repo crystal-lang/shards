@@ -161,7 +161,7 @@ module Shards
 
     private def check_duplicate(argument, name, line, column)
       unless argument.nil?
-        raise YAML::ParseException.new("duplicate attribute: #{name}", line, column)
+        raise YAML::ParseException.new("duplicate attribute #{name.inspect}", line, column)
       end
     end
 
