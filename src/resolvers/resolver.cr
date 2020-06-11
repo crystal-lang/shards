@@ -38,9 +38,14 @@ module Shards
         end
       end
 
-      spec = Spec.from_file(path)
-      spec.version = version if version
-      spec
+      begin
+        spec = Spec.from_file(path)
+        spec.version = version if version
+        spec
+      rescue error : ParseError
+        error.resolver = self
+        raise error
+      end
     end
 
     def installed?
@@ -91,6 +96,9 @@ module Shards
           spec.resolver = self
         end
       end
+    rescue error : ParseError
+      error.resolver = self
+      raise error
     end
 
     abstract def read_spec(version : Version) : String?

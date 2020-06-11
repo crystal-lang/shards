@@ -16,5 +16,34 @@ module Shards
       resolver.should_not eq(PathResolver.new("name", "/path2"))
       resolver.should_not eq(GitResolver.new("name", "/path"))
     end
+
+    describe "#installed_spec" do
+      it "reports parse error location" do
+        create_path_repository "foo", "1.2.3"
+        create_file "foo", "shard.yml", "name: foo\nname: foo\n"
+
+        resolver = Shards::PathResolver.new("foo", git_path("foo"))
+        resolver.install Shards::Version.new("1.2.3")
+
+        error = expect_raises(ParseError, %(Error in foo:spec/unit/.lib/foo/shard.yml: duplicate attribute "name" at line 2, column 1)) do
+          resolver.installed_spec
+        end
+        error.resolver.should eq resolver
+      end
+    end
+
+    describe "#spec" do
+      it "reports parse error location" do
+        create_path_repository "foo", "1.2.3"
+        create_file "foo", "shard.yml", "name: foo\nname: foo\n"
+
+        resolver = Shards::PathResolver.new("foo", git_path("foo"))
+
+        error = expect_raises(ParseError, %(Error in foo:shard.yml: duplicate attribute "name" at line 2, column 1)) do
+          resolver.spec Shards::Version.new("1.2.3")
+        end
+        error.resolver.should eq resolver
+      end
+    end
   end
 end
