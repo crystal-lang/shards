@@ -68,7 +68,7 @@ module Shards
       parser.close if parser
     end
 
-    def initialize(@name : String, @version : Version)
+    def initialize(@name : String, @version : Version, @resolver : Resolver? = nil)
       @original_version = @version
       @read_from_yaml = false
     end

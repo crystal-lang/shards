@@ -77,15 +77,20 @@ module Shards
     end
 
     def spec(version : Version) : Spec
-      spec =
-        if spec_yaml = read_spec(version)
-          Spec.from_yaml(spec_yaml)
-        else
-          Spec.new(name, version)
+      if spec = load_spec(version)
+        spec.version = version
+        spec
+      else
+        Spec.new(name, version, self)
+      end
+    end
+
+    private def load_spec(version)
+      if spec_yaml = read_spec(version)
+        Spec.from_yaml(spec_yaml).tap do |spec|
+          spec.resolver = self
         end
-      spec.resolver = self
-      spec.version = version
-      spec
+      end
     end
 
     abstract def read_spec(version : Version) : String?

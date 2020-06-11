@@ -17,9 +17,7 @@ module Shards
     end
 
     def spec(version = nil)
-      spec = Spec.from_yaml(read_spec(version))
-      spec.resolver = self
-      spec
+      load_spec(version) || raise Error.new("Can't read spec for #{name.inspect}")
     end
 
     def installed?
