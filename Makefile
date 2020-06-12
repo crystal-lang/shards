@@ -23,7 +23,7 @@ clean: phony
 
 bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
-	$(CRYSTAL) build src/shards.cr -o bin/shards
+	$(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
 
 install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
