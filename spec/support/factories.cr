@@ -3,7 +3,7 @@ class FailedCommand < Exception
   getter stderr : String
 
   def initialize(message, @stdout, @stderr)
-    super message
+    super "#{message}: #{stdout} -- #{stderr}"
   end
 end
 
