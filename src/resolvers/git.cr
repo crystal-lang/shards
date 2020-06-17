@@ -305,7 +305,7 @@ module Shards
     end
 
     private def mirror_repository
-      run_in_current_folder "git clone --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
+      run_in_current_folder "GIT_ASKPASS=${GIT_ASKPASS:-/usr/bin/test} git clone --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
