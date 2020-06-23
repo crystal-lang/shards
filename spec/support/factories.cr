@@ -121,7 +121,7 @@ end
 
 def run(command, *, env = nil)
   cmd_env = {
-    "CRYSTAL_PATH" => "#{Shards::INSTALL_DIR}:#{`crystal env CRYSTAL_PATH`.chomp}",
+    "CRYSTAL_PATH" => "#{Shards::INSTALL_DIR}:#{`#{Shards.crystal_bin} env CRYSTAL_PATH`.chomp}",
   }
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
