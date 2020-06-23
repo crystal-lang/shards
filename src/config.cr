@@ -78,7 +78,7 @@ module Shards
     end)
   end
 
-  def self.crystal_version(@@crystal_version : String)
+  def self.crystal_version=(@@crystal_version : String)
   end
 
   private def self.without_prerelease(version)
