@@ -226,7 +226,7 @@ module Shards::Specs
   def self.crystal_path
     # Memoize so each integration spec do not need to create this process.
     # If crystal is bin/crystal this also reduce the noise of Using compiled compiler at ...
-    @@crystal_path ||= "#{Shards::INSTALL_DIR}#{Process::PATH_DELIMITER}#{`crystal env CRYSTAL_PATH`.chomp}"
+    @@crystal_path ||= "#{Shards::INSTALL_DIR}#{Process::PATH_DELIMITER}#{`#{Shards.crystal_bin} env CRYSTAL_PATH`.chomp}"
   end
 end
 

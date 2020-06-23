@@ -66,6 +66,13 @@ module Shards
   def self.bin_path=(@@bin_path : String)
   end
 
+  def self.crystal_bin
+    @@crystal_bin ||= ENV.fetch("CRYSTAL", "crystal")
+  end
+
+  def self.crystal_bin=(@@crystal_bin : String)
+  end
+
   def self.global_override_filename
     ENV["SHARDS_OVERRIDE"]?.try { |p| File.expand_path(p) }
   end
@@ -75,9 +82,9 @@ module Shards
       output = IO::Memory.new
       error = IO::Memory.new
       status = begin
-        Process.run("crystal", {"env", "CRYSTAL_VERSION"}, output: output, error: error)
+        Process.run(crystal_bin, {"env", "CRYSTAL_VERSION"}, output: output, error: error)
       rescue e
-        raise Error.new("Could not execute 'crystal': #{e.message}")
+        raise Error.new("Could not execute '#{crystal_bin}': #{e.message}")
       end
       raise Error.new("Error executing crystal:\n#{error}") unless status.success?
       output.to_s.strip
