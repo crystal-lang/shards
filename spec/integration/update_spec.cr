@@ -240,7 +240,7 @@ describe "update" do
       output = run "shards update --no-color --skip-postinstall"
       binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_false
-      output.should contain("Postinstall of transitive: crystal build src/version.cr (skipped)")
+      output.should contain("Postinstall of transitive: ${CRYSTAL:-crystal} build src/version.cr (skipped)")
     end
   end
 
