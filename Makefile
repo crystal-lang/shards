@@ -1,7 +1,13 @@
 .POSIX:
 
+release ?=      ## Compile in release mode
+debug ?=        ## Add symbolic debug info
+static ?=       ## Enable static linking
+
 CRYSTAL ?= crystal
 SHARDS ?= shards
+override FLAGS += $(if $(release),--release )$(if $(debug),-d )$(if $(static),--static )
+
 SHARDS_SOURCES = $(shell find src -name '*.cr')
 MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr' 2> /dev/null)
 SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
