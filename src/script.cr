@@ -25,7 +25,7 @@ module Shards
             Dir.delete bin_path
           end
           env_path = prepend_path(bin_path, ENV["PATH"]?)
-          Log.debug { "Creating shards script environment created at #{bin_path}. PATH=#{env_path}" }
+          Log.debug { "shards script environment created at #{bin_path}. Updated PATH=#{env_path}" }
 
           add_executable bin_path, "shards", Process.executable_path
           add_executable bin_path, "crystal", Process.find_executable(Shards.crystal_bin)
