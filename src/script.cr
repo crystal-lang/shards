@@ -46,7 +46,7 @@ module Shards
     end
 
     private def self.prepend_path(prefix : String, suffix : String?)
-      suffix ? "#{prefix}:#{suffix}" : prefix
+      suffix ? "#{prefix}#{Process::PATH_DELIMITER}#{suffix}" : prefix
     end
   end
 end
