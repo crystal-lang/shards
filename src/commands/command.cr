@@ -59,8 +59,12 @@ module Shards
     def handle_resolver_errors
       yield
     rescue e : Molinillo::ResolverError
+      if e.is_a?(Molinillo::VersionConflict) && e.conflicts.has_key?(CrystalResolver.key)
+        suggestion = ", try with --ignore-crystal-version or update incompatible shards."
+      end
+
       Log.error { e.message }
-      raise Shards::Error.new("Failed to resolve dependencies")
+      raise Shards::Error.new("Failed to resolve dependencies#{suggestion}")
     end
   end
 end
