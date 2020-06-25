@@ -27,6 +27,7 @@ module Shards
     getter filename : String
     getter line_number : Int32
     getter column_number : Int32
+    property resolver : Resolver?
 
     def initialize(message, @input, @filename, line_number, column_number)
       @line_number = line_number.to_i
@@ -35,7 +36,20 @@ module Shards
     end
 
     def to_s(io)
-      io.puts "in #{filename}: #{message}"
+      io << "Error in "
+      if resolver = self.resolver
+        resolver.name.inspect_unquoted(io)
+        io << ':'
+      end
+
+      filename = self.filename
+      {% if compare_versions(Crystal::VERSION, "0.35.0-0") > 0 %}
+        filename = Path[filename].relative_to Dir.current
+      {% else %}
+        filename = filename.lchop(Dir.current + "/")
+      {% end %}
+
+      io.puts "#{filename}: #{message}"
       io.puts
 
       lines = input.split('\n')

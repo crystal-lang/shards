@@ -68,7 +68,7 @@ module Shards
       parser.close if parser
     end
 
-    def initialize(@name : String, @version : Version)
+    def initialize(@name : String, @version : Version, @resolver : Resolver? = nil)
       @original_version = @version
       @read_from_yaml = false
     end
@@ -161,7 +161,7 @@ module Shards
 
     private def check_duplicate(argument, name, line, column)
       unless argument.nil?
-        raise YAML::ParseException.new("duplicate attribute: #{name}", line, column)
+        raise YAML::ParseException.new("duplicate attribute #{name.inspect}", line, column)
       end
     end
 
