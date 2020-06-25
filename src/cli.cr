@@ -25,7 +25,7 @@ module Shards
   end
 
   def self.run
-    OptionParser.parse(ARGV) do |opts|
+    OptionParser.parse(cli_options) do |opts|
       path = Dir.current
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
@@ -82,6 +82,16 @@ module Shards
         exit
       end
     end
+  end
+
+  def self.cli_options
+    shards_opts : Array(String)
+    {% if compare_versions(Crystal::VERSION, "1.0.0-0") > 0 %}
+      shards_opts = Process.parse_arguments(ENV.fetch("SHARDS_OPTS", ""))
+    {% else %}
+      shards_opts = ENV.fetch("SHARDS_OPTS", "").split
+    {% end %}
+    ARGV.concat(shards_opts)
   end
 
   def self.build(path, args)
