@@ -305,7 +305,14 @@ module Shards
     end
 
     private def mirror_repository
-      run_in_current_folder "git clone --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
+      # The git-config option core.askPass is set to a command that is to be
+      # called when git needs to ask for credentials (for example on a 401
+      # response over HTTP). Setting the command to `true` effectively
+      # disables the credential prompt, because `shards install` is not to
+      # be used interactively.
+      # This configuration can be overriden by defining the environment
+      # variable `GIT_ASKPASS`.
+      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
