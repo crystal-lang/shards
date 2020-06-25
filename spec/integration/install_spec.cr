@@ -419,7 +419,7 @@ describe "install" do
 
     with_shard(metadata) do
       run "shards install"
-      File.touch "shard.lock", Time.utc(1900, 1, 1)
+      File.touch "shard.lock", Time.utc(1901, 12, 14)
       mtime = File.info("shard.lock").modification_time
       run "shards install"
       File.info("shard.lock").modification_time.should eq(mtime)
