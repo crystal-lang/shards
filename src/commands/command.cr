@@ -22,9 +22,14 @@ module Shards
         @spec_path = path
       end
       @lockfile_path = File.join(@path, LOCK_FILENAME)
-      # TODO Read SHARDS_OVERRIDE env var
-      local_override = File.join(@path, OVERRIDE_FILENAME)
-      @override_path = File.exists?(local_override) ? local_override : nil
+
+      # If global override is defined via SHARDS_OVERRIDE env var we use that.
+      # Otherwise we check if the is a shard.override.yml file next to the shard.yml
+      @override_path = Shards.global_override_filename
+      unless @override_path
+        local_override = File.join(@path, OVERRIDE_FILENAME)
+        @override_path = File.exists?(local_override) ? local_override : nil
+      end
     end
 
     def self.run(path, *args, **kwargs)
@@ -61,7 +66,11 @@ module Shards
 
     def write_lockfile(packages)
       Log.info { "Writing #{LOCK_FILENAME}" }
-      Shards::Lock.write(packages, LOCK_FILENAME)
+
+      override_path = @override_path
+      override_path = File.basename(override_path) if override_path && File.dirname(override_path) == @path
+
+      Shards::Lock.write(packages, override_path, LOCK_FILENAME)
     end
 
     def handle_resolver_errors

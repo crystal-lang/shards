@@ -28,7 +28,7 @@ module Shards
         return if packages.empty?
 
         if print
-          Shards::Lock.write(packages, STDOUT)
+          Shards::Lock.write(packages, @override_path, STDOUT)
         else
           write_lockfile(packages)
         end

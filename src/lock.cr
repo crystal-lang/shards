@@ -48,15 +48,15 @@ module Shards
       pull.close if pull
     end
 
-    def self.write(packages : Array(Package), path : String)
+    def self.write(packages : Array(Package), override_path : String?, path : String)
       File.open(path, "w") do |file|
-        write(packages, file)
+        write(packages, override_path, file)
       end
     end
 
-    def self.write(packages : Array(Package), io : IO)
+    def self.write(packages : Array(Package), override_path : String?, io : IO)
       if packages.any?(&.resolver.is_override)
-        io << "# WARNING: This lockfile was generated using also a shard.override.yml file\n"
+        io << "# WARNING: This lockfile was generated using also #{override_path}\n"
       end
       io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"

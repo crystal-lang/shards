@@ -65,6 +65,10 @@ module Shards
   def self.bin_path=(@@bin_path : String)
   end
 
+  def self.global_override_filename
+    ENV["SHARDS_OVERRIDE"]?.try { |p| File.expand_path(p) }
+  end
+
   def self.crystal_version
     @@crystal_version ||= without_prerelease(ENV["CRYSTAL_VERSION"]? || begin
       output = IO::Memory.new
