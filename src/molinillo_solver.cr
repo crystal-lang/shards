@@ -62,6 +62,8 @@ module Shards
               next unless dep.matches?(version)
             end
 
+            next if dep.resolver != lock.resolver
+
             add_lock(base, lock_index, dep.name)
           end
         end
