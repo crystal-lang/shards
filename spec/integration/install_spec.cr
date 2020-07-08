@@ -198,15 +198,15 @@ describe "install" do
   it "resolves dependency spec at locked commit" do
     create_git_repository "locked"
     create_git_release "locked", "0.1.0"
-    create_git_release "locked", "0.2.0", {dependencies: {pg: {git: git_path("pg")}}}
+    create_git_release "locked", "0.2.0", {dependencies: {pg: {git: git_url(:pg)}}}
 
     metadata = {
       dependencies: {
-        "locked": {git: git_path(:"locked"), branch: "master"},
+        "locked": {git: git_url(:locked), branch: "master"},
       },
     }
     lock = {
-      "locked": "0.1.0+git.commit.#{git_commits(:"locked").last}",
+      "locked": "0.1.0+git.commit.#{git_commits(:locked).last}",
     }
     with_shard(metadata, lock) { run "shards install" }
 

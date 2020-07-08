@@ -92,7 +92,7 @@ private def setup_repositories
   create_git_repository "transitive"
   create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)
   create_git_release "transitive", "0.2.0", {
-    dependencies: {version: {git: git_path(:version)}},
+    dependencies: {version: {git: git_url(:version)}},
     scripts:      {
       postinstall: "crystal build src/version.cr",
     },
@@ -101,7 +101,7 @@ private def setup_repositories
   create_git_repository "transitive_2"
   create_git_release "transitive_2", "0.1.0", {
     dependencies: {
-      transitive: {git: git_path(:transitive)},
+      transitive: {git: git_url(:transitive)},
     },
     scripts: {
       postinstall: "../transitive/version",
@@ -117,8 +117,8 @@ private def setup_repositories
   create_git_release "binary", "0.2.0", {executables: ["foobar", "baz", "foo"]}
 
   create_git_repository "c"
-  create_git_release "c", "0.1.0", {dependencies: {d: {git: git_path("d"), version: "0.1.0"}}}
-  create_git_release "c", "0.2.0", {dependencies: {d: {git: git_path("d"), version: "0.2.0"}}}
+  create_git_release "c", "0.1.0", {dependencies: {d: {git: git_url(:d), version: "0.1.0"}}}
+  create_git_release "c", "0.2.0", {dependencies: {d: {git: git_url(:d), version: "0.2.0"}}}
   create_git_repository "d"
   create_git_release "d", "0.1.0"
   create_git_release "d", "0.2.0"
