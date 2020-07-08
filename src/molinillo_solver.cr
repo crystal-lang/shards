@@ -22,6 +22,7 @@ module Shards
     private def add_lock(base, lock_index, name)
       if lock = lock_index.delete(name)
         resolver = lock.resolver
+        check_single_resolver_by_name resolver
 
         lock_version =
           case lock_req = lock.requirement
@@ -131,6 +132,8 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
+      check_single_resolver_by_name dependency.resolver
+
       @search_results[{dependency.name, dependency.requirement}] ||= begin
         resolver = dependency.resolver
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
@@ -189,6 +192,8 @@ module Shards
     end
 
     private def versions_for(dependency, resolver) : Array(Version)
+      check_single_resolver_by_name resolver
+
       matching = resolver.versions_for(dependency.requirement)
 
       if (locks = @locks) &&
@@ -208,6 +213,18 @@ module Shards
     end
 
     def indicate_progress
+    end
+
+    @used_resolvers = {} of String => Resolver
+
+    private def check_single_resolver_by_name(resolver : Resolver)
+      if used = @used_resolvers[resolver.name]?
+        if used != resolver
+          raise Error.new("Error shard name (#{resolver.name}) has ambiguous sources: '#{used.yaml_source_entry}' and '#{resolver.yaml_source_entry}'.")
+        end
+      else
+        @used_resolvers[resolver.name] = resolver
+      end
     end
   end
 end

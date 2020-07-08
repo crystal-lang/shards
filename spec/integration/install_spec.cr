@@ -757,4 +757,25 @@ describe "install" do
       stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
+
+  it "fails on conflicting sources" do
+    create_git_repository "awesome", "0.1.0"
+
+    create_git_repository "intermediate"
+    create_git_release "intermediate", "0.1.0", {
+      dependencies: {awesome: {git: git_url(:awesome)}},
+    }
+
+    create_git_repository "forked_awesome"
+    create_git_release "forked_awesome", "0.1.0", {name: "awesome"}
+
+    metadata = {dependencies: {
+      intermediate: "*",
+      awesome:      {git: git_url(:forked_awesome)},
+    }}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
+    end
+  end
 end

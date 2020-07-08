@@ -27,6 +27,10 @@ module Shards
       name == other.name && source == other.source
     end
 
+    def yaml_source_entry
+      "#{self.class.key}: #{source}"
+    end
+
     def installed_spec
       return unless installed?
 

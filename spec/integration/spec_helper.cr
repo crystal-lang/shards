@@ -196,7 +196,7 @@ private def source_from_named_tuple(source : NamedTuple)
 end
 
 private def source_from_resolver(resolver : Shards::Resolver)
-  "#{resolver.class.key}: #{resolver.source}"
+  resolver.yaml_source_entry
 end
 
 def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)
