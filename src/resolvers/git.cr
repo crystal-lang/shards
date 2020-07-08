@@ -99,18 +99,15 @@ module Shards
       "git"
     end
 
-    def self.build(key : String, name : String, source : String)
-      expanded_source =
-        case key
-        when "git"
-          source
-        when "github", "bitbucket", "gitlab"
-          "https://#{key}.com/#{source}.git"
-        else
-          raise "Unknown resolver #{key}"
-        end
-
-      new(name, expanded_source)
+    def self.normalize_key_source(key : String, source : String) : {String, String}
+      case key
+      when "git"
+        {"git", source}
+      when "github", "bitbucket", "gitlab"
+        {"git", "https://#{key}.com/#{source}.git"}
+      else
+        raise "Unknown resolver #{key}"
+      end
     end
 
     protected def self.has_git_command?

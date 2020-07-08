@@ -13,7 +13,12 @@ module Shards
     end
 
     def self.build(key : String, name : String, source : String)
+      _, source = self.normalize_key_source(key, source)
       self.new(name, source)
+    end
+
+    def self.normalize_key_source(key : String, source : String)
+      {key, source}
     end
 
     def ==(other : Resolver)
@@ -164,8 +169,7 @@ module Shards
           self
         end
 
-      # TODO move source normalization here
-
+      key, source = resolver_class.normalize_key_source(key, source)
       RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end
