@@ -14,6 +14,10 @@ Spec.before_suite do
   setup_repositories
 end
 
+Spec.before_each do
+  Shards::Resolver.clear_resolver_cache
+end
+
 private def setup_repositories
   # git dependencies for testing version resolution:
   create_git_repository "web", "1.0.0", "1.1.0", "1.1.1", "1.1.2", "1.2.0", "2.0.0", "2.1.0"
@@ -134,13 +138,21 @@ private def refute(value, message, file, line)
   fail(message, file, line) if value
 end
 
-def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
+def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil, source = nil)
   assert Dir.exists?(install_path(name)), "expected #{name} dependency to have been installed", file, line
+  Shards::Resolver.clear_resolver_cache # Parsing Shards::Info might use cache of resolvers. Avoid it
+  info = Shards::Info.new(install_path)
+  dependency = info.installed[name]?
 
-  if version
+  if dependency && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    info = Shards::Info.new(install_path)
-    info.installed[name]?.try(&.requirement).should eq(version expected_version), file, line
+    dependency.requirement.should eq(version expected_version), file, line
+  end
+
+  if dependency && source
+    expected_source = source_from_named_tuple(source)
+    actual_source = source_from_resolver(dependency.resolver)
+    assert expected_source == actual_source, "expected #{name} dependency to have been installed using #{expected_source}", file, line
   end
 end
 
@@ -160,9 +172,10 @@ def assert_installed_file(path, file = __FILE__, line = __LINE__)
   assert File.exists?(File.join(install_path(name), path)), "Expected #{path} to have been installed", file, line
 end
 
-def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
+def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil, source = nil)
   path = File.join(application_path, "shard.lock")
   assert File.exists?(path), "expected shard.lock to have been generated", file, line
+  Shards::Resolver.clear_resolver_cache # Parsing Shards::Lock might use cache of resolvers. Avoid it
   locks = Shards::Lock.from_file(path)
   assert lock = locks.shards.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
@@ -170,6 +183,20 @@ def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git 
     expected_version = git ? "#{version}+git.commit.#{git}" : version
     assert expected_version == lock.requirement.as(Shards::Version).value, "expected #{name} dependency to have been locked at version #{version}", file, line
   end
+
+  if lock && source
+    expected_source = source_from_named_tuple(source)
+    actual_source = source_from_resolver(lock.resolver)
+    assert expected_source == actual_source, "expected #{name} dependency to have been locked using #{expected_source}", file, line
+  end
+end
+
+private def source_from_named_tuple(source : NamedTuple)
+  source.to_yaml.lines.last
+end
+
+private def source_from_resolver(resolver : Shards::Resolver)
+  "#{resolver.class.key}: #{resolver.source}"
 end
 
 def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)

@@ -139,8 +139,9 @@ module Shards
 
     # abstract def write_requirement(req : Requirement, yaml : YAML::Builder)
 
+    private record ResolverCacheKey, key : String, name : String, source : String
     private RESOLVER_CLASSES = {} of String => Resolver.class
-    private RESOLVER_CACHE   = {} of String => Resolver
+    private RESOLVER_CACHE   = {} of ResolverCacheKey => Resolver
 
     def self.register_resolver(key, resolver)
       RESOLVER_CLASSES[key] = resolver
@@ -163,7 +164,9 @@ module Shards
           self
         end
 
-      RESOLVER_CACHE[name] ||= begin
+      # TODO move source normalization here
+
+      RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end
     end

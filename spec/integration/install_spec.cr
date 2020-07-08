@@ -265,6 +265,20 @@ describe "install" do
     end
   end
 
+  it "updates when dependency source changed" do
+    metadata = {dependencies: {web: {path: git_path(:web)}}}
+    lock = {web: "2.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "web", "2.1.0", source: {git: git_url(:web)}
+
+      run "shards install"
+
+      assert_locked "web", "2.1.0", source: {path: git_path(:web)}
+      assert_installed "web", "2.1.0", source: {path: git_path(:web)}
+    end
+  end
+
   it "install subdependency of new dependency respecting lock" do
     metadata = {dependencies: {c: "*", d: "*"}}
     lock = {d: "0.1.0"}
