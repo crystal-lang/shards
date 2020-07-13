@@ -7,7 +7,7 @@ module Shards
       def run(shards : Array(String), *, ignore_crystal_version = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
 
         if lockfile? && !shards.empty?
           # update selected dependencies to latest possible versions, but

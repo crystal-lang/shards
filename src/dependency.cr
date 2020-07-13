@@ -11,7 +11,7 @@ module Shards
     def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
     end
 
-    def self.from_yaml(pull : YAML::PullParser, *, is_lock = false)
+    def self.from_yaml(pull : YAML::PullParser, *, is_lock = false, is_override = false)
       mapping_start = pull.location
       name = pull.read_scalar
       pull.read_mapping do
@@ -37,7 +37,12 @@ module Shards
           raise YAML::ParseException.new("Missing resolver for dependency #{name.inspect}", *mapping_start)
         end
 
-        resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
+        unless is_override
+          resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
+        else
+          resolver = resolver_data[:type].build_override_resolver(resolver_data[:key], name, resolver_data[:source])
+        end
+
         requirement = resolver.parse_requirement(params)
         if is_lock && requirement.is_a?(VersionReq)
           requirement = Version.new(requirement.to_s)

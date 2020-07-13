@@ -55,13 +55,16 @@ module Shards
     end
 
     def self.write(packages : Array(Package), io : IO)
+      if packages.any?(&.resolver.is_override)
+        io << "# WARNING: This lockfile was generated using also a shard.override.yml file\n"
+      end
       io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|
         key = package.resolver.class.key
 
-        io << "  " << package.name << ":\n"
+        io << "  " << package.name << ":#{package.resolver.is_override ? " # Overridden" : nil}\n"
         io << "    " << key << ": " << package.resolver.source << '\n'
         io << "    version: " << package.version.value << '\n'
         io << '\n'

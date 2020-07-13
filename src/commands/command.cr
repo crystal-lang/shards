@@ -1,14 +1,17 @@
 require "../lock"
 require "../spec"
+require "../override"
 
 module Shards
   abstract class Command
     getter path : String
     getter spec_path : String
     getter lockfile_path : String
+    getter override_path : String?
 
     @spec : Spec?
     @locks : Lock?
+    @override : Override?
 
     def initialize(path)
       if File.directory?(path)
@@ -19,6 +22,9 @@ module Shards
         @spec_path = path
       end
       @lockfile_path = File.join(@path, LOCK_FILENAME)
+      # TODO Read SHARDS_OVERRIDE env var
+      local_override = File.join(@path, OVERRIDE_FILENAME)
+      @override_path = File.exists?(local_override) ? local_override : nil
     end
 
     def self.run(path, *args, **kwargs)
@@ -47,6 +53,10 @@ module Shards
 
     def lockfile?
       File.exists?(lockfile_path)
+    end
+
+    def override
+      @override ||= override_path.try { |p| Shards::Override.from_file(p) }
     end
 
     def write_lockfile(packages)

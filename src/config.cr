@@ -1,9 +1,10 @@
 require "./info"
 
 module Shards
-  SPEC_FILENAME = "shard.yml"
-  LOCK_FILENAME = "shard.lock"
-  INSTALL_DIR   = "lib"
+  SPEC_FILENAME     = "shard.yml"
+  LOCK_FILENAME     = "shard.lock"
+  OVERRIDE_FILENAME = "shard.override.yml"
+  INSTALL_DIR       = "lib"
 
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"

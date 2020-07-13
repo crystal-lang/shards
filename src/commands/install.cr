@@ -7,7 +7,7 @@ module Shards
       def run(*, ignore_crystal_version = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
 
         if lockfile?
           # install must be as conservative as possible:

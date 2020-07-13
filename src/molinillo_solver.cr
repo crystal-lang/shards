@@ -11,7 +11,7 @@ module Shards
     include Molinillo::SpecificationProvider(Shards::Dependency, Shards::Spec)
     include Molinillo::UI
 
-    def initialize(@spec : Spec, *, prereleases = false, ignore_crystal_version = false)
+    def initialize(@spec : Spec, @override : Override? = nil, *, prereleases = false, ignore_crystal_version = false)
       @prereleases = prereleases
       @ignore_crystal_version = ignore_crystal_version
     end
@@ -136,10 +136,12 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      check_single_resolver_by_name dependency.resolver
+      resolver = on_override(dependency, &.resolver)
+      resolver ||= dependency.resolver
+
+      check_single_resolver_by_name resolver
 
       @search_results[{dependency.name, dependency.requirement}] ||= begin
-        resolver = dependency.resolver
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
@@ -151,6 +153,12 @@ module Shards
 
         result
       end
+    end
+
+    def on_override(dependency : Dependency)
+      o = @override.try(&.dependencies.find { |o| name_for(o) == name_for(dependency) })
+
+      yield o if o
     end
 
     def name_for_explicit_dependency_source
@@ -185,6 +193,8 @@ module Shards
     end
 
     def requirement_satisfied_by?(dependency, activated, spec)
+      on_override(dependency) { return true }
+
       unless @prereleases
         if !spec.version.has_metadata? && spec.version.prerelease? && !dependency.prerelease?
           vertex = activated.vertex_named(spec.name)
