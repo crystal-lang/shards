@@ -91,4 +91,5 @@ module Shards
 
   class_property? production = false
   class_property? local = false
+  class_property? ignore_crystal_version = false
 end
