@@ -37,7 +37,9 @@ module Shards
       private def validate(packages)
         packages.each do |package|
           if lock = locks.shards.find { |d| d.name == package.name }
-            if version = lock.requirement.as?(Shards::Version)
+            if lock.resolver != package.resolver
+              raise LockConflict.new("#{package.name} source changed")
+            elsif version = lock.requirement.as?(Shards::Version)
               validate_locked_version(package, version)
             else
               raise InvalidLock.new # unknown lock resolver

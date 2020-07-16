@@ -41,7 +41,10 @@ def create_git_version_commit(project, version, shard : Bool | NamedTuple = true
       create_shard project, version, contents
     end
     Dir.cd(git_path(project)) do
-      run "git add src/#{project}.cr"
+      name = shard[:name]? if shard.is_a?(NamedTuple)
+      name ||= project
+      run "touch src/#{name}.cr"
+      run "git add src/#{name}.cr"
     end
     create_git_commit project, "release: v#{version}"
   end

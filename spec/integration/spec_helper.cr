@@ -129,8 +129,24 @@ private def setup_repositories
   create_git_release "incompatible", "0.3.0", {crystal: "0.4"}
   create_git_release "incompatible", "1.0.0", {crystal: "1.0.0"}
 
-  create_git_repository "awesome", "0.1.0"
+  create_git_repository "awesome"
+  create_git_release "awesome", "0.1.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  # Release v0.1.0 is the same in awesome and forked_awesome
   create_fork_git_repository "forked_awesome", "awesome"
+  # But v0.2.0 is not, they might be different
+  create_git_release "forked_awesome", "0.2.0", {
+    name:         "awesome",
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  create_git_release "awesome", "0.2.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  # Release v0.3.0 is only available in the original
+  create_git_release "awesome", "0.3.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
 end
 
 private def assert(value, message, file, line)
@@ -184,13 +200,14 @@ def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git 
 
   if lock && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    assert expected_version == lock.requirement.as(Shards::Version).value, "expected #{name} dependency to have been locked at version #{version}", file, line
+    actual_value = lock.requirement.as(Shards::Version).value
+    assert expected_version == actual_value, "expected #{name} dependency to have been locked at version #{version} instead of #{actual_value}", file, line
   end
 
   if lock && source
     expected_source = source_from_named_tuple(source)
     actual_source = source_from_resolver(lock.resolver)
-    assert expected_source == actual_source, "expected #{name} dependency to have been locked using #{expected_source}", file, line
+    assert expected_source == actual_source, "expected #{name} dependency to have been locked using #{expected_source} instead of #{actual_source}", file, line
   end
 end
 

@@ -19,28 +19,31 @@ module Shards
     def prepare(@development = true)
     end
 
-    private def add_lock(base, lock_index, name)
-      if lock = lock_index.delete(name)
-        resolver = lock.resolver
-        check_single_resolver_by_name resolver
-
+    private def add_lock(base, lock_index, dep : Dependency)
+      if lock = lock_index.delete(dep.name)
         lock_version =
           case lock_req = lock.requirement
           when Version then lock_req
           else
-            versions = resolver.versions_for(lock_req)
+            versions = lock.resolver.versions_for(lock_req)
             unless versions.size == 1
-              Log.warn { "Lock for shard \"#{name}\" is invalid" }
+              Log.warn { "Lock for shard \"#{dep.name}\" is invalid" }
               return
             end
             lock.requirement = versions.first
           end
 
         base.add_vertex(lock.name, lock, true)
-        spec = resolver.spec(lock_version)
+        # Use the resolver from dependencies (not lock) if available.
+        # This is to allow changing source without bumping the version when possible.
+        if dep.resolver != lock.resolver
+          Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
+        end
+        check_single_resolver_by_name dep.resolver
+        spec = dep.resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
-          add_lock(base, lock_index, dep.name)
+          add_lock(base, lock_index, dep)
         end
       end
     end
@@ -62,9 +65,9 @@ module Shards
               next unless dep.matches?(version)
             end
 
-            next if dep.resolver != lock.resolver
+            # next if dep.resolver != lock.resolver
 
-            add_lock(base, lock_index, dep.name)
+            add_lock(base, lock_index, dep)
           end
         end
       end
