@@ -759,15 +759,10 @@ describe "install" do
   end
 
   it "fails on conflicting sources" do
-    create_git_repository "awesome", "0.1.0"
-
     create_git_repository "intermediate"
     create_git_release "intermediate", "0.1.0", {
       dependencies: {awesome: {git: git_url(:awesome)}},
     }
-
-    create_git_repository "forked_awesome"
-    create_git_release "forked_awesome", "0.1.0", {name: "awesome"}
 
     metadata = {dependencies: {
       intermediate: "*",

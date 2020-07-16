@@ -28,6 +28,12 @@ def create_git_repository(project, *versions)
   versions.each { |version| create_git_release project, version }
 end
 
+def create_fork_git_repository(project, upstream)
+  Dir.cd(tmp_path) do
+    run "git clone #{git_url(upstream)} #{project}"
+  end
+end
+
 def create_git_version_commit(project, version, shard : Bool | NamedTuple = true)
   Dir.cd(git_path(project)) do
     if shard

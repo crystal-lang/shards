@@ -128,6 +128,9 @@ private def setup_repositories
   create_git_release "incompatible", "0.2.0", {crystal: "0.2.0"}
   create_git_release "incompatible", "0.3.0", {crystal: "0.4"}
   create_git_release "incompatible", "1.0.0", {crystal: "1.0.0"}
+
+  create_git_repository "awesome", "0.1.0"
+  create_fork_git_repository "forked_awesome", "awesome"
 end
 
 private def assert(value, message, file, line)
