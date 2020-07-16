@@ -147,6 +147,8 @@ private def setup_repositories
   create_git_release "awesome", "0.3.0", {
     dependencies: {d: {git: git_url(:d)}},
   }
+  checkout_new_git_branch "forked_awesome", "feature/super"
+  create_git_commit "forked_awesome", "Starting super feature"
 end
 
 private def assert(value, message, file, line)

@@ -321,4 +321,18 @@ describe "update" do
       assert_installed "d", "0.2.0", source: {git: git_url(:d)}
     end
   end
+
+  it "can update to forked branch after lock" do
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome), branch: "feature/super"}}}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+
+      run "shards update --no-color"
+
+      assert_locked "awesome", "0.2.0", git: git_commits(:forked_awesome).first
+      assert_installed "awesome", "0.2.0", git: git_commits(:forked_awesome).first
+    end
+  end
 end
