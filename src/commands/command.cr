@@ -60,7 +60,7 @@ module Shards
       yield
     rescue e : Molinillo::ResolverError
       if e.is_a?(Molinillo::VersionConflict) && e.conflicts.has_key?(CrystalResolver.key)
-        suggestion = ", try with --ignore-crystal-version or update incompatible shards."
+        suggestion = ", try updating incompatible shards or use --ignore-crystal-version as a workaround if no update is available."
       end
 
       Log.error { e.message }
