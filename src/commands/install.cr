@@ -28,6 +28,10 @@ module Shards
         if generate_lockfile?(packages)
           write_lockfile(packages)
         end
+
+        if ignore_crystal_version
+          check_ignored_crystal_version(packages)
+        end
       end
 
       private def validate(packages)

@@ -66,5 +66,23 @@ module Shards
       Log.error { e.message }
       raise Shards::Error.new("Failed to resolve dependencies#{suggestion}")
     end
+
+    def check_ignored_crystal_version(packages)
+      crystal_version = Shards::Version.new Shards.crystal_version
+
+      warned = false
+      packages.each do |package|
+        crystal_req = MolinilloSolver.crystal_version_req(package.spec)
+
+        if !Shards::Versions.matches?(crystal_version, crystal_req)
+          warned = true
+          Log.warn { "Shard \"#{package.name}\" may be incompatible with Crystal #{Shards.crystal_version}" }
+        end
+      end
+
+      unless warned
+        Log.warn { "Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal #{Shards.crystal_version}" }
+      end
+    end
   end
 end
