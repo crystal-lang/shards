@@ -208,6 +208,8 @@ module Shards
     private def versions_for(dependency, resolver) : Array(Version)
       check_single_resolver_by_name resolver
 
+      return resolver.versions_for(Any) if resolver.is_override
+
       matching = resolver.versions_for(dependency.requirement)
 
       if (locks = @locks) &&
