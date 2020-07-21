@@ -329,7 +329,7 @@ describe "update" do
     with_shard(metadata, lock) do
       assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-      run "shards update --no-color"
+      run "shards update"
 
       assert_locked "awesome", "0.2.0", git: git_commits(:forked_awesome).first
       assert_installed "awesome", "0.2.0", git: git_commits(:forked_awesome).first

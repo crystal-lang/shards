@@ -33,13 +33,14 @@ module Shards
             lock.requirement = versions.first
           end
 
+        check_single_resolver_by_name dep.resolver
         base.add_vertex(lock.name, lock, true)
+
         # Use the resolver from dependencies (not lock) if available.
         # This is to allow changing source without bumping the version when possible.
         if dep.resolver != lock.resolver
           Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
         end
-        check_single_resolver_by_name dep.resolver
         spec = dep.resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
@@ -64,8 +65,6 @@ module Shards
             if version = lock.requirement.as?(Version)
               next unless dep.matches?(version)
             end
-
-            # next if dep.resolver != lock.resolver
 
             add_lock(base, lock_index, dep)
           end
