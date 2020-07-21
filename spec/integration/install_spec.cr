@@ -899,6 +899,41 @@ describe "install" do
     end
   end
 
+  it "uses override relative file specified in SHARDS_OVERRIDE env var" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    ignored_override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    ci_override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, ignored_override) do
+      File.write "shard.ci.yml", to_override_yaml(ci_override)
+
+      run "shards install", env: {"SHARDS_OVERRIDE" => "shard.ci.yml"}
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "fails if file specified in SHARDS_OVERRIDE env var does not exist" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    ignored_override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, ignored_override) do
+      ex = expect_raises(FailedCommand) do
+        run "shards install --no-color", env: {"SHARDS_OVERRIDE" => "shard.missing.yml"}
+      end
+      ex.stdout.should contain("Missing shard.missing.yml")
+    end
+  end
+
   it "warn about unneeded --ignore-crystal-version" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
