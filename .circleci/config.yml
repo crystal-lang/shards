@@ -14,7 +14,7 @@ commands:
             git config --global column.ui always
       - crystal/version
       - checkout
-      - crystal/shards-install
+      - run: make lib SHARDS=none # do not use shards to install lib
       - run: make
       - run: make test
       - run: crystal tool format --check src spec
