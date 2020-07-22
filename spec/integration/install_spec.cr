@@ -842,11 +842,6 @@ describe "install" do
   end
 
   it "fails on conflicting sources" do
-    create_git_repository "intermediate"
-    create_git_release "intermediate", "0.1.0", {
-      dependencies: {awesome: {git: git_url(:awesome)}},
-    }
-
     metadata = {dependencies: {
       intermediate: "*",
       awesome:      {git: git_url(:forked_awesome)},
@@ -854,6 +849,62 @@ describe "install" do
     with_shard(metadata) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
       ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
+    end
+  end
+
+  it "can override to use local path" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
+    end
+  end
+
+  it "can override to use forked git repository branch" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, nil, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "fails with ambiguous sources if override is present and lock is not updated. User needs to perform update" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
+    end
+  end
+
+  it "warn about unneeded --ignore-crystal-version" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
+      assert_installed "incompatible", "1.0.0"
+      stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
 end

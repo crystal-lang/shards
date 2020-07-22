@@ -136,9 +136,8 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      resolver = on_override(dependency, &.resolver)
-      resolver ||= dependency.resolver
-
+      dependency = on_override(dependency) || dependency
+      resolver = dependency.resolver
       check_single_resolver_by_name resolver
 
       @search_results[{dependency.name, dependency.requirement}] ||= begin
@@ -155,10 +154,8 @@ module Shards
       end
     end
 
-    def on_override(dependency : Dependency)
-      o = @override.try(&.dependencies.find { |o| name_for(o) == name_for(dependency) })
-
-      yield o if o
+    def on_override(dependency : Dependency) : Dependency?
+      @override.try(&.dependencies.find { |o| name_for(o) == name_for(dependency) })
     end
 
     def name_for_explicit_dependency_source
@@ -193,7 +190,7 @@ module Shards
     end
 
     def requirement_satisfied_by?(dependency, activated, spec)
-      on_override(dependency) { return true }
+      return true if on_override(dependency)
 
       unless @prereleases
         if !spec.version.has_metadata? && spec.version.prerelease? && !dependency.prerelease?
@@ -208,11 +205,10 @@ module Shards
     private def versions_for(dependency, resolver) : Array(Version)
       check_single_resolver_by_name resolver
 
-      return resolver.versions_for(Any) if resolver.is_override
-
       matching = resolver.versions_for(dependency.requirement)
 
-      if (locks = @locks) &&
+      if !resolver.is_override &&
+         (locks = @locks) &&
          (locked = locks.find { |dep| dep.name == dependency.name }) &&
          (locked_version = locked.requirement.as?(Version)) &&
          dependency.matches?(locked_version)
