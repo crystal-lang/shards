@@ -705,8 +705,9 @@ describe "install" do
   it "install version ignoring current crystal version if --ignore-crystal-version" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      run "shards install --ignore-crystal-version", env: {"CRYSTAL_VERSION" => "0.3.0"}
+      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "0.3.0"}
       assert_installed "incompatible", "1.0.0"
+      stdout.should contain(%(Shard "incompatible" may be incompatible with Crystal 0.3.0))
     end
   end
 
@@ -731,6 +732,15 @@ describe "install" do
     with_shard(metadata) do
       run "shards install", env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
       assert_installed "incompatible", "1.0.0"
+    end
+  end
+
+  it "warn about unneeded --ignore-crystal-version" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
+      assert_installed "incompatible", "1.0.0"
+      stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
 end

@@ -158,6 +158,11 @@ module Shards
       return specification.dependencies if specification.name == "crystal"
       return specification.dependencies if @ignore_crystal_version
 
+      crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, MolinilloSolver.crystal_version_req(specification))
+      specification.dependencies + [crystal_dependency]
+    end
+
+    def self.crystal_version_req(specification : Shards::Spec)
       crystal_pattern =
         if crystal_version = specification.crystal
           if crystal_version =~ /^(\d+)\.(\d+)(\.(\d+))?$/
@@ -168,9 +173,8 @@ module Shards
         else
           "< 1.0.0"
         end
-      crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, VersionReq.new(crystal_pattern))
 
-      specification.dependencies + [crystal_dependency]
+      VersionReq.new(crystal_pattern)
     end
 
     def requirement_satisfied_by?(dependency, activated, spec)
