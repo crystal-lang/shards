@@ -13,13 +13,22 @@ module Shards
     end
 
     def self.build(key : String, name : String, source : String)
+      _, source = self.normalize_key_source(key, source)
       self.new(name, source)
+    end
+
+    def self.normalize_key_source(key : String, source : String)
+      {key, source}
     end
 
     def ==(other : Resolver)
       return true if super
       return false unless self.class == other.class
       name == other.name && source == other.source
+    end
+
+    def yaml_source_entry
+      "#{self.class.key}: #{source}"
     end
 
     def installed_spec
@@ -139,8 +148,9 @@ module Shards
 
     # abstract def write_requirement(req : Requirement, yaml : YAML::Builder)
 
+    private record ResolverCacheKey, key : String, name : String, source : String
     private RESOLVER_CLASSES = {} of String => Resolver.class
-    private RESOLVER_CACHE   = {} of String => Resolver
+    private RESOLVER_CACHE   = {} of ResolverCacheKey => Resolver
 
     def self.register_resolver(key, resolver)
       RESOLVER_CLASSES[key] = resolver
@@ -163,7 +173,8 @@ module Shards
           self
         end
 
-      RESOLVER_CACHE[name] ||= begin
+      key, source = resolver_class.normalize_key_source(key, source)
+      RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end
     end

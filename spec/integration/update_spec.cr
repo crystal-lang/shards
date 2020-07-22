@@ -274,4 +274,65 @@ describe "update" do
     with_shard(metadata) { run("shards update") }
     assert_locked "local_cache", "3.0"
   end
+
+  it "updates when dependency source changed" do
+    metadata = {dependencies: {web: {path: git_path(:web)}}}
+    lock = {web: "2.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "web", "2.1.0", source: {git: git_url(:web)}
+
+      run "shards update"
+
+      assert_locked "web", "2.1.0", source: {path: git_path(:web)}
+      assert_installed "web", "2.1.0", source: {path: git_path(:web)}
+    end
+  end
+
+  it "keeping installed version requires constraint in shard.yml" do
+    # forked_awesome has 0.2.0
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome), version: "~> 0.1.0"}}}
+    lock = {awesome: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+
+      run "shards update"
+
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "bumps nested dependencies locked when main dependency source changed" do
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+      assert_locked "d", "0.1.0", source: {git: git_url(:d)}
+
+      # d is not a top dependency, so it is bumped since it's required only by awesome
+      run "shards update awesome"
+
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "d", "0.2.0", source: {git: git_url(:d)}
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_installed "d", "0.2.0", source: {git: git_url(:d)}
+    end
+  end
+
+  it "can update to forked branch after lock" do
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome), branch: "feature/super"}}}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+
+      run "shards update"
+
+      assert_locked "awesome", "0.2.0", git: git_commits(:forked_awesome).first
+      assert_installed "awesome", "0.2.0", git: git_commits(:forked_awesome).first
+    end
+  end
 end

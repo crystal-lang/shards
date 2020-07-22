@@ -19,27 +19,32 @@ module Shards
     def prepare(@development = true)
     end
 
-    private def add_lock(base, lock_index, name)
-      if lock = lock_index.delete(name)
-        resolver = lock.resolver
-
+    private def add_lock(base, lock_index, dep : Dependency)
+      if lock = lock_index.delete(dep.name)
         lock_version =
           case lock_req = lock.requirement
           when Version then lock_req
           else
-            versions = resolver.versions_for(lock_req)
+            versions = lock.resolver.versions_for(lock_req)
             unless versions.size == 1
-              Log.warn { "Lock for shard \"#{name}\" is invalid" }
+              Log.warn { "Lock for shard \"#{dep.name}\" is invalid" }
               return
             end
             lock.requirement = versions.first
           end
 
+        check_single_resolver_by_name dep.resolver
         base.add_vertex(lock.name, lock, true)
-        spec = resolver.spec(lock_version)
+
+        # Use the resolver from dependencies (not lock) if available.
+        # This is to allow changing source without bumping the version when possible.
+        if dep.resolver != lock.resolver
+          Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
+        end
+        spec = dep.resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
-          add_lock(base, lock_index, dep.name)
+          add_lock(base, lock_index, dep)
         end
       end
     end
@@ -61,7 +66,7 @@ module Shards
               next unless dep.matches?(version)
             end
 
-            add_lock(base, lock_index, dep.name)
+            add_lock(base, lock_index, dep)
           end
         end
       end
@@ -131,6 +136,8 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
+      check_single_resolver_by_name dependency.resolver
+
       @search_results[{dependency.name, dependency.requirement}] ||= begin
         resolver = dependency.resolver
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
@@ -189,6 +196,8 @@ module Shards
     end
 
     private def versions_for(dependency, resolver) : Array(Version)
+      check_single_resolver_by_name resolver
+
       matching = resolver.versions_for(dependency.requirement)
 
       if (locks = @locks) &&
@@ -208,6 +217,18 @@ module Shards
     end
 
     def indicate_progress
+    end
+
+    @used_resolvers = {} of String => Resolver
+
+    private def check_single_resolver_by_name(resolver : Resolver)
+      if used = @used_resolvers[resolver.name]?
+        if used != resolver
+          raise Error.new("Error shard name (#{resolver.name}) has ambiguous sources: '#{used.yaml_source_entry}' and '#{resolver.yaml_source_entry}'.")
+        end
+      else
+        @used_resolvers[resolver.name] = resolver
+      end
     end
   end
 end

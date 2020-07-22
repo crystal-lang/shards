@@ -14,6 +14,10 @@ Spec.before_suite do
   setup_repositories
 end
 
+Spec.before_each do
+  Shards::Resolver.clear_resolver_cache
+end
+
 private def setup_repositories
   # git dependencies for testing version resolution:
   create_git_repository "web", "1.0.0", "1.1.0", "1.1.1", "1.1.2", "1.2.0", "2.0.0", "2.1.0"
@@ -88,7 +92,7 @@ private def setup_repositories
   create_git_repository "transitive"
   create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)
   create_git_release "transitive", "0.2.0", {
-    dependencies: {version: {git: git_path(:version)}},
+    dependencies: {version: {git: git_url(:version)}},
     scripts:      {
       postinstall: "crystal build src/version.cr",
     },
@@ -97,7 +101,7 @@ private def setup_repositories
   create_git_repository "transitive_2"
   create_git_release "transitive_2", "0.1.0", {
     dependencies: {
-      transitive: {git: git_path(:transitive)},
+      transitive: {git: git_url(:transitive)},
     },
     scripts: {
       postinstall: "../transitive/version",
@@ -113,8 +117,8 @@ private def setup_repositories
   create_git_release "binary", "0.2.0", {executables: ["foobar", "baz", "foo"]}
 
   create_git_repository "c"
-  create_git_release "c", "0.1.0", {dependencies: {d: {git: git_path("d"), version: "0.1.0"}}}
-  create_git_release "c", "0.2.0", {dependencies: {d: {git: git_path("d"), version: "0.2.0"}}}
+  create_git_release "c", "0.1.0", {dependencies: {d: {git: git_url(:d), version: "0.1.0"}}}
+  create_git_release "c", "0.2.0", {dependencies: {d: {git: git_url(:d), version: "0.2.0"}}}
   create_git_repository "d"
   create_git_release "d", "0.1.0"
   create_git_release "d", "0.2.0"
@@ -124,6 +128,27 @@ private def setup_repositories
   create_git_release "incompatible", "0.2.0", {crystal: "0.2.0"}
   create_git_release "incompatible", "0.3.0", {crystal: "0.4"}
   create_git_release "incompatible", "1.0.0", {crystal: "1.0.0"}
+
+  create_git_repository "awesome"
+  create_git_release "awesome", "0.1.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  # Release v0.1.0 is the same in awesome and forked_awesome
+  create_fork_git_repository "forked_awesome", "awesome"
+  # But v0.2.0 is not, they might be different
+  create_git_release "forked_awesome", "0.2.0", {
+    name:         "awesome",
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  create_git_release "awesome", "0.2.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  # Release v0.3.0 is only available in the original
+  create_git_release "awesome", "0.3.0", {
+    dependencies: {d: {git: git_url(:d)}},
+  }
+  checkout_new_git_branch "forked_awesome", "feature/super"
+  create_git_commit "forked_awesome", "Starting super feature"
 end
 
 private def assert(value, message, file, line)
@@ -134,13 +159,21 @@ private def refute(value, message, file, line)
   fail(message, file, line) if value
 end
 
-def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
+def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil, source = nil)
   assert Dir.exists?(install_path(name)), "expected #{name} dependency to have been installed", file, line
+  Shards::Resolver.clear_resolver_cache # Parsing Shards::Info might use cache of resolvers. Avoid it
+  info = Shards::Info.new(install_path)
+  dependency = info.installed[name]?
 
-  if version
+  if dependency && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    info = Shards::Info.new(install_path)
-    info.installed[name]?.try(&.requirement).should eq(version expected_version), file, line
+    dependency.requirement.should eq(version expected_version), file, line
+  end
+
+  if dependency && source
+    expected_source = source_from_named_tuple(source)
+    actual_source = source_from_resolver(dependency.resolver)
+    assert expected_source == actual_source, "expected #{name} dependency to have been installed using #{expected_source}", file, line
   end
 end
 
@@ -160,16 +193,32 @@ def assert_installed_file(path, file = __FILE__, line = __LINE__)
   assert File.exists?(File.join(install_path(name), path)), "Expected #{path} to have been installed", file, line
 end
 
-def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil)
+def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git = nil, source = nil)
   path = File.join(application_path, "shard.lock")
   assert File.exists?(path), "expected shard.lock to have been generated", file, line
+  Shards::Resolver.clear_resolver_cache # Parsing Shards::Lock might use cache of resolvers. Avoid it
   locks = Shards::Lock.from_file(path)
   assert lock = locks.shards.find { |d| d.name == name }, "expected #{name} dependency to have been locked", file, line
 
   if lock && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    assert expected_version == lock.requirement.as(Shards::Version).value, "expected #{name} dependency to have been locked at version #{version}", file, line
+    actual_value = lock.requirement.as(Shards::Version).value
+    assert expected_version == actual_value, "expected #{name} dependency to have been locked at version #{version} instead of #{actual_value}", file, line
   end
+
+  if lock && source
+    expected_source = source_from_named_tuple(source)
+    actual_source = source_from_resolver(lock.resolver)
+    assert expected_source == actual_source, "expected #{name} dependency to have been locked using #{expected_source} instead of #{actual_source}", file, line
+  end
+end
+
+private def source_from_named_tuple(source : NamedTuple)
+  source.to_yaml.lines.last
+end
+
+private def source_from_resolver(resolver : Shards::Resolver)
+  resolver.yaml_source_entry
 end
 
 def refute_locked(name, version = nil, file = __FILE__, line = __LINE__)

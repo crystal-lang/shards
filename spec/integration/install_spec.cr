@@ -198,15 +198,15 @@ describe "install" do
   it "resolves dependency spec at locked commit" do
     create_git_repository "locked"
     create_git_release "locked", "0.1.0"
-    create_git_release "locked", "0.2.0", {dependencies: {pg: {git: git_path("pg")}}}
+    create_git_release "locked", "0.2.0", {dependencies: {pg: {git: git_url(:pg)}}}
 
     metadata = {
       dependencies: {
-        "locked": {git: git_path(:"locked"), branch: "master"},
+        "locked": {git: git_url(:locked), branch: "master"},
       },
     }
     lock = {
-      "locked": "0.1.0+git.commit.#{git_commits(:"locked").last}",
+      "locked": "0.1.0+git.commit.#{git_commits(:locked).last}",
     }
     with_shard(metadata, lock) { run "shards install" }
 
@@ -262,6 +262,71 @@ describe "install" do
 
       assert_installed "web", "2.0.0"
       assert_locked "web", "2.0.0"
+    end
+  end
+
+  it "keeps installed version if possible when dependency source changed" do
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+    lock = {awesome: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+
+      output = run "shards install --no-color"
+
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+
+      output.should contain("Ignoring source of \"awesome\" on shard.lock")
+    end
+  end
+
+  it "keeps nested dependencies locked when main dependency source changed" do
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+      assert_locked "d", "0.1.0", source: {git: git_url(:d)}
+
+      output = run "shards install --no-color"
+
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "d", "0.1.0", source: {git: git_url(:d)}
+      assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_installed "d", "0.1.0", source: {git: git_url(:d)}
+
+      output.should contain("Ignoring source of \"awesome\" on shard.lock")
+    end
+  end
+
+  it "fails if shard.lock and shard.yml has different sources" do
+    # The sources will not match, so the .lock is not valid regarding the specs
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
+
+      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+      ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
+      ex.stderr.should be_empty
+    end
+  end
+
+  it "fails if shard.lock and shard.yml has different sources with incompatible versions." do
+    # User should use update command in this scenario
+    # forked_awesome does not have a 0.3.0
+    # awesome has 0.3.0
+    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+    lock = {awesome: "0.3.0"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.3.0", source: {git: git_url(:awesome)}
+
+      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+      ex.stdout.should contain("Maybe a commit, branch or file doesn't exist?")
+      ex.stderr.should be_empty
     end
   end
 
@@ -741,6 +806,22 @@ describe "install" do
       stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
       assert_installed "incompatible", "1.0.0"
       stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
+    end
+  end
+
+  it "fails on conflicting sources" do
+    create_git_repository "intermediate"
+    create_git_release "intermediate", "0.1.0", {
+      dependencies: {awesome: {git: git_url(:awesome)}},
+    }
+
+    metadata = {dependencies: {
+      intermediate: "*",
+      awesome:      {git: git_url(:forked_awesome)},
+    }}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
     end
   end
 end
