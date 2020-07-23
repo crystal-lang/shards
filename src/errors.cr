@@ -43,11 +43,7 @@ module Shards
       end
 
       filename = self.filename
-      {% if compare_versions(Crystal::VERSION, "0.35.0-0") > 0 %}
-        filename = Path[filename].relative_to Dir.current
-      {% else %}
-        filename = filename.lchop(Dir.current + "/")
-      {% end %}
+      filename = Path[filename].relative_to Dir.current
 
       io.puts "#{filename}: #{message}"
       io.puts
