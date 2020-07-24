@@ -122,6 +122,14 @@ module Shards::Specs
       path
     end
   end
+
+  @@crystal_path : String?
+
+  def self.crystal_path
+    # Memoize so each integration spec do not need to create this process.
+    # If crystal is bin/crystal this also reduce the noise of Using compiled compiler at ...
+    @@crystal_path ||= "#{Shards::INSTALL_DIR}:#{`crystal env CRYSTAL_PATH`.chomp}"
+  end
 end
 
 def tmp_path
@@ -130,7 +138,7 @@ end
 
 def run(command, *, env = nil)
   cmd_env = {
-    "CRYSTAL_PATH" => "#{Shards::INSTALL_DIR}:#{`crystal env CRYSTAL_PATH`.chomp}",
+    "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
