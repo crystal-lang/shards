@@ -13,11 +13,7 @@ module Shards
     end
 
     def to_s(io)
-      {% if compare_versions(Crystal::VERSION, "0.35.0-0") > 0 %}
-        patterns.join(io, ", ")
-      {% else %}
-        patterns.join(", ", io)
-      {% end %}
+      patterns.join(io, ", ")
     end
 
     def to_yaml(yaml)
