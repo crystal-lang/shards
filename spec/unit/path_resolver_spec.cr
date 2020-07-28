@@ -23,7 +23,7 @@ module Shards
         library.install(version "1.2.3")
         File.exists?(install_path("library", "src/library.cr")).should be_true
         File.exists?(install_path("library", "shard.yml")).should be_true
-        library.installed_spec.not_nil!.version.should eq(version "1.2.3")
+        Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "1.2.3")
       end
     end
 

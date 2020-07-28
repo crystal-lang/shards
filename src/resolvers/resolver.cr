@@ -31,36 +31,6 @@ module Shards
       "#{self.class.key}: #{source}"
     end
 
-    def installed_spec
-      return unless installed?
-
-      path = File.join(install_path, SPEC_FILENAME)
-      if installed = Shards.info.installed[name]?
-        version = installed.requirement.as?(Version)
-      end
-
-      unless File.exists?(path)
-        if version
-          return Spec.new(name, version)
-        else
-          raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
-        end
-      end
-
-      begin
-        spec = Spec.from_file(path)
-        spec.version = version if version
-        spec
-      rescue error : ParseError
-        error.resolver = self
-        raise error
-      end
-    end
-
-    def installed?
-      File.exists?(install_path) && Shards.info.installed.has_key?(name)
-    end
-
     def versions_for(req : Requirement) : Array(Version)
       case req
       when Version then [req]
@@ -122,13 +92,6 @@ module Shards
       Shards.info.save
     end
 
-    def run_script(name)
-      if installed? && (command = installed_spec.try(&.scripts[name]?))
-        Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
-        Script.run(install_path, command, name, self.name)
-      end
-    end
-
     def install_path
       File.join(Shards.install_path, name)
     end
@@ -145,8 +108,6 @@ module Shards
         Any
       end
     end
-
-    # abstract def write_requirement(req : Requirement, yaml : YAML::Builder)
 
     private record ResolverCacheKey, key : String, name : String, source : String
     private RESOLVER_CLASSES = {} of String => Resolver.class

@@ -80,17 +80,17 @@ module Shards
       library.install(version "0.1.2")
       File.exists?(install_path("library", "src/library.cr")).should be_true
       File.exists?(install_path("library", "shard.yml")).should be_true
-      library.installed_spec.not_nil!.version.should eq(version "0.1.2")
+      Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.1.2")
 
       library.install(version "0.2.0")
-      library.installed_spec.not_nil!.version.should eq(version "0.2.0")
+      Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.2.0")
     end
 
     it "install commit" do
       library = resolver("library")
       version = version "0.2.0+git.commit.#{git_commits(:library)[0]}"
       library.install(version)
-      library.installed_spec.not_nil!.version.should eq(version)
+      Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.2.0")
     end
 
     it "origin changed" do

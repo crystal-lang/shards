@@ -8,7 +8,7 @@ module Shards
     getter is_override : Bool
     @spec : Spec?
 
-    def initialize(@name, @resolver, @version, @is_override)
+    def initialize(@name, @resolver, @version, @is_override = false)
     end
 
     def report_version
@@ -27,6 +27,10 @@ module Shards
       end
     end
 
+    def install_path
+      File.join(Shards.install_path, name)
+    end
+
     def install
       # install the shard:
       resolver.install(version)
@@ -43,10 +47,17 @@ module Shards
     end
 
     def postinstall
-      resolver.run_script("postinstall")
+      run_script("postinstall")
     rescue ex : Script::Error
       resolver.cleanup_install_directory
       raise ex
+    end
+
+    def run_script(name)
+      if installed? && (command = spec.scripts[name]?)
+        Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
+        Script.run(install_path, command, name, self.name)
+      end
     end
 
     def install_executables
