@@ -300,6 +300,28 @@ describe "install" do
     end
   end
 
+  it "reinstall when resolver changes" do
+    metadata = {dependencies: {web: {git: git_url(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0"
+    end
+
+    metadata = {dependencies: {web: {path: rel_path(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0", source: {path: rel_path(:web)}
+      assert_installed "web", "2.1.0", source: {path: rel_path(:web)}
+    end
+
+    metadata = {dependencies: {web: {git: git_url(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0", source: {git: git_url(:web)}
+      assert_installed "web", "2.1.0", source: {git: git_url(:web)}
+    end
+  end
+
   it "fails if shard.lock and shard.yml has different sources" do
     # The sources will not match, so the .lock is not valid regarding the specs
     metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
