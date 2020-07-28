@@ -44,6 +44,7 @@ module Shards
         spec = dep.resolver.spec(lock_version)
 
         spec.dependencies.each do |dep|
+          dep = on_override(dep) || dep
           add_lock(base, lock_index, dep)
         end
       end
@@ -55,6 +56,7 @@ module Shards
              else
                @spec.dependencies
              end
+      deps = deps.map { |dep| on_override(dep) || dep }
 
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       if locks = @locks

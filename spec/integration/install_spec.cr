@@ -884,7 +884,29 @@ describe "install" do
     end
   end
 
-  it "fails with ambiguous sources if override is present and lock is not updated. User needs to perform update" do
+  it "updates to override if lock is not up to date in main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # keep nested dependencies locked version
+      assert_installed "d", "0.1.0"
+      assert_locked "d", "0.1.0"
+    end
+  end
+
+  it "updates to override if lock is not up to date in nested dependency" do
     metadata = {dependencies: {
       intermediate: "*",
     }}
@@ -892,10 +914,53 @@ describe "install" do
     override = {dependencies: {
       awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
     }}
+    expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # keep nested dependencies locked version
+      assert_installed "d", "0.1.0"
+      assert_locked "d", "0.1.0"
+    end
+  end
+
+  it "fails if lock is not up to date with override in main dependency in production" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
+      refute_installed "awesome"
+    end
+  end
+
+  it "fails if lock is not up to date with override in nested dependency in production" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
+      refute_installed "awesome"
     end
   end
 
