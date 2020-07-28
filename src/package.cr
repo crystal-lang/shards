@@ -19,8 +19,8 @@ module Shards
     end
 
     def installed?
-      if spec = resolver.installed_spec
-        spec.version == version
+      if installed = Shards.info.installed[name]?
+        installed.resolver == resolver && installed.requirement == version
       else
         false
       end

@@ -164,6 +164,7 @@ def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, g
   Shards::Resolver.clear_resolver_cache # Parsing Shards::Info might use cache of resolvers. Avoid it
   info = Shards::Info.new(install_path)
   dependency = info.installed[name]?
+  assert dependency, "expected #{name} to be present in the shards.info file", file, line
 
   if dependency && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version

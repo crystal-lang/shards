@@ -69,6 +69,16 @@ describe "install" do
     end
   end
 
+  it "reinstall if info file is missing (path resolver)" do
+    metadata = {dependencies: {web: {path: rel_path(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      File.delete "#{Shards::INSTALL_DIR}/.shards.info"
+      run "shards install"
+      assert_installed "web", "2.1.0"
+    end
+  end
+
   it "deletes old .sha1 files" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
@@ -297,6 +307,28 @@ describe "install" do
       assert_installed "d", "0.1.0", source: {git: git_url(:d)}
 
       output.should contain("Ignoring source of \"awesome\" on shard.lock")
+    end
+  end
+
+  it "reinstall when resolver changes" do
+    metadata = {dependencies: {web: {git: git_url(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0"
+    end
+
+    metadata = {dependencies: {web: {path: rel_path(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0", source: {path: rel_path(:web)}
+      assert_installed "web", "2.1.0", source: {path: rel_path(:web)}
+    end
+
+    metadata = {dependencies: {web: {git: git_url(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      assert_locked "web", "2.1.0", source: {git: git_url(:web)}
+      assert_installed "web", "2.1.0", source: {git: git_url(:web)}
     end
   end
 
