@@ -69,6 +69,16 @@ describe "install" do
     end
   end
 
+  it "reinstall if info file is missing (path resolver)" do
+    metadata = {dependencies: {web: {path: rel_path(:web)}}}
+    with_shard(metadata) do
+      run "shards install"
+      File.delete "#{Shards::INSTALL_DIR}/.shards.info"
+      run "shards install"
+      assert_installed "web", "2.1.0"
+    end
+  end
+
   it "deletes old .sha1 files" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
