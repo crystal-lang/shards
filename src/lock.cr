@@ -56,7 +56,7 @@ module Shards
 
     def self.write(packages : Array(Package), override_path : String?, io : IO)
       if packages.any?(&.is_override)
-        io << "# WARNING: This lockfile was generated using also #{override_path}\n"
+        io << "# NOTICE: This lockfile contains some overrides from #{override_path}\n"
       end
       io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"
