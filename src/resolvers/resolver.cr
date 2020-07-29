@@ -165,14 +165,6 @@ module Shards
     end
 
     def self.find_resolver(key : String, name : String, source : String)
-      resolver_class, key, source = prepare_build_args(key, name, source)
-
-      RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
-        resolver_class.build(key, name, source)
-      end
-    end
-
-    private def self.prepare_build_args(key, name, source)
       resolver_class =
         if self == Resolver
           RESOLVER_CLASSES[key]? ||
@@ -183,7 +175,9 @@ module Shards
 
       key, source = resolver_class.normalize_key_source(key, source)
 
-      {resolver_class, key, source}
+      RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
+        resolver_class.build(key, name, source)
+      end
     end
   end
 end

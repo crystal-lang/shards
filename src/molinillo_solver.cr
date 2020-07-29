@@ -138,10 +138,10 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      resolver = dependency.resolver
-      check_single_resolver_by_name resolver
+      check_single_resolver_by_name dependency.resolver
 
       @search_results[{dependency.name, dependency.requirement}] ||= begin
+        resolver = dependency.resolver
         versions = Versions.sort(versions_for(dependency, resolver)).reverse
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
