@@ -98,7 +98,7 @@ module Shards
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
-        packages << Package.new(spec.name, resolver, version)
+        packages << Package.new(spec.name, resolver, version, !on_override(spec).nil?)
       end
 
       packages
@@ -156,7 +156,7 @@ module Shards
       end
     end
 
-    def on_override(dependency : Dependency) : Dependency?
+    def on_override(dependency : Dependency | Shards::Spec) : Dependency?
       @override.try(&.dependencies.find { |o| name_for(o) == name_for(dependency) })
     end
 
@@ -209,7 +209,7 @@ module Shards
 
       matching = resolver.versions_for(dependency.requirement)
 
-      if !resolver.is_override &&
+      if on_override(dependency).nil? &&
          (locks = @locks) &&
          (locked = locks.find { |dep| dep.name == dependency.name }) &&
          (locked_version = locked.requirement.as?(Version)) &&

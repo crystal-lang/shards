@@ -55,7 +55,7 @@ module Shards
     end
 
     def self.write(packages : Array(Package), override_path : String?, io : IO)
-      if packages.any?(&.resolver.is_override)
+      if packages.any?(&.is_override)
         io << "# WARNING: This lockfile was generated using also #{override_path}\n"
       end
       io << "version: #{CURRENT_VERSION}\n"
@@ -64,7 +64,7 @@ module Shards
       packages.sort_by!(&.name).each do |package|
         key = package.resolver.class.key
 
-        io << "  " << package.name << ":#{package.resolver.is_override ? " # Overridden" : nil}\n"
+        io << "  " << package.name << ":#{package.is_override ? " # Overridden" : nil}\n"
         io << "    " << key << ": " << package.resolver.source << '\n'
         io << "    version: " << package.version.value << '\n'
         io << '\n'

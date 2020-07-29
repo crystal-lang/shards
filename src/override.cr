@@ -42,7 +42,7 @@ module Shards
         when "dependencies"
           check_duplicate(@dependencies, "dependencies", line, column)
           pull.each_in_mapping do
-            dependencies << Dependency.from_yaml(pull, is_override: true)
+            dependencies << Dependency.from_yaml(pull)
           end
         else
           if validate

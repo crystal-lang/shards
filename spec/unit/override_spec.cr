@@ -20,17 +20,14 @@ module Shards
 
       override.dependencies[0].name.should eq("repo")
       override.dependencies[0].resolver.should eq(GitResolver.new("repo", "https://github.com/user/repo.git"))
-      override.dependencies[0].resolver.is_override.should eq(true)
       override.dependencies[0].requirement.should eq(version_req "1.2.3")
 
       override.dependencies[1].name.should eq("example")
       override.dependencies[1].resolver.should eq(GitResolver.new("example", "https://example.com/example-crystal.git"))
-      override.dependencies[1].resolver.is_override.should eq(true)
       override.dependencies[1].requirement.should eq(branch "master")
 
       override.dependencies[2].name.should eq("local")
       override.dependencies[2].resolver.should eq(PathResolver.new("local", "/var/clones/local"))
-      override.dependencies[2].resolver.is_override.should eq(true)
       override.dependencies[2].requirement.should eq(Any)
     end
 

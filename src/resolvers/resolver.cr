@@ -8,7 +8,6 @@ module Shards
   abstract class Resolver
     getter name : String
     getter source : String
-    property is_override : Bool = false
 
     def initialize(@name : String, @source : String)
     end
@@ -171,13 +170,6 @@ module Shards
       RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end
-    end
-
-    def self.build_override_resolver(key : String, name : String, source : String)
-      resolver_class, key, source = prepare_build_args(key, name, source)
-      resolver = resolver_class.build(key, name, source)
-      resolver.is_override = true
-      resolver
     end
 
     private def self.prepare_build_args(key, name, source)
