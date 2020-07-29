@@ -27,11 +27,9 @@ module Shards
     end
 
     def initialize(@resolver : Resolver? = nil)
-      @read_from_yaml = false
     end
 
     property resolver : Resolver?
-    getter? read_from_yaml : Bool
 
     # :nodoc:
     def initialize(pull : YAML::PullParser, validate = false)
@@ -52,8 +50,6 @@ module Shards
           end
         end
       end
-
-      @read_from_yaml = true
     end
 
     private def check_duplicate(argument, name, line, column)
