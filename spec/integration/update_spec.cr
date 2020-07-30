@@ -439,22 +439,4 @@ describe "update" do
       assert_locked "d", "0.2.0"
     end
   end
-
-  # conflicts with "unlocks subdependency"
-  pending "can update override (without unlocking nested)" do
-    metadata = {dependencies: {
-      intermediate: "*",
-    }}
-    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
-    override = {dependencies: {
-      awesome: {git: git_url(:forked_awesome)}, # latest version of forked_awesome is 0.2.0
-    }}
-
-    with_shard(metadata, lock, override) do
-      run "shards update override"
-
-      assert_installed "d", "0.1.0"
-      assert_locked "d", "0.1.0"
-    end
-  end
 end
