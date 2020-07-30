@@ -172,11 +172,13 @@ module Shards
     end
 
     def dependencies_for(specification : S) : Array(R)
-      return apply_overrides(specification.dependencies) if specification.name == "crystal"
-      return apply_overrides(specification.dependencies) if @ignore_crystal_version
+      spec_dependencies = apply_overrides(specification.dependencies)
+
+      return spec_dependencies if specification.name == "crystal"
+      return spec_dependencies if @ignore_crystal_version
 
       crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, MolinilloSolver.crystal_version_req(specification))
-      apply_overrides(specification.dependencies) + [crystal_dependency]
+      spec_dependencies + [crystal_dependency]
     end
 
     def self.crystal_version_req(specification : Shards::Spec)
