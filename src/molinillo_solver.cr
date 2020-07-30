@@ -212,8 +212,7 @@ module Shards
 
       matching = resolver.versions_for(dependency.requirement)
 
-      if on_override(dependency).nil? &&
-         (locks = @locks) &&
+      if (locks = @locks) &&
          (locked = locks.find { |dep| dep.name == dependency.name }) &&
          (locked_version = locked.requirement.as?(Version)) &&
          dependency.matches?(locked_version)
