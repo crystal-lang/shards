@@ -156,7 +156,7 @@ module Shards
     end
 
     def on_override(dependency : Dependency | Shards::Spec) : Dependency?
-      @override.try(&.dependencies.find { |o| name_for(o) == name_for(dependency) })
+      @override.try(&.dependencies.find { |o| o.name == dependency.name })
     end
 
     def apply_overrides(deps : Array(Dependency))
