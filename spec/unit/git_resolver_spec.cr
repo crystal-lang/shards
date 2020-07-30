@@ -77,25 +77,25 @@ module Shards
     it "install" do
       library = resolver("library")
 
-      library.install(version "0.1.2")
+      library.install_sources(version("0.1.2"), install_path("library"))
       File.exists?(install_path("library", "src/library.cr")).should be_true
       File.exists?(install_path("library", "shard.yml")).should be_true
       Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.1.2")
 
-      library.install(version "0.2.0")
+      library.install_sources(version("0.2.0"), install_path("library"))
       Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.2.0")
     end
 
     it "install commit" do
       library = resolver("library")
       version = version "0.2.0+git.commit.#{git_commits(:library)[0]}"
-      library.install(version)
+      library.install_sources(version, install_path("library"))
       Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.2.0")
     end
 
     it "origin changed" do
       library = GitResolver.new("library", git_url("library"))
-      library.install(version "0.1.2")
+      library.install_sources(version("0.1.2"), install_path("library"))
 
       # Change the origin in the cache repo to https://github.com/foo/bar
       Dir.cd(library.local_path) do

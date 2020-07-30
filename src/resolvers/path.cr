@@ -20,19 +20,6 @@ module Shards
       load_spec(version) || raise Error.new("Can't read spec for #{name.inspect}")
     end
 
-    def installed?
-      File.symlink?(install_path) && check_install_path_target
-    end
-
-    private def check_install_path_target
-      begin
-        real_install_path = File.real_path(install_path)
-      rescue File::NotFoundError
-        return false
-      end
-      real_install_path == expanded_local_path
-    end
-
     def available_releases : Array(Version)
       [spec(nil).version]
     end
@@ -47,7 +34,7 @@ module Shards
       end
     end
 
-    def install_sources(version)
+    def install_sources(version, install_path)
       path = expanded_local_path
 
       Dir.mkdir_p(File.dirname(install_path))

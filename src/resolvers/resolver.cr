@@ -81,25 +81,8 @@ module Shards
     end
 
     abstract def read_spec(version : Version) : String?
-    abstract def install_sources(version : Version)
+    abstract def install_sources(version : Version, install_dir : String)
     abstract def report_version(version : Version) : String
-
-    def install(version : Version)
-      cleanup_install_directory
-
-      install_sources(version)
-      Shards.info.installed[name] = Dependency.new(name, self, version)
-      Shards.info.save
-    end
-
-    def install_path
-      File.join(Shards.install_path, name)
-    end
-
-    protected def cleanup_install_directory
-      Log.debug { "rm -rf '#{Helpers::Path.escape(install_path)}'" }
-      FileUtils.rm_rf(install_path)
-    end
 
     def parse_requirement(params : Hash(String, String)) : Requirement
       if version = params["version"]?

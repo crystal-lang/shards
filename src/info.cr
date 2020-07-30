@@ -12,6 +12,8 @@ class Shards::Info
     path = info_path
     if File.exists?(path)
       @installed = Lock.from_file(path).shards.index_by &.name
+    else
+      @installed.clear
     end
   end
 
