@@ -3,7 +3,7 @@ require "./package"
 
 module Shards
   class MolinilloSolver
-    setter locks : Array(Dependency)?
+    setter locks : Array(Package)?
     @solution : Array(Package)?
     @prereleases : Bool
     @ignore_crystal_version : Bool
@@ -21,27 +21,15 @@ module Shards
 
     private def add_lock(base, lock_index, dep : Dependency)
       if lock = lock_index.delete(dep.name)
-        lock_version =
-          case lock_req = lock.requirement
-          when Version then lock_req
-          else
-            versions = lock.resolver.versions_for(lock_req)
-            unless versions.size == 1
-              Log.warn { "Lock for shard \"#{dep.name}\" is invalid" }
-              return
-            end
-            lock.requirement = versions.first
-          end
-
         check_single_resolver_by_name dep.resolver
-        base.add_vertex(lock.name, lock, true)
+        base.add_vertex(lock.name, Dependency.new(lock.name, lock.resolver, lock.version), true)
 
         # Use the resolver from dependencies (not lock) if available.
         # This is to allow changing source without bumping the version when possible.
         if dep.resolver != lock.resolver
           Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
         end
-        spec = dep.resolver.spec(lock_version)
+        spec = dep.resolver.spec(lock.version)
 
         add_lock base, lock_index, apply_overrides(spec.dependencies)
       end
@@ -50,10 +38,7 @@ module Shards
     private def add_lock(base, lock_index, deps : Array(Dependency))
       deps.each do |dep|
         if lock = lock_index[dep.name]?
-          if version = lock.requirement.as?(Version)
-            next unless dep.matches?(version)
-          end
-
+          next unless dep.matches?(lock.version)
           add_lock(base, lock_index, dep)
         end
       end
@@ -215,9 +200,8 @@ module Shards
 
       if (locks = @locks) &&
          (locked = locks.find { |dep| dep.name == dependency.name }) &&
-         (locked_version = locked.requirement.as?(Version)) &&
-         dependency.matches?(locked_version)
-        matching << locked_version
+         dependency.matches?(locked.version)
+        matching << locked.version
       end
 
       matching.uniq

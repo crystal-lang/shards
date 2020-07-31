@@ -11,6 +11,8 @@ module Shards
     def initialize(@name, @resolver, @version, @is_override = false)
     end
 
+    def_equals @name, @resolver, @version
+
     def report_version
       resolver.report_version(version)
     end
@@ -44,7 +46,7 @@ module Shards
     def installed?
       return false unless File.exists?(install_path)
       if installed = Shards.info.installed[name]?
-        installed.resolver == resolver && installed.requirement == version
+        installed.resolver == resolver && installed.version == version
       else
         false
       end
@@ -70,7 +72,7 @@ module Shards
         File.symlink(target, lib_path)
       end
 
-      Shards.info.installed[name] = Dependency.new(name, resolver, version)
+      Shards.info.installed[name] = self
       Shards.info.save
     end
 
@@ -114,6 +116,14 @@ module Shards
           FileUtils.cp(source, destination)
         end
       end
+    end
+
+    def to_yaml(builder)
+      Dependency.new(name, resolver, version).to_yaml(builder)
+    end
+
+    def to_s(io)
+      io << name << " (" << report_version << ")"
     end
   end
 end

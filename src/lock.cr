@@ -1,14 +1,15 @@
 require "./ext/yaml"
 require "./dependency"
+require "./package"
 
 module Shards
   class Lock
     property version : String
-    property shards : Array(Dependency)
+    property shards : Array(Package)
 
     CURRENT_VERSION = "2.0"
 
-    def initialize(@version : String, @shards : Array(Dependency))
+    def initialize(@version : String, @shards : Array(Package))
     end
 
     def self.from_file(path)
@@ -17,7 +18,7 @@ module Shards
     end
 
     def self.from_yaml(str)
-      dependencies = [] of Dependency
+      shards = [] of Package
 
       pull = YAML::PullParser.new(str)
       pull.read_stream do
@@ -32,13 +33,18 @@ module Shards
             case key = pull.read_scalar
             when "shards"
               pull.each_in_mapping do
-                dependencies << Dependency.from_yaml(pull, is_lock: true)
+                dep = Dependency.from_yaml(pull)
+                if package = dep.as_package
+                  shards << package
+                else
+                  Log.warn { "Lock for shard \"#{dep.name}\" is invalid" }
+                end
               end
             else
               pull.raise "No such attribute #{key} in lock version #{version}"
             end
 
-            Lock.new(version, dependencies)
+            Lock.new(version, shards)
           end
         end
       end

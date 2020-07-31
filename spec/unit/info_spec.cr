@@ -17,13 +17,13 @@ module Shards
       File.write File.join(install_path, ".shards.info"), SAMPLE_INFO
       info = Info.new
       info.installed.should eq({
-        "foo" => Dependency.new("foo", GitResolver.new("foo", "https://example.com/foo.git"), version "1.2.3"),
+        "foo" => Package.new("foo", GitResolver.new("foo", "https://example.com/foo.git"), version "1.2.3"),
       })
     end
 
     it "save changes" do
       info = Info.new
-      dep = Dependency.new("foo", GitResolver.new("foo", "https://example.com/foo.git"), version "1.2.3")
+      dep = Package.new("foo", GitResolver.new("foo", "https://example.com/foo.git"), version "1.2.3")
       info.installed["foo"] = dep
       info.save
 
