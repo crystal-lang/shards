@@ -13,7 +13,7 @@ module Shards
 
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, prereleases: @prereleases, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override, prereleases: @prereleases, ignore_crystal_version: ignore_crystal_version)
         solver.prepare(development: !Shards.production?)
 
         packages = handle_resolver_errors { solver.solve }

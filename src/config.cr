@@ -1,9 +1,10 @@
 require "./info"
 
 module Shards
-  SPEC_FILENAME = "shard.yml"
-  LOCK_FILENAME = "shard.lock"
-  INSTALL_DIR   = "lib"
+  SPEC_FILENAME     = "shard.yml"
+  LOCK_FILENAME     = "shard.lock"
+  OVERRIDE_FILENAME = "shard.override.yml"
+  INSTALL_DIR       = "lib"
 
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
@@ -62,6 +63,10 @@ module Shards
   end
 
   def self.bin_path=(@@bin_path : String)
+  end
+
+  def self.global_override_filename
+    ENV["SHARDS_OVERRIDE"]?.try { |p| File.expand_path(p) }
   end
 
   def self.crystal_version

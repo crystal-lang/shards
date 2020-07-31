@@ -7,7 +7,7 @@ module Shards
       def run(shards : Array(String), print = false, update = false, *, ignore_crystal_version = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
 
         if lockfile?
           if update
@@ -28,7 +28,7 @@ module Shards
         return if packages.empty?
 
         if print
-          Shards::Lock.write(packages, STDOUT)
+          Shards::Lock.write(packages, @override_path, STDOUT)
         else
           write_lockfile(packages)
         end

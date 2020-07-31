@@ -179,6 +179,9 @@ module Shards
       case ref
       when GitCommitRef
         ref =~ git_ref(version)
+      when GitBranchRef, GitHeadRef
+        # TODO: check if version is the branch
+        version.has_metadata?
       else
         # TODO: check branch and tags
         true

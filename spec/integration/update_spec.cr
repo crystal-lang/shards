@@ -335,4 +335,108 @@ describe "update" do
       assert_installed "awesome", "0.2.0", git: git_commits(:forked_awesome).first
     end
   end
+
+  it "can update top dependency with override branch" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "can update top dependency override version" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.1.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "can update to nested override branch" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "can update to nested override version" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.1.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "update to nested latest override if no version" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome)}, # latest version of forked_awesome is 0.2.0
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "updating all with override does unlock nested" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome)}, # latest version of forked_awesome is 0.2.0
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards update"
+
+      assert_installed "d", "0.2.0"
+      assert_locked "d", "0.2.0"
+    end
+  end
 end

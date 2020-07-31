@@ -240,6 +240,24 @@ describe "install" do
     end
   end
 
+  it "updates locked commit when switching from locked version to branch" do
+    metadata = {
+      dependencies: {
+        web: {git: git_url(:web), branch: "master"},
+      },
+    }
+    lock = {web: "1.2.0"}
+    expected_commit = git_commits(:web).first
+
+    with_shard(metadata, lock) do
+      run "shards install"
+      assert_installed "web", "2.1.0", git: expected_commit
+      assert_locked "web", "2.1.0+git.commit.#{expected_commit}"
+    end
+  end
+
+  pending "updates locked commit when switching between branches (if locked commit is not reachable)"
+
   it "fails to install when dependency requirement changed in production" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
@@ -842,11 +860,6 @@ describe "install" do
   end
 
   it "fails on conflicting sources" do
-    create_git_repository "intermediate"
-    create_git_release "intermediate", "0.1.0", {
-      dependencies: {awesome: {git: git_url(:awesome)}},
-    }
-
     metadata = {dependencies: {
       intermediate: "*",
       awesome:      {git: git_url(:forked_awesome)},
@@ -854,6 +867,264 @@ describe "install" do
     with_shard(metadata) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
       ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
+    end
+  end
+
+  it "can override to use local path" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
+    end
+  end
+
+  it "can override to use forked git repository branch" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, nil, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "updates to override with branch if lock is not up to date in main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # nested dependencies are unlocked version
+      assert_installed "d", "0.2.0"
+      assert_locked "d", "0.2.0"
+    end
+  end
+
+  it "updates to override with branch if lock is not up to date in nested dependency" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # nested dependencies are unlocked version
+      assert_installed "d", "0.2.0"
+      assert_locked "d", "0.2.0"
+    end
+  end
+
+  it "updates to override with version if lock is not up to date in main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.2.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "updates to override with version if lock is not up to date in nested dependency" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.2.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "keeps nested dependency lock if it's also a main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+      d:       "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # keep nested dependencies locked version
+      assert_installed "d", "0.1.0"
+      assert_locked "d", "0.1.0"
+    end
+  end
+
+  it "keeps override with branch in locked commit in main dependency" do
+    # There is one commit more in this forked_awesome feature/super branch
+    locked_commit = git_commits(:forked_awesome)[1]
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {
+      awesome: {version: "0.2.0+git.commit.#{locked_commit}", git: git_url(:forked_awesome)},
+      d:       "0.1.0",
+    }
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "keeps override with branch in locked commit in nested dependency" do
+    # There is one commit more in this forked_awesome feature/super branch
+    locked_commit = git_commits(:forked_awesome)[1]
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {
+      intermediate: "0.1.0",
+      awesome:      {version: "0.2.0+git.commit.#{locked_commit}", git: git_url(:forked_awesome)},
+      d:            "0.1.0",
+    }
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "fails if lock is not up to date with override in main dependency in production" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
+      refute_installed "awesome"
+    end
+  end
+
+  it "fails if lock is not up to date with override in nested dependency in production" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+      ex.stdout.should contain("Outdated shard.lock")
+      ex.stderr.should be_empty
+      refute_installed "awesome"
+    end
+  end
+
+  it "uses override relative file specified in SHARDS_OVERRIDE env var" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    ignored_override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    ci_override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, ignored_override) do
+      File.write "shard.ci.yml", to_override_yaml(ci_override)
+
+      run "shards install", env: {"SHARDS_OVERRIDE" => "shard.ci.yml"}
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "fails if file specified in SHARDS_OVERRIDE env var does not exist" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    ignored_override = {dependencies: {
+      awesome: {path: git_path(:forked_awesome)},
+    }}
+    with_shard(metadata, nil, ignored_override) do
+      ex = expect_raises(FailedCommand) do
+        run "shards install --no-color", env: {"SHARDS_OVERRIDE" => "shard.missing.yml"}
+      end
+      ex.stdout.should contain("Missing shard.missing.yml")
+    end
+  end
+
+  it "warn about unneeded --ignore-crystal-version" do
+    metadata = {dependencies: {incompatible: "*"}}
+    with_shard(metadata) do
+      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
+      assert_installed "incompatible", "1.0.0"
+      stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
 end

@@ -174,6 +174,7 @@ module Shards
         end
 
       key, source = resolver_class.normalize_key_source(key, source)
+
       RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end

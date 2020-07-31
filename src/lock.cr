@@ -48,20 +48,23 @@ module Shards
       pull.close if pull
     end
 
-    def self.write(packages : Array(Package), path : String)
+    def self.write(packages : Array(Package), override_path : String?, path : String)
       File.open(path, "w") do |file|
-        write(packages, file)
+        write(packages, override_path, file)
       end
     end
 
-    def self.write(packages : Array(Package), io : IO)
+    def self.write(packages : Array(Package), override_path : String?, io : IO)
+      if packages.any?(&.is_override)
+        io << "# NOTICE: This lockfile contains some overrides from #{override_path}\n"
+      end
       io << "version: #{CURRENT_VERSION}\n"
       io << "shards:\n"
 
       packages.sort_by!(&.name).each do |package|
         key = package.resolver.class.key
 
-        io << "  " << package.name << ":\n"
+        io << "  " << package.name << ":#{package.is_override ? " # Overridden" : nil}\n"
         io << "    " << key << ": " << package.resolver.source << '\n'
         io << "    version: " << package.version.value << '\n'
         io << '\n'

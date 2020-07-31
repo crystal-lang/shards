@@ -5,9 +5,10 @@ module Shards
     getter name : String
     getter resolver : Resolver
     getter version : Version
+    getter is_override : Bool
     @spec : Spec?
 
-    def initialize(@name, @resolver, @version)
+    def initialize(@name, @resolver, @version, @is_override)
     end
 
     def report_version

@@ -11,7 +11,7 @@ module Shards
     include Molinillo::SpecificationProvider(Shards::Dependency, Shards::Spec)
     include Molinillo::UI
 
-    def initialize(@spec : Spec, *, prereleases = false, ignore_crystal_version = false)
+    def initialize(@spec : Spec, @override : Override? = nil, *, prereleases = false, ignore_crystal_version = false)
       @prereleases = prereleases
       @ignore_crystal_version = ignore_crystal_version
     end
@@ -43,7 +43,17 @@ module Shards
         end
         spec = dep.resolver.spec(lock_version)
 
-        spec.dependencies.each do |dep|
+        add_lock base, lock_index, apply_overrides(spec.dependencies)
+      end
+    end
+
+    private def add_lock(base, lock_index, deps : Array(Dependency))
+      deps.each do |dep|
+        if lock = lock_index[dep.name]?
+          if version = lock.requirement.as?(Version)
+            next unless dep.matches?(version)
+          end
+
           add_lock(base, lock_index, dep)
         end
       end
@@ -55,20 +65,13 @@ module Shards
              else
                @spec.dependencies
              end
+      deps = apply_overrides(deps)
 
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       if locks = @locks
         lock_index = locks.to_h { |d| {d.name, d} }
 
-        deps.each do |dep|
-          if lock = lock_index[dep.name]?
-            if version = lock.requirement.as?(Version)
-              next unless dep.matches?(version)
-            end
-
-            add_lock(base, lock_index, dep)
-          end
-        end
+        add_lock base, lock_index, deps
       end
 
       result =
@@ -96,7 +99,7 @@ module Shards
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
-        packages << Package.new(spec.name, resolver, version)
+        packages << Package.new(spec.name, resolver, version, !on_override(spec).nil?)
       end
 
       packages
@@ -153,6 +156,14 @@ module Shards
       end
     end
 
+    def on_override(dependency : Dependency | Shards::Spec) : Dependency?
+      @override.try(&.dependencies.find { |o| o.name == dependency.name })
+    end
+
+    def apply_overrides(deps : Array(Dependency))
+      deps.map { |dep| on_override(dep) || dep }
+    end
+
     def name_for_explicit_dependency_source
       SPEC_FILENAME
     end
@@ -162,11 +173,13 @@ module Shards
     end
 
     def dependencies_for(specification : S) : Array(R)
-      return specification.dependencies if specification.name == "crystal"
-      return specification.dependencies if @ignore_crystal_version
+      spec_dependencies = apply_overrides(specification.dependencies)
+
+      return spec_dependencies if specification.name == "crystal"
+      return spec_dependencies if @ignore_crystal_version
 
       crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, MolinilloSolver.crystal_version_req(specification))
-      specification.dependencies + [crystal_dependency]
+      spec_dependencies + [crystal_dependency]
     end
 
     def self.crystal_version_req(specification : Shards::Spec)
