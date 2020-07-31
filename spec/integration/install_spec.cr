@@ -240,6 +240,24 @@ describe "install" do
     end
   end
 
+  it "updates locked commit when switching from locked version to branch" do
+    metadata = {
+      dependencies: {
+        web: {git: git_url(:web), branch: "master"},
+      },
+    }
+    lock = {web: "1.2.0"}
+    expected_commit = git_commits(:web).first
+
+    with_shard(metadata, lock) do
+      run "shards install"
+      assert_installed "web", "2.1.0", git: expected_commit
+      assert_locked "web", "2.1.0+git.commit.#{expected_commit}"
+    end
+  end
+
+  pending "updates locked commit when switching between branches (if locked commit is not reachable)"
+
   it "fails to install when dependency requirement changed in production" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
@@ -884,9 +902,88 @@ describe "install" do
     end
   end
 
-  it "updates to override if lock is not up to date in main dependency" do
+  it "updates to override with branch if lock is not up to date in main dependency" do
     metadata = {dependencies: {
       awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # nested dependencies are unlocked version
+      assert_installed "d", "0.2.0"
+      assert_locked "d", "0.2.0"
+    end
+  end
+
+  it "updates to override with branch if lock is not up to date in nested dependency" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+    expected_commit = git_commits(:forked_awesome).first
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+
+      # nested dependencies are unlocked version
+      assert_installed "d", "0.2.0"
+      assert_locked "d", "0.2.0"
+    end
+  end
+
+  it "updates to override with version if lock is not up to date in main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+    }}
+    lock = {awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.2.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "updates to override with version if lock is not up to date in nested dependency" do
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), version: "0.2.0"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
+    end
+  end
+
+  it "keeps nested dependency lock if it's also a main dependency" do
+    metadata = {dependencies: {
+      awesome: "*",
+      d:       "*",
     }}
     lock = {awesome: "0.1.0", d: "0.1.0"}
     override = {dependencies: {
@@ -906,25 +1003,48 @@ describe "install" do
     end
   end
 
-  it "updates to override if lock is not up to date in nested dependency" do
+  it "keeps override with branch in locked commit in main dependency" do
+    # There is one commit more in this forked_awesome feature/super branch
+    locked_commit = git_commits(:forked_awesome)[1]
     metadata = {dependencies: {
-      intermediate: "*",
+      awesome: "*",
     }}
-    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+    lock = {
+      awesome: {version: "0.2.0+git.commit.#{locked_commit}", git: git_url(:forked_awesome)},
+      d:       "0.1.0",
+    }
     override = {dependencies: {
       awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
     }}
-    expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
       run "shards install"
 
-      assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
-      assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
+      assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+    end
+  end
 
-      # keep nested dependencies locked version
-      assert_installed "d", "0.1.0"
-      assert_locked "d", "0.1.0"
+  it "keeps override with branch in locked commit in nested dependency" do
+    # There is one commit more in this forked_awesome feature/super branch
+    locked_commit = git_commits(:forked_awesome)[1]
+    metadata = {dependencies: {
+      intermediate: "*",
+    }}
+    lock = {
+      intermediate: "0.1.0",
+      awesome:      {version: "0.2.0+git.commit.#{locked_commit}", git: git_url(:forked_awesome)},
+      d:            "0.1.0",
+    }
+    override = {dependencies: {
+      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+    }}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
+      assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
     end
   end
 

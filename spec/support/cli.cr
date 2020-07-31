@@ -88,8 +88,15 @@ def to_lock_yaml(lock)
 
   YAML.dump({
     version: Shards::Lock::CURRENT_VERSION,
-    shards:  lock.to_a.to_h do |name, version|
-      {name, {git: git_url(name), version: version}}
+    shards:  lock.to_a.to_h do |name, data|
+      if data.is_a?(NamedTuple)
+        git = data[:git]
+        version = data[:version]
+      else
+        git = git_url(name)
+        version = data
+      end
+      {name, {git: git, version: version}}
     end,
   })
 end

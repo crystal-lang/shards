@@ -150,6 +150,7 @@ private def setup_repositories
   checkout_new_git_branch "forked_awesome", "feature/super"
   create_file "forked_awesome", File.join("src", "super_feature.cr"), ""
   create_git_commit "forked_awesome", "Starting super feature"
+  create_git_commit "forked_awesome", "More on super feature"
 
   create_git_repository "intermediate"
   create_git_release "intermediate", "0.1.0", {

@@ -43,8 +43,17 @@ module Shards
         end
         spec = dep.resolver.spec(lock_version)
 
-        spec.dependencies.each do |dep|
-          dep = on_override(dep) || dep
+        add_lock base, lock_index, apply_overrides(spec.dependencies)
+      end
+    end
+
+    private def add_lock(base, lock_index, deps : Array(Dependency))
+      deps.each do |dep|
+        if lock = lock_index[dep.name]?
+          if version = lock.requirement.as?(Version)
+            next unless dep.matches?(version)
+          end
+
           add_lock(base, lock_index, dep)
         end
       end
@@ -62,15 +71,7 @@ module Shards
       if locks = @locks
         lock_index = locks.to_h { |d| {d.name, d} }
 
-        deps.each do |dep|
-          if lock = lock_index[dep.name]?
-            if version = lock.requirement.as?(Version)
-              next unless dep.matches?(version)
-            end
-
-            add_lock(base, lock_index, dep)
-          end
-        end
+        add_lock base, lock_index, deps
       end
 
       result =
@@ -197,8 +198,6 @@ module Shards
     end
 
     def requirement_satisfied_by?(dependency, activated, spec)
-      return true if on_override(dependency)
-
       unless @prereleases
         if !spec.version.has_metadata? && spec.version.prerelease? && !dependency.prerelease?
           vertex = activated.vertex_named(spec.name)
