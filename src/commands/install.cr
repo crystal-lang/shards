@@ -88,9 +88,8 @@ module Shards
       private def outdated_lockfile?(packages)
         return true if locks.version != Shards::Lock::CURRENT_VERSION
         return true if packages.size != locks.shards.size
-        a = packages.to_h { |x| {x.name, {x.resolver.class.key, x.resolver.source, x.version}} }
-        b = locks.shards.to_h { |x| {x.name, {x.resolver.class.key, x.resolver.source, x.version}} }
-        a != b
+
+        packages.index_by(&.name) != locks.shards.index_by(&.name)
       end
     end
   end
