@@ -14,7 +14,7 @@ module Shards
 
       private def list(dependencies, level = 1)
         dependencies.each do |dependency|
-          installed = Shards.info.installed[dependency.name]
+          installed = Shards.info.installed[dependency.name]?
           unless installed
             Log.debug { "#{dependency.name}: not installed" }
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
