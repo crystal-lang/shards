@@ -16,7 +16,29 @@ module Shards
     end
 
     def spec
-      @spec ||= resolver.spec(version)
+      @spec ||= begin
+        if installed?
+          read_installed_spec
+        else
+          resolver.spec(version)
+        end
+      end
+    end
+
+    private def read_installed_spec
+      path = File.join(install_path, SPEC_FILENAME)
+      unless File.exists?(path)
+        return resolver.spec(version)
+      end
+
+      begin
+        spec = Spec.from_file(path)
+        spec.version = version
+        spec
+      rescue error : ParseError
+        error.resolver = resolver
+        raise error
+      end
     end
 
     def installed?
