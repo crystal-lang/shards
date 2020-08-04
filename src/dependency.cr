@@ -58,6 +58,8 @@ module Shards
         case req = @requirement
         when VersionReq then Version.new(req.to_s)
         else
+          # This conversion is used to keep compatibility
+          # with old versions (1.0) of lock files.
           versions = @resolver.versions_for(req)
           unless versions.size == 1
             return

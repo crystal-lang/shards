@@ -33,6 +33,10 @@ module Shards
             case key = pull.read_scalar
             when "shards"
               pull.each_in_mapping do
+                # Shards are parsed as dependencies to keep
+                # compatiblity with version 1.0. Calls to `as_package?`
+                # will use the resolver to convert potential references
+                # to explicit versions used in 2.0 format.
                 dep = Dependency.from_yaml(pull)
                 if package = dep.as_package?
                   shards << package
