@@ -1,7 +1,7 @@
 require "./spec_helper"
 
 describe "outdated" do
-  it "up_to_date" do
+  it "up to date" do
     with_shard({dependencies: {web: "*"}}) do
       run "shards install"
 
@@ -10,7 +10,7 @@ describe "outdated" do
     end
   end
 
-  it "not_latest_version" do
+  it "not latest version" do
     with_shard({dependencies: {orm: "*"}}, {orm: "0.3.1"}) do
       run "shards install"
 
@@ -20,7 +20,7 @@ describe "outdated" do
     end
   end
 
-  it "available_version_matching_pessimistic_operator" do
+  it "available version matching pessimistic operator" do
     with_shard({dependencies: {orm: "~> 0.3.0"}}, {orm: "0.3.1"}) do
       run "shards install"
 
@@ -30,7 +30,7 @@ describe "outdated" do
     end
   end
 
-  it "reports_new_prerelease" do
+  it "reports new prerelease" do
     with_shard({dependencies: {unstable: "0.3.0.alpha"}}) do
       run "shards install"
     end
@@ -41,7 +41,7 @@ describe "outdated" do
     end
   end
 
-  it "wont_report_prereleases_by_default" do
+  it "won't report prereleases by default" do
     with_shard({dependencies: {preview: "*"}}, {preview: "0.2.0"}) do
       run "shards install"
 
@@ -51,7 +51,7 @@ describe "outdated" do
     end
   end
 
-  it "reports_prereleases_when_asked" do
+  it "reports prereleases when asked" do
     with_shard({dependencies: {preview: "*"}}, {preview: "0.2.0"}) do
       run "shards install"
 
