@@ -53,7 +53,7 @@ module Shards
       end
     end
 
-    def as_package
+    def as_package?
       version =
         case req = @requirement
         when VersionReq then Version.new(req.to_s)

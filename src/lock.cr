@@ -34,7 +34,7 @@ module Shards
             when "shards"
               pull.each_in_mapping do
                 dep = Dependency.from_yaml(pull)
-                if package = dep.as_package
+                if package = dep.as_package?
                   shards << package
                 else
                   Log.warn { "Lock for shard \"#{dep.name}\" is invalid" }
