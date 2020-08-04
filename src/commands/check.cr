@@ -34,7 +34,10 @@ module Shards
           return false
         end
 
-        if !dependency.matches?(lock.version)
+        if dependency.resolver != lock.resolver
+          Log.debug { "#{dependency.name}: source changed" }
+          return false
+        elsif !dependency.matches?(lock.version)
           Log.debug { "#{dependency.name}: lock conflict" }
           return false
         else

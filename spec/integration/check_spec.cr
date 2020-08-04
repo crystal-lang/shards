@@ -75,4 +75,16 @@ describe "check" do
       run "shards check"
     end
   end
+
+  it "fails when another source was installed" do
+    with_shard({dependencies: {awesome: "0.1.0"}}) do
+      run "shards install"
+    end
+
+    with_shard({dependencies: {awesome: {git: git_url(:forked_awesome)}}}) do
+      ex = expect_raises(FailedCommand) { run "shards check --no-color" }
+      ex.stdout.should contain("Dependencies aren't satisfied")
+      ex.stderr.should be_empty
+    end
+  end
 end
