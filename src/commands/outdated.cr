@@ -34,6 +34,10 @@ module Shards
           return
         end
 
+        if installed_dep.resolver != package.resolver
+          raise LockConflict.new("#{package.name} source changed")
+        end
+
         resolver = package.resolver
         installed = installed_dep.version
 

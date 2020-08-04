@@ -60,4 +60,15 @@ describe "outdated" do
       stdout.should contain("  * preview (installed: 0.2.0, available: 0.4.0.a)")
     end
   end
+
+  it "fails when source has changed" do
+    with_shard({dependencies: {awesome: "0.1.0"}}) do
+      run "shards install"
+    end
+
+    with_shard({dependencies: {awesome: {git: git_url(:forked_awesome)}}}) do
+      ex = expect_raises(FailedCommand) { run "shards outdated --no-color" }
+      ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
+    end
+  end
 end
