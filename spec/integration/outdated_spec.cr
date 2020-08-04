@@ -82,4 +82,60 @@ describe "outdated" do
       ex.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
     end
   end
+
+  it "fails when requirements would require an update due to override" do
+    metadata = {dependencies: {awesome: "0.1.0"}}
+
+    with_shard(metadata) do
+      run "shards install"
+    end
+
+    override = {dependencies: {awesome: "0.2.0"}}
+
+    with_shard(metadata, nil, override) do
+      ex = expect_raises(FailedCommand) { run "shards outdated --no-color" }
+      ex.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
+    end
+  end
+
+  it "not latest version in override (same source)" do
+    metadata = {dependencies: {awesome: "0.1.0"}}
+    lock = {awesome: "0.1.0"}
+    override = {dependencies: {awesome: "*"}}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      stdout = run "shards outdated --no-color"
+      stdout.should contain("W: Outdated dependencies:")
+      stdout.should contain("  * awesome (installed: 0.1.0, available: 0.3.0)")
+    end
+  end
+
+  it "not latest version in override (different source)" do
+    metadata = {dependencies: {awesome: "0.1.0"}}
+    lock = {awesome: {version: "0.1.0", git: git_url(:forked_awesome)}}
+    override = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      stdout = run "shards outdated --no-color"
+      stdout.should contain("W: Outdated dependencies:")
+      stdout.should contain("  * awesome (installed: 0.1.0, available: 0.2.0)")
+    end
+  end
+
+  it "up to date in override" do
+    metadata = {dependencies: {awesome: "0.1.0"}}
+    lock = {awesome: {version: "0.2.0", git: git_url(:forked_awesome)}}
+    override = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+
+    with_shard(metadata, lock, override) do
+      run "shards install"
+
+      stdout = run "shards outdated --no-color"
+      stdout.should contain("I: Dependencies are up to date!")
+    end
+  end
 end

@@ -79,7 +79,8 @@ module Shards
       end
 
       private def dependency_by_name(name : String)
-        spec.dependencies.find { |o| o.name == name } ||
+        override.try(&.dependencies.find { |o| o.name == name }) ||
+          spec.dependencies.find { |o| o.name == name } ||
           spec.development_dependencies.find { |o| o.name == name }
       end
     end
