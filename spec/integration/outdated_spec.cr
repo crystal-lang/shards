@@ -71,4 +71,15 @@ describe "outdated" do
       ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
     end
   end
+
+  it "fails when requirements would require an update" do
+    with_shard({dependencies: {awesome: "0.1.0"}}) do
+      run "shards install"
+    end
+
+    with_shard({dependencies: {awesome: "0.2.0"}}) do
+      ex = expect_raises(FailedCommand) { run "shards outdated --no-color" }
+      ex.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
+    end
+  end
 end

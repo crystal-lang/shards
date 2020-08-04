@@ -40,6 +40,11 @@ module Shards
 
         resolver = package.resolver
         installed = installed_dep.version
+        dependency = dependency_by_name package.name
+
+        if dependency && !dependency.matches?(installed)
+          raise LockConflict.new("#{package.name} requirements changed")
+        end
 
         # already the latest version?
         available_versions =
@@ -71,6 +76,11 @@ module Shards
       # FIXME: duplicates Check#has_dependencies?
       private def has_dependencies?
         spec.dependencies.any? || (!Shards.production? && spec.development_dependencies.any?)
+      end
+
+      private def dependency_by_name(name : String)
+        spec.dependencies.find { |o| o.name == name } ||
+          spec.development_dependencies.find { |o| o.name == name }
       end
     end
   end
