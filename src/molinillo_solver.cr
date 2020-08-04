@@ -22,7 +22,7 @@ module Shards
     private def add_lock(base, lock_index, dep : Dependency)
       if lock = lock_index.delete(dep.name)
         check_single_resolver_by_name dep.resolver
-        base.add_vertex(lock.name, Dependency.new(lock.name, lock.resolver, lock.version), true)
+        base.add_vertex(lock.name, Dependency.new(lock.name, dep.resolver, lock.version), true)
 
         # Use the resolver from dependencies (not lock) if available.
         # This is to allow changing source without bumping the version when possible.
