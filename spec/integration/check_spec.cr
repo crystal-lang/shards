@@ -87,4 +87,20 @@ describe "check" do
       ex.stderr.should be_empty
     end
   end
+
+  it "fails when override changes version to use" do
+    metadata = {dependencies: {awesome: "0.1.0"}}
+
+    with_shard(metadata) do
+      run "shards install"
+    end
+
+    override = {dependencies: {awesome: "0.2.0"}}
+
+    with_shard(metadata, nil, override) do
+      ex = expect_raises(FailedCommand) { run "shards check --no-color" }
+      ex.stdout.should contain("Dependencies aren't satisfied")
+      ex.stderr.should be_empty
+    end
+  end
 end
