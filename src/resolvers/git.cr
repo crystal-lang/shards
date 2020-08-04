@@ -209,7 +209,7 @@ module Shards
       end
     end
 
-    def install_sources(version : Version)
+    def install_sources(version : Version, install_path : String)
       update_local_cache
       ref = git_ref(version)
 

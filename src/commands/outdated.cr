@@ -29,13 +29,13 @@ module Shards
       end
 
       private def analyze(package)
-        resolver = package.resolver
-        installed = resolver.installed_spec.try(&.version)
-
-        unless installed
+        unless installed_dep = Shards.info.installed[package.name]?
           Log.warn { "#{package.name}: not installed" }
           return
         end
+
+        resolver = package.resolver
+        installed = installed_dep.requirement.as(Shards::Version)
 
         # already the latest version?
         available_versions =

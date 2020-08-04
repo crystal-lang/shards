@@ -22,21 +22,14 @@ module Shards
         dependencies.each do |dependency|
           Log.debug { "#{dependency.name}: checking..." }
 
-          unless _spec = dependency.resolver.installed_spec
-            Log.debug { "#{dependency.name}: not installed" }
+          unless installed?(dependency)
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
           end
-
-          unless installed?(dependency, _spec)
-            raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
-          end
-
-          verify(_spec.dependencies)
         end
       end
 
-      private def installed?(dependency, spec)
-        unless lock = locks.shards.find { |d| d.name == spec.name }
+      private def installed?(dependency)
+        unless lock = locks.shards.find { |d| d.name == dependency.name }
           Log.debug { "#{dependency.name}: not locked" }
           return false
         end
@@ -46,13 +39,14 @@ module Shards
             Log.debug { "#{dependency.name}: lock conflict" }
             return false
           else
-            return spec.version == version
+            package = Package.new(lock.name, lock.resolver, version)
+            return false unless package.installed?
+            verify(package.spec.dependencies)
+            return true
           end
         else
           raise Error.new("Invalid #{LOCK_FILENAME}. Please run `shards install` to fix it.")
         end
-
-        true
       end
     end
   end

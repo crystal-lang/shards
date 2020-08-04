@@ -14,7 +14,7 @@ module Shards
       nil
     end
 
-    def install_sources(version : Version)
+    def install_sources(version : Version, install_path : String)
       raise NotImplementedError.new("CrystalResolver#install_sources")
     end
 
