@@ -14,18 +14,14 @@ module Shards
 
       private def list(dependencies, level = 1)
         dependencies.each do |dependency|
-          installed = Shards.info.installed[dependency.name]?
-          unless installed
+          package = Shards.info.installed[dependency.name]?
+          unless package
             Log.debug { "#{dependency.name}: not installed" }
             raise Error.new("Dependencies aren't satisfied. Install them with 'shards install'")
           end
 
-          version = installed.requirement.as(Shards::Version)
-          package = Package.new(installed.name, installed.resolver, version)
-          resolver = installed.resolver
-
           indent = "  " * level
-          puts "#{indent}* #{dependency.name} (#{resolver.report_version version})"
+          puts "#{indent}* #{package}"
 
           indent_level = @tree ? level + 1 : level
           list(package.spec.dependencies, indent_level)

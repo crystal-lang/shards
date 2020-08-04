@@ -1,6 +1,7 @@
 require "uri"
 require "./resolver"
 require "../versions"
+require "../logger"
 require "../helpers/path"
 
 module Shards

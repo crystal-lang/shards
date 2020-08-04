@@ -35,7 +35,7 @@ module Shards
         end
 
         resolver = package.resolver
-        installed = installed_dep.requirement.as(Shards::Version)
+        installed = installed_dep.version
 
         # already the latest version?
         available_versions =

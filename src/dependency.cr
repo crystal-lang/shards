@@ -11,7 +11,7 @@ module Shards
     def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
     end
 
-    def self.from_yaml(pull : YAML::PullParser, *, is_lock = false)
+    def self.from_yaml(pull : YAML::PullParser)
       mapping_start = pull.location
       name = pull.read_scalar
       pull.read_mapping do
@@ -40,10 +40,6 @@ module Shards
         resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
 
         requirement = resolver.parse_requirement(params)
-        if is_lock && requirement.is_a?(VersionReq)
-          requirement = Version.new(requirement.to_s)
-        end
-
         Dependency.new(name, resolver, requirement)
       end
     end
@@ -55,6 +51,23 @@ module Shards
         yaml.scalar resolver.source
         requirement.to_yaml(yaml)
       end
+    end
+
+    def as_package?
+      version =
+        case req = @requirement
+        when VersionReq then Version.new(req.to_s)
+        else
+          # This conversion is used to keep compatibility
+          # with old versions (1.0) of lock files.
+          versions = @resolver.versions_for(req)
+          unless versions.size == 1
+            return
+          end
+          versions.first
+        end
+
+      Package.new(@name, @resolver, version)
     end
 
     def_equals @name, @resolver, @requirement

@@ -34,18 +34,13 @@ module Shards
           return false
         end
 
-        if version = lock.requirement.as?(Shards::Version)
-          if !dependency.matches?(version)
-            Log.debug { "#{dependency.name}: lock conflict" }
-            return false
-          else
-            package = Package.new(lock.name, lock.resolver, version)
-            return false unless package.installed?
-            verify(package.spec.dependencies)
-            return true
-          end
+        if !dependency.matches?(lock.version)
+          Log.debug { "#{dependency.name}: lock conflict" }
+          return false
         else
-          raise Error.new("Invalid #{LOCK_FILENAME}. Please run `shards install` to fix it.")
+          return false unless lock.installed?
+          verify(lock.spec.dependencies)
+          return true
         end
       end
     end

@@ -2,7 +2,7 @@ require "./lock"
 
 class Shards::Info
   getter install_path : String
-  getter installed = Hash(String, Dependency).new
+  getter installed = Hash(String, Package).new
 
   def initialize(@install_path = Shards.install_path)
     reload
