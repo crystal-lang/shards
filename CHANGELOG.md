@@ -5,7 +5,7 @@
 Fixes:
 
 - Disable interactive credential prompt for git resolver. ([#411](https://github.com/crystal-lang/shards/pull/411), thanks @straight-shoota)
-- Display dependency name on parsing errors of `shards.yml`. ([#408](https://github.com/crystal-lang/shards/pull/408), thanks @straight-shoota)
+- Display dependency name on parsing errors of `shard.yml`. ([#408](https://github.com/crystal-lang/shards/pull/408), thanks @straight-shoota)
 - Handle ambiguous dependencies and update `shard.lock` if source of dependency change. ([#419](https://github.com/crystal-lang/shards/pull/419), [#429](https://github.com/crystal-lang/shards/pull/429), thanks @bcardiff)
 - Reinstall when resolver changes. ([#425](https://github.com/crystal-lang/shards/pull/425), thanks @waj)
 
