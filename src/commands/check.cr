@@ -19,7 +19,7 @@ module Shards
       end
 
       private def verify(dependencies)
-        dependencies.each do |dependency|
+        apply_overrides(dependencies).each do |dependency|
           Log.debug { "#{dependency.name}: checking..." }
 
           unless installed?(dependency)
@@ -34,7 +34,10 @@ module Shards
           return false
         end
 
-        if !dependency.matches?(lock.version)
+        if dependency.resolver != lock.resolver
+          Log.debug { "#{dependency.name}: source changed" }
+          return false
+        elsif !dependency.matches?(lock.version)
           Log.debug { "#{dependency.name}: lock conflict" }
           return false
         else
@@ -42,6 +45,16 @@ module Shards
           verify(lock.spec.dependencies)
           return true
         end
+      end
+
+      # FIXME: duplicates MolinilloSolver#on_override
+      def on_override(dependency : Dependency) : Dependency?
+        override.try(&.dependencies.find { |o| o.name == dependency.name })
+      end
+
+      # FIXME: duplicates MolinilloSolver#apply_overrides
+      def apply_overrides(deps : Array(Dependency))
+        deps.map { |dep| on_override(dep) || dep }
       end
     end
   end
