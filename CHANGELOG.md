@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v0.12.0 - 2020-08-05
+
+Fixes:
+
+- Disable interactive credential prompt for git resolver. ([#411](https://github.com/crystal-lang/shards/pull/411), thanks @straight-shoota)
+- Display dependency name on parsing errors of `shard.yml`. ([#408](https://github.com/crystal-lang/shards/pull/408), thanks @straight-shoota)
+- Handle ambiguous dependencies and update `shard.lock` if source of dependency change. ([#419](https://github.com/crystal-lang/shards/pull/419), [#429](https://github.com/crystal-lang/shards/pull/429), thanks @bcardiff)
+- Reinstall when resolver changes. ([#425](https://github.com/crystal-lang/shards/pull/425), thanks @waj)
+
+Features:
+
+- Shards overrides. ([#422](https://github.com/crystal-lang/shards/pull/422), [#429](https://github.com/crystal-lang/shards/pull/429), thanks @bcardiff)
+- Add `--ignore-crystal-version` related suggestion and warnings to guide user. ([#418](https://github.com/crystal-lang/shards/pull/418), thanks @bcardiff)
+- Allow shards to read `SHARDS_OPTS` for addition command options. ([#417](https://github.com/crystal-lang/shards/pull/417), [#420](https://github.com/crystal-lang/shards/pull/420), thanks @bcardiff)
+- Add convenient makefile arguments for packaging. ([#414](https://github.com/crystal-lang/shards/pull/414), thanks @bcardiff)
+
+Others:
+
+- Bump required Crystal to 0.35. ([#424](https://github.com/crystal-lang/shards/pull/424), thanks @bcardiff)
+- Refactor: Move install responsibilities from `Resolver` to `Package`. ([#426](https://github.com/crystal-lang/shards/pull/426), thanks @waj)
+- Refactor: Use `Package` for locks and installed shards. ([#428](https://github.com/crystal-lang/shards/pull/428), thanks @waj)
+- Spec: Add `stdout` and `stderr` to `FailedCommand` message. ([#410](https://github.com/crystal-lang/shards/pull/410), thanks @straight-shoota)
+- Spec: Fix failure under 32-bit Linux. ([#416](https://github.com/crystal-lang/shards/pull/416), thanks @lugia-kun)
+- Fix builds. ([#421](https://github.com/crystal-lang/shards/pull/421), [#423](https://github.com/crystal-lang/shards/pull/423), thanks @bcardiff)
+
 ## v0.11.1 - 2020-06-08
 
 Fixes:
