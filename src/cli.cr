@@ -104,13 +104,6 @@ module Shards
     Process.exec(
       command: process_name,
       args: args[1..-1],
-      env: nil,
-      clear_env: false,
-      shell: false,
-      input: STDIN,
-      output: STDOUT,
-      error: STDERR,
-      chdir: nil
     )
   end
 
