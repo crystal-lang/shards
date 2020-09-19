@@ -1,6 +1,5 @@
 require "file_utils"
 require "./command"
-require "../helpers/path"
 
 module Shards
   module Commands
@@ -13,7 +12,7 @@ module Shards
           name = File.basename(path)
 
           if locks.shards.none? { |d| d.name == name }
-            Log.debug { "rm -rf '#{Helpers::Path.escape(path)}'" }
+            Log.debug { "rm -rf '#{Process.quote(path)}'" }
             FileUtils.rm_rf(path)
 
             Shards.info.installed.delete(name)

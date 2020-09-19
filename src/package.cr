@@ -77,7 +77,7 @@ module Shards
     end
 
     protected def cleanup_install_directory
-      Log.debug { "rm -rf '#{Helpers::Path.escape(install_path)}'" }
+      Log.debug { "rm -rf #{Process.quote(install_path)}" }
       FileUtils.rm_rf(install_path)
     end
 
