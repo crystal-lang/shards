@@ -13,6 +13,9 @@ MOLINILLO_SOURCES = $(shell find lib/molinillo -name '*.cr' 2> /dev/null)
 SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
+SHARDS_CONFIG_BUILD_COMMIT := $(shell git rev-parse --short HEAD 2> /dev/null)
+SOURCE_DATE_EPOCH := $(shell (git show -s --format=%ct HEAD || stat -c "%Y" Makefile || stat -f "%m" Makefile) 2> /dev/null)
+EXPORTS := SHARDS_CONFIG_BUILD_COMMIT="$(SHARDS_CONFIG_BUILD_COMMIT)" SOURCE_DATE_EPOCH="$(SOURCE_DATE_EPOCH)"
 DESTDIR ?=
 PREFIX ?= /usr/local
 BINDIR ?= $(DESTDIR)$(PREFIX)/bin
@@ -29,7 +32,7 @@ clean: phony
 
 bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
-	$(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
+	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
 
 install: bin/shards phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
