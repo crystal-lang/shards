@@ -113,7 +113,7 @@ module Shards
 
     protected def self.has_git_command?
       if @@has_git_command.nil?
-        @@has_git_command = Process.run("command -v git", shell: true).success?
+        @@has_git_command = (Process.run("git", ["--version"]).success? rescue false)
       end
       @@has_git_command
     end
@@ -405,7 +405,7 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
+      status = Process.run(command, shell: true, output: output, error: error)
 
       if status.success?
         output.to_s if capture
