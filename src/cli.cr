@@ -103,7 +103,7 @@ module Shards
   def self.run_shards_subcommand(process_name, args)
     Process.exec(
       command: process_name,
-      args: args[1..-1],
+      args: args[1..],
     )
   end
 
