@@ -78,8 +78,8 @@ module Shards
           Commands::Version.run(args[1]? || path)
         else
           program_name = "shards-#{args[0]}"
-          if Process.find_executable(program_name)
-            run_shards_subcommand(program_name, args)
+          if program_path = Process.find_executable(program_name)
+            run_shards_subcommand(program_path, args)
           else
             display_help_and_exit(opts)
           end
