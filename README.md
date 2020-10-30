@@ -62,7 +62,7 @@ These requirements are only for compiling Shards.
 
 * Crystal
 
-  Please refer to <http://crystal-lang.org/docs/installation> for
+  Please refer to <https://crystal-lang.org/install/> for
   instructions for your operating system.
 
 * libyaml
