@@ -142,7 +142,7 @@ def run(command, *, env = nil)
   }
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
-  status = Process.run("/bin/sh", env: cmd_env, input: IO::Memory.new(command), output: output, error: error)
+  status = Process.run(command, shell: true, env: cmd_env, output: output, error: error)
 
   if status.success?
     output.to_s
