@@ -2,7 +2,6 @@ require "uri"
 require "./resolver"
 require "../versions"
 require "../logger"
-require "../helpers/path"
 
 module Shards
   abstract struct GitRef < Ref
@@ -113,7 +112,7 @@ module Shards
 
     protected def self.has_git_command?
       if @@has_git_command.nil?
-        @@has_git_command = Process.run("command -v git", shell: true).success?
+        @@has_git_command = (Process.run("git", ["--version"]).success? rescue false)
       end
       @@has_git_command
     end
@@ -215,7 +214,7 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git --work-tree=#{Helpers::Path.escape(install_path)} checkout #{ref.to_git_ref} -- ."
+      run "git --work-tree=#{Process.quote(install_path)} checkout #{ref.to_git_ref} -- ."
     end
 
     def commit_sha1_at(ref : GitRef)
@@ -313,7 +312,7 @@ module Shards
       # be used interactively.
       # This configuration can be overriden by defining the environment
       # variable `GIT_ASKPASS`.
-      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
+      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
@@ -405,7 +404,7 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run("/bin/sh", input: IO::Memory.new(command), output: output, error: error)
+      status = Process.run(command, shell: true, output: output, error: error)
 
       if status.success?
         output.to_s if capture
