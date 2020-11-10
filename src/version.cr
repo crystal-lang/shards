@@ -1,7 +1,11 @@
 module Shards
   VERSION    = {{ read_file("#{__DIR__}/../VERSION").chomp }}
-  BUILD_SHA1 = {{ `git log --format=%h -n 1 2>/dev/null || echo ""`.stringify.chomp }}
-  BUILD_DATE = Time.unix({{ (env("SOURCE_DATE_EPOCH") || `date +%s`).to_i }}).to_s("%Y-%m-%d")
+  BUILD_SHA1 = {{ env("SHARDS_CONFIG_BUILD_COMMIT") || "" }}
+  {% if (t = env("SOURCE_DATE_EPOCH")) && !t.empty? %}
+    BUILD_DATE = Time.unix({{t.to_i}}).to_s("%Y-%m-%d")
+  {% else %}
+    BUILD_DATE = ""
+  {% end %}
 
   def self.version_string
     if BUILD_SHA1.empty?
