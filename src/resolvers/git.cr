@@ -2,7 +2,6 @@ require "uri"
 require "./resolver"
 require "../versions"
 require "../logger"
-require "../helpers/path"
 
 module Shards
   abstract struct GitRef < Ref
@@ -215,7 +214,7 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git archive --format=tar --prefix= #{ref.to_git_ref} | tar -x -f - -C #{Helpers::Path.escape(install_path)}"
+      run "git archive --format=tar --prefix= #{ref.to_git_ref} | tar -x -f - -C #{Process.quote(install_path)}"
     end
 
     def commit_sha1_at(ref : GitRef)
@@ -313,7 +312,7 @@ module Shards
       # be used interactively.
       # This configuration can be overriden by defining the environment
       # variable `GIT_ASKPASS`.
-      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Helpers::Path.escape(git_url)} #{local_path}"
+      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{local_path}"
     rescue Error
       raise Error.new("Failed to clone #{git_url}")
     end
