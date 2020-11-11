@@ -214,7 +214,7 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git archive --format=tar --prefix= #{ref.to_git_ref} | tar -x -f - -C #{Process.quote(install_path)}"
+      run "git --work-tree=#{Process.quote(install_path)} checkout #{ref.to_git_ref} -- ."
     end
 
     def commit_sha1_at(ref : GitRef)
