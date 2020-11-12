@@ -1127,4 +1127,29 @@ describe "install" do
       stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
+
+  describe "mtime" do
+    it "mtime lib > shard.lock > shard.yml" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards install"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+
+    it "mtime shard.lock > shard.yml even when unmodified" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards install"
+        File.touch("shard.yml")
+        run "shards install"
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+  end
 end

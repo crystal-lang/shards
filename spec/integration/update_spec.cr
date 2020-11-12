@@ -439,4 +439,29 @@ describe "update" do
       assert_locked "d", "0.2.0"
     end
   end
+
+  describe "mtime" do
+    it "mtime lib > shard.lock > shard.yml" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+
+    it "mtime shard.lock > shard.yml even when unmodified" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards update"
+        File.touch("shard.yml")
+        run "shards update"
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+  end
 end
