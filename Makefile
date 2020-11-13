@@ -14,7 +14,7 @@ SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
 TEMPLATES = src/templates/*.ecr
 
 SHARDS_CONFIG_BUILD_COMMIT := $(shell git rev-parse --short HEAD 2> /dev/null)
-SHARDS_VERSION := $(file < VERSION)
+SHARDS_VERSION := $(shell cat VERSION)
 SOURCE_DATE_EPOCH := $(shell (git show -s --format=%ct HEAD || stat -c "%Y" Makefile || stat -f "%m" Makefile) 2> /dev/null)
 EXPORTS := SHARDS_CONFIG_BUILD_COMMIT="$(SHARDS_CONFIG_BUILD_COMMIT)" SOURCE_DATE_EPOCH="$(SOURCE_DATE_EPOCH)"
 DESTDIR ?=
@@ -26,9 +26,9 @@ INSTALL ?= /usr/bin/install
 MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
 MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
 
-include docs.mk
-
 all: bin/shards
+
+include docs.mk
 
 clean: phony clean_docs
 	rm -f bin/shards
