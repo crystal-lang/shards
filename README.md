@@ -74,6 +74,10 @@ These requirements are only for compiling Shards.
   variable (eg: `export LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"`).
   Please adjust the path per your Homebrew installation.
 
+* [asciidoctor](https://asciidoctor.org/)
+
+  Needed for building manpages.
+
 
 ## License
 

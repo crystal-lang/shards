@@ -1,0 +1,97 @@
+= shard.yml(5)
+:doctype: manpage
+:man manual: File Formats
+:man source: shards {shards_version}
+
+== NAME
+shard.yml - metadata for projects managed by shards(1)
+
+== DESCRIPTION
+
+The file _shard.yml_ is a YAML file with metadata about a project managed by shards, known as a *shard*. It must contain at least _name_ and _version_ attributes plus optional additional attributes.
+
+== REQUIRED ATTRIBUTES
+*name*::
+  The name of the project.
+
+*version*::
+  The version number of the project.
+
+== OPTIONAL ATTRIBUTES
+*authors*::
+  A list of authors, along with their contact email (optional).
+
+*description*::
+  A single line description of the project.
+
+*license*::
+  An OSI license name or an URL to a license file.
+
+*dependencies*::
+  A list of required dependencies.
+
+*development_dependencies*::
+  A list of dependencies required to work on the project, but not necessary
+  to build and run the project.
+
+*scripts*::
+  Script hooks to run. Only _postinstall_ is supported.
+
+== DEPENDENCY ATTRIBUTES
+*path*::
+  Local path to the dependency.
+
+*git*::
+  Git repository URL.
+
+*github*::
+  GitHub repository URL as _user/repo_.
+
+*bitbucket*::
+  Bitbucket repository URL as _user/repo_.
+
+*version*::
+  Version requirement. It may be prefixed by one of the following operators:
+  _<_, _\<=_, _>_, _>=_ or _~>_. It may also be _*_ to match all
+  versions (default).
+
+*branch*::
+  Install the specified branch of a Git dependency.
+
+*commit*::
+  Install the specified commit of a Git dependency.
+
+*tag*::
+  Install the specified tag of a Git dependency.
+
+== EXAMPLE
+
+  name: shards
+  version: 1.2.3
+
+  authors:
+    - Julien Portalier <julien@example.com>
+
+  description: |
+    Dependency manager for the Crystal Language
+
+  dependencies:
+    openssl:
+      github: datanoise/openssl.cr
+      branch: master
+
+  development_dependencies:
+    minitest:
+      git: https://github.com/ysbaddaden/minitest.cr.git
+      version: "~> 0.1.0"
+
+  scripts:
+    postinstall: make ext
+
+  license: MIT
+
+== AUTHOR
+Written by Julien Portalier.
+
+== SEE ALSO
+*shards*(1)
