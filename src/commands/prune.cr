@@ -1,5 +1,6 @@
 require "file_utils"
 require "./command"
+require "../helpers/files"
 
 module Shards
   module Commands
@@ -7,13 +8,13 @@ module Shards
       def run
         return unless lockfile?
 
-        Dir[File.join(Shards.install_path, "*")].each do |path|
+        Dir.each_child(Shards.install_path) do |name|
+          path = File.join(Shards.install_path, name)
           next unless File.directory?(path)
-          name = File.basename(path)
 
           if locks.shards.none? { |d| d.name == name }
             Log.debug { "rm -rf '#{Process.quote(path)}'" }
-            FileUtils.rm_rf(path)
+            Shards::Helpers::Files.rm_rf(path)
 
             Shards.info.installed.delete(name)
             Log.info { "Pruned #{File.join(File.basename(Shards.install_path), name)}" }

@@ -1,6 +1,9 @@
 require "./spec_helper"
 
 private def bin_path(name)
+  {% if flag?(:win32) %}
+    name += ".exe"
+  {% end %}
   File.join(application_path, "bin", name)
 end
 
@@ -33,9 +36,9 @@ describe "build" do
       File.exists?(bin_path("alt")).should be_true
       File.exists?(bin_path("check")).should be_true
 
-      `#{bin_path("app")}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
-      `#{bin_path("alt")}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
-      `#{bin_path("check")}`.chomp.should eq("1")
+      `#{Process.quote(bin_path("app"))}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
+      `#{Process.quote(bin_path("alt"))}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
+      `#{Process.quote(bin_path("check"))}`.chomp.should eq("1")
     end
   end
 

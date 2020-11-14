@@ -5,6 +5,7 @@ require "spec"
 require "../../src/config"
 require "../../src/logger"
 require "../../src/resolvers/*"
+require "../../src/helpers/files"
 
 require "../support/factories"
 require "../support/requirement"
@@ -20,9 +21,9 @@ Spec.before_each do
 end
 
 private def clear_repositories
-  run "rm -rf #{tmp_path}/*"
-  run "rm -rf #{Shards.cache_path}"
-  run "rm -rf #{Shards.install_path}"
+  Shards::Helpers::Files.rm_rf_children(tmp_path)
+  Shards::Helpers::Files.rm_rf(Shards.cache_path)
+  Shards::Helpers::Files.rm_rf(Shards.install_path)
 end
 
 def install_path(project, *path_names)
