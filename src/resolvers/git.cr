@@ -229,10 +229,10 @@ module Shards
         path = uri.path
         path += ".git" unless path.ends_with?(".git")
         path = Path[path]
+        # E.g. turns "c:\local\path.git" into "c\local\path.git". Or just drops the leading slash.
         if (anchor = path.anchor)
           path = Path[path.drive.to_s.rchop(":"), path.relative_to(anchor)]
         end
-        path = path.to_s
 
         if host = uri.host
           File.join(Shards.cache_path, host, path)
@@ -330,7 +330,7 @@ module Shards
 
     private def delete_repository
       Log.debug { "rm -rf #{Process.quote(local_path)}'" }
-      Shards::Helpers::Files.rm_rf(local_path)
+      Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
 
@@ -362,6 +362,7 @@ module Shards
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
     private def parse_uri(raw_uri)
+      # Need to check for file URIs early, otherwise generic parsing will fail on a colon.
       if (path = raw_uri.lchop?("file://"))
         return URI.new(scheme: "file", path: path)
       end

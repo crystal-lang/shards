@@ -79,7 +79,7 @@ module Shards
 
     protected def cleanup_install_directory
       Log.debug { "rm -rf #{Process.quote(install_path)}" }
-      Shards::Helpers::Files.rm_rf(install_path)
+      Shards::Helpers.rm_rf(install_path)
     end
 
     def postinstall
@@ -102,10 +102,7 @@ module Shards
       Dir.mkdir_p(Shards.bin_path)
 
       spec.executables.each do |name|
-        exe_name = name
-        {% if flag?(:win32) %}
-          exe_name += ".exe"
-        {% end %}
+        exe_name = Shards::Helpers.exe(name)
         Log.debug { "Install bin/#{exe_name}" }
         source = File.join(install_path, "bin", exe_name)
         destination = File.join(Shards.bin_path, exe_name)

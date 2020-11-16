@@ -2,7 +2,7 @@ Spec.before_each do
   path = application_path
 
   if File.exists?(path)
-    Shards::Helpers::Files.rm_rf_children(path)
+    Shards::Helpers.rm_rf_children(path)
   else
     Dir.mkdir_p(path)
   end
@@ -106,7 +106,7 @@ module Shards::Specs
   def self.application_path
     @@application_path ||= File.expand_path("../../tmp/integration", __DIR__).tap do |path|
       if File.exists?(path)
-        Shards::Helpers::Files.rm_rf_children(path)
+        Shards::Helpers.rm_rf_children(path)
       else
         Dir.mkdir_p(path)
       end

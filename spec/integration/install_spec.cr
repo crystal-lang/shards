@@ -1,13 +1,5 @@
 require "./spec_helper"
 
-private def exe
-  {% if flag?(:win32) %}
-    ".exe"
-  {% else %}
-    ""
-  {% end %}
-end
-
 describe "install" do
   it "installs dependencies" do
     metadata = {
@@ -574,7 +566,7 @@ describe "install" do
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
-      binary = install_path("transitive", "version" + exe)
+      binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_true
       `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
     end
@@ -708,9 +700,9 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar" + exe)
-    baz = File.join(application_path, "bin", "baz" + exe)
-    foo = File.join(application_path, "bin", "foo" + exe)
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
@@ -728,9 +720,9 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar" + exe)
-    baz = File.join(application_path, "bin", "baz" + exe)
-    foo = File.join(application_path, "bin", "foo" + exe)
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"

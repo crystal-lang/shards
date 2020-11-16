@@ -1,4 +1,4 @@
-module Shards::Helpers::Files
+module Shards::Helpers
   def self.rm_rf(path : String) : Nil
     # TODO: delete this and use https://github.com/crystal-lang/crystal/pull/9903
     if !File.symlink?(path) && Dir.exists?(path)
@@ -23,5 +23,13 @@ module Shards::Helpers::Files
     Dir.each_child(dir) do |child|
       rm_rf(File.join(dir, child))
     end
+  end
+
+  def self.exe(name)
+    {% if flag?(:win32) %}
+      name + ".exe"
+    {% else %}
+      name
+    {% end %}
   end
 end

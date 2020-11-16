@@ -14,7 +14,7 @@ module Shards
 
           if locks.shards.none? { |d| d.name == name }
             Log.debug { "rm -rf '#{Process.quote(path)}'" }
-            Shards::Helpers::Files.rm_rf(path)
+            Shards::Helpers.rm_rf(path)
 
             Shards.info.installed.delete(name)
             Log.info { "Pruned #{File.join(File.basename(Shards.install_path), name)}" }

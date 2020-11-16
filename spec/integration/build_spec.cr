@@ -1,10 +1,7 @@
 require "./spec_helper"
 
 private def bin_path(name)
-  {% if flag?(:win32) %}
-    name += ".exe"
-  {% end %}
-  File.join(application_path, "bin", name)
+  File.join(application_path, "bin", Shards::Helpers.exe(name))
 end
 
 describe "build" do

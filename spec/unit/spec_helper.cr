@@ -21,9 +21,9 @@ Spec.before_each do
 end
 
 private def clear_repositories
-  Shards::Helpers::Files.rm_rf_children(tmp_path)
-  Shards::Helpers::Files.rm_rf(Shards.cache_path)
-  Shards::Helpers::Files.rm_rf(Shards.install_path)
+  Shards::Helpers.rm_rf_children(tmp_path)
+  Shards::Helpers.rm_rf(Shards.cache_path)
+  Shards::Helpers.rm_rf(Shards.install_path)
 end
 
 def install_path(project, *path_names)

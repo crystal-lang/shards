@@ -11,7 +11,7 @@ require "../support/cli"
 require "../support/requirement"
 
 Spec.before_suite do
-  Shards::Helpers::Files.rm_rf_children(tmp_path)
+  Shards::Helpers.rm_rf_children(tmp_path)
   setup_repositories
 end
 
