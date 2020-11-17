@@ -151,7 +151,7 @@ def run(command, *, env = nil)
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
   {% if flag?(:win32) %}
-    # Concurrent streams are currently broken on Windows. Drop one.
+    # FIXME: Concurrent streams are currently broken on Windows. Need to drop one for now.
     error = nil
   {% end %}
   status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
