@@ -2,7 +2,7 @@ require "uri"
 require "./resolver"
 require "../versions"
 require "../logger"
-require "../helpers/files"
+require "../helpers"
 
 module Shards
   abstract struct GitRef < Ref

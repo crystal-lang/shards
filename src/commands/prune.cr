@@ -1,6 +1,6 @@
 require "file_utils"
 require "./command"
-require "../helpers/files"
+require "../helpers"
 
 module Shards
   module Commands

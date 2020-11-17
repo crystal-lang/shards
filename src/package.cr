@@ -1,5 +1,5 @@
 require "file_utils"
-require "./helpers/files"
+require "./helpers"
 
 module Shards
   class Package
