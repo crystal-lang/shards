@@ -312,15 +312,27 @@ module Shards
       # be used interactively.
       # This configuration can be overriden by defining the environment
       # variable `GIT_ASKPASS`.
-      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{local_path}"
-    rescue Error
-      raise Error.new("Failed to clone #{git_url}")
+      git_retry(err: "Failed to clone #{git_url}") do
+        run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{local_path}"
+      end
     end
 
     private def fetch_repository
-      run "git fetch --all --quiet"
-    rescue Error
-      raise Error.new("Failed to update #{git_url}")
+      git_retry(err: "Failed to update #{git_url}") do
+        run "git fetch --all --quiet"
+      end
+    end
+
+    private def git_retry(err = "Failed to fetch repository")
+      retries = 0
+      loop do
+        yield
+        break
+      rescue Error
+        retries += 1
+        next if retries < 3
+        raise Error.new(err)
+      end
     end
 
     private def delete_repository
