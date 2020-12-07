@@ -1,9 +1,7 @@
 require "./spec_helper"
 
 private def installed_dependencies
-  Dir.glob(install_path("*"), match_hidden: true)
-    .map { |path| File.basename(path) }
-    .reject(".shards.info")
+  Dir.children(install_path).reject!(".shards.info")
 end
 
 describe "prune" do
