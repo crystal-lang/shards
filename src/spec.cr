@@ -109,38 +109,52 @@ module Shards
           @crystal = pull.read_scalar
         when "authors"
           check_duplicate(@authors, "authors", line, column)
-          pull.each_in_sequence do
-            authors << Author.new(pull.read_scalar)
+          pull.read_empty_or do
+            pull.each_in_sequence do
+              authors << Author.new(pull.read_scalar)
+            end
           end
         when "dependencies"
           check_duplicate(@dependencies, "dependencies", line, column)
-          pull.each_in_mapping do
-            dependencies << Dependency.from_yaml(pull)
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              dependencies << Dependency.from_yaml(pull)
+            end
           end
         when "development_dependencies"
           check_duplicate(@development_dependencies, "development_dependencies", line, column)
-          pull.each_in_mapping do
-            development_dependencies << Dependency.from_yaml(pull)
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              development_dependencies << Dependency.from_yaml(pull)
+            end
           end
         when "targets"
           check_duplicate(@targets, "targets", line, column)
-          pull.each_in_mapping do
-            targets << Target.new(pull)
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              targets << Target.new(pull)
+            end
           end
         when "executables"
           check_duplicate(@executables, "executables", line, column)
-          pull.each_in_sequence do
-            executables << pull.read_scalar
+          pull.read_empty_or do
+            pull.each_in_sequence do
+              executables << pull.read_scalar
+            end
           end
         when "libraries"
           check_duplicate(@libraries, "libraries", line, column)
-          pull.each_in_mapping do
-            libraries << Library.new(pull)
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              libraries << Library.new(pull)
+            end
           end
         when "scripts"
           check_duplicate(@scripts, "scripts", line, column)
-          pull.each_in_mapping do
-            scripts[pull.read_scalar] = pull.read_scalar
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              scripts[pull.read_scalar] = pull.read_scalar
+            end
           end
         else
           if validate
