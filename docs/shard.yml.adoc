@@ -1,5 +1,6 @@
 = shard.yml(5)
-:doctype: manpage
+:date: 2020-11-13
+:shards_version: 0.11.0
 :man manual: File Formats
 :man source: shards {shards_version}
 

@@ -1,5 +1,6 @@
 = shards(1)
-:doctype: manpage
+:date: 2020-11-13
+:shards_version: 0.12.0
 :man manual: Shards Manual
 :man source: shards {shards_version}
 
@@ -50,7 +51,8 @@ Verifies that all dependencies are installed and requirements are satisfied.
 +
 Exit status:
 +
-*0*::: Dependencies are satisfied. +
+[horizontal]
+*0*::: Dependencies are satisfied.
 *1*::: Dependencies are not satisfied.
 
 *init*::
@@ -66,19 +68,19 @@ present. The *install* command may fail if a locked version doesn't match
 a requirement, but may succeed if a new dependency was added, as long as it
 doesn't generate a conflict, thus generating a new _shard.lock_ file.
 
-*list [--tree]*::
+*list* [--tree]::
 Lists the installed dependencies and their versions.
 +
 Specifying _--tree_ arranges nested dependencies in a tree, instead of a flattened list.
 
-*lock [--update [<shards>...]]*::
+*lock* [--update [<shards>...]]::
 Resolves dependencies and creates or updates the _shard.lock_ file as per
 the *install* command, but never installs the dependencies.
 +
 Specifying _--update_ follows the same semantics as the *update*
 command.
 
-*outdated [--pre]*::
+*outdated* [--pre]::
 Lists dependencies that are outdated.
 +
 When _--pre_ is specified, pre-release versions are also considered.
@@ -86,7 +88,7 @@ When _--pre_ is specified, pre-release versions are also considered.
 *prune*::
 Removes unused dependencies from _lib_ folder.
 
-*update [<shards>...]*::
+*update* [<shards>...]::
 Resolves and updates all dependencies into the _lib_ folder,
 whatever the locked versions in the _shard.lock_ file.
 Eventually generates a new _shard.lock_ file.
@@ -104,31 +106,31 @@ after a command.
 
 == GENERAL OPTIONS
 
-*--version*::
+--version::
   Prints the version of _shards_.
 
-*-h, --help*::
+-h, --help::
   Prints usage synopsis.
 
-*--no-color*::
+--no-color::
   Disables colored output.
 
-*--local*::
+--local::
   Don't update remote repositories, use the local cache only.
 
-*--ignore-crystal-version*::
+--ignore-crystal-version::
   Do not enforce crystal version restrictions on shards.
 
-*--production*::
+--production::
   Runs in release mode. Development dependencies won’t
   be installed and only locked dependencies will be installed. Commands
   will fail if dependencies in _shard.yml_ and _shard.lock_ are out of
   sync (used by *install*, *update*, *check* and *list* commands).
 
-*-q, --quiet*::
+-q, --quiet::
   Decreases the log verbosity, printing only warnings and errors.
 
-*-v, --verbose*::
+-v, --verbose::
   Increases the log verbosity, printing all debug statements.
 
 == INSTALLATION
@@ -142,41 +144,41 @@ should be added to *PATH*.
 
 == Environment variables
 
-*SHARDS_OPTS*::
+SHARDS_OPTS::
 Allows general options to be passed in as environment variable.
 *Example*: _SHARDS_OPTS="--ignore-crystal-version" shards update_
 
-*SHARDS_CACHE_PATH*::
+SHARDS_CACHE_PATH::
 Defines the cache location. In this folder, shards stores local copies of remote
 repositories.
 Defaults to _.cache/shards_ in the home directory (_$XDG_CACHE_HOME_ or _$HOME_)
 or the current directory.
 
-*SHARDS_INSTALL_PATH*::
+SHARDS_INSTALL_PATH::
 Defines the location where dependecies are installed.
 Defaults to _lib_.
 
-*SHARDS_BIN_PATH*::
+SHARDS_BIN_PATH::
 Defines the location where executables are installed.
 Defaults to _bin_.
 
-*CRYSTAL_VERSION*::
+CRYSTAL_VERSION::
 Defines the crystal version that dependencies should be resolved against.
 Defaults to the output of _crystal env CRYSTAL_VERSION_.
 
-*SHARDS_OVERRIDE*::
+SHARDS_OVERRIDE::
 Defines the location of _shard.override.yml_.
 
 == Files
 
-*shard.yml*::
+shard.yml::
 Describes a shard project including its dependencies.
 See *shard.yml*(5) for documentation.
 
-*shard.override.yml*::
+shard.override.yml::
 Local overrides to _shard.yml_.
 
-*shard.lock*::
+shard.lock::
 Lockfile that stores information about the installed versions.
 +
 If your shard builds an application, *shard.lock* should be checked into version
