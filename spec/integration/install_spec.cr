@@ -549,21 +549,26 @@ describe "install" do
     end
   end
 
-  it "prints details and removes dependency when postinstall script fails" do
-    with_shard({dependencies: {fails: "*"}}) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
-      ex.stdout.should contain("test -n ''\n")
-      Dir.exists?(install_path("fails")).should be_false
+  {% if flag?(:win32) %}
+    # Crystal bug in handling a failing subprocess
+    pending "prints details and removes dependency when postinstall script fails"
+  {% else %}
+    it "prints details and removes dependency when postinstall script fails" do
+      with_shard({dependencies: {fails: "*"}}) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+        ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
+        ex.stdout.should contain("test -n ''\n")
+        Dir.exists?(install_path("fails")).should be_false
+      end
     end
-  end
+  {% end %}
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
-      binary = install_path("transitive", "version")
+      binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_true
-      `#{binary}`.should eq("version @ 0.1.0\n")
+      `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
     end
   end
 
@@ -695,16 +700,16 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar")
-    baz = File.join(application_path, "bin", "baz")
-    foo = File.join(application_path, "bin", "foo")
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
     File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
 
-    `#{foobar}`.should eq("OK\n")
-    `#{baz}`.should eq("KO\n")
+    `#{Process.quote(foobar)}`.should eq("OK")
+    `#{Process.quote(baz)}`.should eq("KO")
   end
 
   it "installs executables at refs" do
@@ -715,9 +720,9 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar")
-    baz = File.join(application_path, "bin", "baz")
-    foo = File.join(application_path, "bin", "foo")
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"

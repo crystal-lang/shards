@@ -3,6 +3,7 @@ ENV["SHARDS_INSTALL_PATH"] = File.expand_path(".lib", __DIR__)
 
 require "spec"
 require "../../src/config"
+require "../../src/helpers"
 require "../../src/logger"
 require "../../src/resolvers/*"
 
@@ -20,9 +21,9 @@ Spec.before_each do
 end
 
 private def clear_repositories
-  run "rm -rf #{tmp_path}/*"
-  run "rm -rf #{Shards.cache_path}"
-  run "rm -rf #{Shards.install_path}"
+  Shards::Helpers.rm_rf_children(tmp_path)
+  Shards::Helpers.rm_rf(Shards.cache_path)
+  Shards::Helpers.rm_rf(Shards.install_path)
 end
 
 def install_path(project, *path_names)
