@@ -69,15 +69,20 @@ module Shards
         io << "# NOTICE: This lockfile contains some overrides from #{override_path}\n"
       end
       io << "version: #{CURRENT_VERSION}\n"
-      io << "shards:\n"
+      io << "shards:"
 
-      packages.sort_by!(&.name).each do |package|
-        key = package.resolver.class.key
+      if packages.empty?
+        io << " {}\n"
+      else
+        io.puts
+        packages.sort_by!(&.name).each do |package|
+          key = package.resolver.class.key
 
-        io << "  " << package.name << ":#{package.is_override ? " # Overridden" : nil}\n"
-        io << "    " << key << ": " << package.resolver.source << '\n'
-        io << "    version: " << package.version.value << '\n'
-        io << '\n'
+          io << "  " << package.name << ":#{package.is_override ? " # Overridden" : nil}\n"
+          io << "    " << key << ": " << package.resolver.source << '\n'
+          io << "    version: " << package.version.value << '\n'
+          io << '\n'
+        end
       end
     end
   end

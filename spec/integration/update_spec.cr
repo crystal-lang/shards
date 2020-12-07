@@ -212,11 +212,17 @@ describe "update" do
     end
   end
 
-  it "won't generate lockfile for empty dependencies" do
+  it "generates lockfile for empty dependencies" do
     metadata = {dependencies: {} of Symbol => String}
     with_shard(metadata) do
+      run "shards update"
       path = File.join(application_path, "shard.lock")
-      File.exists?(path).should be_false
+      File.exists?(path).should be_true
+      File.read(path).should eq <<-YAML
+        version: 2.0
+        shards: {}
+
+        YAML
     end
   end
 
