@@ -21,7 +21,7 @@ describe "version" do
 
       outer_path = File.expand_path("..", application_path)
       Dir.cd(outer_path) do
-        stdout = run "shards version #{inner_path}"
+        stdout = run "shards version #{Process.quote(inner_path)}"
         stdout.should contain("0.0.42")
       end
     end
@@ -30,7 +30,7 @@ describe "version" do
   it "fails version" do
     expect_raises(FailedCommand) do
       root = File.expand_path("/", Dir.current)
-      run "shards version #{root}"
+      run "shards version #{Process.quote(root)}"
     end
   end
 end
