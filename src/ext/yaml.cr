@@ -21,5 +21,18 @@ module YAML
       end
       read_mapping_end
     end
+
+    def read_empty_or(&)
+      if kind.scalar?
+        case value
+        when "", "~"
+          # allow empty dependencies
+          read_next
+          return
+        end
+      end
+
+      yield
+    end
   end
 end
