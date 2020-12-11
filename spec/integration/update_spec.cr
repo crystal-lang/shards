@@ -455,6 +455,9 @@ describe "update" do
         run "shards update"
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+        run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
     end
 
@@ -466,6 +469,7 @@ describe "update" do
         run "shards update"
         File.touch("shard.yml")
         run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
     end

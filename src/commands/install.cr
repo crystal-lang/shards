@@ -26,13 +26,13 @@ module Shards
 
         if generate_lockfile?(packages)
           write_lockfile(packages)
-
-          # Touch install path so its mtime is bigger than that of the lockfile
-          File.touch(Shards.install_path)
-        else
+        elsif !Shards.production?
           # Touch lockfile so its mtime is bigger than that of shard.yml
           File.touch(lockfile_path)
         end
+
+        # Touch install path so its mtime is bigger than that of the lockfile
+        File.touch(Shards.install_path)
 
         if ignore_crystal_version
           check_ignored_crystal_version(packages)

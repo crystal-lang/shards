@@ -1161,6 +1161,9 @@ describe "install" do
         run "shards install"
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+        run "shards install"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
     end
 
@@ -1172,6 +1175,7 @@ describe "install" do
         run "shards install"
         File.touch("shard.yml")
         run "shards install"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
     end
