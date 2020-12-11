@@ -3,7 +3,7 @@ require "./spec_helper"
 module Shards
   describe Info do
     before_each do
-      run "rm -rf #{Shards.install_path}"
+      Helpers.rm_rf(Shards.install_path)
     end
 
     it "create with default install directory" do

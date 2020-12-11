@@ -17,7 +17,6 @@ module Shards
         solver.prepare(development: !Shards.production?)
 
         packages = handle_resolver_errors { solver.solve }
-        return if packages.empty?
 
         if lockfile? && Shards.production?
           validate(packages)
@@ -88,7 +87,7 @@ module Shards
       end
 
       private def generate_lockfile?(packages)
-        !Shards.production? && !packages.empty? && (!lockfile? || outdated_lockfile?(packages))
+        !Shards.production? && (!lockfile? || outdated_lockfile?(packages))
       end
 
       private def outdated_lockfile?(packages)

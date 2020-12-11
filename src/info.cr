@@ -21,7 +21,11 @@ class Shards::Info
     Dir.mkdir_p(@install_path)
 
     unless File.exists?(info_path)
-      Dir[File.join @install_path, "*.sha1"].each { |p| File.delete(p) }
+      Dir.each_child(@install_path) do |name|
+        if name.ends_with?(".sha1")
+          File.delete(File.join(@install_path, name))
+        end
+      end
     end
 
     File.open(info_path, "w") do |file|

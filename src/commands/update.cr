@@ -60,7 +60,7 @@ module Shards
       end
 
       private def generate_lockfile?(packages)
-        !(Shards.production? || packages.empty?)
+        !Shards.production?
       end
     end
   end
