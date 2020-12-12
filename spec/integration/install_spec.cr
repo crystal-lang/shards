@@ -458,6 +458,7 @@ describe "install" do
     }
 
     with_shard(metadata) do
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
       run "shards install --production"
 
       # it installed dependencies (recursively)
@@ -521,15 +522,21 @@ describe "install" do
     end
   end
 
-  it "doesn't generate lockfile when project has no dependencies" do
+  it "generates lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
       run "shards install"
 
-      File.exists?(File.join(application_path, "shard.lock")).should be_false
+      lockfile = File.join(application_path, "shard.lock")
+      File.exists?(lockfile).should be_true
+      File.read(lockfile).should eq <<-YAML
+        version: 2.0
+        shards: {}
+
+        YAML
     end
   end
 
-  it "doesn't overwrite lockfile if no new dependencies are installed" do
+  it "touches lockfile if no new dependencies are installed" do
     metadata = {dependencies: {d: "*", c: "*"}}
 
     with_shard(metadata) do
@@ -537,7 +544,19 @@ describe "install" do
       File.touch "shard.lock", Time.utc(1901, 12, 14)
       mtime = File.info("shard.lock").modification_time
       run "shards install"
-      File.info("shard.lock").modification_time.should eq(mtime)
+      File.info("shard.lock").modification_time.should be >= mtime
+    end
+  end
+
+  it "updates lockfile on completely removed dependencies" do
+    metadata = NamedTuple.new
+    lock = {web: "1.0.0"}
+
+    with_shard(metadata, lock) do
+      run "shards install"
+
+      refute_installed "web"
+      refute_locked "web"
     end
   end
 
