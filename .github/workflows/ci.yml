@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'  # Every monday 6 AM
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        crystal: [null]
+        include:
+          - os: ubuntu-latest
+            crystal: nightly
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - name: Configure Git
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git config --global column.ui always
+          git config --global core.autocrlf false
+
+      - name: Install Crystal
+        uses: oprypin/install-crystal@v1
+        with:
+          crystal: ${{matrix.crystal}}
+
+      - name: Download source
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: make
+
+      - name: Test
+        run: make test
+
+      - name: Check formatting
+        run: crystal tool format --check src spec
