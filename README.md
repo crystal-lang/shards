@@ -1,6 +1,6 @@
 # Shards
 
-![CI](https://github.com/crystal-lang/shards/workflows/CI/badge.svg)
+[![CI](https://github.com/crystal-lang/shards/workflows/CI/badge.svg)](https://github.com/crystal-lang/shards/actions?query=workflow%3ACI+event%3Apush+branch%3Amaster)
 
 Dependency manager for the [Crystal language](http://crystal-lang.org).
 
