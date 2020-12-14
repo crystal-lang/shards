@@ -1,7 +1,8 @@
 # Shards
 
-Dependency manager for the [Crystal language](http://crystal-lang.org).
+![CI](https://github.com/crystal-lang/shards/workflows/CI/badge.svg)
 
+Dependency manager for the [Crystal language](http://crystal-lang.org).
 
 ## Usage
 
