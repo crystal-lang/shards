@@ -46,28 +46,63 @@ module Shards
           raise LockConflict.new("#{package.name} requirements changed")
         end
 
-        # already the latest version?
-        available_versions =
+        releases =
           if @prereleases
             resolver.available_releases
           else
             Versions.without_prereleases(resolver.available_releases)
           end
-        latest = Versions.sort(available_versions).first
-        return if latest == installed
+        releases = Versions.sort(releases)
+        latest_release = releases.first?
+
+        available_version = package.version
+
+        requirement = dependency.try(&.requirement)
+        case requirement
+        when GitBranchRef, GitHeadRef
+          requirement_branch = requirement
+        else
+          requirement_branch = nil
+        end
+
+        latest_ref_version = resolver.latest_version_for_ref(requirement_branch)
+
+        if installed == latest_ref_version
+          # If branch HEAD is installed, it is automatically the most recent for
+          # that requirement.
+          # We still need to check if a tagged release with a higher version
+          # is available.
+          if latest_release
+            return if Versions.compare(installed, latest_release) <= 0
+          else
+            return
+          end
+        end
+
+        case requirement
+        when GitBranchRef, GitHeadRef
+          # On branch requirement that branch's HEAD should be reported as
+          # available version
+          available_version = latest_ref_version
+        when GitTagRef, GitCommitRef
+          # TODO: Check if pinned commit is an ancestor of HEAD
+        else
+          # already the latest version?
+          return if latest_release == installed
+        end
 
         @up_to_date = false
 
         @output << "  * " << package.name
         @output << " (installed: " << resolver.report_version(installed)
 
-        unless installed == package.version
-          @output << ", available: " << resolver.report_version(package.version)
+        unless installed == available_version
+          @output << ", available: " << resolver.report_version(available_version)
         end
 
         # also report latest version:
-        if Versions.compare(latest, package.version) < 0
-          @output << ", latest: " << resolver.report_version(latest)
+        if latest_release && Versions.compare(latest_release, available_version) < 0
+          @output << ", latest: " << resolver.report_version(latest_release)
         end
 
         @output.puts ')'
