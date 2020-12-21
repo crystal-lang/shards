@@ -20,6 +20,18 @@ describe "outdated" do
     end
   end
 
+  it "no releases" do
+    commit = git_commits("missing").first
+    with_shard({dependencies: {missing: "*"}}, {missing: "0.1.0+git.commit.#{commit}"}) do
+      run "shards install"
+
+      stdout = run "shards outdated --no-color"
+      # FIXME: This should actually report dependencies are up to date (#446)
+      stdout.should contain("W: Outdated dependencies:")
+      stdout.should contain("  * missing (installed: 0.1.0 at #{commit[0..6]})")
+    end
+  end
+
   it "available version matching pessimistic operator" do
     with_shard({dependencies: {orm: "~> 0.3.0"}}, {orm: "0.3.1"}) do
       run "shards install"
