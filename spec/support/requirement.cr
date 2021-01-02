@@ -6,6 +6,10 @@ def commit(sha1)
   Shards::GitCommitRef.new(sha1)
 end
 
+def hg_branch(name)
+  Shards::HgBranchRef.new(name)
+end
+
 def version(version)
   Shards::Version.new(version)
 end
