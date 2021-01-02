@@ -22,6 +22,12 @@ module Shards
       create_hg_commit "unreleased", "testing"
       checkout_hg_rev "unreleased", "default"
 
+      create_hg_repository "unreleased-bm"
+      create_hg_version_commit "unreleased-bm", "0.1.0"
+      checkout_new_hg_bookmark "unreleased-bm", "branch"
+      create_hg_commit "unreleased-bm", "testing"
+      checkout_hg_rev "unreleased-bm", "default"
+
       create_hg_repository "library", "0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"
 
       # Create a version tag not prefixed by 'v' which should be ignored
@@ -43,6 +49,9 @@ module Shards
       resolver("unreleased").latest_version_for_ref(hg_branch "default").should eq(version "0.1.0+hg.commit.#{hg_commits(:unreleased)[0]}")
       resolver("unreleased").latest_version_for_ref(hg_branch "branch").should eq(version "0.1.0+hg.commit.#{hg_commits(:unreleased, "branch")[0]}")
       resolver("unreleased").latest_version_for_ref(nil).should eq(version "0.1.0+hg.commit.#{hg_commits(:unreleased)[0]}")
+      resolver("unreleased-bm").latest_version_for_ref(hg_branch "default").should eq(version "0.1.0+hg.commit.#{hg_commits("unreleased-bm")[0]}")
+      resolver("unreleased-bm").latest_version_for_ref(hg_bookmark "branch").should eq(version "0.1.0+hg.commit.#{hg_commits("unreleased-bm", "branch")[0]}")
+      resolver("unreleased-bm").latest_version_for_ref(nil).should eq(version "0.1.0+hg.commit.#{hg_commits("unreleased-bm")[0]}")
       resolver("library").latest_version_for_ref(hg_branch "default").should eq(version "0.2.0+hg.commit.#{hg_commits(:library)[0]}")
       resolver("library").latest_version_for_ref(nil).should eq(version "0.2.0+hg.commit.#{hg_commits(:library)[0]}")
       expect_raises(Shards::Error, "Could not find branch foo for shard \"library\" in the repository #{hg_url(:library)}") do
@@ -59,6 +68,8 @@ module Shards
       resolver("library").versions_for(hg_branch "default").should eq(versions ["0.2.0+hg.commit.#{hg_commits(:library)[0]}"])
       resolver("unreleased").versions_for(hg_branch "default").should eq(versions ["0.1.0+hg.commit.#{hg_commits(:unreleased)[0]}"])
       resolver("unreleased").versions_for(Any).should eq(versions ["0.1.0+hg.commit.#{hg_commits(:unreleased)[0]}"])
+      resolver("unreleased-bm").versions_for(hg_branch "default").should eq(versions ["0.1.0+hg.commit.#{hg_commits("unreleased-bm")[0]}"])
+      resolver("unreleased-bm").versions_for(Any).should eq(versions ["0.1.0+hg.commit.#{hg_commits("unreleased-bm")[0]}"])
     end
 
     it "read spec for release" do

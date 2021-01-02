@@ -130,6 +130,7 @@ end
 
 def create_hg_commit(project, message = "new commit")
   Dir.cd(hg_path(project)) do
+    File.write("src/#{project}.cr", "# #{message}", mode: "a")
     run "hg commit -A -m #{Process.quote(message)}"
   end
 end
