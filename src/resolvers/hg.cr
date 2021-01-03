@@ -321,12 +321,14 @@ module Shards
     end
 
     private def mirror_repository
+      path = local_path
+      Dir.mkdir_p(File.dirname(path))
       hg_retry(err: "Failed to clone #{hg_url}") do
         # We checkout the working directory so that "." is meaningful.
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_hg "clone", hg_url, local_path, path: nil
+        run_hg "clone", hg_url, path, path: nil
       end
     end
 
@@ -341,10 +343,10 @@ module Shards
       loop do
         yield
         break
-      rescue Error
+      rescue ex : Error
         retries += 1
         next if retries < 3
-        raise Error.new(err)
+        raise Error.new("#{err}: #{ex}")
       end
     end
 
