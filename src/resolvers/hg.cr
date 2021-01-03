@@ -225,6 +225,7 @@ module Shards
       ref = hg_ref(version)
 
       FileUtils.rm_r(install_path) if File.exists?(install_path)
+      Dir.mkdir_p(install_path)
       run_hg "clone", "--quiet", "-u", ref.to_hg_ref(true), local_path, install_path, path: nil
     end
 
