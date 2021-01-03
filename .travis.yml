@@ -10,5 +10,6 @@ before_script: |
   git config --global column.ui always
 
 script:
+  - apt-get update && apt-get install mercurial -y
   - make test
   - crystal tool format --check src spec
