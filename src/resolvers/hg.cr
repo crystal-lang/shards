@@ -110,6 +110,7 @@ module Shards
   class HgResolver < Resolver
     @@has_hg_command : Bool?
     @@hg_version : String?
+    @@hg_process : Process | Bool | Nil
 
     @origin_url : String?
 
@@ -134,7 +135,7 @@ module Shards
     end
 
     protected def self.hg_version
-      @@hg_version ||= `hg --version`[/\(version\s+([^)]*)\)/, 1]
+      @@hg_version ||= hg("--version")[/\(version\s+([^)]*)\)/, 1]
     end
 
     def read_spec(version : Version) : String?
@@ -142,7 +143,7 @@ module Shards
       ref = hg_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("hg cat -r #{Process.quote(ref.to_hg_ref)} #{Process.quote(SPEC_FILENAME)}")
+        capture_hg("cat", "-r", ref.to_hg_ref, SPEC_FILENAME)
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -153,7 +154,7 @@ module Shards
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("hg cat -r #{Process.quote(ref.to_hg_ref)} #{Process.quote(SPEC_FILENAME)}")
+          spec_yaml = capture_hg("cat", "-r", ref.to_hg_ref, SPEC_FILENAME)
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -201,7 +202,7 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("hg tags --template '{tag}\\n'")
+      capture_hg("tags", "--template", "{tag}\\n")
         .split('\n')
         .sort!
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
@@ -209,13 +210,13 @@ module Shards
 
     def matches?(commit)
       if branch = dependency["branch"]?
-        !capture("hg log -r 'branch(#{tag}) and descendants(#{commit})' --template '{branch}\\n'").strip.empty?
+        !capture_hg("log", "-r", "branch(#{tag}) and descendants(#{commit})", "--template", "{branch}\\n").strip.empty?
       elsif bookmark = dependency["bookmark"]?
-        !capture("hg log -r 'bookmark(#{bookmark}) and descendants(#{commit})' --template '{bookmarks}\\n'").strip.empty?
+        !capture_hg("hg", "log", "-r", "bookmark(#{bookmark}) and descendants(#{commit})", "--template", "{bookmarks}\\n").strip.empty?
       elsif tag = dependency["tag"]?
-        !capture("hg log -r 'tag(#{tag}) and descendants(#{commit})' --template '{tags}\n'").strip.empty?
+        !capture_hg("hg", "log", "-r", "tag(#{tag}) and descendants(#{commit})", "--template", "{tags}\n").strip.empty?
       else
-        !capture("hg log -r #{commit}").strip.empty?
+        !capture_hg("log", "-r", commit).strip.empty?
       end
     end
 
@@ -224,12 +225,11 @@ module Shards
       ref = hg_ref(version)
 
       FileUtils.rm_r(install_path) if File.exists?(install_path)
-      Dir.mkdir_p(install_path)
-      run "hg clone --quiet -u #{Process.quote(ref.to_hg_ref(true))} -- #{Process.quote(local_path)} #{Process.quote(install_path)}"
+      run_hg "clone", "--quiet", "-u", ref.to_hg_ref(true), local_path, install_path, path: nil
     end
 
     def commit_sha1_at(ref : HgRef)
-      capture("hg log -r #{Process.quote(ref.to_hg_ref)} --template '{node}'").strip
+      capture_hg("log", "-r", ref.to_hg_ref, "--template", "{node}").strip
     end
 
     def local_path
@@ -326,13 +326,13 @@ module Shards
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_in_current_folder "hg clone --quiet -- #{Process.quote(hg_url)} #{Process.quote(local_path)}"
+        run_hg "clone", hg_url, local_path, path: nil
       end
     end
 
     private def fetch_repository
       hg_retry(err: "Failed to update #{hg_url}") do
-        run "hg pull"
+        run_hg "pull"
       end
     end
 
@@ -366,7 +366,7 @@ module Shards
     end
 
     private def origin_url
-      @origin_url ||= capture("hg paths default").strip
+      @origin_url ||= capture_hg("paths", "default").strip
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -407,34 +407,131 @@ module Shards
     end
 
     private def file_exists?(ref : HgRef, path)
-      files = capture("hg files -r #{Process.quote(ref.to_hg_ref)} -- #{Process.quote(path)}")
+      files = capture_hg("files", "-r", ref.to_hg_ref, path)
       !files.strip.empty?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
+    private def capture_hg(*args, path = local_path)
+      run_hg(*args, capture: true, path: path).not_nil!
     end
 
-    private def run(command, path = local_path, capture = false)
-      if Shards.local? && !Dir.exists?(path)
+    private def run_hg(*args, path = local_path, capture = false)
+      if path && Shards.local? && !Dir.exists?(path)
         dependency_name = File.basename(path)
         raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
       end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture)
+      HgResolver.hg(*args, path: path, capture: capture)
+    end
+
+    # Execute a hg command in the given path
+    #
+    # The command is run through the hg command server (if available) and
+    # the command line tool otherwise. The command server is started if the
+    # function is called for the first time.
+    def self.hg(*args, path = Dir.current, capture = true)
+      unless process = @@hg_process
+        Log.debug { "Start Mercurial command server" }
+
+        process = Process.new("hg",
+          ["serve", "--cmdserver", "pipe"],
+          env: {"HGENCODING" => "UTF-8"}, # enforce UTF-8 encoding
+          shell: true,
+          input: Process::Redirect::Pipe,
+          output: Process::Redirect::Pipe,
+          error: Process::Redirect::Inherit)
+        @@hg_process = process
+
+        output = process.output
+        # Read the hello block
+        channel = output.read_byte
+        len = output.read_bytes(UInt32, IO::ByteFormat::BigEndian)
+        hello = output.read_string(len)
+
+        Log.debug { "Mercurial command server hello: #{hello}" }
+
+        # Verify that the command server uses UTF-8 encoding
+        if encoding = hello.each_line.map(&.split(": ")).find(&.[0].== "encoding")
+          if encoding[1] != "UTF-8"
+            # actually, this should *never* happen
+            Log.warn { "Mercurial command server does not use UTF-8 encoding (#{encoding[1]}), fallback to direct command" }
+            @@hg_process = true
+          end
+        end
+      end
+
+      # Do not use the command server but run the command directly
+      if process.is_a?(Bool)
+        if path
+          return Dir.cd(path) { run_in_current_folder(*args, capture: capture) }
+        else
+          return run_in_current_folder(*args, capture: capture)
+        end
+      end
+
+      # Use the command server
+      cmd = String.build do |b|
+        # Run the command in the specified directory
+        b << "--cwd" << "\0" << path << "\0" if path
+        b << args.each.join("\0")
+      end
+
+      input = process.input
+      output = process.output
+
+      input.write("runcommand\n".to_slice)
+      input.write_bytes(cmd.bytesize, IO::ByteFormat::BigEndian)
+      input.write(cmd.to_slice)
+
+      result = capture ? String::Builder.new : nil
+      error_msg = ""
+      status = 0
+      while true
+        channel = output.read_byte
+        len = output.read_bytes(UInt32, IO::ByteFormat::BigEndian)
+
+        case channel
+        when 'o'
+          if result
+            result << output.read_string(len)
+          else
+            output.read_string(len)
+          end
+        when 'e'
+          error_msg = output.read_string(len)
+        when 'r'
+          status = output.read_bytes(Int32)
+          break
+        when 'L'
+          raise Error.new("Mercurial process expects a line input")
+        when 'I'
+          raise Error.new("Mercurial process expects a block input")
+        end
+      end
+
+      if status.zero?
+        result.to_s if result
+      else
+        str = error_msg.to_s
+        if str.starts_with?("abort: ") && (idx = str.index('\n'))
+          message = str[7...idx]
+        else
+          message = str
+        end
+        raise Error.new("Failed hg #{args.join(" ")} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
       end
     end
 
-    private def run_in_current_folder(command, capture = false)
+    # Run the hg command line tool with some command line args in the current folder
+    private def self.run_in_current_folder(*args, capture = false)
       unless HgResolver.has_hg_command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
 
-      Log.debug { command }
+      Log.debug { "hg #{args.join(" ")}" }
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error)
+      status = Process.run("hg", args, shell: true, output: output, error: error)
 
       if status.success?
         output.to_s if capture
@@ -445,7 +542,7 @@ module Shards
         else
           message = str
         end
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
+        raise Error.new("Failed hg #{args.join(" ")} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
 
