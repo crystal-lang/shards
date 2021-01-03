@@ -341,10 +341,10 @@ module Shards
       loop do
         yield
         break
-      rescue Error
+      rescue ex : Error
         retries += 1
         next if retries < 3
-        raise Error.new(err)
+        raise Error.new("#{err}: #{ex}")
       end
     end
 
