@@ -82,14 +82,14 @@ end
 
 def create_hg_repository(project, *versions)
   Dir.cd(tmp_path) do
-    run "hg init #{Process.quote(project)}"
+    Shards::HgResolver.hg "init", project
   end
 
   Dir.mkdir(File.join(hg_path(project), "src"))
   File.write(File.join(hg_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
 
   Dir.cd(hg_path(project)) do
-    run "hg add #{Process.quote("src/#{project}.cr")}"
+    Shards::HgResolver.hg "add", "src/#{project}.cr"
   end
 
   versions.each { |version| create_hg_release project, version }
@@ -97,7 +97,7 @@ end
 
 def create_fork_hg_repository(project, upstream)
   Dir.cd(tmp_path) do
-    run "hg clone #{Process.quote(hg_url(upstream))} #{Process.quote(project)}"
+    Shards::HgResolver.hg "clone", hg_url(upstream), project
   end
 end
 
@@ -111,7 +111,7 @@ def create_hg_version_commit(project, version, shard : Bool | NamedTuple = true)
       name = shard[:name]? if shard.is_a?(NamedTuple)
       name ||= project
       File.touch "src/#{name}.cr"
-      run "hg add #{Process.quote("src/#{name}.cr")}"
+      Shards::HgResolver.hg "add", "src/#{name}.cr"
     end
     create_hg_commit project, "release: v#{version}"
   end
@@ -124,32 +124,32 @@ end
 
 def create_hg_tag(project, version)
   Dir.cd(hg_path(project)) do
-    run "hg tag #{Process.quote(version)}"
+    Shards::HgResolver.hg "tag", version
   end
 end
 
 def create_hg_commit(project, message = "new commit")
   Dir.cd(hg_path(project)) do
     File.write("src/#{project}.cr", "# #{message}", mode: "a")
-    run "hg commit -A -m #{Process.quote(message)}"
+    Shards::HgResolver.hg "commit", "-A", "-m", message
   end
 end
 
 def checkout_new_hg_bookmark(project, branch)
   Dir.cd(hg_path(project)) do
-    run "hg bookmark #{Process.quote(branch)}"
+    Shards::HgResolver.hg "bookmark", branch
   end
 end
 
 def checkout_new_hg_branch(project, branch)
   Dir.cd(hg_path(project)) do
-    run "hg branch #{Process.quote(branch)}"
+    Shards::HgResolver.hg "branch", branch
   end
 end
 
 def checkout_hg_rev(project, rev)
   Dir.cd(hg_path(project)) do
-    run "hg update -C #{Process.quote(rev)}"
+    Shards::HgResolver.hg "update", "-C", rev
   end
 end
 
@@ -191,7 +191,7 @@ end
 
 def hg_commits(project, rev = ".")
   Dir.cd(hg_path(project)) do
-    run("hg log --template='{node}\n' -r #{Process.quote(rev)}").strip.split('\n')
+    Shards::HgResolver.hg("log", "--template", "{node}\n", "-r", rev).not_nil!.strip.split('\n')
   end
 end
 
