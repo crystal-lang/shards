@@ -323,7 +323,8 @@ module Shards
 
     private def mirror_repository
       path = local_path
-      Dir.mkdir_p(File.dirname(path))
+      FileUtils.rm_r(path) if File.exists?(path)
+      Dir.mkdir_p(path)
       hg_retry(err: "Failed to clone #{hg_url}") do
         # We checkout the working directory so that "." is meaningful.
         #
