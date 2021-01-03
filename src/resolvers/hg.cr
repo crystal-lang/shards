@@ -321,12 +321,14 @@ module Shards
     end
 
     private def mirror_repository
+      path = local_path
+      Dir.mkdir_p(File.dirname(path))
       hg_retry(err: "Failed to clone #{hg_url}") do
         # We checkout the working directory so that "." is meaningful.
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_in_current_folder "hg clone --quiet -- #{Process.quote(hg_url)} #{Process.quote(local_path)}"
+        run_in_current_folder "hg clone --quiet -- #{Process.quote(hg_url)} #{Process.quote(path)}"
       end
     end
 
