@@ -191,7 +191,7 @@ end
 
 def hg_commits(project, rev = ".")
   Dir.cd(hg_path(project)) do
-    run("hg log --template='{node}\n' -r #{Process.quote(rev)}").strip.split('\n')
+    run("hg log --template=#{Process.quote("{node}\n")} -r #{Process.quote(rev)}").strip.split('\n')
   end
 end
 

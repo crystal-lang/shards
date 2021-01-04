@@ -201,7 +201,7 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("hg tags --template '{tag}\\n'")
+      capture("hg tags --template #{Process.quote("{tag}\n")}")
         .split('\n')
         .sort!
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
@@ -209,14 +209,15 @@ module Shards
 
     def matches?(commit)
       if branch = dependency["branch"]?
-        !capture("hg log -r 'branch(#{tag}) and descendants(#{commit})' --template '{branch}\\n'").strip.empty?
+        rev = "branch(\"#{tag}\") and descendants(#{commit})"
       elsif bookmark = dependency["bookmark"]?
-        !capture("hg log -r 'bookmark(#{bookmark}) and descendants(#{commit})' --template '{bookmarks}\\n'").strip.empty?
+        rev = "bookmark(\"#{bookmark}\") and descendants(#{commit})"
       elsif tag = dependency["tag"]?
-        !capture("hg log -r 'tag(#{tag}) and descendants(#{commit})' --template '{tags}\n'").strip.empty?
+        rev = "tag(\"tag\") and descendants(#{commit})"
       else
-        !capture("hg log -r #{commit}").strip.empty?
+        rev = commit
       end
+      !capture("hg log -r #{Process.quote(rev)}").strip.empty?
     end
 
     def install_sources(version : Version, install_path : String)
@@ -229,7 +230,7 @@ module Shards
     end
 
     def commit_sha1_at(ref : HgRef)
-      capture("hg log -r #{Process.quote(ref.to_hg_ref)} --template '{node}'").strip
+      capture("hg log -r #{Process.quote(ref.to_hg_ref)} --template #{Process.quote("{node}\n")}").strip
     end
 
     def local_path
@@ -352,7 +353,7 @@ module Shards
     end
 
     private def delete_repository
-      Log.debug { "rm -rf #{Process.quote(local_path)}'" }
+      Log.debug { "rm -rf #{Process.quote(local_path)}" }
       Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
