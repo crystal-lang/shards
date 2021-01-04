@@ -15,8 +15,12 @@ module Shards
     def initialize(@branch : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @branch : "branch(\"#{@branch}\") and head()"
+    def to_hg_ref
+      @branch
+    end
+
+    def to_hg_revset
+      "branch(\"#{@branch}\") and head()"
     end
 
     def to_s(io)
@@ -33,8 +37,12 @@ module Shards
     def initialize(@bookmark : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @bookmark : "bookmark(\"#{@bookmark}\")"
+    def to_hg_ref
+      @bookmark
+    end
+
+    def to_hg_revset
+      "bookmark(\"#{@bookmark}\")"
     end
 
     def to_s(io)
@@ -51,8 +59,12 @@ module Shards
     def initialize(@tag : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @tag : "tag(\"#{@tag}\")"
+    def to_hg_ref
+      @tag
+    end
+
+    def to_hg_revset
+      "tag(\"#{@tag}\")"
     end
 
     def to_s(io)
@@ -75,7 +87,11 @@ module Shards
       commit.starts_with?(other.commit) || other.commit.starts_with?(commit)
     end
 
-    def to_hg_ref(simple = false)
+    def to_hg_ref
+      @commit
+    end
+
+    def to_hg_revset
       @commit
     end
 
@@ -94,7 +110,11 @@ module Shards
   end
 
   struct HgCurrentRef < HgRef
-    def to_hg_ref(simple = false)
+    def to_hg_revset
+      "."
+    end
+
+    def to_hg_ref
       "."
     end
 
@@ -142,7 +162,7 @@ module Shards
       ref = hg_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("hg cat -r #{Process.quote(ref.to_hg_ref)} #{Process.quote(SPEC_FILENAME)}")
+        capture("hg cat -r #{Process.quote(ref.to_hg_revset)} #{Process.quote(SPEC_FILENAME)}")
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -153,7 +173,7 @@ module Shards
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("hg cat -r #{Process.quote(ref.to_hg_ref)} #{Process.quote(SPEC_FILENAME)}")
+          spec_yaml = capture("hg cat -r #{Process.quote(ref.to_hg_revset)} #{Process.quote(SPEC_FILENAME)}")
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -226,11 +246,11 @@ module Shards
 
       FileUtils.rm_r(install_path) if File.exists?(install_path)
       Dir.mkdir_p(install_path)
-      run "hg clone --quiet -u #{Process.quote(ref.to_hg_ref(true))} -- #{Process.quote(local_path)} #{Process.quote(install_path)}"
+      run "hg clone --quiet -u #{Process.quote(ref.to_hg_ref)} -- #{Process.quote(local_path)} #{Process.quote(install_path)}"
     end
 
     def commit_sha1_at(ref : HgRef)
-      capture("hg log -r #{Process.quote(ref.to_hg_ref)} --template #{Process.quote("{node}\n")}").strip
+      capture("hg log -r #{Process.quote(ref.to_hg_revset)} --template #{Process.quote("{node}\n")}").strip
     end
 
     def local_path
@@ -412,7 +432,7 @@ module Shards
     end
 
     private def file_exists?(ref : HgRef, path)
-      files = capture("hg files -r #{Process.quote(ref.to_hg_ref)} -- #{Process.quote(path)}")
+      files = capture("hg files -r #{Process.quote(ref.to_hg_revset)} -- #{Process.quote(path)}")
       !files.strip.empty?
     end
 
