@@ -325,12 +325,18 @@ module Shards
       path = local_path
       FileUtils.rm_r(path) if File.exists?(path)
       Dir.mkdir_p(path)
-      hg_retry(err: "Failed to clone #{hg_url}") do
+
+      source = hg_url
+      # Remove a "file://" from the beginning, otherwise the path might be invalid
+      # on Windows.
+      source = source[7..] if source.starts_with?("file://")
+
+      hg_retry(err: "Failed to clone #{source}") do
         # We checkout the working directory so that "." is meaningful.
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_in_current_folder "hg clone --quiet -- #{Process.quote(hg_url)} #{Process.quote(path)}"
+        run_in_current_folder "hg clone --quiet -- #{Process.quote(source)} #{Process.quote(path)}"
       end
     end
 
