@@ -124,14 +124,14 @@ end
 
 def create_hg_tag(project, version)
   Dir.cd(hg_path(project)) do
-    run "hg tag #{Process.quote(version)}"
+    run "hg tag -u #{Process.quote("Your Name <you@example.com>")} #{Process.quote(version)}"
   end
 end
 
 def create_hg_commit(project, message = "new commit")
   Dir.cd(hg_path(project)) do
     File.write("src/#{project}.cr", "# #{message}", mode: "a")
-    run "hg commit -A -m #{Process.quote(message)}"
+    run "hg commit -u #{Process.quote("Your Name <you@example.com>")} -A -m #{Process.quote(message)}"
   end
 end
 
