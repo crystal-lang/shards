@@ -3,6 +3,10 @@ language: crystal
 os:
   - linux
 
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install mercurial
+
 before_script: |
   make
   git config --global user.email "you@example.com"
@@ -10,6 +14,5 @@ before_script: |
   git config --global column.ui always
 
 script:
-  - apt-get update && apt-get install mercurial -y
   - make test
   - crystal tool format --check src spec
