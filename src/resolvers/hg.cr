@@ -436,8 +436,7 @@ module Shards
       unless process = @@hg_process
         Log.debug { "Start Mercurial command server" }
 
-        process = Process.new("hg",
-          ["serve", "--cmdserver", "pipe"],
+        process = Process.new("hg serve --cmdserver pipe",
           env: {"HGENCODING" => "UTF-8"}, # enforce UTF-8 encoding
           shell: true,
           input: Process::Redirect::Pipe,
@@ -535,7 +534,8 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run("hg", args, shell: true, output: output, error: error)
+      command = "hg #{args.each.map { |arg| Process.quote(arg) }.join(" ")}"
+      status = Process.run(command, shell: true, output: output, error: error)
 
       if status.success?
         output.to_s if capture
@@ -546,7 +546,7 @@ module Shards
         else
           message = str
         end
-        raise Error.new("Failed hg #{args.join(" ")} (#{message}). Maybe a commit, branch or file doesn't exist?")
+        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
 
