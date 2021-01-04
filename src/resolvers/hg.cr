@@ -202,7 +202,7 @@ module Shards
 
     protected def versions_from_tags
       capture("hg tags --template #{Process.quote("{tag}\n")}")
-        .split('\n')
+        .lines
         .sort!
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
@@ -267,7 +267,6 @@ module Shards
           return HgTagRef.new value
         when "commit"
           return HgCommitRef.new value
-        else
         end
       end
 
@@ -329,7 +328,7 @@ module Shards
       source = hg_url
       # Remove a "file://" from the beginning, otherwise the path might be invalid
       # on Windows.
-      source = source[7..] if source.starts_with?("file://")
+      source = source.lchop("file://")
 
       hg_retry(err: "Failed to clone #{source}") do
         # We checkout the working directory so that "." is meaningful.
@@ -349,8 +348,7 @@ module Shards
     private def hg_retry(err = "Failed to update repository")
       retries = 0
       loop do
-        yield
-        break
+        return yield
       rescue ex : Error
         retries += 1
         next if retries < 3
