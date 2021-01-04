@@ -369,10 +369,7 @@ module Shards
     end
 
     private def valid_repository?
-      File.each_line(File.join(local_path, ".hg", "dirstate")) do |line|
-        return true if line =~ /mirror\s*=\s*true/
-      end
-      false
+      File.exists?(File.join(local_path, ".hg", "dirstate"))
     end
 
     private def origin_url
