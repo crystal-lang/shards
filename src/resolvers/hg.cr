@@ -419,25 +419,24 @@ module Shards
     end
 
     private def file_exists?(ref : HgRef, path)
-      files = capture("hg files -r #{Process.quote(ref.to_hg_revset)} -- #{Process.quote(path)}")
-      !files.strip.empty?
+      run("hg files -r #{Process.quote(ref.to_hg_revset)} -- #{Process.quote(path)}", raise_on_fail: false)
     end
 
     private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
+      run(command, capture: true, path: path).as(String)
     end
 
-    private def run(command, path = local_path, capture = false)
+    private def run(command, path = local_path, capture = false, raise_on_fail = true)
       if Shards.local? && !Dir.exists?(path)
         dependency_name = File.basename(path)
         raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
       end
       Dir.cd(path) do
-        run_in_current_folder(command, capture)
+        run_in_current_folder(command, capture, raise_on_fail: raise_on_fail)
       end
     end
 
-    private def run_in_current_folder(command, capture = false)
+    private def run_in_current_folder(command, capture = false, raise_on_fail = true)
       unless HgResolver.has_hg_command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
@@ -449,8 +448,12 @@ module Shards
       status = Process.run(command, shell: true, output: output, error: error)
 
       if status.success?
-        output.to_s if capture
-      else
+        if capture
+          output.to_s
+        else
+          true
+        end
+      elsif raise_on_fail
         str = error.to_s
         if str.starts_with?("abort: ") && (idx = str.index('\n'))
           message = str[7...idx]
