@@ -227,19 +227,6 @@ module Shards
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
-    def matches?(commit)
-      if branch = dependency["branch"]?
-        rev = "branch(\"#{tag}\") and descendants(#{commit})"
-      elsif bookmark = dependency["bookmark"]?
-        rev = "bookmark(\"#{bookmark}\") and descendants(#{commit})"
-      elsif tag = dependency["tag"]?
-        rev = "tag(\"tag\") and descendants(#{commit})"
-      else
-        rev = commit
-      end
-      !capture("hg log -r #{Process.quote(rev)}").strip.empty?
-    end
-
     def install_sources(version : Version, install_path : String)
       update_local_cache
       ref = hg_ref(version)
