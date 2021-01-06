@@ -15,8 +15,12 @@ module Shards
     def initialize(@branch : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @branch : "branch(\"#{@branch}\") and head()"
+    def to_hg_ref
+      @branch
+    end
+
+    def to_hg_revset
+      "branch(\"#{@branch}\") and head()"
     end
 
     def to_s(io)
@@ -33,8 +37,12 @@ module Shards
     def initialize(@bookmark : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @bookmark : "bookmark(\"#{@bookmark}\")"
+    def to_hg_ref
+      @bookmark
+    end
+
+    def to_hg_revset
+      "bookmark(\"#{@bookmark}\")"
     end
 
     def to_s(io)
@@ -51,8 +59,12 @@ module Shards
     def initialize(@tag : String)
     end
 
-    def to_hg_ref(simple = false)
-      simple ? @tag : "tag(\"#{@tag}\")"
+    def to_hg_ref
+      @tag
+    end
+
+    def to_hg_revset
+      "tag(\"#{@tag}\")"
     end
 
     def to_s(io)
@@ -75,7 +87,11 @@ module Shards
       commit.starts_with?(other.commit) || other.commit.starts_with?(commit)
     end
 
-    def to_hg_ref(simple = false)
+    def to_hg_ref
+      @commit
+    end
+
+    def to_hg_revset
       @commit
     end
 
@@ -94,7 +110,11 @@ module Shards
   end
 
   struct HgCurrentRef < HgRef
-    def to_hg_ref(simple = false)
+    def to_hg_revset
+      "."
+    end
+
+    def to_hg_ref
       "."
     end
 
@@ -143,7 +163,7 @@ module Shards
       ref = hg_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture_hg("cat", "-r", ref.to_hg_ref, SPEC_FILENAME)
+        capture_hg("cat", "-r", ref.to_hg_revset, SPEC_FILENAME)
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -154,7 +174,7 @@ module Shards
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture_hg("cat", "-r", ref.to_hg_ref, SPEC_FILENAME)
+          spec_yaml = capture_hg("cat", "-r", ref.to_hg_revset, SPEC_FILENAME)
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -203,22 +223,9 @@ module Shards
 
     protected def versions_from_tags
       capture_hg("tags", "--template", "{tag}\\n")
-        .split('\n')
+        .lines
         .sort!
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
-    end
-
-    def matches?(commit)
-      if branch = dependency["branch"]?
-        rev = "branch(\"#{tag}\") and descendants(#{commit})"
-      elsif bookmark = dependency["bookmark"]?
-        rev = "bookmark(\"#{bookmark}\") and descendants(#{commit})"
-      elsif tag = dependency["tag"]?
-        rev = "tag(\"tag\") and descendants(#{commit})"
-      else
-        rev = commit
-      end
-      !capture_hg("log", "-r", rev).strip.empty?
     end
 
     def install_sources(version : Version, install_path : String)
@@ -227,11 +234,11 @@ module Shards
 
       FileUtils.rm_r(install_path) if File.exists?(install_path)
       Dir.mkdir_p(install_path)
-      run_hg "clone", "--quiet", "-u", ref.to_hg_ref(true), local_path, install_path, path: nil
+      run_hg "clone", "--quiet", "-u", ref.to_hg_ref, local_path, install_path, path: nil
     end
 
     def commit_sha1_at(ref : HgRef)
-      capture_hg("log", "-r", ref.to_hg_ref, "--template", "{node}").strip
+      capture_hg("log", "-r", ref.to_hg_revset, "--template", "{node}").strip
     end
 
     def local_path
@@ -268,7 +275,6 @@ module Shards
           return HgTagRef.new value
         when "commit"
           return HgCommitRef.new value
-        else
         end
       end
 
@@ -330,7 +336,7 @@ module Shards
       source = hg_url
       # Remove a "file://" from the beginning, otherwise the path might be invalid
       # on Windows.
-      source = source[7..] if source.starts_with?("file://")
+      source = source.lchop("file://")
 
       hg_retry(err: "Failed to clone #{source}") do
         # We checkout the working directory so that "." is meaningful.
@@ -350,8 +356,7 @@ module Shards
     private def hg_retry(err = "Failed to update repository")
       retries = 0
       loop do
-        yield
-        break
+        return yield
       rescue ex : Error
         retries += 1
         next if retries < 3
@@ -370,10 +375,7 @@ module Shards
     end
 
     private def valid_repository?
-      File.each_line(File.join(local_path, ".hg", "dirstate")) do |line|
-        return true if line =~ /mirror\s*=\s*true/
-      end
-      false
+      File.exists?(File.join(local_path, ".hg", "dirstate"))
     end
 
     private def origin_url
@@ -418,20 +420,19 @@ module Shards
     end
 
     private def file_exists?(ref : HgRef, path)
-      files = capture_hg("files", "-r", ref.to_hg_ref, path)
-      !files.strip.empty?
+      run_hg("files", "-r", ref.to_hg_revset, path, raise_on_fail: false)
     end
 
     private def capture_hg(*args, path = local_path)
-      run_hg(*args, capture: true, path: path).not_nil!
+      run_hg(*args, capture: true, path: path).as(String)
     end
 
-    private def run_hg(*args, path = local_path, capture = false)
+    private def run_hg(*args, path = local_path, capture = false, raise_on_fail = true)
       if path && Shards.local? && !Dir.exists?(path)
         dependency_name = File.basename(path)
         raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
       end
-      HgResolver.hg(*args, path: path, capture: capture)
+      HgResolver.hg(*args, path: path, capture: capture, raise_on_fail: raise_on_fail)
     end
 
     # Execute a hg command in the given path
@@ -439,7 +440,7 @@ module Shards
     # The command is run through the hg command server (if available) and
     # the command line tool otherwise. The command server is started if the
     # function is called for the first time.
-    def self.hg(*args, path = Dir.current, capture = true)
+    def self.hg(*args, path = Dir.current, capture = true, raise_on_fail = true)
       unless process = @@hg_process
         Log.debug { "Start Mercurial command server" }
 
@@ -474,7 +475,7 @@ module Shards
         if path
           return Dir.cd(path) { run_in_current_folder(*args, capture: capture) }
         else
-          return run_in_current_folder(*args, capture: capture)
+          return run_in_current_folder(*args, capture: capture, raise_on_fail: raise_on_fail)
         end
       end
 
@@ -519,8 +520,12 @@ module Shards
       end
 
       if status.zero?
-        result.to_s if result
-      else
+        if result
+          result.to_s
+        else
+          true
+        end
+      elsif raise_on_fail
         str = error_msg.to_s
         if str.starts_with?("abort: ") && (idx = str.index('\n'))
           message = str[7...idx]
@@ -532,7 +537,7 @@ module Shards
     end
 
     # Run the hg command line tool with some command line args in the current folder
-    private def self.run_in_current_folder(*args, capture = false)
+    private def self.run_in_current_folder(*args, capture = false, raise_on_fail = true)
       unless HgResolver.has_hg_command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
@@ -545,8 +550,12 @@ module Shards
       status = Process.run(command, shell: true, output: output, error: error)
 
       if status.success?
-        output.to_s if capture
-      else
+        if capture
+          output.to_s
+        else
+          true
+        end
+      elsif raise_on_fail
         str = error.to_s
         if str.starts_with?("abort: ") && (idx = str.index('\n'))
           message = str[7...idx]

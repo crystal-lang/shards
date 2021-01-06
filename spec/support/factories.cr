@@ -191,7 +191,7 @@ end
 
 def hg_commits(project, rev = ".")
   Dir.cd(hg_path(project)) do
-    Shards::HgResolver.hg("log", "--template", "{node}\n", "-r", rev).not_nil!.strip.split('\n')
+    Shards::HgResolver.hg("log", "--template", "{node}\n", "-r", rev).as(String).strip.lines
   end
 end
 
