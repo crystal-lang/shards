@@ -244,17 +244,36 @@ installations, you must use the generic `git` resolver.
 
 Example: `gitlab: thelonlyghost/minitest.cr`
 
+#### hg
+
+A Mercurial repository URL (String).
+
+The URL may be any protocol supported by Mercurial, which includes SSH and HTTPS.
+
+The Merurial repository will be cloned, the list of versions (and associated
+`shard.yml`) will be extracted from Mercurial tags (e.g., `v1.2.3`).
+
+One of the other attributes (`version`, `tag`, `branch`, `bookmark` or `commit`) is
+required. When missing, Shards will install the `@` bookmark or `tip`.
+
+Example: `hg: https://hg.example.org/crystal-library`
+
+
 #### commit
 
-Install a Git dependency at the specified commit (String).
+Install a Git or Mercurial dependency at the specified commit (String).
 
 #### tag
 
-Install a Git dependency at the specified tag (String).
+Install a Git or Mercurial dependency at the specified tag (String).
 
 #### branch
 
-Install a Git dependency at the specified branch (String).
+Install a Git dependency at the specified branch or a Mercurial dependency at the specified named branch (String).
+
+#### bookmark
+
+Install a Mercurial dependency at the specified bookmark (String).
 
 ### development_dependencies
 
