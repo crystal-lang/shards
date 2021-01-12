@@ -26,9 +26,7 @@ describe "outdated" do
       run "shards install"
 
       stdout = run "shards outdated --no-color"
-      # FIXME: This should actually report dependencies are up to date (#446)
-      stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * missing (installed: 0.1.0 at #{commit[0..6]})")
+      stdout.should contain("I: Dependencies are up to date!")
     end
   end
 
