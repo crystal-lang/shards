@@ -39,7 +39,7 @@ Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
 packages). Alternatively, a `shards` package may be available for your system.
 
 You can download a source tarball from the same page (or clone the repository)
-then run `make CRFLAGS=--release`and copy `bin/shards` into your `PATH`. For
+then run `CRYSTAL_OPTS=--release make`and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
