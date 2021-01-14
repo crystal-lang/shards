@@ -200,7 +200,7 @@ required but will be used if present to validate the dependency.
 
 A Git repository URL (String).
 
-The URL may be [any protocol](https://git-scm.com/docs/git-clone#_git_urls_a_id_urls_a)
+The URL may be [any protocol](https://git-scm.com/docs/git-clone#_git_urls)
 supported by Git, which includes SSH, GIT and HTTPS.
 
 The Git repository will be cloned, the list of versions (and associated
