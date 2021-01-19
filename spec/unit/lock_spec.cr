@@ -60,5 +60,13 @@ module Shards
 
       expect_raises(Error, "Invalid #{LOCK_FILENAME}.") { Lock.from_yaml("version: 1.0\nshards:\n") }
     end
+
+    it "parses empty shards" do
+      lock = Lock.from_yaml <<-YAML
+        version: 2.0
+        shards: {}
+        YAML
+      lock.shards.empty?.should be_true
+    end
   end
 end

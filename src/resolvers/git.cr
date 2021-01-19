@@ -2,6 +2,7 @@ require "uri"
 require "./resolver"
 require "../versions"
 require "../logger"
+require "../helpers"
 
 module Shards
   abstract struct GitRef < Ref
@@ -130,7 +131,7 @@ module Shards
       ref = git_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("git show #{ref.to_git_ref}:#{SPEC_FILENAME}")
+        capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -141,7 +142,7 @@ module Shards
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("git show #{ref.to_git_ref}:#{SPEC_FILENAME}")
+          spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -214,20 +215,24 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git --work-tree=#{Process.quote(install_path)} checkout #{ref.to_git_ref} -- ."
+      run "git --work-tree=#{Process.quote(install_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
     end
 
     def commit_sha1_at(ref : GitRef)
-      capture("git log -n 1 --pretty=%H #{ref.to_git_ref}").strip
+      capture("git log -n 1 --pretty=%H #{Process.quote(ref.to_git_ref)}").strip
     end
 
     def local_path
       @local_path ||= begin
         uri = parse_uri(git_url)
 
-        path = uri.path.to_s[1..-1]
-        path = path.gsub('/', File::SEPARATOR) unless File::SEPARATOR == '/'
+        path = uri.path
         path += ".git" unless path.ends_with?(".git")
+        path = Path[path]
+        # E.g. turns "c:\local\path.git" into "c\local\path.git". Or just drops the leading slash.
+        if (anchor = path.anchor)
+          path = Path[path.drive.to_s.rchop(":"), path.relative_to(anchor)]
+        end
 
         if host = uri.host
           File.join(Shards.cache_path, host, path)
@@ -312,20 +317,32 @@ module Shards
       # be used interactively.
       # This configuration can be overriden by defining the environment
       # variable `GIT_ASKPASS`.
-      run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{local_path}"
-    rescue Error
-      raise Error.new("Failed to clone #{git_url}")
+      git_retry(err: "Failed to clone #{git_url}") do
+        run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
+      end
     end
 
     private def fetch_repository
-      run "git fetch --all --quiet"
-    rescue Error
-      raise Error.new("Failed to update #{git_url}")
+      git_retry(err: "Failed to update #{git_url}") do
+        run "git fetch --all --quiet"
+      end
+    end
+
+    private def git_retry(err = "Failed to fetch repository")
+      retries = 0
+      loop do
+        yield
+        break
+      rescue Error
+        retries += 1
+        next if retries < 3
+        raise Error.new(err)
+      end
     end
 
     private def delete_repository
-      Log.debug { "rm -rf '#{local_path}'" }
-      FileUtils.rm_rf(local_path)
+      Log.debug { "rm -rf #{Process.quote(local_path)}'" }
+      Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
 
@@ -357,6 +374,11 @@ module Shards
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
     private def parse_uri(raw_uri)
+      # Need to check for file URIs early, otherwise generic parsing will fail on a colon.
+      if (path = raw_uri.lchop?("file://"))
+        return URI.new(scheme: "file", path: path)
+      end
+
       # Try normal URI parsing first
       uri = URI.parse(raw_uri)
       return uri if uri.absolute? && !uri.opaque?
@@ -377,7 +399,7 @@ module Shards
     end
 
     private def file_exists?(ref : GitRef, path)
-      files = capture("git ls-tree -r --full-tree --name-only #{ref.to_git_ref} -- #{path}")
+      files = capture("git ls-tree -r --full-tree --name-only #{Process.quote(ref.to_git_ref)} -- #{Process.quote(path)}")
       !files.strip.empty?
     end
 

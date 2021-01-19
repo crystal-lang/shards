@@ -77,7 +77,12 @@ module Shards
         when "version"
           Commands::Version.run(args[1]? || path)
         else
-          display_help_and_exit(opts)
+          program_name = "shards-#{args[0]}"
+          if program_path = Process.find_executable(program_name)
+            run_shards_subcommand(program_path, args)
+          else
+            display_help_and_exit(opts)
+          end
         end
 
         exit
@@ -93,6 +98,13 @@ module Shards
       shards_opts = ENV.fetch("SHARDS_OPTS", "").split
     {% end %}
     ARGV.concat(shards_opts)
+  end
+
+  def self.run_shards_subcommand(process_name, args)
+    Process.exec(
+      command: process_name,
+      args: args[1..],
+    )
   end
 
   def self.build(path, args)

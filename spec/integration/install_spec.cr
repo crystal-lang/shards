@@ -458,6 +458,7 @@ describe "install" do
     }
 
     with_shard(metadata) do
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
       run "shards install --production"
 
       # it installed dependencies (recursively)
@@ -521,15 +522,21 @@ describe "install" do
     end
   end
 
-  it "doesn't generate lockfile when project has no dependencies" do
+  it "generates lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
       run "shards install"
 
-      File.exists?(File.join(application_path, "shard.lock")).should be_false
+      lockfile = File.join(application_path, "shard.lock")
+      File.exists?(lockfile).should be_true
+      File.read(lockfile).should eq <<-YAML
+        version: 2.0
+        shards: {}
+
+        YAML
     end
   end
 
-  it "doesn't overwrite lockfile if no new dependencies are installed" do
+  it "touches lockfile if no new dependencies are installed" do
     metadata = {dependencies: {d: "*", c: "*"}}
 
     with_shard(metadata) do
@@ -537,7 +544,19 @@ describe "install" do
       File.touch "shard.lock", Time.utc(1901, 12, 14)
       mtime = File.info("shard.lock").modification_time
       run "shards install"
-      File.info("shard.lock").modification_time.should eq(mtime)
+      File.info("shard.lock").modification_time.should be >= mtime
+    end
+  end
+
+  it "updates lockfile on completely removed dependencies" do
+    metadata = NamedTuple.new
+    lock = {web: "1.0.0"}
+
+    with_shard(metadata, lock) do
+      run "shards install"
+
+      refute_installed "web"
+      refute_locked "web"
     end
   end
 
@@ -549,21 +568,26 @@ describe "install" do
     end
   end
 
-  it "prints details and removes dependency when postinstall script fails" do
-    with_shard({dependencies: {fails: "*"}}) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
-      ex.stdout.should contain("test -n ''\n")
-      Dir.exists?(install_path("fails")).should be_false
+  {% if flag?(:win32) %}
+    # Crystal bug in handling a failing subprocess
+    pending "prints details and removes dependency when postinstall script fails"
+  {% else %}
+    it "prints details and removes dependency when postinstall script fails" do
+      with_shard({dependencies: {fails: "*"}}) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+        ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
+        ex.stdout.should contain("test -n ''\n")
+        Dir.exists?(install_path("fails")).should be_false
+      end
     end
-  end
+  {% end %}
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
       run "shards install"
-      binary = install_path("transitive", "version")
+      binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_true
-      `#{binary}`.should eq("version @ 0.1.0\n")
+      `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
     end
   end
 
@@ -695,16 +719,16 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar")
-    baz = File.join(application_path, "bin", "baz")
-    foo = File.join(application_path, "bin", "foo")
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
     File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
 
-    `#{foobar}`.should eq("OK\n")
-    `#{baz}`.should eq("KO\n")
+    `#{Process.quote(foobar)}`.should eq("OK")
+    `#{Process.quote(baz)}`.should eq("KO")
   end
 
   it "installs executables at refs" do
@@ -715,9 +739,9 @@ describe "install" do
     }
     with_shard(metadata) { run("shards install --no-color") }
 
-    foobar = File.join(application_path, "bin", "foobar")
-    baz = File.join(application_path, "bin", "baz")
-    foo = File.join(application_path, "bin", "foo")
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"

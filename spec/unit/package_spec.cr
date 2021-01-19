@@ -69,7 +69,7 @@ module Shards
       package = Package.new("library", resolver("library"), version "1.2.3")
       package.install
 
-      run "rm -rf #{install_path("library")}"
+      Shards::Helpers.rm_rf(install_path("library"))
       package.installed?.should be_false
     end
 

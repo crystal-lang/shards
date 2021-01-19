@@ -82,6 +82,21 @@ module Shards
       spec.dependencies[2].requirement.should eq(Any)
     end
 
+    it "parses empty mappings/sequences" do
+      spec = Spec.from_yaml <<-YAML
+        name: orm
+        version: 1.0.0
+        authors:
+        dependencies:
+        development_dependencies:
+        targets:
+        executables:
+        libraries:
+        scripts:
+        YAML
+      spec.dependencies.empty?.should be_true
+    end
+
     it "fails dependency with duplicate resolver" do
       expect_raises Shards::ParseError, %(Duplicate resolver mapping for dependency "foo" at line 6, column 5) do
         Spec.from_yaml <<-YAML

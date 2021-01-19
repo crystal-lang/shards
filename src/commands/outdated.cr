@@ -53,7 +53,8 @@ module Shards
           else
             Versions.without_prereleases(resolver.available_releases)
           end
-        latest = Versions.sort(available_versions).first
+        latest = Versions.sort(available_versions).first?
+
         return if latest == installed
 
         @up_to_date = false
@@ -66,7 +67,7 @@ module Shards
         end
 
         # also report latest version:
-        if Versions.compare(latest, package.version) < 0
+        if latest && Versions.compare(latest, package.version) < 0
           @output << ", latest: " << resolver.report_version(latest)
         end
 
