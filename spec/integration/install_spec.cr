@@ -364,6 +364,20 @@ describe "install" do
     end
   end
 
+  it "fails if locked version is not available in source" do
+    metadata = {dependencies: {awesome: {git: git_url(:awesome)}}}
+    lock = {awesome: "0.1.0.git.commit.1234567890"}
+
+    with_shard(metadata, lock) do
+      assert_locked "awesome", "0.1.0.git.commit.1234567890", source: {git: git_url(:awesome)}
+
+      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+      ex.stdout.should contain("Locked version 0.1.0.git.commit.1234567890 for awesome was not found in git: #{git_url(:awesome)}")
+      ex.stdout.should contain("Please run `shards update`")
+      ex.stderr.should be_empty
+    end
+  end
+
   it "fails if shard.lock and shard.yml has different sources with incompatible versions." do
     # User should use update command in this scenario
     # forked_awesome does not have a 0.3.0
@@ -375,7 +389,8 @@ describe "install" do
       assert_locked "awesome", "0.3.0", source: {git: git_url(:awesome)}
 
       ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
-      ex.stdout.should contain("Maybe a commit, branch or file doesn't exist?")
+      ex.stdout.should contain("Locked version 0.3.0 for awesome was not found in git: #{git_url(:forked_awesome)} (locked source is git: #{git_url(:awesome)})")
+      ex.stdout.should contain("Please run `shards update`")
       ex.stderr.should be_empty
     end
   end
