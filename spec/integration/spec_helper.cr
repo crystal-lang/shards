@@ -165,6 +165,26 @@ private def setup_repositories
   create_git_release "intermediate", "0.1.0", {
     dependencies: {awesome: {git: git_url(:awesome)}},
   }
+
+  # repo with release and unreleased commits
+  create_git_repository "heading"
+  create_git_release "heading", "0.1.0"
+  create_git_version_commit "heading", "0.1.0"
+  create_git_version_commit "heading", "0.1.0"
+
+  # repo with release and preceding commit
+  create_git_repository "release_hist"
+  create_git_release "release_hist", "0.1.0"
+  create_git_version_commit "release_hist", "0.1.0"
+  create_git_release "release_hist", "0.2.0"
+
+  # repo with branch and new release outside branch
+  create_git_repository "branched"
+  create_git_release "branched", "0.1.0"
+  checkout_new_git_branch "branched", "feature"
+  create_git_version_commit "branched", "0.1.0"
+  checkout_git_branch "branched", "master"
+  create_git_release "branched", "0.2.0"
 end
 
 private def assert(value, message, file, line)
