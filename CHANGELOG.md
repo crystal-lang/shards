@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v0.13.0 - 2021-01-21
+
+Fixes:
+
+- Fix outdated command for dependencies with no releases. ([#455](https://github.com/crystal-lang/shards/pull/455), thanks @straight-shoota)
+- Fix outdated command with non-release installed. ([#456](https://github.com/crystal-lang/shards/pull/456), thanks @straight-shoota)
+- Write lockfile even when there are no dependencies. ([#453](https://github.com/crystal-lang/shards/pull/453), thanks @straight-shoota)
+- Touch install_path and lockfile to express dependency. ([#444](https://github.com/crystal-lang/shards/pull/444), thanks @straight-shoota)
+- Improve git reliability by retrying on failures. ([#450](https://github.com/crystal-lang/shards/pull/450), thanks @fudanchii)
+- Allow empty scalar for mappings/sequences. ([#451](https://github.com/crystal-lang/shards/pull/451), thanks @straight-shoota)
+- Fix working directory in `capture`. ([#457](https://github.com/crystal-lang/shards/pull/457), thanks @f-fr)
+
+Features:
+
+- Add a fallback to alternate shards commands. ([#202](https://github.com/crystal-lang/shards/pull/202), thanks @Willamin)
+
+Others:
+
+- Use git's `checkout` feature directly to write out repo files. ([#435](https://github.com/crystal-lang/shards/pull/435), thanks @oprypin)
+- Use `Process.quote` instead of the old platform-specific helper. ([#437](https://github.com/crystal-lang/shards/pull/437), thanks @oprypin)
+- Don't use POSIX-specific shell constructs. ([#436](https://github.com/crystal-lang/shards/pull/436), thanks @oprypin)
+- Don't use compile-time shell commands to determine build timestamp. ([#438](https://github.com/crystal-lang/shards/pull/438), thanks @oprypin)
+- Expand Windows support + fix all specs. ([#447](https://github.com/crystal-lang/shards/pull/447), thanks @oprypin)
+- Add continuous testing (including Windows) using GitHub Actions. ([#448](https://github.com/crystal-lang/shards/pull/448), thanks @oprypin)
+- Cleanup unused code. ([#460](https://github.com/crystal-lang/shards/pull/460), thanks @f-fr)
+- Fix outdated content in the `README.md` and `SPEC.md`. ([#434](https://github.com/crystal-lang/shards/pull/434), [#461](https://github.com/crystal-lang/shards/pull/461), [#462](https://github.com/crystal-lang/shards/pull/462), thanks @kojix2, @straight-shoota, @KimBurgess)
+
 ## v0.12.0 - 2020-08-05
 
 Fixes:
