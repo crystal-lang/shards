@@ -135,12 +135,9 @@ rescue ex : OptionParser::InvalidOption
   Shards::Log.fatal { ex.message }
   exit 1
 rescue ex : Shards::ParseError
-  ex.to_s({% if flag?(:win32) %}STDOUT{% else %}STDERR{% end %})
+  ex.to_s(STDOUT)
   exit 1
 rescue ex : Shards::Error
   Shards::Log.error { ex.message }
-  exit 1
-rescue ex
-  ex.inspect_with_backtrace(({% if flag?(:win32) %}STDOUT{% else %}STDERR{% end %}))
   exit 1
 end
