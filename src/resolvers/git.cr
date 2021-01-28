@@ -104,7 +104,9 @@ module Shards
       case key
       when "git"
         {"git", source}
-      when "github", "bitbucket", "gitlab"
+      when "github"
+        {"git", "https://#{key}.com/#{source.downcase}.git"}
+      when "bitbucket", "gitlab"
         {"git", "https://#{key}.com/#{source}.git"}
       else
         raise "Unknown resolver #{key}"
