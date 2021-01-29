@@ -28,6 +28,16 @@ module Shards
       create_git_tag "library", "99.9.9"
     end
 
+    it "normalizes github bitbucket gitlab sources", focus: true do
+      # to deal with case insensitive paths
+      paths = {"repo/path", "rEpo/pAth", "REPO/PATH"}
+      keys = {"github", "bitbucket", "gitlab"}
+      results = {"https://github.com/repo/path.git", "https://bitbucket.com/repo/path.git", "https://gitlab.com/repo/path.git"}
+      keys.each_with_index do |key, index|
+        paths.each { |path| GitResolver.normalize_key_source(key, path).should eq({"git", results[index]}) }
+      end
+    end
+
     it "available releases" do
       resolver("empty").available_releases.should be_empty
       resolver("library").available_releases.should eq(versions ["0.0.1", "0.1.0", "0.1.1", "0.1.2", "0.2.0"])
