@@ -28,14 +28,24 @@ module Shards
       create_git_tag "library", "99.9.9"
     end
 
-    it "normalizes github bitbucket gitlab sources", focus: true do
-      # to deal with case insensitive paths
+    it "normalizes github bitbucket gitlab sources" do
+      # deal with case insensitive paths
       paths = {"repo/path", "rEpo/pAth", "REPO/PATH"}
       keys = {"github", "bitbucket", "gitlab"}
       results = {"https://github.com/repo/path.git", "https://bitbucket.com/repo/path.git", "https://gitlab.com/repo/path.git"}
       keys.each_with_index do |key, index|
         paths.each { |path| GitResolver.normalize_key_source(key, path).should eq({"git", results[index]}) }
       end
+
+      # also normalise full git paths
+      paths = {"HTTPS://User:Pass@Github.com/Repo/Path.git?Shallow=true", "HTTPS://User:Pass@Bitbucket.com/Repo/Path.Git?Shallow=true", "HTTPS://User:Pass@Gitlab.com/Repo/Path?Shallow=true"}
+      results = {"https://User:Pass@github.com/repo/path.git?Shallow=true", "https://User:Pass@bitbucket.com/repo/path.git?Shallow=true", "https://User:Pass@gitlab.com/repo/path.git?Shallow=true"}
+      paths.each_with_index do |path, index|
+        GitResolver.normalize_key_source("git", path).should eq({"git", results[index]})
+      end
+
+      # don't normalise other domains
+      GitResolver.normalize_key_source("git", "HTTPs://mygitserver.com/Repo.git").should eq({"git", "HTTPs://mygitserver.com/Repo.git"})
     end
 
     it "available releases" do

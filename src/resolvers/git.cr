@@ -103,7 +103,17 @@ module Shards
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
       when "git"
-        {"git", source}
+        uri = URI.parse(source)
+        downcased_host = uri.host.try &.downcase
+        if downcased_host && downcased_host.in?("github.com", "bitbucket.com", "gitlab.com")
+          uri.scheme = "https"
+          downcased_path = uri.path.downcase
+          uri.path = downcased_path.ends_with?(".git") ? downcased_path : "#{downcased_path}.git"
+          uri.host = downcased_host
+          {"git", uri.to_s}
+        else
+          {"git", source}
+        end
       when "github", "bitbucket", "gitlab"
         {"git", "https://#{key}.com/#{source.downcase}.git"}
       else
