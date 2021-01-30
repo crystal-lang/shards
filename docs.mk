@@ -1,13 +1,12 @@
 ASCIIDOC ?= asciidoctor
 
-ASCIIDOC_OPTIONS = -a year=$(shell date +%Y)
+ASCIIDOC_OPTIONS = -a shards_version=$(SHARDS_VERSION)
 
 MAN_FILES := man/shards.1 man/shard.yml.5
 HTML_FILES := docs/shards.html docs/shard.yml.html
 
-# reproducible builds: reference date is ":date:" attribute from asciidoc source
-date_attr = $(shell sed -rn 's/:date:\s*//p' $(1))
-source_date_epoch = $(shell date +%s -u -d $(call date_attr,$(1)))
+SHARDS_VERSION := $(shell cat VERSION)
+source_date_epoch := $(shell (git show -s --format=%ct HEAD || stat -c "%Y" $(1) || stat -f "%m" $(1)) 2> /dev/null)
 
 docs: manpages
 

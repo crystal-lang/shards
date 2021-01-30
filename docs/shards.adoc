@@ -1,6 +1,6 @@
 = shards(1)
-:date: 2020-11-13
-:shards_version: 0.12.0
+:date: {localdate}
+:shards_version: {shards_version}
 :man manual: Shards Manual
 :man source: shards {shards_version}
 
@@ -193,7 +193,7 @@ Report shards bugs to <https://github.com/crystal-lang/shards/issues>
 Crystal Language home page: <https://crystal-lang.org>
 
 == COPYRIGHT
-Copyright © {year} Julien Portalier.
+Copyright © {localyear} Julien Portalier.
 
 http://www.apache.org/licenses/LICENSE-2.0[License Apache 2.0]
 
