@@ -195,21 +195,6 @@ module Shards
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
-    def matches?(commit)
-      if branch = dependency["branch"]?
-        capture("git branch --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split('\n')
-          .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
-          .includes?(branch)
-      elsif tag = dependency["tag"]?
-        capture("git tag --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split('\n')
-          .includes?(tag)
-      else
-        !capture("git log -n 1 #{commit}").strip.empty?
-      end
-    end
-
     def install_sources(version : Version, install_path : String)
       update_local_cache
       ref = git_ref(version)
@@ -404,7 +389,7 @@ module Shards
     end
 
     private def capture(command, path = local_path)
-      run(command, capture: true, path: local_path).not_nil!
+      run(command, capture: true, path: path).not_nil!
     end
 
     private def run(command, path = local_path, capture = false)
