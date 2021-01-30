@@ -51,4 +51,4 @@ jobs:
       - name: Build manpages
         uses: Analog-inc/asciidoctor-action@master
         with:
-          program: "make manpages"
+          shellcommand: "make manpages"
