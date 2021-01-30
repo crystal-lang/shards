@@ -258,29 +258,6 @@ describe "install" do
 
   pending "updates locked commit when switching between branches (if locked commit is not reachable)"
 
-  it "fails to install when dependency requirement changed in production" do
-    metadata = {dependencies: {web: "2.0.0"}}
-    lock = {web: "1.0.0"}
-
-    with_shard(metadata, lock) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
-      ex.stdout.should contain("Outdated shard.lock")
-      ex.stderr.should be_empty
-      refute_installed "web"
-    end
-  end
-
-  it "fails to install when dependency requirement (commit) changed in production" do
-    metadata = {dependencies: {inprogress: {git: git_url(:inprogress), commit: git_commits(:inprogress)[1]}}}
-    lock = {inprogress: "0.1.0+git.commit.#{git_commits(:inprogress).first}"}
-
-    with_shard(metadata, lock) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
-      ex.stdout.should contain("Outdated shard.lock")
-      refute_installed "inprogress"
-    end
-  end
-
   it "updates when dependency requirement changed" do
     metadata = {dependencies: {web: "2.0.0"}}
     lock = {web: "1.0.0"}
@@ -347,36 +324,6 @@ describe "install" do
       run "shards install"
       assert_locked "web", "2.1.0", source: {git: git_url(:web)}
       assert_installed "web", "2.1.0", source: {git: git_url(:web)}
-    end
-  end
-
-  it "fails if shard.lock and shard.yml has different sources" do
-    # The sources will not match, so the .lock is not valid regarding the specs
-    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
-    lock = {awesome: "0.1.0", d: "0.1.0"}
-
-    with_shard(metadata, lock) do
-      assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
-
-      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
-      ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
-      ex.stderr.should be_empty
-    end
-  end
-
-  it "fails if shard.lock and shard.yml has different sources with incompatible versions." do
-    # User should use update command in this scenario
-    # forked_awesome does not have a 0.3.0
-    # awesome has 0.3.0
-    metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
-    lock = {awesome: "0.3.0"}
-
-    with_shard(metadata, lock) do
-      assert_locked "awesome", "0.3.0", source: {git: git_url(:awesome)}
-
-      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
-      ex.stdout.should contain("Maybe a commit, branch or file doesn't exist?")
-      ex.stderr.should be_empty
     end
   end
 
@@ -451,74 +398,165 @@ describe "install" do
     end
   end
 
-  it "production doesn't install development dependencies" do
-    metadata = {
-      dependencies:             {web: "*", orm: "*"},
-      development_dependencies: {mock: "*"},
-    }
+  describe "with --production" do
+    it "fails if shard.lock and shard.yml has different sources" do
+      # The sources will not match, so the .lock is not valid regarding the specs
+      metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+      lock = {awesome: "0.1.0", d: "0.1.0"}
 
-    with_shard(metadata) do
-      File.exists?(File.join(application_path, "shard.lock")).should be_false
-      run "shards install --production"
+      with_shard(metadata, lock) do
+        assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-      # it installed dependencies (recursively)
-      assert_installed "web"
-      assert_installed "orm"
-      assert_installed "pg"
-
-      # it didn't install development dependencies
-      refute_installed "mock"
-      refute_installed "minitest"
-
-      # it didn't generate lock file
-      File.exists?(File.join(application_path, "shard.lock")).should be_false
+        ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+        ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
+        ex.stderr.should be_empty
+      end
     end
-  end
 
-  it "production doesn't install new dependencies" do
-    metadata = {
-      dependencies: {
-        web: "~> 1.0.0",
-        orm: "*",
-      },
-    }
-    lock = {web: "1.0.0"}
+    it "fails if shard.lock and shard.yml has different sources with incompatible versions." do
+      # User should use update command in this scenario
+      # forked_awesome does not have a 0.3.0
+      # awesome has 0.3.0
+      metadata = {dependencies: {awesome: {git: git_url(:forked_awesome)}}}
+      lock = {awesome: "0.3.0"}
 
-    with_shard(metadata, lock) do
-      ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
-      ex.stdout.should contain("Outdated shard.lock")
-      ex.stderr.should be_empty
+      with_shard(metadata, lock) do
+        assert_locked "awesome", "0.3.0", source: {git: git_url(:awesome)}
+
+        ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+        ex.stdout.should contain("Maybe a commit, branch or file doesn't exist?")
+        ex.stderr.should be_empty
+      end
     end
-  end
 
-  it "install in production mode" do
-    metadata = {dependencies: {web: "*"}}
-    lock = {web: "1.0.0"}
+    it "fails to install when dependency requirement changed" do
+      metadata = {dependencies: {web: "2.0.0"}}
+      lock = {web: "1.0.0"}
 
-    with_shard(metadata, lock) do
-      run "shards install --production"
-      assert_installed "web", "1.0.0"
+      with_shard(metadata, lock) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+        ex.stdout.should contain("Outdated shard.lock")
+        ex.stderr.should be_empty
+        refute_installed "web"
+      end
     end
-  end
 
-  it "install in production mode with locked commit" do
-    metadata = {dependencies: {web: "*"}}
-    web_version = "2.1.0+git.commit.#{git_commits(:web).first}"
-    lock = {web: web_version}
+    it "fails to install when dependency requirement (commit) changed" do
+      metadata = {dependencies: {inprogress: {git: git_url(:inprogress), commit: git_commits(:inprogress)[1]}}}
+      lock = {inprogress: "0.1.0+git.commit.#{git_commits(:inprogress).first}"}
 
-    with_shard(metadata, lock) do
-      run "shards install --production"
-      assert_installed "web", "2.1.0", git: git_commits(:web).first
+      with_shard(metadata, lock) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+        ex.stdout.should contain("Outdated shard.lock")
+        refute_installed "inprogress"
+      end
     end
-  end
 
-  it "install in production mode with locked commit by a previous shards version" do
-    metadata = {dependencies: {web: "*"}}
+    it "doesn't install new dependencies" do
+      metadata = {
+        dependencies: {
+          web: "~> 1.0.0",
+          orm: "*",
+        },
+      }
+      lock = {web: "1.0.0"}
 
-    with_shard(metadata) do
-      File.write "shard.lock", {version: "1.0", shards: {web: {git: git_url(:web), commit: git_commits(:web).first}}}
-      run "shards install --production"
-      assert_installed "web", "2.1.0", git: git_commits(:web).first
+      with_shard(metadata, lock) do
+        ex = expect_raises(FailedCommand) { run "shards install --production --no-color" }
+        ex.stdout.should contain("Outdated shard.lock")
+        ex.stderr.should be_empty
+      end
+    end
+
+    it "install" do
+      metadata = {dependencies: {web: "*"}}
+      lock = {web: "1.0.0"}
+
+      with_shard(metadata, lock) do
+        run "shards install --production"
+        assert_installed "web", "1.0.0"
+      end
+    end
+
+    it "install with locked commit" do
+      metadata = {dependencies: {web: "*"}}
+      web_version = "2.1.0+git.commit.#{git_commits(:web).first}"
+      lock = {web: web_version}
+
+      with_shard(metadata, lock) do
+        run "shards install --production"
+        assert_installed "web", "2.1.0", git: git_commits(:web).first
+      end
+    end
+
+    it "install with locked commit by a previous shards version" do
+      metadata = {dependencies: {web: "*"}}
+
+      with_shard(metadata) do
+        File.write "shard.lock", {version: "1.0", shards: {web: {git: git_url(:web), commit: git_commits(:web).first}}}
+        run "shards install --production"
+        assert_installed "web", "2.1.0", git: git_commits(:web).first
+      end
+    end
+
+    it "fails if lock is not up to date with override in main dependency" do
+      metadata = {dependencies: {
+        awesome: "*",
+      }}
+      lock = {awesome: "0.1.0", d: "0.1.0"}
+      override = {dependencies: {
+        awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+      }}
+      expected_commit = git_commits(:forked_awesome).first
+
+      with_shard(metadata, lock, override) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+        ex.stdout.should contain("Outdated shard.lock")
+        ex.stderr.should be_empty
+        refute_installed "awesome"
+      end
+    end
+
+    it "fails if lock is not up to date with override in nested dependency" do
+      metadata = {dependencies: {
+        intermediate: "*",
+      }}
+      lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
+      override = {dependencies: {
+        awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
+      }}
+      expected_commit = git_commits(:forked_awesome).first
+
+      with_shard(metadata, lock, override) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
+        ex.stdout.should contain("Outdated shard.lock")
+        ex.stderr.should be_empty
+        refute_installed "awesome"
+      end
+    end
+
+    it "doesn't install development dependencies" do
+      metadata = {
+        dependencies:             {web: "*", orm: "*"},
+        development_dependencies: {mock: "*"},
+      }
+
+      with_shard(metadata) do
+        File.exists?(File.join(application_path, "shard.lock")).should be_false
+        run "shards install --production"
+
+        # it installed dependencies (recursively)
+        assert_installed "web"
+        assert_installed "orm"
+        assert_installed "pg"
+
+        # it didn't install development dependencies
+        refute_installed "mock"
+        refute_installed "minitest"
+
+        # it didn't generate lock file
+        File.exists?(File.join(application_path, "shard.lock")).should be_false
+      end
     end
   end
 
@@ -1069,42 +1107,6 @@ describe "install" do
 
       assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
-    end
-  end
-
-  it "fails if lock is not up to date with override in main dependency in production" do
-    metadata = {dependencies: {
-      awesome: "*",
-    }}
-    lock = {awesome: "0.1.0", d: "0.1.0"}
-    override = {dependencies: {
-      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
-    }}
-    expected_commit = git_commits(:forked_awesome).first
-
-    with_shard(metadata, lock, override) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
-      ex.stdout.should contain("Outdated shard.lock")
-      ex.stderr.should be_empty
-      refute_installed "awesome"
-    end
-  end
-
-  it "fails if lock is not up to date with override in nested dependency in production" do
-    metadata = {dependencies: {
-      intermediate: "*",
-    }}
-    lock = {intermediate: "0.1.0", awesome: "0.1.0", d: "0.1.0"}
-    override = {dependencies: {
-      awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
-    }}
-    expected_commit = git_commits(:forked_awesome).first
-
-    with_shard(metadata, lock, override) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color --production" }
-      ex.stdout.should contain("Outdated shard.lock")
-      ex.stderr.should be_empty
-      refute_installed "awesome"
     end
   end
 
