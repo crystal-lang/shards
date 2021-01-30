@@ -14,11 +14,11 @@ module Shards
           solver.locks = locks.shards
         end
 
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
 
-        if lockfile? && Shards.production?
+        if lockfile? && Shards.frozen?
           validate(packages)
         end
 
@@ -26,7 +26,7 @@ module Shards
 
         if generate_lockfile?(packages)
           write_lockfile(packages)
-        elsif !Shards.production?
+        elsif !Shards.frozen?
           # Touch lockfile so its mtime is bigger than that of shard.yml
           File.touch(lockfile_path)
         end
@@ -87,7 +87,7 @@ module Shards
       end
 
       private def generate_lockfile?(packages)
-        !Shards.production? && (!lockfile? || outdated_lockfile?(packages))
+        !Shards.frozen? && (!lockfile? || outdated_lockfile?(packages))
       end
 
       private def outdated_lockfile?(packages)

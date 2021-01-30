@@ -22,7 +22,7 @@ module Shards
           end
         end
 
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
         return if packages.empty?

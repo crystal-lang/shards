@@ -15,7 +15,7 @@ module Shards
           solver.locks = locks.shards.reject { |d| shards.includes?(d.name) }
         end
 
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
         install(packages)
@@ -60,7 +60,7 @@ module Shards
       end
 
       private def generate_lockfile?(packages)
-        !Shards.production?
+        !Shards.frozen?
       end
     end
   end
