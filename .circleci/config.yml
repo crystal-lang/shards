@@ -40,7 +40,6 @@ jobs:
     docker:
       - image: asciidoctor/docker-asciidoctor
     steps:
-      - *attach_workspace
       - checkout
       - run:
           name: Build manpages
