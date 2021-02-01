@@ -112,7 +112,7 @@ module Shards
           uri.scheme = "https"
           downcased_path = uri.path.downcase
           uri.path = downcased_path.ends_with?(".git") ? downcased_path : "#{downcased_path}.git"
-          uri.host = downcased_host.gsub("www.", "")
+          uri.host = downcased_host.lstrip("www.")
           {"git", uri.to_s}
         else
           {"git", source}
