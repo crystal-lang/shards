@@ -12,10 +12,10 @@ module Shards
           init                                 - Initialize a `shard.yml` file.
           install                              - Install dependencies, creating or using the `shard.lock` file.
           list [--tree]                        - List installed dependencies.
-          lock [--update] [<shards>]           - Lock dependencies in `shard.lock` but doesn't install them.
+          lock [--update] [<shards>...]        - Lock dependencies in `shard.lock` but doesn't install them.
           outdated [--pre]                     - List dependencies that are outdated.
           prune                                - Remove unused dependencies from `lib` folder.
-          update [<shards>]                    - Update dependencies and `shard.lock`.
+          update [<shards>...]                 - Update dependencies and `shard.lock`.
           version [<path>]                     - Print the current version of the shard.
 
       General options:

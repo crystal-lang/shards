@@ -1,0 +1,207 @@
+= shards(1)
+:date: {localdate}
+:shards_version: {shards_version}
+:man manual: Shards Manual
+:man source: shards {shards_version}
+
+== NAME
+shards - dependency manager for the Crystal Language
+
+== SYNOPSIS
+*shards* [_<general_options>_...] [_<command>_] [_<command_options>_...]
+
+== DESCRIPTION
+Manages dependencies for Crystal projects and libraries with reproducible
+installs across computers and systems.
+
+== USAGE
+_shards_ requires the presence of a _shard.yml_ file in the project
+folder (working directory). This file describes the project and lists
+dependencies that are required to build it. See *shard.yml*(5) for more
+information on its format. A default file can be created by running _shards init_.
+
+Running _shards install_ resolves and installs the
+specified dependencies. The installed versions are written into a
+*shard.lock* file for using the exact same dependency versions when
+running _shards install_ again.
+
+If your shard builds an application, both *shard.yml* and *shard.lock*
+should be checked into version control to provide reproducible
+dependency installs.
+If it is only a library for other shards to depend
+on, *shard.lock* should _not_ be checked in, only *shard.yml*. It’s good
+advice to add it to *.gitignore*.
+
+== COMMANDS
+
+If no _command_ is given, *install* command will be run by default.
+
+To see the available options for a particular command, use _--help_ after the command.
+
+*build* [_<targets>_] [_<build_options>_...]::
+Builds the specified _<targets>_ in *bin* path. If no targets are specified,
+all are built.
+This command ensures all dependencies are installed, so it is not necessary
+to run *shards install* before.
++
+All _<build_options>_ following the command are delegated to *crystal build*.
+
+*check*::
+Verifies that all dependencies are installed and requirements are satisfied.
++
+Exit status:
++
+[horizontal]
+*0*::: Dependencies are satisfied.
+*1*::: Dependencies are not satisfied.
+
+*init*::
+Initializes a default _shard.yml_ in the current folder.
+
+*install*::
+Resolves and installs dependencies into the _lib_ folder. If not already
+present, generates a _shard.lock_ file from resolved dependencies, locking
+version numbers or Git commits.
++
+Reads and enforces locked versions and commits if a _shard.lock_ file is
+present. The *install* command may fail if a locked version doesn't match
+a requirement, but may succeed if a new dependency was added, as long as it
+doesn't generate a conflict, thus generating a new _shard.lock_ file.
+
+*list* [--tree]::
+Lists the installed dependencies and their versions.
++
+Specifying _--tree_ arranges nested dependencies in a tree, instead of a flattened list.
+
+*lock* [--update [<shards>...]]::
+Resolves dependencies and creates or updates the _shard.lock_ file as per
+the *install* command, but never installs the dependencies.
++
+Specifying _--update_ follows the same semantics as the *update*
+command.
+
+*outdated* [--pre]::
+Lists dependencies that are outdated.
++
+When _--pre_ is specified, pre-release versions are also considered.
+
+*prune*::
+Removes unused dependencies from _lib_ folder.
+
+*update* [<shards>...]::
+Resolves and updates all dependencies into the _lib_ folder,
+whatever the locked versions in the _shard.lock_ file.
+Eventually generates a new _shard.lock_ file.
++
+Specifying _shards_ will update these dependencies only, trying to be as
+conservative as possible with other dependencies, respecting the locked versions
+in the _shard.lock_ file.
+
+*version* [_<path>_]::
+Prints the current version of the shard located at _path_ (defaults to current
+directory).
+
+To see the available options for a particular command, use *--help*
+after a command.
+
+== GENERAL OPTIONS
+
+--version::
+  Prints the version of _shards_.
+
+-h, --help::
+  Prints usage synopsis.
+
+--no-color::
+  Disables colored output.
+
+--local::
+  Don't update remote repositories, use the local cache only.
+
+--ignore-crystal-version::
+  Do not enforce crystal version restrictions on shards.
+
+--production::
+  Runs in release mode. Development dependencies won’t
+  be installed and only locked dependencies will be installed. Commands
+  will fail if dependencies in _shard.yml_ and _shard.lock_ are out of
+  sync (used by *install*, *update*, *check* and *list* commands).
+
+-q, --quiet::
+  Decreases the log verbosity, printing only warnings and errors.
+
+-v, --verbose::
+  Increases the log verbosity, printing all debug statements.
+
+== INSTALLATION
+Shards is usually distributed with Crystal itself. Alternatively, a
+separate _shards_ package may be available for your system.
+
+To install from source, download or clone
+https://github.com/crystal-lang/shards[the repository] and run
+*make CRFLAGS=--release*. The compiled binary is in _bin/shards_ and
+should be added to *PATH*.
+
+== Environment variables
+
+SHARDS_OPTS::
+Allows general options to be passed in as environment variable.
+*Example*: _SHARDS_OPTS="--ignore-crystal-version" shards update_
+
+SHARDS_CACHE_PATH::
+Defines the cache location. In this folder, shards stores local copies of remote
+repositories.
+Defaults to _.cache/shards_ in the home directory (_$XDG_CACHE_HOME_ or _$HOME_)
+or the current directory.
+
+SHARDS_INSTALL_PATH::
+Defines the location where dependecies are installed.
+Defaults to _lib_.
+
+SHARDS_BIN_PATH::
+Defines the location where executables are installed.
+Defaults to _bin_.
+
+CRYSTAL_VERSION::
+Defines the crystal version that dependencies should be resolved against.
+Defaults to the output of _crystal env CRYSTAL_VERSION_.
+
+SHARDS_OVERRIDE::
+Defines the location of _shard.override.yml_.
+
+== Files
+
+shard.yml::
+Describes a shard project including its dependencies.
+See *shard.yml*(5) for documentation.
+
+shard.override.yml::
+Local overrides to _shard.yml_.
+
+shard.lock::
+Lockfile that stores information about the installed versions.
++
+If your shard builds an application, *shard.lock* should be checked into version
+control to provide reproducible dependency installs.
++
+If it is only a library for other shards to depend on, *shard.lock* should _not_
+be checked in, only *shard.yml*. It’s good advice to add it to *.gitignore*.
+
+== REPORTING BUGS
+Report shards bugs to <https://github.com/crystal-lang/shards/issues>
+
+Crystal Language home page: <https://crystal-lang.org>
+
+== COPYRIGHT
+Copyright © {localyear} Julien Portalier.
+
+http://www.apache.org/licenses/LICENSE-2.0[License Apache 2.0]
+
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+== AUTHORS
+Written by Julien Portalier and the Crystal project.
+
+== SEE ALSO
+*shard.yml*(5)
