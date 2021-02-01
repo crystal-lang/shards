@@ -100,7 +100,7 @@ module Shards
       "git"
     end
 
-    private KEY_HOSTS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
+    private KNOWN_PROVIDERS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
 
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
@@ -108,7 +108,8 @@ module Shards
         uri = URI.parse(source)
         downcased_host = uri.host.try &.downcase
         scheme = uri.scheme.try &.downcase
-        if scheme.in?("git", "http", "https") && downcased_host && downcased_host.in?(KEY_HOSTS)
+        if scheme.in?("git", "http", "https") && downcased_host && downcased_host.in?(KNOWN_PROVIDERS)
+          # browsers are requested to enforce HTTP Strict Transport Security
           uri.scheme = "https"
           downcased_path = uri.path.downcase
           uri.path = downcased_path.ends_with?(".git") ? downcased_path : "#{downcased_path}.git"
