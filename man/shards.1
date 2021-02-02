@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.12
-.\"      Date: 2021-01-30
+.\"      Date: 2021-02-02
 .\"    Manual: Shards Manual
 .\"    Source: shards 0.13.0
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2021-01-30" "shards 0.13.0" "Shards Manual"
+.TH "SHARDS" "1" "2021-02-02" "shards 0.13.0" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -92,7 +92,7 @@ Dependencies are not satisfied.
 Initializes a default \fIshard.yml\fP in the current folder.
 .RE
 .sp
-\fBinstall\fP
+\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production]
 .RS 4
 Resolves and installs dependencies into the \fIlib\fP folder. If not already
 present, generates a \fIshard.lock\fP file from resolved dependencies, locking
@@ -102,6 +102,21 @@ Reads and enforces locked versions and commits if a \fIshard.lock\fP file is
 present. The \fBinstall\fP command may fail if a locked version doesn\(cqt match
 a requirement, but may succeed if a new dependency was added, as long as it
 doesn\(cqt generate a conflict, thus generating a new \fIshard.lock\fP file.
+.sp
+\-\-frozen
+.RS 4
+Strictly installs locked versions from \fIshard.lock\fP. Fails if \fIshard.lock\fP is missing.
+.RE
+.sp
+\-\-without\-development
+.RS 4
+Does not install development dependencies.
+.RE
+.sp
+\-\-production
+.RS 4
+same as \fI\-\-frozen\fP and \fI\-\-without\-development\fP
+.RE
 .RE
 .sp
 \fBlist\fP [\-\-tree]
@@ -176,14 +191,6 @@ Don\(cqt update remote repositories, use the local cache only.
 \-\-ignore\-crystal\-version
 .RS 4
 Do not enforce crystal version restrictions on shards.
-.RE
-.sp
-\-\-production
-.RS 4
-Runs in release mode. Development dependencies won’t
-be installed and only locked dependencies will be installed. Commands
-will fail if dependencies in \fIshard.yml\fP and \fIshard.lock\fP are out of
-sync (used by \fBinstall\fP, \fBupdate\fP, \fBcheck\fP and \fBlist\fP commands).
 .RE
 .sp
 \-q, \-\-quiet

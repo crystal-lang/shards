@@ -18,7 +18,24 @@ describe "list" do
     end
   end
 
-  it "production doesn't list development dependencies" do
+  it "--without-development doesn't list development dependencies" do
+    metadata = {
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
+    }
+
+    with_shard(metadata) do
+      run "shards install --without-development"
+      stdout = run "shards list --without-development"
+      stdout.should contain("web (2.1.0)")
+      stdout.should contain("orm (0.5.0)")
+      stdout.should contain("pg (0.2.1)")
+      stdout.should_not contain("mock")
+      stdout.should_not contain("shoulda")
+    end
+  end
+
+  it "--production doesn't list development dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
       development_dependencies: {mock: "*"},
