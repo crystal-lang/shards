@@ -5,6 +5,10 @@ module Shards
   module Commands
     class Install < Command
       def run(*, ignore_crystal_version = false)
+        if Shards.frozen? && !lockfile?
+          raise Error.new("Missing shard.lock")
+        end
+
         Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
@@ -18,7 +22,7 @@ module Shards
 
         packages = handle_resolver_errors { solver.solve }
 
-        if lockfile? && Shards.frozen?
+        if Shards.frozen?
           validate(packages)
         end
 

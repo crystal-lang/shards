@@ -540,22 +540,19 @@ describe "install" do
         dependencies:             {web: "*", orm: "*"},
         development_dependencies: {mock: "*"},
       }
+      # --production requires a lock file because it implies --frozen
+      lock = {web: "1.0.0", orm: "0.3.0"}
 
-      with_shard(metadata) do
-        File.exists?(File.join(application_path, "shard.lock")).should be_false
+      with_shard(metadata, lock) do
         run "shards install --production"
 
         # it installed dependencies (recursively)
         assert_installed "web"
         assert_installed "orm"
-        assert_installed "pg"
 
         # it didn't install development dependencies
         refute_installed "mock"
         refute_installed "minitest"
-
-        # it didn't generate lock file
-        File.exists?(File.join(application_path, "shard.lock")).should be_false
       end
     end
   end
