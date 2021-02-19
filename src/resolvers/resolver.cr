@@ -31,6 +31,10 @@ module Shards
       "#{self.class.key}: #{source}"
     end
 
+    def to_s(io : IO)
+      io << yaml_source_entry
+    end
+
     def versions_for(req : Requirement) : Array(Version)
       case req
       when Version then [req]
