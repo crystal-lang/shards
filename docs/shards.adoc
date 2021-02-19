@@ -58,7 +58,7 @@ Exit status:
 *init*::
 Initializes a default _shard.yml_ in the current folder.
 
-*install*::
+*install* [--frozen] [--without-development] [--production]::
 Resolves and installs dependencies into the _lib_ folder. If not already
 present, generates a _shard.lock_ file from resolved dependencies, locking
 version numbers or Git commits.
@@ -67,6 +67,12 @@ Reads and enforces locked versions and commits if a _shard.lock_ file is
 present. The *install* command may fail if a locked version doesn't match
 a requirement, but may succeed if a new dependency was added, as long as it
 doesn't generate a conflict, thus generating a new _shard.lock_ file.
++
+--
+--frozen:: Strictly installs locked versions from _shard.lock_. Fails if _shard.lock_ is missing.
+--without-development:: Does not install development dependencies.
+--production:: same as _--frozen_ and _--without-development_
+--
 
 *list* [--tree]::
 Lists the installed dependencies and their versions.
@@ -120,12 +126,6 @@ after a command.
 
 --ignore-crystal-version::
   Do not enforce crystal version restrictions on shards.
-
---production::
-  Runs in release mode. Development dependencies won’t
-  be installed and only locked dependencies will be installed. Commands
-  will fail if dependencies in _shard.yml_ and _shard.lock_ are out of
-  sync (used by *install*, *update*, *check* and *list* commands).
 
 -q, --quiet::
   Decreases the log verbosity, printing only warnings and errors.

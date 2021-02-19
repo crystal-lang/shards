@@ -14,7 +14,7 @@ module Shards
         Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec, override, prereleases: @prereleases, ignore_crystal_version: ignore_crystal_version)
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
         packages.each { |package| analyze(package) }
@@ -110,7 +110,7 @@ module Shards
 
       # FIXME: duplicates Check#has_dependencies?
       private def has_dependencies?
-        spec.dependencies.any? || (!Shards.production? && spec.development_dependencies.any?)
+        spec.dependencies.any? || (Shards.with_development? && spec.development_dependencies.any?)
       end
 
       private def dependency_by_name(name : String)

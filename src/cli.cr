@@ -30,7 +30,16 @@ module Shards
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
       opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
-      opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
+      opts.on("--frozen", "Strictly installs locked versions from shard.lock.") do
+        self.frozen = true
+      end
+      opts.on("--without-development", "Does not install development dependencies.") do
+        self.with_development = false
+      end
+      opts.on("--production", "same as `--frozen --without-development`") do
+        self.frozen = true
+        self.with_development = false
+      end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       opts.on("--ignore-crystal-version", "Do not enforce crystal version restrictions on shards.") { self.ignore_crystal_version = true }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
