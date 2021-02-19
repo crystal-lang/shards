@@ -29,7 +29,21 @@ module Shards
         if dep.resolver != lock.resolver
           Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
         end
-        spec = dep.resolver.spec(lock.version)
+
+        spec = begin
+          dep.resolver.spec(lock.version)
+        rescue ex : Shards::Error
+          # If the locked version is not available in the changed source,
+          # `shards update` should be used instead of `shards install`.
+          message = String.build do |io|
+            io << "Locked version #{lock.version} for #{dep.name} was not found in #{dep.resolver}"
+            if dep.resolver != lock.resolver
+              io << " (locked source is #{lock.resolver})"
+            end
+            io << ".\n\nPlease run `shards update`"
+          end
+          raise Shards::Error.new(message, cause: ex)
+        end
 
         add_lock base, lock_index, apply_overrides(spec.dependencies)
       end

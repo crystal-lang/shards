@@ -100,12 +100,26 @@ module Shards
       "git"
     end
 
+    private KNOWN_PROVIDERS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
+
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
       when "git"
-        {"git", source}
+        uri = URI.parse(source)
+        downcased_host = uri.host.try &.downcase
+        scheme = uri.scheme.try &.downcase
+        if scheme.in?("git", "http", "https") && downcased_host && downcased_host.in?(KNOWN_PROVIDERS)
+          # browsers are requested to enforce HTTP Strict Transport Security
+          uri.scheme = "https"
+          downcased_path = uri.path.downcase
+          uri.path = downcased_path.ends_with?(".git") ? downcased_path : "#{downcased_path}.git"
+          uri.host = downcased_host.lchop("www.")
+          {"git", uri.to_s}
+        else
+          {"git", source}
+        end
       when "github", "bitbucket", "gitlab"
-        {"git", "https://#{key}.com/#{source}.git"}
+        {"git", "https://#{key}.com/#{source.downcase}.git"}
       else
         raise "Unknown resolver #{key}"
       end
