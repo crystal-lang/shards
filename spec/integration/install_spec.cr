@@ -652,7 +652,15 @@ describe "install" do
     with_shard({dependencies: {post: "*"}}) do
       output = run "shards install --no-color"
       File.exists?(install_path("post", "made.txt")).should be_true
-      output.should contain("Postinstall of post: make")
+      output.should contain("Postinstall of post: make\n")
+    end
+  end
+
+  it "can skip postinstall script" do
+    with_shard({dependencies: {post: "*"}}) do
+      output = run "shards install --no-color --skip-postinstall"
+      File.exists?(install_path("post", "made.txt")).should be_false
+      output.should contain("Postinstall of post: make (skipped)")
     end
   end
 

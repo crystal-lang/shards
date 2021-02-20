@@ -40,6 +40,9 @@ module Shards
         self.frozen = true
         self.with_development = false
       end
+      opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
+        self.skip_postinstall = true
+      end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       opts.on("--ignore-crystal-version", "Do not enforce crystal version restrictions on shards.") { self.ignore_crystal_version = true }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
