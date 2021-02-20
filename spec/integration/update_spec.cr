@@ -235,7 +235,7 @@ describe "update" do
     end
   end
 
-  it "can skipe postinstall with transitive dependencies" do
+  it "skips postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
       output = run "shards update --no-color --skip-postinstall"
       binary = install_path("transitive", Shards::Helpers.exe("version"))
