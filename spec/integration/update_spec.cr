@@ -483,4 +483,22 @@ describe "update" do
       end
     end
   end
+
+  it "updates lockfile when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      run "shards update"
+      mtime = File.info("shard.lock").modification_time
+      run "shards update"
+      File.info("shard.lock").modification_time.should be >= mtime
+      Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
+    end
+  end
+
+  it "creates ./lib/ when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      File.exists?("./lib/").should be_false
+      run "shards update"
+      File.directory?("./lib/").should be_true
+    end
+  end
 end

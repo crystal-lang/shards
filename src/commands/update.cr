@@ -28,7 +28,7 @@ module Shards
         end
 
         # Touch install path so its mtime is bigger than that of the lockfile
-        File.touch(Shards.install_path)
+        touch_install_path
 
         if ignore_crystal_version
           check_ignored_crystal_version(packages)

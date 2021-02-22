@@ -648,6 +648,24 @@ describe "install" do
     end
   end
 
+  it "updates lockfile when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      run "shards install"
+      mtime = File.info("shard.lock").modification_time
+      run "shards install"
+      File.info("shard.lock").modification_time.should be >= mtime
+      Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
+    end
+  end
+
+  it "creates ./lib/ when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      File.exists?("./lib/").should be_false
+      run "shards install"
+      File.directory?("./lib/").should be_true
+    end
+  end
+
   it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
       output = run "shards install --no-color"
