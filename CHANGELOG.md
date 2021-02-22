@@ -5,6 +5,7 @@
 Fixes:
 
 - Improve error message when locked version is missing in source. ([#466](https://github.com/crystal-lang/shards/pull/466), thanks @straight-shoota)
+- Fix touch install_path to not accidentally create file. ([#478](https://github.com/crystal-lang/shards/pull/478), thanks @straight-shoota)
 
 Features:
 
