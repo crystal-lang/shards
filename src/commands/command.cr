@@ -101,5 +101,10 @@ module Shards
         Log.warn { "Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal #{Shards.crystal_version}" }
       end
     end
+
+    def touch_install_path
+      Dir.mkdir_p(Shards.install_path)
+      File.touch(Shards.install_path)
+    end
   end
 end
