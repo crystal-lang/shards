@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.14.0 - 2021-02-23
+
+Fixes:
+
+- Improve error message when locked version is missing in source. ([#466](https://github.com/crystal-lang/shards/pull/466), thanks @straight-shoota)
+- Fix touch install_path to not accidentally create file. ([#478](https://github.com/crystal-lang/shards/pull/478), thanks @straight-shoota)
+
+Features:
+
+- Add `--frozen` and `--without-development` CLI flags. ([#473](https://github.com/crystal-lang/shards/pull/473), thanks @straight-shoota)
+- Add `--skip-postinstall` cli option to install and update. ([#475](https://github.com/crystal-lang/shards/pull/475), thanks @bcardiff)
+- Treat github sources as case insensitive. ([#471](https://github.com/crystal-lang/shards/pull/471), thanks @stakach)
+
+Others:
+
+- Rewrite manpages in Asciidoc. ([#262](https://github.com/crystal-lang/shards/pull/262), thanks @straight-shoota)
+- CI improvements and housekeeping. ([#454](https://github.com/crystal-lang/shards/pull/454), [#464](https://github.com/crystal-lang/shards/pull/464), thanks @j8r, @Sija)
+- Bump crystal-molinillo to 0.2.0. ([#476](https://github.com/crystal-lang/shards/pull/476), thanks @bcardiff)
+
 ## v0.13.0 - 2021-01-21
 
 Fixes:
