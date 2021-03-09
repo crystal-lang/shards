@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.14.1 - 2021-03-10
+
+Fixes:
+
+- Fix broken `SOURCE_DATE_EPOCH` in `docs.mk`. ([#479](https://github.com/crystal-lang/shards/pull/479), thanks @straight-shoota)
+
 ## v0.14.0 - 2021-02-23
 
 Fixes:
