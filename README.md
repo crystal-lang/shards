@@ -77,6 +77,5 @@ These requirements are only for compiling Shards.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See
-[LICENSE]((https://github.com/ysbaddaden/shards/blob/master/LICENSE)) for
+Licensed under the Apache License, Version 2.0. See [LICENSE]((./LICENSE)) for
 details.
