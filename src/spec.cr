@@ -213,6 +213,12 @@ module Shards
       @scripts ||= {} of String => String
     end
 
+    def postinstall(spec_path : String) : Nil
+      if command = self.scripts["postinstall"]?
+        Script.run spec_path, command, "postinstall", self.name, Shards.skip_postinstall?
+      end
+    end
+
     def license_url
       if license = @license
         if license =~ %r(https?://)

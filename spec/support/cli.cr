@@ -13,6 +13,7 @@ def with_shard(metadata, lock = nil, override = nil)
     File.write "shard.yml", to_shard_yaml(metadata)
     File.write "shard.lock", to_lock_yaml(lock) if lock
     File.write "shard.override.yml", to_override_yaml(override) if override
+    File.write "Makefile", "all:\n\ttouch made.txt" if metadata.has_key? :postinstall
     yield
   end
 end
@@ -21,6 +22,10 @@ def to_shard_yaml(metadata)
   String.build do |yml|
     yml << "name: " << (metadata[:name]? || "test").inspect << '\n'
     yml << "version: " << (metadata[:version]? || "0.0.0").inspect << '\n'
+
+    if postinstall = metadata[:postinstall]?
+      yml << "scripts:\n  postinstall: #{postinstall}\n"
+    end
 
     metadata.each do |key, value|
       if key.to_s.ends_with?("dependencies")

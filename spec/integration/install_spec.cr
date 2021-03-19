@@ -717,6 +717,22 @@ describe "install" do
     end
   end
 
+  it "runs postinstall of the main shard" do
+    with_shard({postinstall: "make"}) do
+      output = run "shards install --no-color"
+      File.exists?(File.join(application_path, "made.txt")).should be_true
+      output.should contain("Postinstall of test: make")
+    end
+  end
+
+  it "can skip postinstall of the main shard" do
+    with_shard({postinstall: "make"}) do
+      output = run "shards install --no-color --skip-postinstall"
+      File.exists?(File.join(application_path, "made.txt")).should be_false
+      output.should contain("Postinstall of test: make (skipped)")
+    end
+  end
+
   it "fails with circular dependencies" do
     create_git_repository "a"
     create_git_release "a", "0.1.0", {dependencies: {b: {git: git_path("b")}}}

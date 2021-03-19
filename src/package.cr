@@ -91,12 +91,7 @@ module Shards
 
     def run_script(name, skip)
       if installed? && (command = spec.scripts[name]?)
-        if !skip
-          Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
-          Script.run(install_path, command, name, self.name)
-        else
-          Log.info { "#{name.capitalize} of #{self.name}: #{command} (skipped)" }
-        end
+        Script.run install_path, command, name, self.name, skip
       end
     end
 

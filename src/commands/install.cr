@@ -27,6 +27,7 @@ module Shards
         end
 
         install(packages)
+        spec.postinstall(@path)
 
         if generate_lockfile?(packages)
           write_lockfile(packages)
