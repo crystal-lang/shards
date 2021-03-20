@@ -234,6 +234,9 @@ a C library, to build tools to help working on the project, or anything else.
 The script will be run from the dependency's installation directory, for example
 _lib/foo_ for a Shard named _foo_.
 +
+The _postinstall_ hook for the project itself, if defined, will also be ran after
+all of its dependencies are installed.
++
 *Example:*
 +
 [source,yaml]
