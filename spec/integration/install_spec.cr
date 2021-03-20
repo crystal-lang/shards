@@ -718,18 +718,18 @@ describe "install" do
   end
 
   it "runs postinstall of the main shard" do
-    with_shard({postinstall: "make"}) do
+    with_shard({postinstall: "touch made.txt"}) do
       output = run "shards install --no-color"
       File.exists?(File.join(application_path, "made.txt")).should be_true
-      output.should contain("Postinstall of test: make")
+      output.should contain("Postinstall of test: touch made.txt")
     end
   end
 
   it "can skip postinstall of the main shard" do
-    with_shard({postinstall: "make"}) do
+    with_shard({postinstall: "touch made.txt"}) do
       output = run "shards install --no-color --skip-postinstall"
       File.exists?(File.join(application_path, "made.txt")).should be_false
-      output.should contain("Postinstall of test: make (skipped)")
+      output.should contain("Postinstall of test: touch made.txt (skipped)")
     end
   end
 

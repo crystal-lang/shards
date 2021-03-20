@@ -13,7 +13,6 @@ def with_shard(metadata, lock = nil, override = nil)
     File.write "shard.yml", to_shard_yaml(metadata)
     File.write "shard.lock", to_lock_yaml(lock) if lock
     File.write "shard.override.yml", to_override_yaml(override) if override
-    File.write "Makefile", "all:\n\ttouch made.txt" if metadata.has_key? :postinstall
     yield
   end
 end
