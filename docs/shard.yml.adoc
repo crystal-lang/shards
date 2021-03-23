@@ -101,7 +101,7 @@ NOTE: If this property is not included it is treated as _< 1.0.0_.
 +
 [source,yaml]
 ----
-crystal: ">= 0.35.0"
+crystal: ">= 0.35.0, < 2.0.0"
 ----
 
 *dependencies*::
@@ -355,7 +355,7 @@ with some dependencies:
 ----
 name: shards
 version: 1.2.3
-crystal: '>= 0.35.0'
+crystal: '>= 0.35.0, < 2.0.0'
 
 authors:
 - Julien Portalier <julien@example.com>
