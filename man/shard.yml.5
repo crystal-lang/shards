@@ -28,10 +28,10 @@
 .  LINKSTYLE blue R < >
 .\}
 .SH "NAME"
-shard.yml \- metadata for projects managed by shards(1)
+shard.yml \- metadata for projects managed by *shards*(1)
 .SH "DESCRIPTION"
 .sp
-The file \fIshard.yml\fP is a YAML file with metadata about a project managed by shards, known as a \fBshard\fP. It must contain at least \fIname\fP and \fIversion\fP attributes plus optional additional attributes.
+The file \fBshard.yml\fP is a YAML file with metadata about a project managed by shards, known as a \fBshard\fP. It must contain at least \fIname\fP and \fIversion\fP attributes plus optional additional attributes.
 .sp
 Both libraries and applications will benefit from \f(CRshard.yml\fP.
 .sp
@@ -40,7 +40,7 @@ authors, description, license) than applications that may only have a name, vers
 dependencies.
 .SH "FORMAT"
 .sp
-The file must be named \fIshard.yml\fP and be a valid YAML file with UTF\-8 encoding.
+The file must be named \fBshard.yml\fP and be a valid YAML file with UTF\-8 encoding.
 It must not contain duplicate attributes in any mapping.
 It should use an indent of 2 spaces.
 It should not use advanced YAML features, only simple mappings, sequences and
@@ -561,7 +561,7 @@ The URL may be [any protocol](\c
 supported by Git, which includes SSH, GIT and HTTPS.
 .sp
 The Git repository will be cloned, the list of versions (and associated
-\fIshard.yml\fP) will be extracted from Git tags (e.g., \fIv1.2.3\fP).
+\fBshard.yml\fP) will be extracted from Git tags (e.g., \fIv1.2.3\fP).
 .sp
 One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP or \fIcommit\fP) is
 required. When missing, Shards will install the HEAD refs.
@@ -693,7 +693,7 @@ Install the specified tag of a git dependency (string).
 .RE
 .SH "EXAMPLE:"
 .sp
-Here is an example \fIshard.yml\fP for a library named \fIshards\fP at version \fI1.2.3\fP
+Here is an example \fBshard.yml\fP for a library named \fIshards\fP at version \fI1.2.3\fP
 with some dependencies:
 .sp
 .if n .RS 4

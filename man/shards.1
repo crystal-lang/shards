@@ -31,22 +31,22 @@
 shards \- dependency manager for the Crystal Language
 .SH "SYNOPSIS"
 .sp
-\fBshards\fP [\fI<general_options>\fP...] [\fI<command>\fP] [\fI<command_options>\fP...]
+\fBshards [<general_options>...] [<command>] [<command_options>...]\fP
 .SH "DESCRIPTION"
 .sp
 Manages dependencies for Crystal projects and libraries with reproducible
 installs across computers and systems.
 .SH "USAGE"
 .sp
-\fIshards\fP requires the presence of a \fIshard.yml\fP file in the project
+\fIshards\fP requires the presence of a \fBshard.yml\fP file in the project
 folder (working directory). This file describes the project and lists
 dependencies that are required to build it. See \fBshard.yml\fP(5) for more
-information on its format. A default file can be created by running \fIshards init\fP.
+information on its format. A default file can be created by running \fBshards init\fP.
 .sp
-Running \fIshards install\fP resolves and installs the
+Running \fBshards install\fP resolves and installs the
 specified dependencies. The installed versions are written into a
 \fBshard.lock\fP file for using the exact same dependency versions when
-running \fIshards install\fP again.
+running \fBshards install\fP again.
 .sp
 If your shard builds an application, both \fBshard.yml\fP and \fBshard.lock\fP
 should be checked into version control to provide reproducible
@@ -58,16 +58,16 @@ advice to add it to \fB.gitignore\fP.
 .sp
 If no \fIcommand\fP is given, \fBinstall\fP command will be run by default.
 .sp
-To see the available options for a particular command, use \fI\-\-help\fP after the command.
+To see the available options for a particular command, use \fB\-\-help\fP after the command.
 .sp
-\fBbuild\fP [\fI<targets>\fP] [\fI<build_options>\fP...]
+\fBbuild [<targets>] [<build_options>...]\fP
 .RS 4
-Builds the specified \fI<targets>\fP in \fBbin\fP path. If no targets are specified,
+Builds the specified \fBtargets\fP in \fBbin/\fP path. If no targets are specified,
 all are built.
 This command ensures all dependencies are installed, so it is not necessary
 to run \fBshards install\fP before.
 .sp
-All \fI<build_options>\fP following the command are delegated to \fBcrystal build\fP.
+All \fBbuild_options\fP following the command are delegated to \fBcrystal build\fP.
 .RE
 .sp
 \fBcheck\fP
@@ -76,96 +76,90 @@ Verifies that all dependencies are installed and requirements are satisfied.
 .sp
 Exit status:
 .sp
-\fB0\fP
-.RS 4
-Dependencies are satisfied.
-.RE
+\fB0\fP: Dependencies are satisfied.
 .sp
-\fB1\fP
-.RS 4
-Dependencies are not satisfied.
-.RE
+\fB1\fP: Dependencies are not satisfied.
 .RE
 .sp
 \fBinit\fP
 .RS 4
-Initializes a default \fIshard.yml\fP in the current folder.
+Initializes a default \fBshard.yml\fP in the current folder.
 .RE
 .sp
-\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall]
+\fBinstall [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall]\fP
 .RS 4
-Resolves and installs dependencies into the \fIlib\fP folder. If not already
-present, generates a \fIshard.lock\fP file from resolved dependencies, locking
+Resolves and installs dependencies into the \fBlib/\fP folder. If not already
+present, generates a \fBshard.lock\fP file from resolved dependencies, locking
 version numbers or Git commits.
 .sp
-Reads and enforces locked versions and commits if a \fIshard.lock\fP file is
+Reads and enforces locked versions and commits if a \fBshard.lock\fP file is
 present. The \fBinstall\fP command may fail if a locked version doesn\(cqt match
 a requirement, but may succeed if a new dependency was added, as long as it
-doesn\(cqt generate a conflict, thus generating a new \fIshard.lock\fP file.
+doesn\(cqt generate a conflict, thus generating a new \fBshard.lock\fP file.
 .sp
-\-\-frozen
+\fB\-\-frozen\fP
 .RS 4
-Strictly installs locked versions from \fIshard.lock\fP. Fails if \fIshard.lock\fP is missing.
+Strictly installs locked versions from \fBshard.lock\fP. Fails if \fBshard.lock\fP is missing.
 .RE
 .sp
-\-\-without\-development
+\fB\-\-without\-development\fP
 .RS 4
 Does not install development dependencies.
 .RE
 .sp
-\-\-production
+\fB\-\-production\fP
 .RS 4
 same as \fI\-\-frozen\fP and \fI\-\-without\-development\fP
 .RE
 .sp
-\-\-skip\-postinstall
+\fB\-\-skip\-postinstall\fP
 .RS 4
 Does not run postinstall of dependencies.
 .RE
 .RE
 .sp
-\fBlist\fP [\-\-tree]
+\fBlist [\-\-tree]\fP
 .RS 4
 Lists the installed dependencies and their versions.
 .sp
-Specifying \fI\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
+Specifying \fB\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
 .RE
 .sp
-\fBlock\fP [\-\-update [<shards>...]]
+\fBlock [\-\-update [<shards>...]]\fP
 .RS 4
-Resolves dependencies and creates or updates the \fIshard.lock\fP file as per
+Resolves dependencies and creates or updates the \fBshard.lock\fP file as per
 the \fBinstall\fP command, but never installs the dependencies.
 .sp
-Specifying \fI\-\-update\fP follows the same semantics as the \fBupdate\fP
+Specifying \fB\-\-update\fP follows the same semantics as the \fBupdate\fP
 command.
 .RE
 .sp
-\fBoutdated\fP [\-\-pre]
+\fBoutdated [\-\-pre]\fP
 .RS 4
 Lists dependencies that are outdated.
 .sp
-When \fI\-\-pre\fP is specified, pre\-release versions are also considered.
+When \fB\-\-pre\fP is specified, pre\-release versions are also considered.
 .RE
 .sp
 \fBprune\fP
 .RS 4
-Removes unused dependencies from \fIlib\fP folder.
+Removes unused dependencies from \fBlib/\fP folder.
 .RE
 .sp
-\fBupdate\fP [<shards>...]
+\fBupdate [<shards>...]\fP
 .RS 4
-Resolves and updates all dependencies into the \fIlib\fP folder,
-whatever the locked versions in the \fIshard.lock\fP file.
-Eventually generates a new \fIshard.lock\fP file.
+Resolves and updates all dependencies into the \fBlib/\fP folder,
+whatever the locked versions in the \fBshard.lock\fP file.
+Eventually generates a new \fBshard.lock\fP file.
 .sp
 Specifying \fIshards\fP will update these dependencies only, trying to be as
 conservative as possible with other dependencies, respecting the locked versions
-in the \fIshard.lock\fP file.
+in the \fBshard.lock\fP file.
 .RE
 .sp
-\fBversion\fP [\fI<path>\fP]
+\fBversion [<path>]\fP
 .RS 4
-Prints the current version of the shard located at \fIpath\fP (defaults to current
+Prints the current version of the shard located at \fBpath\fP (defaults to current
 directory).
 .RE
 .sp
@@ -173,37 +167,37 @@ To see the available options for a particular command, use \fB\-\-help\fP
 after a command.
 .SH "GENERAL OPTIONS"
 .sp
-\-\-version
+\fB\-\-version\fP
 .RS 4
 Prints the version of \fIshards\fP.
 .RE
 .sp
-\-h, \-\-help
+\fB\-h\fP, \fB\-\-help\fP
 .RS 4
 Prints usage synopsis.
 .RE
 .sp
-\-\-no\-color
+\fB\-\-no\-color\fP
 .RS 4
 Disables colored output.
 .RE
 .sp
-\-\-local
+\fB\-\-local\fP
 .RS 4
 Don\(cqt update remote repositories, use the local cache only.
 .RE
 .sp
-\-\-ignore\-crystal\-version
+\fB\-\-ignore\-crystal\-version\fP
 .RS 4
 Do not enforce crystal version restrictions on shards.
 .RE
 .sp
-\-q, \-\-quiet
+\fB\-q\fP, \fB\-\-quiet\fP
 .RS 4
 Decreases the log verbosity, printing only warnings and errors.
 .RE
 .sp
-\-v, \-\-verbose
+\fB\-v\fP, \fB\-\-verbose\fP
 .RS 4
 Increases the log verbosity, printing all debug statements.
 .RE
@@ -215,60 +209,60 @@ separate \fIshards\fP package may be available for your system.
 To install from source, download or clone
 .URL "https://github.com/crystal\-lang/shards" "the repository" " "
 and run
-\fBmake CRFLAGS=\-\-release\fP. The compiled binary is in \fIbin/shards\fP and
+\fBmake CRFLAGS=\-\-release\fP. The compiled binary is in \fBbin/shards\fP and
 should be added to \fBPATH\fP.
 .SH "ENVIRONMENT VARIABLES"
 .sp
-SHARDS_OPTS
+\fBSHARDS_OPTS\fP
 .RS 4
 Allows general options to be passed in as environment variable.
-\fBExample\fP: \fISHARDS_OPTS="\-\-ignore\-crystal\-version" shards update\fP
+\fBExample\fP: \fBSHARDS_OPTS="\-\-ignore\-crystal\-version" shards update\fP
 .RE
 .sp
-SHARDS_CACHE_PATH
+\fBSHARDS_CACHE_PATH\fP
 .RS 4
 Defines the cache location. In this folder, shards stores local copies of remote
 repositories.
-Defaults to \fI.cache/shards\fP in the home directory (\fI$XDG_CACHE_HOME\fP or \fI$HOME\fP)
+Defaults to \fB.cache/shards\fP in the home directory (\fB$XDG_CACHE_HOME\fP or \fB$HOME\fP)
 or the current directory.
 .RE
 .sp
-SHARDS_INSTALL_PATH
+\fBSHARDS_INSTALL_PATH\fP
 .RS 4
 Defines the location where dependecies are installed.
-Defaults to \fIlib\fP.
+Defaults to \fBlib/\fP.
 .RE
 .sp
-SHARDS_BIN_PATH
+\fBSHARDS_BIN_PATH\fP
 .RS 4
 Defines the location where executables are installed.
-Defaults to \fIbin\fP.
+Defaults to \fBbin/\fP.
 .RE
 .sp
-CRYSTAL_VERSION
+\fBCRYSTAL_VERSION\fP
 .RS 4
 Defines the crystal version that dependencies should be resolved against.
-Defaults to the output of \fIcrystal env CRYSTAL_VERSION\fP.
+Defaults to the output of \fBcrystal env CRYSTAL_VERSION\fP.
 .RE
 .sp
-SHARDS_OVERRIDE
+\fBSHARDS_OVERRIDE\fP
 .RS 4
-Defines the location of \fIshard.override.yml\fP.
+Defines the location of \fBshard.override.yml\fP.
 .RE
 .SH "FILES"
 .sp
-shard.yml
+\fBshard.yml\fP
 .RS 4
 Describes a shard project including its dependencies.
 See \fBshard.yml\fP(5) for documentation.
 .RE
 .sp
-shard.override.yml
+\fBshard.override.yml\fP
 .RS 4
-Local overrides to \fIshard.yml\fP.
+Local overrides to \fBshard.yml\fP.
 .RE
 .sp
-shard.lock
+\fBshard.lock\fP
 .RS 4
 Lockfile that stores information about the installed versions.
 .sp
