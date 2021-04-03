@@ -203,7 +203,7 @@ libraries:
   An http://opensource.org/[OSI license] name or an URL to a license file
 (string, recommended).
 
-*repository*:::
+*repository*::
 The URL of the project's canonical repository (string, recommended).
 +
 The URL should be compatible with typical VCS tools without modifications.
