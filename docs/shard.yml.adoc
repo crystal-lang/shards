@@ -83,16 +83,15 @@ When resolving dependencies, only the versions that comply with the current
 crystal will be candidates. You can pass _--ignore-crystal-version_ to disregard this
 behavior.
 +
-The valid values are the same as for _dependencies.version_:
+The valid values are mostly the same as for _dependencies.version_:
 +
 --
-* It may be a version number.
-* It may be _"*"_ if any version will do (this is the default if unspecified).
-* The version number may be prefixed by an operator: _<_, _<=_, _>_, _>=_ or _~>_.
+* A version number prefixed by an operator: _<_, _<=_, _>_, _>=_ or _~>_.
+* Just _"*"_ if any version will do (this is the default if unspecified).
 * Multiple requirements can be separated by commas.
 --
-+
-When just a version number is used, it works exactly the same as a `>=` check:
+There is a special legacy behavior (its use is discouraged) when just a version
+number is used as the value: it works exactly the same as a `>=` check:
 _x.y.z_ will be interpreted as _">= x.y.z"_
 +
 You are welcome to also specify the upper bound to be lower than the next
