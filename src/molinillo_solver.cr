@@ -184,13 +184,13 @@ module Shards
     def self.crystal_version_req(specification : Shards::Spec)
       crystal_pattern =
         if crystal_version = specification.crystal
-          if crystal_version =~ /^(\d+)\.(\d+)(\.(\d+))?$/
-            "~> #{$1}.#{$2}, >= #{crystal_version}"
+          if crystal_version =~ /^\d+\.\d+(\.\d+)?$/
+            ">= #{crystal_version}"
           else
             crystal_version
           end
         else
-          "< 1.0.0"
+          "*"
         end
 
       VersionReq.new(crystal_pattern)
