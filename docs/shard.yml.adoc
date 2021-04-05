@@ -87,21 +87,23 @@ The valid values are the same as for _dependencies.version_:
 +
 --
 * It may be a version number.
-* It may be _"*"_ if any version will do.
+* It may be _"*"_ if any version will do (this is the default if unspecified).
 * The version number may be prefixed by an operator: _<_, _<=_, _>_, _>=_ or _~>_.
 * Multiple requirements can be separated by commas.
 --
 +
-When just a version number is used it has a different semantic compared to dependencies:
-_x.y.z_ will be interpreted as _~> x.y, >= x.y.z_ (ie: _>= x.y.z, < (x+1).0.0_) honoring semver.
+When just a version number is used, it works exactly the same as a `>=` check:
+_x.y.z_ will be interpreted as _">= x.y.z"_
 +
-NOTE: If this property is not included it is treated as _< 1.0.0_.
+You are welcome to also specify the upper bound to be lower than the next
+(future) major Crystal version, because there's no guarantee that it won't
+break your library.
 +
 *Example:*
 +
 [source,yaml]
 ----
-crystal: ">= 0.35.0"
+crystal: ">= 0.35, < 2.0"
 ----
 
 *dependencies*::
