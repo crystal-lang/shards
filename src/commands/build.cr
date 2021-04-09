@@ -4,6 +4,10 @@ module Shards
   module Commands
     class Build < Command
       def run(targets, options)
+        if spec.targets.empty?
+          raise Error.new("Targets not defined in #{SPEC_FILENAME}")
+        end
+
         unless Dir.exists?(Shards.bin_path)
           Log.debug { "mkdir #{Shards.bin_path}" }
           Dir.mkdir(Shards.bin_path)
