@@ -71,4 +71,19 @@ describe "build" do
       File.exists?(bin_path("app")).should be_false
     end
   end
+
+  it "errors when no targets defined" do
+    File.write File.join(application_path, "shard.yml"), <<-YAML
+      name: build
+      version: 0.1.0
+    YAML
+
+    Dir.cd(application_path) do
+      ex = expect_raises(FailedCommand) do
+        run "shards build --no-color"
+      end
+      ex.stdout.should contain("Targets not defined in shard.yml")
+      File.exists?(bin_path("")).should be_false
+    end
+  end
 end
