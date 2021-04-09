@@ -1206,6 +1206,14 @@ describe "install" do
     end
   end
 
+  it "allows empty shard.override.yml", focus: true do
+    with_shard({dependencies: nil}) do
+      File.write "shard.override.yml", ""
+
+      run "shards install"
+    end
+  end
+
   it "fails if file specified in SHARDS_OVERRIDE env var does not exist" do
     metadata = {dependencies: {
       intermediate: "*",

@@ -16,6 +16,9 @@ module Shards
     def self.from_yaml(input, filename = OVERRIDE_FILENAME, validate = false)
       parser = YAML::PullParser.new(input)
       parser.read_stream do
+        if parser.kind.stream_end?
+          return new([] of Dependency)
+        end
         parser.read_document do
           new(parser, validate)
         end
@@ -26,19 +29,14 @@ module Shards
       parser.close if parser
     end
 
-    def initialize(@resolver : Resolver? = nil)
-    end
-
-    property resolver : Resolver?
-
-    # :nodoc:
-    def initialize(pull : YAML::PullParser, validate = false)
+    def self.new(pull : YAML::PullParser, validate = false) : self
+      dependencies = [] of Dependency
       pull.each_in_mapping do
         line, column = pull.location
 
         case key = pull.read_scalar
         when "dependencies"
-          check_duplicate(@dependencies, "dependencies", line, column)
+          check_duplicate(dependencies, "dependencies", line, column)
           pull.each_in_mapping do
             dependencies << Dependency.from_yaml(pull)
           end
@@ -50,16 +48,18 @@ module Shards
           end
         end
       end
+      new(dependencies)
     end
 
-    private def check_duplicate(argument, name, line, column)
+    private def self.check_duplicate(argument, name, line, column)
       unless argument.nil?
         raise YAML::ParseException.new("duplicate attribute #{name.inspect}", line, column)
       end
     end
 
-    def dependencies
-      @dependencies ||= [] of Dependency
+    getter dependencies : Array(Dependency)
+
+    def initialize(@dependencies : Array(Dependency))
     end
   end
 end
