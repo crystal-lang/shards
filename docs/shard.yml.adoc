@@ -79,9 +79,11 @@ authors:
 A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper-bound constraints (string, recommended)
 +
-When resolving dependencies, only the versions that comply with the current
-crystal will be candidates. You can pass _--ignore-crystal-version_ to disregard this
-behavior.
+When resolving dependencies, this information is not used. After dependecies
+have been determined shards will check all of them are expected to work with
+the current crystal version. If not, a warning will appear for the ofending
+packages. Yet you are able to keep use the resolved package version at your 
+own risk.
 +
 The valid values are mostly the same as for _dependencies.version_:
 +
