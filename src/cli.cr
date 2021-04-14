@@ -45,7 +45,7 @@ module Shards
       end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       # TODO: remove in the future
-      opts.on("--ignore-crystal-version", "Kept for compatibility, to be removed in the future.") {  }
+      opts.on("--ignore-crystal-version", "Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
