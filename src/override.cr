@@ -30,13 +30,14 @@ module Shards
     end
 
     def self.new(pull : YAML::PullParser, validate = false) : self
-      dependencies = [] of Dependency
+      dependencies = nil
       pull.each_in_mapping do
         line, column = pull.location
 
         case key = pull.read_scalar
         when "dependencies"
           check_duplicate(dependencies, "dependencies", line, column)
+          dependencies = [] of Dependency
           pull.each_in_mapping do
             dependencies << Dependency.from_yaml(pull)
           end
@@ -48,7 +49,7 @@ module Shards
           end
         end
       end
-      new(dependencies)
+      new(dependencies || [] of Dependency)
     end
 
     private def self.check_duplicate(argument, name, line, column)

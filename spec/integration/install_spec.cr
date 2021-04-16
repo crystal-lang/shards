@@ -1206,7 +1206,7 @@ describe "install" do
     end
   end
 
-  it "allows empty shard.override.yml", focus: true do
+  it "allows empty shard.override.yml" do
     with_shard({dependencies: nil}) do
       File.write "shard.override.yml", ""
 
