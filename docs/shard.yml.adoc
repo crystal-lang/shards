@@ -80,9 +80,9 @@ A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper-bound constraints (string, recommended)
 +
 When resolving dependencies, this information is not used. After dependecies
-have been determined shards will check all of them are expected to work with
-the current crystal version. If not, a warning will appear for the ofending
-packages. Yet you are able to keep use the resolved package version at your 
+have been determined shards checks all of them are expected to work with
+the current crystal version. If not, a warning appears for the offending
+dependencies. The resolved versions are installed and can be used at your 
 own risk.
 +
 The valid values are mostly the same as for _dependencies.version_:
@@ -94,7 +94,7 @@ The valid values are mostly the same as for _dependencies.version_:
 --
 There is a special legacy behavior (its use is discouraged) when just a version
 number is used as the value: it works exactly the same as a `>=` check:
-_x.y.z_ will be interpreted as _">= x.y.z"_
+_x.y.z_ is interpreted as _">= x.y.z"_
 +
 You are welcome to also specify the upper bound to be lower than the next
 (future) major Crystal version, because there's no guarantee that it won't
