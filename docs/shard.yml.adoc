@@ -79,29 +79,32 @@ authors:
 A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper-bound constraints (string, recommended)
 +
-When resolving dependencies, only the versions that comply with the current
-crystal will be candidates. You can pass _--ignore-crystal-version_ to disregard this
-behavior.
+When resolving dependencies, this information is not used. After dependecies
+have been determined shards checks all of them are expected to work with
+the current crystal version. If not, a warning appears for the offending
+dependencies. The resolved versions are installed and can be used at your 
+own risk.
 +
-The valid values are the same as for _dependencies.version_:
+The valid values are mostly the same as for _dependencies.version_:
 +
 --
-* It may be a version number.
-* It may be _"*"_ if any version will do.
-* The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+* A version number prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+* Just _"*"_ if any version will do (this is the default if unspecified).
 * Multiple requirements can be separated by commas.
 --
+There is a special legacy behavior (its use is discouraged) when just a version
+number is used as the value: it works exactly the same as a `>=` check:
+_x.y.z_ is interpreted as _">= x.y.z"_
 +
-When just a version number is used it has a different semantic compared to dependencies:
-_x.y.z_ will be interpreted as _~> x.y, >= x.y.z_ (ie: _>= x.y.z, < (x+1).0.0_) honoring semver.
-+
-NOTE: If this property is not included it is treated as _< 1.0.0_.
+You are welcome to also specify the upper bound to be lower than the next
+(future) major Crystal version, because there's no guarantee that it won't
+break your library.
 +
 *Example:*
 +
 [source,yaml]
 ----
-crystal: ">= 0.35.0"
+crystal: ">= 0.35, < 2.0"
 ----
 
 *dependencies*::
