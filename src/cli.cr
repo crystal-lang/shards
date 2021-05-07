@@ -44,7 +44,8 @@ module Shards
         self.skip_postinstall = true
       end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("--ignore-crystal-version", "Do not enforce crystal version restrictions on shards.") { self.ignore_crystal_version = true }
+      # TODO: remove in the future
+      opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
@@ -59,8 +60,7 @@ module Shards
           Commands::Init.run(path)
         when "install"
           Commands::Install.run(
-            path,
-            ignore_crystal_version: self.ignore_crystal_version?
+            path
           )
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
@@ -69,22 +69,19 @@ module Shards
             path,
             args[1..-1].reject(&.starts_with?("--")),
             print: args.includes?("--print"),
-            update: args.includes?("--update"),
-            ignore_crystal_version: self.ignore_crystal_version?
+            update: args.includes?("--update")
           )
         when "outdated"
           Commands::Outdated.run(
             path,
-            prereleases: args.includes?("--pre"),
-            ignore_crystal_version: self.ignore_crystal_version?
+            prereleases: args.includes?("--pre")
           )
         when "prune"
           Commands::Prune.run(path)
         when "update"
           Commands::Update.run(
             path,
-            args[1..-1].reject(&.starts_with?("--")),
-            ignore_crystal_version: self.ignore_crystal_version?
+            args[1..-1].reject(&.starts_with?("--"))
           )
         when "version"
           Commands::Version.run(args[1]? || path)
@@ -134,7 +131,7 @@ module Shards
     begin
       Commands::Check.run(path)
     rescue
-      Commands::Install.run(path, ignore_crystal_version: self.ignore_crystal_version?)
+      Commands::Install.run(path)
     end
 
     Commands::Build.run(path, targets, options)

@@ -125,9 +125,6 @@ after a command.
 *--local*::
   Don't update remote repositories, use the local cache only.
 
-*--ignore-crystal-version*::
-  Do not enforce crystal version restrictions on shards.
-
 *-q*, *--quiet*::
   Decreases the log verbosity, printing only warnings and errors.
 
@@ -147,7 +144,7 @@ should be added to *PATH*.
 
 *SHARDS_OPTS*::
 Allows general options to be passed in as environment variable.
-*Example*: *SHARDS_OPTS="--ignore-crystal-version" shards update*
+*Example*: *SHARDS_OPTS="--no-color" shards update*
 
 *SHARDS_CACHE_PATH*::
 Defines the cache location. In this folder, shards stores local copies of remote
