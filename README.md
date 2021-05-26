@@ -44,7 +44,7 @@ then run `make release=1`and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
-[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You can type
+[SPEC](https://github.com/ysbaddaden/shards/blob/master/docs/shard.yml.adoc)). You can type
 `shards init` to have an example `shard.yml` file created for your project.
 
 Run `shards install` to install your dependencies, which will lock your
