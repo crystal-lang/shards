@@ -30,7 +30,7 @@ When libraries are installed from Git repositories, the repository is expected
 to have version tags following a [semver](http://semver.org/)-like format,
 prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 
-Please see the [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)
+Please see the [SPEC](https://github.com/ysbaddaden/shards/blob/master/docs/shard.yml.adoc)
 for more details about the `shard.yml` format.
 
 
