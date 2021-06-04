@@ -17,7 +17,7 @@ def create_git_repository(project, *versions)
   Dir.cd(tmp_path) do
     run "git init #{Process.quote(project)}"
     Dir.cd(Process.quote(project)) do
-       run "git branch -m master"
+       run "git checkout --orphan master"
     end
   end
 
