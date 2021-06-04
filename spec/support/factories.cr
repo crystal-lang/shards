@@ -16,6 +16,9 @@ end
 def create_git_repository(project, *versions)
   Dir.cd(tmp_path) do
     run "git init #{Process.quote(project)}"
+    Dir.cd(Process.quote(project)) do
+       run "git branch -m master"
+    end
   end
 
   Dir.mkdir(File.join(git_path(project), "src"))
