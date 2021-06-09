@@ -4,28 +4,28 @@
 :man manual: File Formats
 :man source: shards {shards_version}
 
-== NAME
-shard.yml - metadata for projects managed by shards(1)
+== Name
+shard.yml - metadata for projects managed by *shards*(1)
 
-== DESCRIPTION
+== Description
 
-The file _shard.yml_ is a YAML file with metadata about a project managed by shards, known as a *shard*. It must contain at least _name_ and _version_ attributes plus optional additional attributes.
+The file *shard.yml* is a YAML file with metadata about a project managed by shards, known as a *shard*. It must contain at least _name_ and _version_ attributes plus optional additional attributes.
 
-Both libraries and applications will benefit from `shard.yml`.
+Both libraries and applications will benefit from *shard.yml*.
 
 The metadata for libraries are expected to have more information (e.g., list of
 authors, description, license) than applications that may only have a name, version and
 dependencies.
 
-== FORMAT
+== Format
 
-The file must be named _shard.yml_ and be a valid YAML file with UTF-8 encoding.
+The file must be named *shard.yml* and be a valid YAML file with UTF-8 encoding.
 It must not contain duplicate attributes in any mapping.
 It should use an indent of 2 spaces.
 It should not use advanced YAML features, only simple mappings, sequences and
 strings (Failsafe Schema).
 
-== REQUIRED ATTRIBUTES
+== Required Attributes
 *name*::
   The name of the project (string, required).
 +
@@ -33,7 +33,7 @@ strings (Failsafe Schema).
 - It must be unique.
 - It must be 50 characters or less.
 - It should be lowercase (a-z).
-- It should not contain _crystal_.
+- It should not contain *crystal*.
 - It may contain digits (0-9) but not start with one.
 - It may contain underscores or dashes but not start/end with one.
 - It must not have consecutive underscores or dashes.
@@ -56,13 +56,13 @@ While Shards doesn't enforce it, following a rational versioning scheme like
 http://semver.org/[Semantic Versioning] or http://calver.org/[Calendar Versioning]
 is highly recommended.
 
-== OPTIONAL ATTRIBUTES
+== Optional Attributes
 *authors*::
   A list of authors, along with their contact email (optional) (sequence of string).
 +
 --
 - Each author must have a name.
-- Each author may have an email address, within angle bracket (_<_ and _>_)
+- Each author may have an email address, within angle bracket (*<* and *>*)
   chars.
 --
 +
@@ -82,14 +82,14 @@ usually express a lower and upper-bound constraints (string, recommended)
 When resolving dependencies, this information is not used. After dependecies
 have been determined shards checks all of them are expected to work with
 the current crystal version. If not, a warning appears for the offending
-dependencies. The resolved versions are installed and can be used at your 
+dependencies. The resolved versions are installed and can be used at your
 own risk.
 +
-The valid values are mostly the same as for _dependencies.version_:
+The valid values are mostly the same as for *dependencies.version*:
 +
 --
-* A version number prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
-* Just _"*"_ if any version will do (this is the default if unspecified).
+* A version number prefixed by an operator: *<*, *\<=*, *>*, *>=* or *~>*.
+* Just *"*"* if any version will do (this is the default if unspecified).
 * Multiple requirements can be separated by commas.
 --
 There is a special legacy behavior (its use is discouraged) when just a version
@@ -153,11 +153,11 @@ The URL to a website providing the project's documentation for online browsing (
 A list of executables to be installed (sequence).
 +
 The executables can be of any type or language (e.g., shell, binary, ruby), must
-exist in the _bin_ folder of the Shard, and have the executable bit set (on
+exist in the *bin/* folder of the Shard, and have the executable bit set (on
 POSIX platforms). When installed as a dependency for another project the
-executables will be copied to the _bin_ folder of that project.
+executables will be copied to the *bin/* folder of that project.
 +
-Executables are always installed last, after the _postinstall_ script is run, so
+Executables are always installed last, after the *postinstall* script is run, so
 libraries can build the executables when they are installed by Shards.
 +
 *Example:*
@@ -183,15 +183,15 @@ libraries that are only referenced by dependencies. It must include all librarie
 it directly links to, regardless of a dependency doing it too.
 +
 It should map from the soname without any extension, path or version,
-for example _libsqlite3_ for _/usr/lib/libsqlite3.so.0.8.6_, to a version
+for example *libsqlite3* for */usr/lib/libsqlite3.so.0.8.6*, to a version
 constraint.
 +
 The version constraint has the following format:
 +
 --
 - It may be a version number.
-- It may be _"*"_ if any version will do.
-- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+- It may be *"*"* if any version will do.
+- The version number may be prefixed by an operator: *<*, *\<=*, *>*, *>=* or *~>*.
 --
 +
 [source,yaml]
@@ -210,7 +210,7 @@ libraries:
 The URL of the project's canonical repository (string, recommended).
 +
 The URL should be compatible with typical VCS tools without modifications.
-_http_/_https_ is preferred over VCS schemes like _git_.
+*http*/*https* is preferred over VCS schemes like *git*.
 It is recommended that this URL is publicly available.
 +
 Copies of a shard (such as mirrors, development forks etc.) should point to the same
@@ -224,18 +224,18 @@ repository: "https://github.com/crystal-lang/shards"
 ----
 
 *scripts*::
-  Script hooks to run. Only _postinstall_ is supported.
+  Script hooks to run. Only *postinstall* is supported.
 +
 Shards may run scripts automatically after certain actions. The scripts
 themselves are mere shell commands.
 
 *postinstall*:::
-The _postinstall_ hook of a dependency will be run whenever that dependency is
+The *postinstall* hook of a dependency will be run whenever that dependency is
 installed or upgraded in a project that requires it. This may be used to compile
 a C library, to build tools to help working on the project, or anything else.
 +
 The script will be run from the dependency's installation directory, for example
-_lib/foo_ for a Shard named _foo_.
+*lib/foo* for a Shard named *foo*.
 +
 *Example:*
 +
@@ -250,7 +250,7 @@ A list of targets to build (mapping).
 +
 Each target begins with the name of the target as a key (string), then a list of
 attributes (mapping). The target name is the built binary name, created in the
-_bin_ folder of the project.
+*bin/* folder of the project.
 +
 *Example:*
 +
@@ -263,22 +263,22 @@ targets:
     main: src/worker.cr
 ----
 +
-The above example will build _bin/server_ from _src/server/cli.cr_ and
-_bin/worker_ from _src/worker.cr_.
+The above example will build *bin/server* from *src/server/cli.cr* and
+*bin/worker* from *src/worker.cr*.
 
 *main*:::
 A path to the source file to compile (string).
 
-== DEPENDENCY ATTRIBUTES
+== Dependency Attributes
 
 Each dependency needs at least one attribute that defines the resolver for this
-dependency. Those can be _path_, _git_, _github_, _gitlab_, _bitbucket_.
+dependency. Those can be *path*, *git*, *github*, *gitlab*, *bitbucket*.
 
 *path*::
 A local path (string).
 +
 The library will be installed as a symlink to the local path.
-The _version_ attribute isn't required but will be used if present to validate
+The *version* attribute isn't required but will be used if present to validate
 the dependency.
 
 *git*::
@@ -288,56 +288,56 @@ The URL may be [any protocol](https://git-scm.com/docs/git-clone#_git_urls)
 supported by Git, which includes SSH, GIT and HTTPS.
 +
 The Git repository will be cloned, the list of versions (and associated
-_shard.yml_) will be extracted from Git tags (e.g., _v1.2.3_).
+*shard.yml*) will be extracted from Git tags (e.g., _v1.2.3_).
 +
-One of the other attributes (_version_, _tag_, _branch_ or _commit_) is
+One of the other attributes (*version*, *tag*, *branch* or *commit*) is
 required. When missing, Shards will install the HEAD refs.
 +
-*Example:* _git: git://git.example.org/crystal-library.git_
+Example: *git: git://git.example.org/crystal-library.git*
 
 *github*::
-GitHub repository URL as _user/repo_ (string)
+GitHub repository URL as *user/repo* (string)
 +
-Extends the _git_ resolver, and acts exactly like it.
+Extends the *git* resolver, and acts exactly like it.
 +
-*Example:* _github: ysbaddaden/minitest.cr_
+Example: *github: ysbaddaden/minitest.cr*
 
 *gitlab*::
-GitLab repository URL as _user/repo_ (string).
+GitLab repository URL as *user/repo* (string).
 +
-Extends the _git_ resolver, and acts exactly like it.
+Extends the *git* resolver, and acts exactly like it.
 +
-Only matches dependencies hosted on _gitlab.com_. For personal GitLab
-installations, you must use the generic _git_ resolver.
+Only matches dependencies hosted on *gitlab.com*. For personal GitLab
+installations, you must use the generic *git* resolver.
 +
-*Example:* _gitlab: thelonlyghost/minitest.cr_
+Example: *gitlab: thelonlyghost/minitest.cr*
 
 *bitbucket*::
-Bitbucket repository URL as _user/repo_ (string).
+Bitbucket repository URL as *user/repo* (string).
 +
-Extends the _git_ resolver, and acts exactly like it.
+Extends the *git* resolver, and acts exactly like it.
 +
-*Example:* _bitbucket: tom/library_
+*Example:* *bitbucket: tom/library*
 
 *version*::
 A version requirement (string).
 +
 --
 - It may be an explicit version number.
-- It may be _"*"_ wildcard if any version will do (this is the default).
+- It may be *"*"* wildcard if any version will do (this is the default).
   Shards will then install the latest tagged version (or HEAD if no tagged
   version available).
-- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+- The version number may be prefixed by an operator: *<*, *\<=*, *>*, *>=* or *~>*.
 - Multiple requirements can be separated by commas.
 --
 +
 Examples: _1.2.3_, _>= 1.0.0_, _>= 1.0.0, < 2.0_ or _~> 2.0_.
 +
-Most of the version operators, like _>= 1.0.0_, are self-explanatory, but
-the _~>_ operator has a special meaning, best shown by example:
+Most of the version operators, like *>= 1.0.0*, are self-explanatory, but
+the *~>* operator has a special meaning, best shown by example:
 --
-- _~> 2.0.3_ is identical to _>= 2.0.3 and < 2.1_;
-- _~> 2.1_ is identical to _>= 2.1 and < 3.0_.
+- *~> 2.0.3* is identical to *>= 2.0.3 and < 2.1*;
+- *~> 2.1* is identical to *>= 2.1 and < 3.0*.
 --
 
 *branch*::
@@ -351,7 +351,7 @@ the _~>_ operator has a special meaning, best shown by example:
 
 == Example:
 
-Here is an example _shard.yml_ for a library named _shards_ at version _1.2.3_
+Here is an example *shard.yml* for a library named *shards* at version *1.2.3*
 with some dependencies:
 
 [source,yaml]
@@ -388,8 +388,8 @@ targets:
     main: src/shards.cr
 ----
 
-== AUTHOR
+== Author
 Written by Julien Portalier and the Crystal project.
 
-== SEE ALSO
+== See Also
 *shards*(1)
