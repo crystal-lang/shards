@@ -235,6 +235,15 @@ describe "update" do
     end
   end
 
+  it "skips postinstall with transitive dependencies" do
+    with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
+      output = run "shards update --no-color --skip-postinstall"
+      binary = install_path("transitive", Shards::Helpers.exe("version"))
+      File.exists?(binary).should be_false
+      output.should contain("Postinstall of transitive: crystal build src/version.cr (skipped)")
+    end
+  end
+
   it "installs new executables" do
     metadata = {dependencies: {binary: "0.2.0"}}
     lock = {binary: "0.1.0"}
@@ -443,6 +452,53 @@ describe "update" do
 
       assert_installed "d", "0.2.0"
       assert_locked "d", "0.2.0"
+    end
+  end
+
+  describe "mtime" do
+    it "mtime lib > shard.lock > shard.yml" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+        run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+
+    it "mtime shard.lock > shard.yml even when unmodified" do
+      metadata = {dependencies: {
+        web: "*",
+      }}
+      with_shard(metadata) do
+        run "shards update"
+        File.touch("shard.yml")
+        run "shards update"
+        File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
+        File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
+      end
+    end
+  end
+
+  it "updates lockfile when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      run "shards update"
+      mtime = File.info("shard.lock").modification_time
+      run "shards update"
+      File.info("shard.lock").modification_time.should be >= mtime
+      Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
+    end
+  end
+
+  it "creates ./lib/ when there are no dependencies" do
+    with_shard({name: "empty"}) do
+      File.exists?("./lib/").should be_false
+      run "shards update"
+      File.directory?("./lib/").should be_true
     end
   end
 end

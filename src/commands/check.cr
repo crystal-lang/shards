@@ -8,14 +8,14 @@ module Shards
         if has_dependencies?
           locks # ensures that lockfile exists
           verify(spec.dependencies)
-          verify(spec.development_dependencies) unless Shards.production?
+          verify(spec.development_dependencies) if Shards.with_development?
         end
 
         Log.info { "Dependencies are satisfied" }
       end
 
       private def has_dependencies?
-        spec.dependencies.any? || (!Shards.production? && spec.development_dependencies.any?)
+        spec.dependencies.any? || (Shards.with_development? && spec.development_dependencies.any?)
       end
 
       private def verify(dependencies)

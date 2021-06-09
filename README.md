@@ -1,7 +1,8 @@
 # Shards
 
-Dependency manager for the [Crystal language](http://crystal-lang.org).
+[![CI](https://github.com/crystal-lang/shards/workflows/CI/badge.svg)](https://github.com/crystal-lang/shards/actions?query=workflow%3ACI+event%3Apush+branch%3Amaster)
 
+Dependency manager for the [Crystal language](https://crystal-lang.org).
 
 ## Usage
 
@@ -29,8 +30,8 @@ When libraries are installed from Git repositories, the repository is expected
 to have version tags following a [semver](http://semver.org/)-like format,
 prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 
-Please see the [SPEC](docs/shard.yml.adoc) for more details about the
-`shard.yml` format.
+Please see the [SPEC](https://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc)
+for more details about the `shard.yml` format.
 
 
 ## Install
@@ -43,8 +44,8 @@ then run `make release=1`and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
-[SPEC](docs/shard.yml.adoc)). You can type `shards init` to have an example
-`shard.yml` file created for your project.
+[SPEC](https://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc)). You can type
+`shards init` to have an example `shard.yml` file created for your project.
 
 Run `shards install` to install your dependencies, which will lock your
 dependencies into a `shard.lock` file. You should check both `shard.yml` and
@@ -73,6 +74,10 @@ These requirements are only for compiling Shards.
   then make sure to have `/usr/local/lib` in your `LIBRARY_PATH` environment
   variable (eg: `export LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"`).
   Please adjust the path per your Homebrew installation.
+
+* [asciidoctor](https://asciidoctor.org/)
+
+  Needed for building manpages.
 
 
 ## License

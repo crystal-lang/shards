@@ -18,19 +18,38 @@ describe "list" do
     end
   end
 
-  it "production doesn't list development dependencies" do
+  it "--without-development doesn't list development dependencies" do
     metadata = {
       dependencies:             {web: "*", orm: "*"},
       development_dependencies: {mock: "*"},
     }
+
     with_shard(metadata) do
-      run "shards install --production"
-      stdout = run "shards list --production"
+      run "shards install --without-development"
+      stdout = run "shards list --without-development"
       stdout.should contain("web (2.1.0)")
       stdout.should contain("orm (0.5.0)")
       stdout.should contain("pg (0.2.1)")
-      stdout.should_not contain("mock (0.1.0)")
-      stdout.should_not contain("shoulda (0.1.0)")
+      stdout.should_not contain("mock")
+      stdout.should_not contain("shoulda")
+    end
+  end
+
+  it "--production doesn't list development dependencies" do
+    metadata = {
+      dependencies:             {web: "*", orm: "*"},
+      development_dependencies: {mock: "*"},
+    }
+    # --production requires a lock file because it implies --frozen
+    lock = {web: "1.0.0", orm: "0.3.0"}
+
+    with_shard(metadata, lock) do
+      run "shards install --production"
+      stdout = run "shards list --production"
+      stdout.should contain("web (1.0.0)")
+      stdout.should contain("orm (0.3.0)")
+      stdout.should_not contain("mock")
+      stdout.should_not contain("shoulda")
     end
   end
 

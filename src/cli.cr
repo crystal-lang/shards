@@ -12,10 +12,10 @@ module Shards
           init                                 - Initialize a `shard.yml` file.
           install                              - Install dependencies, creating or using the `shard.lock` file.
           list [--tree]                        - List installed dependencies.
-          lock [--update] [<shards>]           - Lock dependencies in `shard.lock` but doesn't install them.
+          lock [--update] [<shards>...]        - Lock dependencies in `shard.lock` but doesn't install them.
           outdated [--pre]                     - List dependencies that are outdated.
           prune                                - Remove unused dependencies from `lib` folder.
-          update [<shards>]                    - Update dependencies and `shard.lock`.
+          update [<shards>...]                 - Update dependencies and `shard.lock`.
           version [<path>]                     - Print the current version of the shard.
 
       General options:
@@ -30,9 +30,22 @@ module Shards
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
       opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
-      opts.on("--production", "Run in release mode. No development dependencies and strict sync between shard.yml and shard.lock.") { self.production = true }
+      opts.on("--frozen", "Strictly installs locked versions from shard.lock.") do
+        self.frozen = true
+      end
+      opts.on("--without-development", "Does not install development dependencies.") do
+        self.with_development = false
+      end
+      opts.on("--production", "same as `--frozen --without-development`") do
+        self.frozen = true
+        self.with_development = false
+      end
+      opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
+        self.skip_postinstall = true
+      end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("--ignore-crystal-version", "Do not enforce crystal version restrictions on shards.") { self.ignore_crystal_version = true }
+      # TODO: remove in the future
+      opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
@@ -47,8 +60,7 @@ module Shards
           Commands::Init.run(path)
         when "install"
           Commands::Install.run(
-            path,
-            ignore_crystal_version: self.ignore_crystal_version?
+            path
           )
         when "list"
           Commands::List.run(path, tree: args.includes?("--tree"))
@@ -57,22 +69,19 @@ module Shards
             path,
             args[1..-1].reject(&.starts_with?("--")),
             print: args.includes?("--print"),
-            update: args.includes?("--update"),
-            ignore_crystal_version: self.ignore_crystal_version?
+            update: args.includes?("--update")
           )
         when "outdated"
           Commands::Outdated.run(
             path,
-            prereleases: args.includes?("--pre"),
-            ignore_crystal_version: self.ignore_crystal_version?
+            prereleases: args.includes?("--pre")
           )
         when "prune"
           Commands::Prune.run(path)
         when "update"
           Commands::Update.run(
             path,
-            args[1..-1].reject(&.starts_with?("--")),
-            ignore_crystal_version: self.ignore_crystal_version?
+            args[1..-1].reject(&.starts_with?("--"))
           )
         when "version"
           Commands::Version.run(args[1]? || path)
@@ -122,7 +131,7 @@ module Shards
     begin
       Commands::Check.run(path)
     rescue
-      Commands::Install.run(path, ignore_crystal_version: self.ignore_crystal_version?)
+      Commands::Install.run(path)
     end
 
     Commands::Build.run(path, targets, options)

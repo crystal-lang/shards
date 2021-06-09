@@ -4,19 +4,19 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 6 * * 1'  # Every monday 6 AM
+    - cron: "0 6 * * 1" # Every monday 6 AM
 
 jobs:
-  build:
+  test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        crystal: [null]
+        os: [ubuntu-latest, macos-latest]
+        crystal: [latest, nightly]
         include:
-          - os: ubuntu-latest
+          - os: windows-latest
             crystal: nightly
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Configure Git
@@ -29,7 +29,7 @@ jobs:
       - name: Install Crystal
         uses: oprypin/install-crystal@v1
         with:
-          crystal: ${{matrix.crystal}}
+          crystal: ${{ matrix.crystal }}
 
       - name: Download source
         uses: actions/checkout@v2
@@ -37,8 +37,18 @@ jobs:
       - name: Build
         run: make
 
-      - name: Test
+      - name: Run specs
         run: make test
 
       - name: Check formatting
         run: crystal tool format --check src spec
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download source
+        uses: actions/checkout@v2
+      - name: Build manpages
+        uses: Analog-inc/asciidoctor-action@master
+        with:
+          shellcommand: "make manpages"

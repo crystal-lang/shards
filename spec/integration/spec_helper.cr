@@ -133,10 +133,10 @@ private def setup_repositories
   create_git_release "d", "0.2.0"
 
   create_git_repository "incompatible"
-  create_git_release "incompatible", "0.1.0", {crystal: "0.1.0"}
-  create_git_release "incompatible", "0.2.0", {crystal: "0.2.0"}
-  create_git_release "incompatible", "0.3.0", {crystal: "0.4"}
-  create_git_release "incompatible", "1.0.0", {crystal: "1.0.0"}
+  create_git_release "incompatible", "0.1.0", {crystal: "~>0.1, >=0.1.0"}
+  create_git_release "incompatible", "0.2.0", {crystal: "~>0.2, >=0.2.0"}
+  create_git_release "incompatible", "0.3.0", {crystal: "~>0.4, >=0.4"}
+  create_git_release "incompatible", "1.0.0", {crystal: "~>1.0, >=1.0.0"}
 
   create_git_repository "awesome"
   create_git_release "awesome", "0.1.0", {
@@ -165,6 +165,26 @@ private def setup_repositories
   create_git_release "intermediate", "0.1.0", {
     dependencies: {awesome: {git: git_url(:awesome)}},
   }
+
+  # repo with release and unreleased commits
+  create_git_repository "heading"
+  create_git_release "heading", "0.1.0"
+  create_git_version_commit "heading", "0.1.0"
+  create_git_version_commit "heading", "0.1.0"
+
+  # repo with release and preceding commit
+  create_git_repository "release_hist"
+  create_git_release "release_hist", "0.1.0"
+  create_git_version_commit "release_hist", "0.1.0"
+  create_git_release "release_hist", "0.2.0"
+
+  # repo with branch and new release outside branch
+  create_git_repository "branched"
+  create_git_release "branched", "0.1.0"
+  checkout_new_git_branch "branched", "feature"
+  create_git_version_commit "branched", "0.1.0"
+  checkout_git_branch "branched", "master"
+  create_git_release "branched", "0.2.0"
 end
 
 private def assert(value, message, file, line)
@@ -184,7 +204,7 @@ def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, g
 
   if dependency && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    dependency.version.should eq(version expected_version), file, line
+    dependency.version.should eq(version expected_version), file: file, line: line
   end
 
   if dependency && source
@@ -199,7 +219,7 @@ def refute_installed(name, version = nil, file = __FILE__, line = __LINE__)
     if Dir.exists?(install_path(name))
       assert File.exists?(install_path(name, "shard.yml")), "expected shard.yml for installed #{name} dependency was not found", file, line
       spec = Shards::Spec.from_file(install_path(name, "shard.yml"))
-      spec.version.should_not eq(version), file, line
+      spec.version.should_not eq(version), file: file, line: line
     end
   else
     refute Dir.exists?(install_path(name)), "expected #{name} dependency to not have been installed", file, line
