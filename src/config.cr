@@ -98,4 +98,5 @@ module Shards
   class_property? with_development = true
   class_property? local = false
   class_property? skip_postinstall = false
+  class_property? skip_executables = false
 end

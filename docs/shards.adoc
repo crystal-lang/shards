@@ -58,7 +58,7 @@ Exit status:
 *init*::
 Initializes a default _shard.yml_ in the current folder.
 
-*install* [--frozen] [--without-development] [--production] [--skip-postinstall]::
+*install* [--frozen] [--without-development] [--production] [--skip-postinstall] [--skip-executables]::
 Resolves and installs dependencies into the _lib_ folder. If not already
 present, generates a _shard.lock_ file from resolved dependencies, locking
 version numbers or Git commits.
@@ -73,6 +73,7 @@ doesn't generate a conflict, thus generating a new _shard.lock_ file.
 --without-development:: Does not install development dependencies.
 --production:: same as _--frozen_ and _--without-development_
 --skip-postinstall:: Does not run postinstall of dependencies.
+--skip-executables:: Does not install executables.
 --
 
 *list* [--tree]::

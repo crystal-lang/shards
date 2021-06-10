@@ -262,6 +262,20 @@ describe "update" do
     `#{Process.quote(foo)}`.should eq("FOO")
   end
 
+  it "skips installing new executables" do
+    metadata = {dependencies: {binary: "0.2.0"}}
+    lock = {binary: "0.1.0"}
+    with_shard(metadata, lock) { run("shards update --no-color --skip-executables") }
+
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
+
+    File.exists?(foobar).should be_false
+    File.exists?(baz).should be_false
+    File.exists?(foo).should be_false
+  end
+
   it "doesn't update local cache" do
     metadata = {
       dependencies: {local_cache: "*"},
