@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.12
-.\"      Date: 2021-03-10
+.\" Generator: Asciidoctor 2.0.15
+.\"      Date: 2021-03-20
 .\"    Manual: File Formats
 .\"    Source: shards 0.14.1
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-03-10" "shards 0.14.1" "File Formats"
+.TH "SHARD.YML" "5" "2021-03-20" "shards 0.14.1" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -171,7 +171,7 @@ It may contain a letter to make it a \(aqprerelease\(aq.
 Examples: \fI1.2.3\fP, \fI2.0.0.1\fP, \fI1.0.0.alpha\fP \fI2.0.0\-rc1\fP or \fI2016.09\fP.
 .sp
 While Shards doesn\(cqt enforce it, following a rational versioning scheme like
-.URL "http://semver.org/" "Semantic Versioning" " "
+.URL "http://semver.org/" "Semantic Versioning" ""
 or
 .URL "http://calver.org/" "Calendar Versioning"
 is highly recommended.
@@ -452,7 +452,7 @@ libraries:
 \fBlicense\fP
 .RS 4
   An \c
-.URL "http://opensource.org/" "OSI license" " "
+.URL "http://opensource.org/" "OSI license" ""
 name or an URL to a license file
 (string, recommended).
 .sp
@@ -494,6 +494,9 @@ a C library, to build tools to help working on the project, or anything else.
 .sp
 The script will be run from the dependency\(cqs installation directory, for example
 \fIlib/foo\fP for a Shard named \fIfoo\fP.
+.sp
+The \fIpostinstall\fP hook for the project itself, if defined, will also be ran after
+all of its dependencies are installed.
 .sp
 \fBExample:\fP
 .sp

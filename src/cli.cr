@@ -40,7 +40,7 @@ module Shards
         self.frozen = true
         self.with_development = false
       end
-      opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
+      opts.on("--skip-postinstall", "Does not run postinstall") do
         self.skip_postinstall = true
       end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
