@@ -30,8 +30,8 @@ When libraries are installed from Git repositories, the repository is expected
 to have version tags following a [semver](http://semver.org/)-like format,
 prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 
-Please see the [SPEC](https://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc)
-for more details about the `shard.yml` format.
+Please see the [SPEC](docs/shard.yml.adoc) for more details about the
+`shard.yml` format.
 
 
 ## Install
@@ -44,8 +44,8 @@ then run `make release=1`and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
-[SPEC](https://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc)). You can type
-`shards init` to have an example `shard.yml` file created for your project.
+[SPEC](docs/shard.yml.adoc)). You can type `shards init` to have an example
+`shard.yml` file created for your project.
 
 Run `shards install` to install your dependencies, which will lock your
 dependencies into a `shard.lock` file. You should check both `shard.yml` and
@@ -82,6 +82,5 @@ These requirements are only for compiling Shards.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See
-[LICENSE]((https://github.com/ysbaddaden/shards/blob/master/LICENSE)) for
+Licensed under the Apache License, Version 2.0. See [LICENSE]((./LICENSE)) for
 details.
