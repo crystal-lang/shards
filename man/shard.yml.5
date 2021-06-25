@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.12
-.\"      Date: 2021-06-09
+.\"      Date: 2021-06-24
 .\"    Manual: File Formats
 .\"    Source: shards 0.14.1
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-06-09" "shards 0.14.1" "File Formats"
+.TH "SHARD.YML" "5" "2021-06-24" "shards 0.14.1" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -349,7 +349,8 @@ POSIX platforms). When installed as a dependency for another project the
 executables will be copied to the \fIbin\fP folder of that project.
 .sp
 Executables are always installed last, after the \fIpostinstall\fP script is run, so
-libraries can build the executables when they are installed by Shards.
+libraries can build the executables when they are installed by Shards. Installation
+can be disabled by passing the flag \fI\-\-skip\-executables\fP.
 .sp
 \fBExample:\fP
 .sp

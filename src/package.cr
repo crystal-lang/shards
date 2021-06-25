@@ -101,7 +101,7 @@ module Shards
     end
 
     def install_executables
-      return if !installed? || spec.executables.empty?
+      return if !installed? || spec.executables.empty? || Shards.skip_executables?
 
       Dir.mkdir_p(Shards.bin_path)
 

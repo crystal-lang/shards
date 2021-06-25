@@ -43,6 +43,9 @@ module Shards
       opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
         self.skip_postinstall = true
       end
+      opts.on("--skip-executables", "Does not install executables") do
+        self.skip_executables = true
+      end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       # TODO: remove in the future
       opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }

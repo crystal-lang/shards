@@ -845,6 +845,21 @@ describe "install" do
     `#{Process.quote(baz)}`.should eq("KO")
   end
 
+  it "skips installing executables" do
+    metadata = {
+      dependencies: {binary: "0.1.0"},
+    }
+    with_shard(metadata) { run("shards install --no-color --skip-executables") }
+
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
+
+    File.exists?(foobar).should be_false
+    File.exists?(baz).should be_false
+    File.exists?(foo).should be_false
+  end
+
   it "installs executables at refs" do
     metadata = {
       dependencies: {

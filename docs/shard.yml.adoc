@@ -82,7 +82,7 @@ usually express a lower and upper-bound constraints (string, recommended)
 When resolving dependencies, this information is not used. After dependecies
 have been determined shards checks all of them are expected to work with
 the current crystal version. If not, a warning appears for the offending
-dependencies. The resolved versions are installed and can be used at your 
+dependencies. The resolved versions are installed and can be used at your
 own risk.
 +
 The valid values are mostly the same as for _dependencies.version_:
@@ -158,7 +158,8 @@ POSIX platforms). When installed as a dependency for another project the
 executables will be copied to the _bin_ folder of that project.
 +
 Executables are always installed last, after the _postinstall_ script is run, so
-libraries can build the executables when they are installed by Shards.
+libraries can build the executables when they are installed by Shards. Installation
+can be disabled by passing the flag _--skip-executables_.
 +
 *Example:*
 +
