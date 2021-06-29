@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## v0.15.0 - 2021-06-29
+
+Fixes:
+
+- Let `shards build` error if no targets defined ([#490](https://github.com/crystal-lang/shards/pull/490), thanks @straight-shoota)
+- Fix to allow empty `shard.override.yml` ([#495](https://github.com/crystal-lang/shards/pull/495), thanks @straight-shoota)
+- Stop expecting master to be the default branch for git ([#503](https://github.com/crystal-lang/shards/pull/503), thanks @szabgab)
+
+Features:
+- Add documentation for `shard.override.yml` ([#494](https://github.com/crystal-lang/shards/pull/494), thanks @straight-shoota)
+- Warn only crystal version ([#496](https://github.com/crystal-lang/shards/pull/496), thanks @beta-ziliani, @bcardiff)
+- Don't default the Crystal version to `<1.0.0`, use only the lower bound ([#493](https://github.com/crystal-lang/shards/pull/493), thanks @oprypin)
+- Add `--skip-executables` ([#506](https://github.com/crystal-lang/shards/pull/506), thanks @straight-shoota)
+
+Others:
+
+- Escape automatic ligatures in AsciiDoc ([#489](https://github.com/crystal-lang/shards/pull/489), thanks @elebow)
+- Fix links in README ([#500](https://github.com/crystal-lang/shards/pull/500), [#483](https://github.com/crystal-lang/shards/pull/483), thanks @szabgab, @kimburgess)
+- Correct list identation in shard.yml.adoc ([#492](https://github.com/crystal-lang/shards/pull/492/files), thanks @elebow)
+- Add getting started section to README ([#513](https://github.com/crystal-lang/shards/pull/513), thanks @straight-shoota)
+
 ## v0.14.1 - 2021-03-10
 
 Fixes:
