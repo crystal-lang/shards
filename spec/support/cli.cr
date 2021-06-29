@@ -22,6 +22,10 @@ def to_shard_yaml(metadata)
     yml << "name: " << (metadata[:name]? || "test").inspect << '\n'
     yml << "version: " << (metadata[:version]? || "0.0.0").inspect << '\n'
 
+    if postinstall = metadata[:postinstall]?
+      yml << "scripts:\n  postinstall: #{postinstall}\n"
+    end
+
     metadata.each do |key, value|
       if key.to_s.ends_with?("dependencies")
         write_dependencies(yml, key, value)
