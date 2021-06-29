@@ -97,6 +97,6 @@ module Shards
   class_property? frozen = false
   class_property? with_development = true
   class_property? local = false
-  class_property? ignore_crystal_version = false
   class_property? skip_postinstall = false
+  class_property? skip_executables = false
 end

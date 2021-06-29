@@ -58,7 +58,7 @@ Exit status:
 *init*::
 Initializes a default _shard.yml_ in the current folder.
 
-*install* [--frozen] [--without-development] [--production] [--skip-postinstall]::
+*install* [--frozen] [--without-development] [--production] [--skip-postinstall] [--skip-executables]::
 Resolves and installs dependencies into the _lib_ folder. If not already
 present, generates a _shard.lock_ file from resolved dependencies, locking
 version numbers or Git commits.
@@ -73,6 +73,7 @@ doesn't generate a conflict, thus generating a new _shard.lock_ file.
 --without-development:: Does not install development dependencies.
 --production:: same as _--frozen_ and _--without-development_
 --skip-postinstall:: Does not run postinstall.
+--skip-executables:: Does not install executables.
 --
 
 *list* [--tree]::
@@ -125,9 +126,6 @@ after a command.
 --local::
   Don't update remote repositories, use the local cache only.
 
---ignore-crystal-version::
-  Do not enforce crystal version restrictions on shards.
-
 -q, --quiet::
   Decreases the log verbosity, printing only warnings and errors.
 
@@ -147,7 +145,7 @@ should be added to *PATH*.
 
 SHARDS_OPTS::
 Allows general options to be passed in as environment variable.
-*Example*: _SHARDS_OPTS="--ignore-crystal-version" shards update_
+*Example*: _SHARDS_OPTS="--no-color" shards update_
 
 SHARDS_CACHE_PATH::
 Defines the cache location. In this folder, shards stores local copies of remote
@@ -168,7 +166,7 @@ Defines the crystal version that dependencies should be resolved against.
 Defaults to the output of _crystal env CRYSTAL_VERSION_.
 
 SHARDS_OVERRIDE::
-Defines the location of _shard.override.yml_.
+Defines an alternate location of _shard.override.yml_.
 
 == Files
 
@@ -177,7 +175,16 @@ Describes a shard project including its dependencies.
 See *shard.yml*(5) for documentation.
 
 shard.override.yml::
-Local overrides to _shard.yml_.
+Allows overriding the source and restriction of dependencies. An alternative
+location can be configured with the env var *SHARDS_OVERRIDE*.
++
+The file contains a YAML document with a single *dependencies* key. It has the
+same semantics as in *shard.yml*. Dependency configuration takes precedence over
+the configuration in *shard.yml* or any dependency's *shard.yml*.
++
+Use cases are local working copies, forcing a specific dependency version
+despite mismatching constraints, fixing a dependency, checking compatibility
+with unreleased dependency versions.
 
 shard.lock::
 Lockfile that stores information about the installed versions.

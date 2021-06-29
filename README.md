@@ -30,8 +30,8 @@ When libraries are installed from Git repositories, the repository is expected
 to have version tags following a [semver](http://semver.org/)-like format,
 prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 
-Please see the [SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)
-for more details about the `shard.yml` format.
+Please see the [SPEC](docs/shard.yml.adoc) for more details about the
+`shard.yml` format.
 
 
 ## Install
@@ -44,8 +44,8 @@ then run `make release=1`and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
-[SPEC](https://github.com/ysbaddaden/shards/blob/master/SPEC.md)). You can type
-`shards init` to have an example `shard.yml` file created for your project.
+[SPEC](docs/shard.yml.adoc)). You can type `shards init` to have an example
+`shard.yml` file created for your project.
 
 Run `shards install` to install your dependencies, which will lock your
 dependencies into a `shard.lock` file. You should check both `shard.yml` and
@@ -56,15 +56,23 @@ Run `shards --help` to list other commands with their options.
 
 Happy Hacking!
 
+## Developers
 
-## Requirements
+### Requirements
 
-These requirements are only for compiling Shards.
+These requirements are only necessary for compiling Shards.
 
 * Crystal
 
   Please refer to <https://crystal-lang.org/install/> for
   instructions for your operating system.
+
+* `molinillo`
+
+  The shard `molinillo` needs to be in the Crystal path.
+  It is available at <https://github.com/crystal-lang/crystal-molinillo>
+  You can install it either with a pre-existing `shards` binary (running `shards install`)
+  or just check out the repository at `lib/crystal-molinillo` (`make lib`).
 
 * libyaml
 
@@ -79,9 +87,27 @@ These requirements are only for compiling Shards.
 
   Needed for building manpages.
 
+### Getting started
+
+It is strongly recommended to use `make` for building shards and developing it.
+The [`Makefile`](./Makefile) contains recipes for compiling and testing. Building
+with `make` also ensures the source dependency `molinillo` is installed. You don't
+need to take care of this yourself.
+
+Run `make bin/shards` to build the binary.
+* `release=1` for a release build (applies optimizations)
+* `static=1` for static linking (only works with musl-libc)
+* `debug=1` for full symbolic debug info
+
+Run `make install` to install the binary. Target path can be adjusted with `PREFIX` (default: `PREFIX=/usr/bin`).
+
+Run `make test` to run the test suites:
+* `make test_unit` runs unit tests (`./spec/unit`)
+* `make test_integration` runs integration tests (`./spec/integration`) on `bin/shards`
+
+Run `make docs` to build the manpages.
 
 ## License
 
-Licensed under the Apache License, Version 2.0. See
-[LICENSE]((https://github.com/ysbaddaden/shards/blob/master/LICENSE)) for
+Licensed under the Apache License, Version 2.0. See [LICENSE]((./LICENSE)) for
 details.

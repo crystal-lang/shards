@@ -4,14 +4,14 @@ require "../molinillo_solver"
 module Shards
   module Commands
     class Install < Command
-      def run(*, ignore_crystal_version = false)
+      def run
         if Shards.frozen? && !lockfile?
           raise Error.new("Missing shard.lock")
         end
 
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override)
 
         if lockfile?
           # install must be as conservative as possible:
@@ -39,9 +39,7 @@ module Shards
         # Touch install path so its mtime is bigger than that of the lockfile
         touch_install_path
 
-        if ignore_crystal_version
-          check_ignored_crystal_version(packages)
-        end
+        check_crystal_version(packages)
       end
 
       private def validate(packages)

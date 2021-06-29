@@ -7,7 +7,7 @@
 .\"    Source: shards 0.14.1
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-03-20" "shards 0.14.1" "File Formats"
+.TH "SHARD.YML" "5" "2021-06-24" "shards 0.14.1" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -223,11 +223,13 @@ authors:
 A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper\-bound constraints (string, recommended)
 .sp
-When resolving dependencies, only the versions that comply with the current
-crystal will be candidates. You can pass \fI\-\-ignore\-crystal\-version\fP to disregard this
-behavior.
+When resolving dependencies, this information is not used. After dependecies
+have been determined shards checks all of them are expected to work with
+the current crystal version. If not, a warning appears for the offending
+dependencies. The resolved versions are installed and can be used at your
+own risk.
 .sp
-The valid values are the same as for \fIdependencies.version\fP:
+The valid values are mostly the same as for \fIdependencies.version\fP:
 .sp
 .RS 4
 .ie n \{\
@@ -237,7 +239,7 @@ The valid values are the same as for \fIdependencies.version\fP:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It may be a version number.
+A version number prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
 .RE
 .sp
 .RS 4
@@ -248,18 +250,7 @@ It may be a version number.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It may be \fI"*"\fP if any version will do.
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-The version number may be prefixed by an operator: \fI<\fP, \fI\(lA\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+Just \fI"*"\fP if any version will do (this is the default if unspecified).
 .RE
 .sp
 .RS 4
@@ -273,29 +264,20 @@ The version number may be prefixed by an operator: \fI<\fP, \fI\(lA\fP, \fI>\fP,
 Multiple requirements can be separated by commas.
 .RE
 .sp
-When just a version number is used it has a different semantic compared to dependencies:
-\fIx.y.z\fP will be interpreted as \fI~> x.y, >= x.y.z\fP (ie: \fI>= x.y.z, < (x+1).0.0\fP) honoring semver.
-.if n .sp
-.RS 4
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-.br
-.ps +1
-.B Note
-.ps -1
-.br
+There is a special legacy behavior (its use is discouraged) when just a version
+number is used as the value: it works exactly the same as a \f(CR>=\fP check:
+\fIx.y.z\fP is interpreted as \fI">= x.y.z"\fP
 .sp
-If this property is not included it is treated as \fI< 1.0.0\fP.
-.sp .5v
-.RE
+You are welcome to also specify the upper bound to be lower than the next
+(future) major Crystal version, because there\(cqs no guarantee that it won\(cqt
+break your library.
 .sp
 \fBExample:\fP
 .sp
 .if n .RS 4
 .nf
 .fam C
-crystal: ">= 0.35.0"
+crystal: ">= 0.35, < 2.0"
 .fam
 .fi
 .if n .RE
@@ -367,7 +349,8 @@ POSIX platforms). When installed as a dependency for another project the
 executables will be copied to the \fIbin\fP folder of that project.
 .sp
 Executables are always installed last, after the \fIpostinstall\fP script is run, so
-libraries can build the executables when they are installed by Shards.
+libraries can build the executables when they are installed by Shards. Installation
+can be disabled by passing the flag \fI\-\-skip\-executables\fP.
 .sp
 \fBExample:\fP
 .sp
@@ -434,7 +417,7 @@ It may be \fI"*"\fP if any version will do.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-The version number may be prefixed by an operator: \fI<\fP, \fI\(lA\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
 .RE
 .sp
 .if n .RS 4
@@ -455,6 +438,7 @@ libraries:
 .URL "http://opensource.org/" "OSI license" ""
 name or an URL to a license file
 (string, recommended).
+.RE
 .sp
 \fBrepository\fP
 .RS 4
@@ -476,7 +460,6 @@ repository: "https://github.com/crystal\-lang/shards"
 .fam
 .fi
 .if n .RE
-.RE
 .RE
 .sp
 \fBscripts\fP
@@ -638,7 +621,7 @@ version available).
 .  sp -1
 .  IP \(bu 2.3
 .\}
-The version number may be prefixed by an operator: \fI<\fP, \fI\(lA\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
 .RE
 .sp
 .RS 4

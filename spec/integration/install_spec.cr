@@ -861,6 +861,21 @@ describe "install" do
     `#{Process.quote(baz)}`.should eq("KO")
   end
 
+  it "skips installing executables" do
+    metadata = {
+      dependencies: {binary: "0.1.0"},
+    }
+    with_shard(metadata) { run("shards install --no-color --skip-executables") }
+
+    foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
+    baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
+    foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
+
+    File.exists?(foobar).should be_false
+    File.exists?(baz).should be_false
+    File.exists?(foo).should be_false
+  end
+
   it "installs executables at refs" do
     metadata = {
       dependencies: {
@@ -955,44 +970,21 @@ describe "install" do
     end
   end
 
-  it "install version according to current crystal version" do
+  it "install latest version despite current crystal being older version, but warn" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      run "shards install", env: {"CRYSTAL_VERSION" => "0.3.0"}
-      assert_installed "incompatible", "0.2.0"
-    end
-  end
-
-  it "install version according to current crystal version (major-minor only)" do
-    metadata = {dependencies: {incompatible: "*"}}
-    with_shard(metadata) do
-      run "shards install", env: {"CRYSTAL_VERSION" => "0.4.1"}
-      assert_installed "incompatible", "0.3.0"
-    end
-  end
-
-  it "install version ignoring current crystal version if --ignore-crystal-version" do
-    metadata = {dependencies: {incompatible: "*"}}
-    with_shard(metadata) do
-      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "0.3.0"}
+      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "0.3.0"}
       assert_installed "incompatible", "1.0.0"
-      stdout.should contain(%(Shard "incompatible" may be incompatible with Crystal 0.3.0))
+      stdout.should contain(%(W: Shard "incompatible" may be incompatible with Crystal 0.3.0))
     end
   end
 
-  it "install version ignoring current crystal version if --ignore-crystal-version (via SHARDS_OPTS)" do
+  it "install latest version despite current crystal being newer version, but warn" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      run "shards install", env: {"CRYSTAL_VERSION" => "0.3.0", "SHARDS_OPTS" => "--ignore-crystal-version"}
+      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "2.0.0"}
       assert_installed "incompatible", "1.0.0"
-    end
-  end
-
-  it "doesn't match crystal version for major upgrade" do
-    metadata = {dependencies: {incompatible: "*"}}
-    with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"CRYSTAL_VERSION" => "2.0.0"} }
-      refute_installed "incompatible"
+      stdout.should contain(%(W: Shard "incompatible" may be incompatible with Crystal 2.0.0))
     end
   end
 
@@ -1001,15 +993,6 @@ describe "install" do
     with_shard(metadata) do
       run "shards install", env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
       assert_installed "incompatible", "1.0.0"
-    end
-  end
-
-  it "warn about unneeded --ignore-crystal-version" do
-    metadata = {dependencies: {incompatible: "*"}}
-    with_shard(metadata) do
-      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
-      assert_installed "incompatible", "1.0.0"
-      stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
 
@@ -1222,6 +1205,14 @@ describe "install" do
     end
   end
 
+  it "allows empty shard.override.yml" do
+    with_shard({dependencies: nil}) do
+      File.write "shard.override.yml", ""
+
+      run "shards install"
+    end
+  end
+
   it "fails if file specified in SHARDS_OVERRIDE env var does not exist" do
     metadata = {dependencies: {
       intermediate: "*",
@@ -1234,15 +1225,6 @@ describe "install" do
         run "shards install --no-color", env: {"SHARDS_OVERRIDE" => "shard.missing.yml"}
       end
       ex.stdout.should contain("Missing shard.missing.yml")
-    end
-  end
-
-  it "warn about unneeded --ignore-crystal-version" do
-    metadata = {dependencies: {incompatible: "*"}}
-    with_shard(metadata) do
-      stdout = run "shards install --ignore-crystal-version --no-color", env: {"CRYSTAL_VERSION" => "1.1.0"}
-      assert_installed "incompatible", "1.0.0"
-      stdout.should contain(%(Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal 1.1.0))
     end
   end
 

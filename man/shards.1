@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.15
-.\"      Date: 2021-03-20
+.\"      Date: 2021-06-10
 .\"    Manual: Shards Manual
 .\"    Source: shards 0.14.1
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2021-03-20" "shards 0.14.1" "Shards Manual"
+.TH "SHARDS" "1" "2021-06-10" "shards 0.14.1" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -92,7 +92,7 @@ Dependencies are not satisfied.
 Initializes a default \fIshard.yml\fP in the current folder.
 .RE
 .sp
-\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall]
+\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall] [\-\-skip\-executables]
 .RS 4
 Resolves and installs dependencies into the \fIlib\fP folder. If not already
 present, generates a \fIshard.lock\fP file from resolved dependencies, locking
@@ -121,6 +121,11 @@ same as \fI\-\-frozen\fP and \fI\-\-without\-development\fP
 \-\-skip\-postinstall
 .RS 4
 Does not run postinstall.
+.RE
+.sp
+\-\-skip\-executables
+.RS 4
+Does not install executables.
 .RE
 .RE
 .sp
@@ -193,11 +198,6 @@ Disables colored output.
 Don\(cqt update remote repositories, use the local cache only.
 .RE
 .sp
-\-\-ignore\-crystal\-version
-.RS 4
-Do not enforce crystal version restrictions on shards.
-.RE
-.sp
 \-q, \-\-quiet
 .RS 4
 Decreases the log verbosity, printing only warnings and errors.
@@ -222,7 +222,7 @@ should be added to \fBPATH\fP.
 SHARDS_OPTS
 .RS 4
 Allows general options to be passed in as environment variable.
-\fBExample\fP: \fISHARDS_OPTS="\-\-ignore\-crystal\-version" shards update\fP
+\fBExample\fP: \fISHARDS_OPTS="\-\-no\-color" shards update\fP
 .RE
 .sp
 SHARDS_CACHE_PATH
@@ -253,7 +253,7 @@ Defaults to the output of \fIcrystal env CRYSTAL_VERSION\fP.
 .sp
 SHARDS_OVERRIDE
 .RS 4
-Defines the location of \fIshard.override.yml\fP.
+Defines an alternate location of \fIshard.override.yml\fP.
 .RE
 .SH "FILES"
 .sp
@@ -265,7 +265,16 @@ See \fBshard.yml\fP(5) for documentation.
 .sp
 shard.override.yml
 .RS 4
-Local overrides to \fIshard.yml\fP.
+Allows overriding the source and restriction of dependencies. An alternative
+location can be configured with the env var \fBSHARDS_OVERRIDE\fP.
+.sp
+The file contains a YAML document with a single \fBdependencies\fP key. It has the
+same semantics as in \fBshard.yml\fP. Dependency configuration takes precedence over
+the configuration in \fBshard.yml\fP or any dependency\(cqs \fBshard.yml\fP.
+.sp
+Use cases are local working copies, forcing a specific dependency version
+despite mismatching constraints, fixing a dependency, checking compatibility
+with unreleased dependency versions.
 .RE
 .sp
 shard.lock
