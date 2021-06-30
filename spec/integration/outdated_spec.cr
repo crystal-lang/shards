@@ -26,9 +26,7 @@ describe "outdated" do
       run "shards install"
 
       stdout = run "shards outdated --no-color"
-      # FIXME: This should actually report dependencies are up to date (#446)
-      stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * missing (installed: 0.1.0 at #{commit[0..6]})")
+      stdout.should contain("I: Dependencies are up to date!")
     end
   end
 
@@ -148,6 +146,140 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("I: Dependencies are up to date!")
+    end
+  end
+
+  describe "non-release" do
+    describe "without relases" do
+      it "latest any" do
+        with_shard({dependencies: {missing: "*"}}, {missing: "0.1.0+git.commit.#{git_commits("missing").first}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("I: Dependencies are up to date!")
+        end
+      end
+
+      it "latest branch" do
+        with_shard({dependencies: {missing: {git: git_url("missing"), branch: "master"}}}, {missing: "0.1.0+git.commit.#{git_commits("missing").first}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("I: Dependencies are up to date!")
+        end
+      end
+
+      it "latest commit" do
+        with_shard({dependencies: {missing: {git: git_url("missing"), commit: git_commits("missing").first}}}, {missing: "0.1.0+git.commit.#{git_commits("missing").first}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("I: Dependencies are up to date!")
+        end
+      end
+
+      it "outdated any" do
+        commits = git_commits("inprogress")
+        with_shard({dependencies: {inprogress: "*"}}, {inprogress: "0.1.0+git.commit.#{commits[1]}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("W: Outdated dependencies:")
+          stdout.should contain("  * inprogress (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{commits.first[0..6]})")
+        end
+      end
+
+      it "outdated branch" do
+        commits = git_commits("inprogress")
+        with_shard({dependencies: {inprogress: {git: git_url("inprogress"), branch: "master"}}}, {inprogress: "0.1.0+git.commit.#{commits[1]}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("W: Outdated dependencies:")
+          stdout.should contain("  * inprogress (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{commits.first[0..6]})")
+        end
+      end
+
+      it "outdated commit" do
+        commits = git_commits("inprogress")
+        with_shard({dependencies: {inprogress: {git: git_url("inprogress"), commit: commits[1]}}}, {inprogress: "0.1.0+git.commit.#{commits[1]}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("W: Outdated dependencies:")
+          stdout.should contain("  * inprogress (installed: 0.1.0 at #{commits[1][0..6]}")
+          # TODO: commit
+          # stdout.should contain("  * inprogress (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{commits.first[0..6]})")
+        end
+      end
+    end
+
+    describe "with previous releases" do
+      it "outdated any" do
+        commits = git_commits("heading")
+        with_shard({dependencies: {heading: "*"}}, {heading: "0.1.0+git.commit.#{commits[1]}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("W: Outdated dependencies:")
+          stdout.should contain("  * heading (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0)")
+          # TODO: stdout.should contain("  * heading (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{commits.first[0..6]})")
+        end
+      end
+
+      it "latest any" do
+        commits = git_commits("heading")
+        with_shard({dependencies: {heading: "*"}}, {heading: "0.1.0+git.commit.#{commits.first}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("I: Dependencies are up to date!")
+        end
+      end
+
+      it "latest branch" do
+        commits = git_commits("heading")
+        with_shard({dependencies: {heading: {git: git_url("heading"), branch: "master"}}}, {heading: "0.1.0+git.commit.#{commits.first}"}) do
+          run "shards install"
+
+          stdout = run "shards outdated --no-color"
+          stdout.should contain("I: Dependencies are up to date!")
+        end
+      end
+    end
+
+    it "outdated any with new release" do
+      commits = git_commits("release_hist")
+      with_shard({dependencies: {release_hist: "*"}}, {release_hist: "0.1.0+git.commit.#{commits[1]}"}) do
+        run "shards install"
+
+        stdout = run "shards outdated --no-color"
+        stdout.should contain("W: Outdated dependencies:")
+        stdout.should contain("  * release_hist (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.2.0)")
+      end
+    end
+
+    it "outdated branch without new release" do
+      installed_commit = git_commits("branched", "feature")[1]
+      branch_head = git_commits("branched", "feature").first
+      with_shard({dependencies: {branched: {git: git_url("branched"), branch: "feature"}}}, {branched: "0.1.0+git.commit.#{installed_commit}"}) do
+        run "shards install"
+
+        stdout = run "shards outdated --no-color"
+        stdout.should contain("W: Outdated dependencies:")
+        stdout.should contain("  * branched (installed: 0.1.0 at #{installed_commit[0..6]}, available: 0.1.0 at #{branch_head[0..6]}, latest: 0.2.0)")
+      end
+    end
+
+    it "latest branch with release on HEAD" do
+      branch_head = git_commits("branched", "feature").first
+      with_shard({dependencies: {branched: {git: git_url("branched"), branch: "feature"}}}, {branched: "0.1.0+git.commit.#{branch_head}"}) do
+        run "shards install"
+
+        stdout = run "shards outdated --no-color"
+        stdout.should contain("W: Outdated dependencies:")
+        stdout.should contain("  * branched (installed: 0.1.0 at #{branch_head[0..6]}, latest: 0.2.0)")
+      end
     end
   end
 end

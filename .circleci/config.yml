@@ -36,6 +36,17 @@ commands:
             - ~/Library/Caches/Homebrew
 
 jobs:
+  build-manpages:
+    docker:
+      - image: asciidoctor/docker-asciidoctor
+    steps:
+      - checkout
+      - run:
+          name: Build manpages
+          command: make manpages
+      - store_artifacts:
+          path: man
+
   test:
     docker:
       - image: crystallang/crystal:latest
@@ -69,6 +80,7 @@ workflows:
   version: 2
   ci:
     jobs:
+      - build-manpages
       - test
       - test-on-osx
       - test-on-nightly

@@ -4,10 +4,10 @@ require "../molinillo_solver"
 module Shards
   module Commands
     class Update < Command
-      def run(shards : Array(String), *, ignore_crystal_version = false)
+      def run(shards : Array(String))
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override)
 
         if lockfile? && !shards.empty?
           # update selected dependencies to latest possible versions, but
@@ -15,18 +15,22 @@ module Shards
           solver.locks = locks.shards.reject { |d| shards.includes?(d.name) }
         end
 
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
         install(packages)
 
         if generate_lockfile?(packages)
           write_lockfile(packages)
+        else
+          # Touch lockfile so its mtime is bigger than that of shard.yml
+          File.touch(lockfile_path)
         end
 
-        if ignore_crystal_version
-          check_ignored_crystal_version(packages)
-        end
+        # Touch install path so its mtime is bigger than that of the lockfile
+        touch_install_path
+
+        check_crystal_version(packages)
       end
 
       private def install(packages : Array(Package))
@@ -54,7 +58,7 @@ module Shards
       end
 
       private def generate_lockfile?(packages)
-        !Shards.production?
+        !Shards.frozen?
       end
     end
   end

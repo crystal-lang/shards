@@ -1,84 +1,694 @@
-.TH "SHARD\&.YAML" "5" "September 2015" "shards 0.9.0" "File Formats"
-.SH NAME
-shard.yml \- metadata for crystal applications and libraries
-.SH SYNOPSYS
-.I
-shard.yml
-.SH DESCRIPTION
-.PP
-The file \fIshard.yml\fR is actually a YAML file with metadata about a Crystal
-application or library. It must contain its \fIname\fR and \fIversion\fR and may
-contain a description, license, a list of dependencies and development
+'\" t
+.\"     Title: shard.yml
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.12
+.\"      Date: 2021-06-29
+.\"    Manual: File Formats
+.\"    Source: shards 0.15.0
+.\"  Language: English
+.\"
+.TH "SHARD.YML" "5" "2021-06-29" "shards 0.15.0" "File Formats"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+shard.yml \- metadata for projects managed by shards(1)
+.SH "DESCRIPTION"
+.sp
+The file \fIshard.yml\fP is a YAML file with metadata about a project managed by shards, known as a \fBshard\fP. It must contain at least \fIname\fP and \fIversion\fP attributes plus optional additional attributes.
+.sp
+Both libraries and applications will benefit from \f(CRshard.yml\fP.
+.sp
+The metadata for libraries are expected to have more information (e.g., list of
+authors, description, license) than applications that may only have a name, version and
 dependencies.
+.SH "FORMAT"
+.sp
+The file must be named \fIshard.yml\fP and be a valid YAML file with UTF\-8 encoding.
+It must not contain duplicate attributes in any mapping.
+It should use an indent of 2 spaces.
+It should not use advanced YAML features, only simple mappings, sequences and
+strings (Failsafe Schema).
 .SH "REQUIRED ATTRIBUTES"
-.TP
-.B name
-The name of the project.
-.TP
-.B version
-The version number of the project.
+.sp
+\fBname\fP
+.RS 4
+The name of the project (string, required).
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It must be unique.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It must be 50 characters or less.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It should be lowercase (a\-z).
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It should not contain \fIcrystal\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may contain digits (0\-9) but not start with one.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may contain underscores or dashes but not start/end with one.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It must not have consecutive underscores or dashes.
+.RE
+.sp
+Examples: \fIminitest\fP, \fImysql2\fP, \fIbattery\-horse\fP.
+.RE
+.sp
+\fBversion\fP
+.RS 4
+The version number of the project (string, required).
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It must contain digits.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may contain dots and dashes but not consecutive ones.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may contain a letter to make it a \(aqprerelease\(aq.
+.RE
+.sp
+Examples: \fI1.2.3\fP, \fI2.0.0.1\fP, \fI1.0.0.alpha\fP \fI2.0.0\-rc1\fP or \fI2016.09\fP.
+.sp
+While Shards doesn\(cqt enforce it, following a rational versioning scheme like
+.URL "http://semver.org/" "Semantic Versioning" " "
+or
+.URL "http://calver.org/" "Calendar Versioning"
+is highly recommended.
+.RE
 .SH "OPTIONAL ATTRIBUTES"
-.TP
-.B authors
-A list of authors, along with their contact email (optional).
-.TP
-.B description
-A single line description of the project.
-.TP
-.B license
-An OSI license name or an URL to a license file.
-.TP
-.B dependencies
-A list of required dependencies.
-.TP
-.B development_dependencies
-A list of dependencies required to work on the project, but not necessary to
-build and run the project.
-.TP
-.B scripts
-Script hooks to run. Only \fIpostinstall\fR is supported.
-.SH "DEPENDENCY ATTRIBUTES"
-.TP
-.B
-path
-Local path to the dependency.
-.TP
-.B
-git
-Git repository URL.
-.TP
-.B
-github
-GitHub repository URL as user/repo.
-.TP
-.B
-bitbucket
-Bitbucket repository URL as user/repo.
-.TP
-.B
-version
-Version requirement. It may be prefixed by one of the following operators:
-\fI<\fR, \fI<=\fR, \fI>\fR, \fI>=\fR or \fI~>\fR. It may also be \fI*\fR to match all
-versions (default).
-.TP
-.B
-branch
-Install the specified branch of a Git dependency.
-.TP
-.B
-commit
-Install the specified commit of a Git dependency.
-.TP
-.B
-tag
-Install the specified tag of a Git dependency.
-.SH EXAMPLE
+.sp
+\fBauthors\fP
+.RS 4
+A list of authors, along with their contact email (optional) (sequence of string).
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Each author must have a name.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Each author may have an email address, within angle bracket (\fI<\fP and \fI>\fP)
+chars.
+.RE
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
 .nf
+.fam C
+authors:
+\- Ary
+\- Julien Portalier <julien@example.org>
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBcrystal\fP
+.RS 4
+A restriction to indicate which are the supported crystal versions. This will
+usually express a lower and upper\-bound constraints (string, recommended)
+.sp
+When resolving dependencies, this information is not used. After dependecies
+have been determined shards checks all of them are expected to work with
+the current crystal version. If not, a warning appears for the offending
+dependencies. The resolved versions are installed and can be used at your
+own risk.
+.sp
+The valid values are mostly the same as for \fIdependencies.version\fP:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+A version number prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Just \fI"*"\fP if any version will do (this is the default if unspecified).
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Multiple requirements can be separated by commas.
+.RE
+.sp
+There is a special legacy behavior (its use is discouraged) when just a version
+number is used as the value: it works exactly the same as a \f(CR>=\fP check:
+\fIx.y.z\fP is interpreted as \fI">= x.y.z"\fP
+.sp
+You are welcome to also specify the upper bound to be lower than the next
+(future) major Crystal version, because there\(cqs no guarantee that it won\(cqt
+break your library.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+crystal: ">= 0.35, < 2.0"
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBdependencies\fP
+.RS 4
+A list of required dependencies (mapping).
+.sp
+Each dependency begins with the name of the dependency as a key (string) then a
+list of attributes (mapping) that depend on the resolver type.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+dependencies:
+  minitest:
+    github: ysbaddaden/minitest.cr
+    version: 0.1.0
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBdevelopment_dependencies\fP
+.RS 4
+A list of dependencies required to work on the project, but not necessary
+to build and run the project (mapping).
+.sp
+They will be installed for the main project or library itself.
+When the library is installed as a dependency for another project the
+development dependencies will never be installed.
+.sp
+Development dependencies follow the same scheme as dependencies.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+development_dependencies:
+  minitest:
+    github: ysbaddaden/minitest.cr
+    version: ~> 0.1.3
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBdescription\fP
+.RS 4
+A single line description of the project (string, recommended).
+.RE
+.sp
+\fBdocumentation\fP
+.RS 4
+The URL to a website providing the project\(cqs documentation for online browsing (string).
+.RE
+.sp
+\fBexecutables\fP
+.RS 4
+A list of executables to be installed (sequence).
+.sp
+The executables can be of any type or language (e.g., shell, binary, ruby), must
+exist in the \fIbin\fP folder of the Shard, and have the executable bit set (on
+POSIX platforms). When installed as a dependency for another project the
+executables will be copied to the \fIbin\fP folder of that project.
+.sp
+Executables are always installed last, after the \fIpostinstall\fP script is run, so
+libraries can build the executables when they are installed by Shards. Installation
+can be disabled by passing the flag \fI\-\-skip\-executables\fP.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+executables:
+\- micrate
+\- icr
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBhomepage\fP
+.RS 4
+The URL of the project\(cqs homepage (string).
+.RE
+.sp
+\fBlibraries\fP
+.RS 4
+A list of shared libraries the shard tries to link to (mapping).
+.sp
+This field is purely informational. It serves as a canonical way to discover
+non Crystal dependencies in shards, both for tools as well as humans.
+.sp
+A shard must only list libraries it directly links to, it must not include
+libraries that are only referenced by dependencies. It must include all libraries
+it directly links to, regardless of a dependency doing it too.
+.sp
+It should map from the soname without any extension, path or version,
+for example \fIlibsqlite3\fP for \fI/usr/lib/libsqlite3.so.0.8.6\fP, to a version
+constraint.
+.sp
+The version constraint has the following format:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may be a version number.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may be \fI"*"\fP if any version will do.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+.RE
+.sp
+.if n .RS 4
+.nf
+.fam C
+libraries:
+  libQt5Gui: "*"
+  libQt5Help: "~> 5.7"
+  libQtBus: ">= 4.8"
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBlicense\fP
+.RS 4
+  An \c
+.URL "http://opensource.org/" "OSI license" " "
+name or an URL to a license file
+(string, recommended).
+.RE
+.sp
+\fBrepository\fP
+.RS 4
+The URL of the project\(cqs canonical repository (string, recommended).
+.sp
+The URL should be compatible with typical VCS tools without modifications.
+\fIhttp\fP/\fIhttps\fP is preferred over VCS schemes like \fIgit\fP.
+It is recommended that this URL is publicly available.
+.sp
+Copies of a shard (such as mirrors, development forks etc.) should point to the same
+canonical repository address, even if hosted at different locations.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+repository: "https://github.com/crystal\-lang/shards"
+.fam
+.fi
+.if n .RE
+.RE
+.sp
+\fBscripts\fP
+.RS 4
+Script hooks to run. Only \fIpostinstall\fP is supported.
+.sp
+Shards may run scripts automatically after certain actions. The scripts
+themselves are mere shell commands.
+.sp
+\fBpostinstall\fP
+.RS 4
+The \fIpostinstall\fP hook of a dependency will be run whenever that dependency is
+installed or upgraded in a project that requires it. This may be used to compile
+a C library, to build tools to help working on the project, or anything else.
+.sp
+The script will be run from the dependency\(cqs installation directory, for example
+\fIlib/foo\fP for a Shard named \fIfoo\fP.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+scripts:
+  postinstall: cd src/libfoo && make
+.fam
+.fi
+.if n .RE
+.RE
+.RE
+.sp
+\fBtargets\fP
+.RS 4
+A list of targets to build (mapping).
+.sp
+Each target begins with the name of the target as a key (string), then a list of
+attributes (mapping). The target name is the built binary name, created in the
+\fIbin\fP folder of the project.
+.sp
+\fBExample:\fP
+.sp
+.if n .RS 4
+.nf
+.fam C
+targets:
+  server:
+    main: src/server/cli.cr
+  worker:
+    main: src/worker.cr
+.fam
+.fi
+.if n .RE
+.sp
+The above example will build \fIbin/server\fP from \fIsrc/server/cli.cr\fP and
+\fIbin/worker\fP from \fIsrc/worker.cr\fP.
+.sp
+\fBmain\fP
+.RS 4
+A path to the source file to compile (string).
+.RE
+.RE
+.SH "DEPENDENCY ATTRIBUTES"
+.sp
+Each dependency needs at least one attribute that defines the resolver for this
+dependency. Those can be \fIpath\fP, \fIgit\fP, \fIgithub\fP, \fIgitlab\fP, \fIbitbucket\fP.
+.sp
+\fBpath\fP
+.RS 4
+A local path (string).
+.sp
+The library will be installed as a symlink to the local path.
+The \fIversion\fP attribute isn\(cqt required but will be used if present to validate
+the dependency.
+.RE
+.sp
+\fBgit\fP
+.RS 4
+A Git repository URL (string).
+.sp
+The URL may be [any protocol](\c
+.URL "https://git\-scm.com/docs/git\-clone#_git_urls" "" ")"
+supported by Git, which includes SSH, GIT and HTTPS.
+.sp
+The Git repository will be cloned, the list of versions (and associated
+\fIshard.yml\fP) will be extracted from Git tags (e.g., \fIv1.2.3\fP).
+.sp
+One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP or \fIcommit\fP) is
+required. When missing, Shards will install the HEAD refs.
+.sp
+\fBExample:\fP \fIgit: git://git.example.org/crystal\-library.git\fP
+.RE
+.sp
+\fBgithub\fP
+.RS 4
+GitHub repository URL as \fIuser/repo\fP (string)
+.sp
+Extends the \fIgit\fP resolver, and acts exactly like it.
+.sp
+\fBExample:\fP \fIgithub: ysbaddaden/minitest.cr\fP
+.RE
+.sp
+\fBgitlab\fP
+.RS 4
+GitLab repository URL as \fIuser/repo\fP (string).
+.sp
+Extends the \fIgit\fP resolver, and acts exactly like it.
+.sp
+Only matches dependencies hosted on \fIgitlab.com\fP. For personal GitLab
+installations, you must use the generic \fIgit\fP resolver.
+.sp
+\fBExample:\fP \fIgitlab: thelonlyghost/minitest.cr\fP
+.RE
+.sp
+\fBbitbucket\fP
+.RS 4
+Bitbucket repository URL as \fIuser/repo\fP (string).
+.sp
+Extends the \fIgit\fP resolver, and acts exactly like it.
+.sp
+\fBExample:\fP \fIbitbucket: tom/library\fP
+.RE
+.sp
+\fBversion\fP
+.RS 4
+A version requirement (string).
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may be an explicit version number.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+It may be \fI"*"\fP wildcard if any version will do (this is the default).
+Shards will then install the latest tagged version (or HEAD if no tagged
+version available).
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Multiple requirements can be separated by commas.
+.RE
+.sp
+Examples: \fI1.2.3\fP, \fI>= 1.0.0\fP, \fI>= 1.0.0, < 2.0\fP or \fI~> 2.0\fP.
+.sp
+Most of the version operators, like \fI>= 1.0.0\fP, are self\-explanatory, but
+the \fI~>\fP operator has a special meaning, best shown by example:
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI~> 2.0.3\fP is identical to \fI>= 2.0.3 and < 2.1\fP;
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI~> 2.1\fP is identical to \fI>= 2.1 and < 3.0\fP.
+.RE
+.sp
+\fBbranch\fP
+.RS 4
+Install the specified branch of a git dependency (string).
+.RE
+.sp
+\fBcommit\fP
+.RS 4
+Install the specified commit of a git dependency (string).
+.RE
+.sp
+\fBtag\fP
+.RS 4
+Install the specified tag of a git dependency (string).
+.RE
+.SH "EXAMPLE:"
+.sp
+Here is an example \fIshard.yml\fP for a library named \fIshards\fP at version \fI1.2.3\fP
+with some dependencies:
+.sp
+.if n .RS 4
+.nf
+.fam C
 name: shards
 version: 1.2.3
+crystal: \(aq>= 0.35.0\(aq
 
 authors:
-  - Julien Portalier <julien@example.com>
+\- Julien Portalier <julien@example.com>
+license: MIT
 
 description: |
   Dependency manager for the Crystal Language
@@ -93,12 +703,21 @@ development_dependencies:
     git: https://github.com/ysbaddaden/minitest.cr.git
     version: "~> 0.1.0"
 
+libraries:
+  libgit2: ~> 0.24
+
 scripts:
   postinstall: make ext
 
-license: MIT
+targets:
+  shards:
+    main: src/shards.cr
+.fam
 .fi
-.SH AUTHOR
-Written by Julien Portalier.
+.if n .RE
+.SH "AUTHOR"
+.sp
+Written by Julien Portalier and the Crystal project.
 .SH "SEE ALSO"
-\fBshards\fR(1)
+.sp
+\fBshards\fP(1)

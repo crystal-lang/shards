@@ -6,14 +6,12 @@ module Shards
     setter locks : Array(Package)?
     @solution : Array(Package)?
     @prereleases : Bool
-    @ignore_crystal_version : Bool
 
     include Molinillo::SpecificationProvider(Shards::Dependency, Shards::Spec)
     include Molinillo::UI
 
-    def initialize(@spec : Spec, @override : Override? = nil, *, prereleases = false, ignore_crystal_version = false)
+    def initialize(@spec : Spec, @override : Override? = nil, *, prereleases = false)
       @prereleases = prereleases
-      @ignore_crystal_version = ignore_crystal_version
     end
 
     def prepare(@development = true)
@@ -29,7 +27,21 @@ module Shards
         if dep.resolver != lock.resolver
           Log.warn { "Ignoring source of \"#{dep.name}\" on shard.lock" }
         end
-        spec = dep.resolver.spec(lock.version)
+
+        spec = begin
+          dep.resolver.spec(lock.version)
+        rescue ex : Shards::Error
+          # If the locked version is not available in the changed source,
+          # `shards update` should be used instead of `shards install`.
+          message = String.build do |io|
+            io << "Locked version #{lock.version} for #{dep.name} was not found in #{dep.resolver}"
+            if dep.resolver != lock.resolver
+              io << " (locked source is #{lock.resolver})"
+            end
+            io << ".\n\nPlease run `shards update`"
+          end
+          raise Shards::Error.new(message, cause: ex)
+        end
 
         add_lock base, lock_index, apply_overrides(spec.dependencies)
       end
@@ -158,25 +170,19 @@ module Shards
     end
 
     def dependencies_for(specification : S) : Array(R)
-      spec_dependencies = apply_overrides(specification.dependencies)
-
-      return spec_dependencies if specification.name == "crystal"
-      return spec_dependencies if @ignore_crystal_version
-
-      crystal_dependency = Dependency.new("crystal", CrystalResolver::INSTANCE, MolinilloSolver.crystal_version_req(specification))
-      spec_dependencies + [crystal_dependency]
+      apply_overrides(specification.dependencies)
     end
 
     def self.crystal_version_req(specification : Shards::Spec)
       crystal_pattern =
         if crystal_version = specification.crystal
-          if crystal_version =~ /^(\d+)\.(\d+)(\.(\d+))?$/
-            "~> #{$1}.#{$2}, >= #{crystal_version}"
+          if crystal_version =~ /^\d+\.\d+(\.\d+)?$/
+            ">= #{crystal_version}"
           else
             crystal_version
           end
         else
-          "< 1.0.0"
+          "*"
         end
 
       VersionReq.new(crystal_pattern)

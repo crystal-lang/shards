@@ -83,21 +83,25 @@ module Shards
     end
 
     def postinstall
-      run_script("postinstall")
+      run_script("postinstall", Shards.skip_postinstall?)
     rescue ex : Script::Error
       cleanup_install_directory
       raise ex
     end
 
-    def run_script(name)
+    def run_script(name, skip)
       if installed? && (command = spec.scripts[name]?)
-        Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
-        Script.run(install_path, command, name, self.name)
+        if !skip
+          Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
+          Script.run(install_path, command, name, self.name)
+        else
+          Log.info { "#{name.capitalize} of #{self.name}: #{command} (skipped)" }
+        end
       end
     end
 
     def install_executables
-      return if !installed? || spec.executables.empty?
+      return if !installed? || spec.executables.empty? || Shards.skip_executables?
 
       Dir.mkdir_p(Shards.bin_path)
 
