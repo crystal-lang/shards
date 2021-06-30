@@ -61,6 +61,6 @@ lib: shard.lock
 	$(SHARDS) install || (curl -L $(MOLINILLO_URL) | tar -xzf - -C lib/molinillo --strip-components=1)
 
 shard.lock: shard.yml
-	$(SHARDS) update
+	[ $(SHARDS) = false ] || $(SHARDS) update
 
 phony:
