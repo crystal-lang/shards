@@ -100,12 +100,26 @@ module Shards
       "git"
     end
 
+    private KNOWN_PROVIDERS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
+
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
       when "git"
-        {"git", source}
+        uri = URI.parse(source)
+        downcased_host = uri.host.try &.downcase
+        scheme = uri.scheme.try &.downcase
+        if scheme.in?("git", "http", "https") && downcased_host && downcased_host.in?(KNOWN_PROVIDERS)
+          # browsers are requested to enforce HTTP Strict Transport Security
+          uri.scheme = "https"
+          downcased_path = uri.path.downcase
+          uri.path = downcased_path.ends_with?(".git") ? downcased_path : "#{downcased_path}.git"
+          uri.host = downcased_host.lchop("www.")
+          {"git", uri.to_s}
+        else
+          {"git", source}
+        end
       when "github", "bitbucket", "gitlab"
-        {"git", "https://#{key}.com/#{source}.git"}
+        {"git", "https://#{key}.com/#{source.downcase}.git"}
       else
         raise "Unknown resolver #{key}"
       end
@@ -193,21 +207,6 @@ module Shards
       capture("git tag --list #{GitResolver.git_column_never}")
         .split('\n')
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
-    end
-
-    def matches?(commit)
-      if branch = dependency["branch"]?
-        capture("git branch --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split('\n')
-          .compact_map { |line| $1? if line =~ /^[* ] (.+)$/ }
-          .includes?(branch)
-      elsif tag = dependency["tag"]?
-        capture("git tag --list #{GitResolver.git_column_never} --contains #{commit}")
-          .split('\n')
-          .includes?(tag)
-      else
-        !capture("git log -n 1 #{commit}").strip.empty?
-      end
     end
 
     def install_sources(version : Version, install_path : String)
@@ -404,7 +403,7 @@ module Shards
     end
 
     private def capture(command, path = local_path)
-      run(command, capture: true, path: local_path).not_nil!
+      run(command, capture: true, path: path).not_nil!
     end
 
     private def run(command, path = local_path, capture = false)

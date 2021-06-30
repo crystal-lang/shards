@@ -4,10 +4,10 @@ require "../molinillo_solver"
 module Shards
   module Commands
     class Lock < Command
-      def run(shards : Array(String), print = false, update = false, *, ignore_crystal_version = false)
+      def run(shards : Array(String), print = false, update = false)
         Log.info { "Resolving dependencies" }
 
-        solver = MolinilloSolver.new(spec, override, ignore_crystal_version: ignore_crystal_version)
+        solver = MolinilloSolver.new(spec, override)
 
         if lockfile?
           if update
@@ -22,7 +22,7 @@ module Shards
           end
         end
 
-        solver.prepare(development: !Shards.production?)
+        solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
         return if packages.empty?

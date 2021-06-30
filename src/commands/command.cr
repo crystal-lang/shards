@@ -76,30 +76,25 @@ module Shards
     def handle_resolver_errors
       yield
     rescue e : Molinillo::ResolverError
-      if e.is_a?(Molinillo::VersionConflict) && e.conflicts.has_key?(CrystalResolver.key)
-        suggestion = ", try updating incompatible shards or use --ignore-crystal-version as a workaround if no update is available."
-      end
-
       Log.error { e.message }
-      raise Shards::Error.new("Failed to resolve dependencies#{suggestion}")
+      raise Shards::Error.new("Failed to resolve dependencies")
     end
 
-    def check_ignored_crystal_version(packages)
+    def check_crystal_version(packages)
       crystal_version = Shards::Version.new Shards.crystal_version
 
-      warned = false
       packages.each do |package|
         crystal_req = MolinilloSolver.crystal_version_req(package.spec)
 
         if !Shards::Versions.matches?(crystal_version, crystal_req)
-          warned = true
           Log.warn { "Shard \"#{package.name}\" may be incompatible with Crystal #{Shards.crystal_version}" }
         end
       end
+    end
 
-      unless warned
-        Log.warn { "Using --ignore-crystal-version was not needed. All shards are already compatible with Crystal #{Shards.crystal_version}" }
-      end
+    def touch_install_path
+      Dir.mkdir_p(Shards.install_path)
+      File.touch(Shards.install_path)
     end
   end
 end

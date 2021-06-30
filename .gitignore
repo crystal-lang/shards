@@ -7,3 +7,4 @@
 /spec/.shards
 /spec/unit/.lib
 /tmp
+/docs/*.html
