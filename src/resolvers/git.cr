@@ -152,15 +152,18 @@ module Shards
       end
     end
 
-    private def spec_at_ref(ref : GitRef) : Spec?
+    private def spec_at_ref(ref : GitRef, commit) : Spec
       update_local_cache
+
+      unless file_exists?(ref, SPEC_FILENAME)
+        raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
+      end
+
+      spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
       begin
-        if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
-          Spec.from_yaml(spec_yaml)
-        end
-      rescue Error
-        nil
+        Spec.from_yaml(spec_yaml)
+      rescue error : Error
+        raise Error.new "Invalid #{SPEC_FILENAME} for shard #{name.inspect} at commit #{commit}: #{error.message}"
       end
     end
 
@@ -183,11 +186,8 @@ module Shards
         raise Error.new "Could not find #{ref.full_info} for shard #{name.inspect} in the repository #{source}"
       end
 
-      if spec = spec_at_ref(ref)
-        Version.new "#{spec.version.value}+git.commit.#{commit}"
-      else
-        raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
-      end
+      spec = spec_at_ref(ref, commit)
+      Version.new "#{spec.version.value}+git.commit.#{commit}"
     end
 
     def matches_ref?(ref : GitRef, version : Version)

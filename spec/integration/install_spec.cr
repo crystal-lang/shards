@@ -954,6 +954,14 @@ describe "install" do
     end
   end
 
+  it "shows error when installing by ref and spec is invalid" do
+    metadata = {dependencies: {invalidspec: {git: git_url(:invalidspec), tag: "v0.1.0"}}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain(%(E: Invalid shard.yml for shard "invalidspec" at commit #{git_commits(:invalidspec)[0]}: Expected SCALAR but was SEQUENCE_START at line 5, column 1))
+    end
+  end
+
   it "install latest version despite current crystal being older version, but warn" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
