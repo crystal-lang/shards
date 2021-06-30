@@ -62,6 +62,9 @@ private def setup_repositories
   create_git_release "noshardyml", "0.1.0", false
   create_git_release "noshardyml", "0.2.0"
 
+  create_git_repository "invalidspec"
+  create_git_release "invalidspec", "0.1.0", {crystal: [""]}
+
   # dependencies with postinstall scripts:
   create_git_repository "post"
   {% if flag?(:win32) %}
