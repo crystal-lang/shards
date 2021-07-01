@@ -34,7 +34,7 @@ module Shards
           "-o", File.join(Shards.bin_path, target.name),
           target.main,
         ]
-        if Shards.colors? == false
+        unless Shards.colors?
           args << "--no-color"
         end
         if Shards::Log.level <= ::Log::Severity::Debug
