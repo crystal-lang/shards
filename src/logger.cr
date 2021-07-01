@@ -2,11 +2,7 @@ require "colorize"
 require "log"
 
 module Shards
-  @@colors = true
-
-  def self.colors=(value)
-    @@colors = value
-  end
+  class_property? colors = true
 end
 
 Log.setup_from_env(
