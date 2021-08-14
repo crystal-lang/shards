@@ -88,7 +88,7 @@ own risk.
 The valid values are mostly the same as for _dependencies.version_:
 +
 --
-* A version number prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+* A version number prefixed by an operator: _<_, _\<=_, _>_, _>=_, _!=_ or _~>_.
 * Just _"*"_ if any version will do (this is the default if unspecified).
 * Multiple requirements can be separated by commas.
 --
@@ -192,7 +192,7 @@ The version constraint has the following format:
 --
 - It may be a version number.
 - It may be _"*"_ if any version will do.
-- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_, _!=_ or _~>_.
 --
 +
 [source,yaml]
@@ -328,7 +328,7 @@ A version requirement (string).
 - It may be _"*"_ wildcard if any version will do (this is the default).
   Shards will then install the latest tagged version (or HEAD if no tagged
   version available).
-- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_ or _~>_.
+- The version number may be prefixed by an operator: _<_, _\<=_, _>_, _>=_, _!=_ or _~>_.
 - Multiple requirements can be separated by commas.
 --
 +

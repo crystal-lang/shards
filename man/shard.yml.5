@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.12
-.\"      Date: 2021-06-29
+.\" Generator: Asciidoctor 2.0.16
+.\"      Date: 2021-08-14
 .\"    Manual: File Formats
 .\"    Source: shards 0.15.0
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-06-29" "shards 0.15.0" "File Formats"
+.TH "SHARD.YML" "5" "2021-08-14" "shards 0.15.0" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -165,13 +165,13 @@ It may contain dots and dashes but not consecutive ones.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It may contain a letter to make it a \(aqprerelease\(aq.
+It may contain a letter to make it a \*(Aqprerelease\*(Aq.
 .RE
 .sp
 Examples: \fI1.2.3\fP, \fI2.0.0.1\fP, \fI1.0.0.alpha\fP \fI2.0.0\-rc1\fP or \fI2016.09\fP.
 .sp
 While Shards doesn\(cqt enforce it, following a rational versioning scheme like
-.URL "http://semver.org/" "Semantic Versioning" " "
+.URL "http://semver.org/" "Semantic Versioning" ""
 or
 .URL "http://calver.org/" "Calendar Versioning"
 is highly recommended.
@@ -239,7 +239,7 @@ The valid values are mostly the same as for \fIdependencies.version\fP:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-A version number prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+A version number prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP, \fI!=\fP or \fI~>\fP.
 .RE
 .sp
 .RS 4
@@ -417,7 +417,7 @@ It may be \fI"*"\fP if any version will do.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP, \fI!=\fP or \fI~>\fP.
 .RE
 .sp
 .if n .RS 4
@@ -435,7 +435,7 @@ libraries:
 \fBlicense\fP
 .RS 4
   An \c
-.URL "http://opensource.org/" "OSI license" " "
+.URL "http://opensource.org/" "OSI license" ""
 name or an URL to a license file
 (string, recommended).
 .RE
@@ -618,7 +618,7 @@ version available).
 .  sp -1
 .  IP \(bu 2.3
 .\}
-The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP or \fI~>\fP.
+The version number may be prefixed by an operator: \fI<\fP, \fI<=\fP, \fI>\fP, \fI>=\fP, \fI!=\fP or \fI~>\fP.
 .RE
 .sp
 .RS 4
@@ -684,7 +684,7 @@ with some dependencies:
 .fam C
 name: shards
 version: 1.2.3
-crystal: \(aq>= 0.35.0\(aq
+crystal: \*(Aq>= 0.35.0\*(Aq
 
 authors:
 \- Julien Portalier <julien@example.com>
