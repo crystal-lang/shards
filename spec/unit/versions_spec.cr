@@ -150,8 +150,8 @@ module Shards
     it "resolves neq" do
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
-      resolve(versions, "!= 0.1.0").should eq(["0.0.1", "0.1.1", "0.1.2", "0.2.0", "0.10.0"]),
-        resolve(versions, "!= 0.1.0, != 0.2.0, != 0.10.0").should eq(["0.0.1", "0.1.1", "0.1.2"])
+      resolve(versions, "!= 0.1.0").should eq(["0.0.1", "0.1.1", "0.1.2", "0.2.0", "0.10.0"])
+      resolve(versions, "!= 0.1.0, != 0.2.0, != 0.10.0").should eq(["0.0.1", "0.1.1", "0.1.2"])
     end
 
     it "resolve gt" do
@@ -207,9 +207,9 @@ module Shards
       matches?("1.0.0", "1.0.1").should be_false
 
       matches?("1.0.0", "> 0.1.0, < 1.0.1, != 1.0.0").should be_false
-      matches?("1.0.0", "> 0.1, < 1.0, != 1.0").should be_false
+      matches?("0.5.0", "> 0.1, < 1.0, != 0.5").should be_false
       matches?("1.0.1", ">= 1.0.0, != 2.0").should be_true
-      matches?("1.0.0", ">= 1.0.1, != 1.0.0").should be_false
+      matches?("1.8", ">= 1.0.1, != 2.0").should be_true
 
       matches?("1.0.0", ">= 1.0.0").should be_true
       matches?("1.0.0", ">= 1.0").should be_true
