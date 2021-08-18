@@ -35,28 +35,11 @@ module Shards
     end
 
     it "normalizes github bitbucket gitlab sources" do
-      # deal with case insensitive paths
-      GitResolver.normalize_key_source("github", "repo/path").should eq({"git", "https://github.com/repo/path.git"})
-      GitResolver.normalize_key_source("github", "rEpo/pAth").should eq({"git", "https://github.com/repo/path.git"})
-      GitResolver.normalize_key_source("github", "REPO/PATH").should eq({"git", "https://github.com/repo/path.git"})
-      GitResolver.normalize_key_source("bitbucket", "repo/path").should eq({"git", "https://bitbucket.com/repo/path.git"})
-      GitResolver.normalize_key_source("bitbucket", "rEpo/pAth").should eq({"git", "https://bitbucket.com/repo/path.git"})
-      GitResolver.normalize_key_source("bitbucket", "REPO/PATH").should eq({"git", "https://bitbucket.com/repo/path.git"})
-      GitResolver.normalize_key_source("gitlab", "repo/path").should eq({"git", "https://gitlab.com/repo/path.git"})
-      GitResolver.normalize_key_source("gitlab", "rEpo/pAth").should eq({"git", "https://gitlab.com/repo/path.git"})
-      GitResolver.normalize_key_source("gitlab", "REPO/PATH").should eq({"git", "https://gitlab.com/repo/path.git"})
-
-      # normalise full git paths
-      GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Github.com/Repo/Path.git?Shallow=true")[1].should eq "https://User:Pass@github.com/repo/path.git?Shallow=true"
-      GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Bitbucket.com/Repo/Path.Git?Shallow=true")[1].should eq "https://User:Pass@bitbucket.com/repo/path.git?Shallow=true"
-      GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Gitlab.com/Repo/Path?Shallow=true")[1].should eq "https://User:Pass@gitlab.com/repo/path.git?Shallow=true"
-      GitResolver.normalize_key_source("git", "HTTPS://User:Pass@www.Github.com/Repo/Path?Shallow=true")[1].should eq "https://User:Pass@github.com/repo/path.git?Shallow=true"
-
       # don't normalise other domains
-      GitResolver.normalize_key_source("git", "HTTPs://mygitserver.com/Repo.git").should eq({"git", "HTTPs://mygitserver.com/Repo.git"})
+      HgResolver.normalize_key_source("hg", "HTTPs://myhgserver.com/Repo").should eq({"hg", "HTTPs://myhgserver.com/Repo"})
 
       # don't change protocol from ssh
-      GitResolver.normalize_key_source("git", "ssh://git@github.com/Repo/Path?Shallow=true").should eq({"git", "ssh://git@github.com/Repo/Path?Shallow=true"})
+      HgResolver.normalize_key_source("hg", "ssh://hg@myhgserver.com/Repo").should eq({"hg", "ssh://hg@myhgserver.com/Repo"})
     end
 
     it "available releases" do
