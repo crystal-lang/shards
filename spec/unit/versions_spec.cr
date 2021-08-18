@@ -151,7 +151,7 @@ module Shards
       versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
 
       resolve(versions, "!= 0.1.0").should eq(["0.0.1", "0.1.1", "0.1.2", "0.2.0", "0.10.0"]),
-      resolve(versions, "!= 0.1.0, != 0.2.0, != 0.10.0").should eq(["0.0.1", "0.1.1", "0.1.2"])
+        resolve(versions, "!= 0.1.0, != 0.2.0, != 0.10.0").should eq(["0.0.1", "0.1.1", "0.1.2"])
     end
 
     it "resolve gt" do
