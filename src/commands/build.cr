@@ -34,6 +34,12 @@ module Shards
           "-o", File.join(Shards.bin_path, target.name),
           target.main,
         ]
+        unless Shards.colors?
+          args << "--no-color"
+        end
+        if Shards::Log.level <= ::Log::Severity::Debug
+          args << "--verbose"
+        end
         options.each { |option| args << option }
         Log.debug { "crystal #{args.join(' ')}" }
 
