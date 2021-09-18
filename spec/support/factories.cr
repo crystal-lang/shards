@@ -83,6 +83,79 @@ def checkout_git_branch(project, branch)
   end
 end
 
+def create_hg_repository(project, *versions)
+  Dir.cd(tmp_path) do
+    Shards::HgResolver.hg "init", project
+  end
+
+  Dir.mkdir(File.join(hg_path(project), "src"))
+  File.write(File.join(hg_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
+
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg "add", "src/#{project}.cr"
+  end
+
+  versions.each { |version| create_hg_release project, version }
+end
+
+def create_fork_hg_repository(project, upstream)
+  Dir.cd(tmp_path) do
+    Shards::HgResolver.hg "clone", hg_url(upstream), project
+  end
+end
+
+def create_hg_version_commit(project, version, shard : Bool | NamedTuple = true)
+  Dir.cd(hg_path(project)) do
+    if shard
+      contents = shard.is_a?(NamedTuple) ? shard : nil
+      create_shard project, version, contents
+    end
+    Dir.cd(hg_path(project)) do
+      name = shard[:name]? if shard.is_a?(NamedTuple)
+      name ||= project
+      File.touch "src/#{name}.cr"
+      Shards::HgResolver.hg "add", "src/#{name}.cr"
+    end
+    create_hg_commit project, "release: v#{version}"
+  end
+end
+
+def create_hg_release(project, version, shard : Bool | NamedTuple = true)
+  create_hg_version_commit(project, version, shard)
+  create_hg_tag(project, "v#{version}")
+end
+
+def create_hg_tag(project, version)
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg "tag", "-u", "Your Name <you@example.com>", version
+  end
+end
+
+def create_hg_commit(project, message = "new commit")
+  Dir.cd(hg_path(project)) do
+    File.write("src/#{project}.cr", "# #{message}", mode: "a")
+    Shards::HgResolver.hg "commit", "-u", "Your Name <you@example.com>", "-A", "-m", message
+  end
+end
+
+def checkout_new_hg_bookmark(project, branch)
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg "bookmark", branch
+  end
+end
+
+def checkout_new_hg_branch(project, branch)
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg "branch", branch
+  end
+end
+
+def checkout_hg_rev(project, rev)
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg "update", "-C", rev
+  end
+end
+
 def create_shard(project, version, contents : NamedTuple? = nil)
   spec = {name: project, version: version, crystal: Shards.crystal_version}
   spec = spec.merge(contents) if contents
@@ -116,6 +189,20 @@ def git_url(project)
 end
 
 def git_path(project)
+  File.join(tmp_path, project.to_s)
+end
+
+def hg_commits(project, rev = ".")
+  Dir.cd(hg_path(project)) do
+    Shards::HgResolver.hg("log", "--template", "{node}\n", "-r", rev).as(String).strip.lines
+  end
+end
+
+def hg_url(project)
+  "file://#{Path[hg_path(project)].to_posix}"
+end
+
+def hg_path(project)
   File.join(tmp_path, project.to_s)
 end
 
