@@ -187,7 +187,7 @@ module Shards
                 $1
               end
         matches_approximate?(version.value, $1, ver)
-      when /\s*(~>|>=|<=|>|<|=)\s*([^~<>=\s]+)\s*/
+      when /\s*(~>|>=|<=|!=|>|<|=)\s*([^~<>=!\s]+)\s*/
         matches_operator?(version.value, $1, $2)
       else
         matches_operator?(version.value, "=", pattern)
@@ -210,6 +210,8 @@ module Shards
         compare(version, requirement) < 0
       when "<"
         compare(version, requirement) > 0
+      when "!="
+        compare(version, requirement) != 0
       else
         compare(version, requirement) == 0
       end
