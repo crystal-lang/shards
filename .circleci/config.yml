@@ -51,6 +51,9 @@ jobs:
     docker:
       - image: crystallang/crystal:latest
     steps:
+      - run:
+          name: Install mercurial
+          command: apt-get update && apt-get install mercurial -y
       - shards-make-test
 
   test-on-osx:
@@ -60,14 +63,17 @@ jobs:
       - with-brew-cache:
           steps:
             - run:
-                name: Install Crystal
-                command: brew install crystal
+                name: Install Crystal and Mercurial
+                command: brew install crystal mercurial
       - shards-make-test
 
   test-on-nightly:
     docker:
       - image: crystallang/crystal:nightly
     steps:
+      - run:
+          name: Install mercurial
+          command: apt-get update && apt-get install mercurial -y
       - shards-make-test
 
 workflows:
