@@ -285,7 +285,7 @@ the dependency.
 *git*::
 A Git repository URL (string).
 +
-The URL may be [any protocol](https://git-scm.com/docs/git-clone#_git_urls)
+The URL may be https://git-scm.com/docs/git-clone#_git_urls[any protocol]
 supported by Git, which includes SSH, GIT and HTTPS.
 +
 The Git repository will be cloned, the list of versions (and associated
@@ -324,7 +324,7 @@ Extends the _git_ resolver, and acts exactly like it.
 
 A Mercurial repository URL (string).
 +
-The URL may be [any protocol](https://www.mercurial-scm.org/repo/hg/help/clone)
+The URL may be https://www.mercurial-scm.org/repo/hg/help/clone[any protocol]
 supported by Mercurial, which includes SSH and HTTPS.
 +
 The Merurial repository will be cloned, the list of versions (and associated
