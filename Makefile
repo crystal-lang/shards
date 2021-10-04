@@ -37,16 +37,16 @@ bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
 	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
 
-install: bin/shards manpages phony
+install: bin/shards man/shards.1.gz man/shard.yml.5.gz phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
 	$(INSTALL) -m 0755 bin/shards "$(BINDIR)"
-	$(INSTALL) -m 0644 man/shards.1 "$(MANDIR)/man1"
-	$(INSTALL) -m 0644 man/shard.yml.5 "$(MANDIR)/man5"
+	$(INSTALL) -m 0644 man/shards.1.gz "$(MANDIR)/man1"
+	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(MANDIR)/man5"
 
 uninstall: phony
 	rm -f "$(BINDIR)/shards"
-	rm -f "$(MANDIR)/man1/shards.1"
-	rm -f "$(MANDIR)/man5/shard.yml.5"
+	rm -f "$(MANDIR)/man1/shards.1.gz"
+	rm -f "$(MANDIR)/man5/shard.yml.5.gz"
 
 test: test_unit test_integration
 
@@ -62,5 +62,8 @@ lib: shard.lock
 
 shard.lock: shard.yml
 	[ $(SHARDS) = false ] || $(SHARDS) update
+
+man/%.gz: man/%
+	gzip -c -9 $< > $@
 
 phony:
