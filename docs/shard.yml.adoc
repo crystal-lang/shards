@@ -327,7 +327,7 @@ A Mercurial repository URL (string).
 The URL may be https://www.mercurial-scm.org/repo/hg/help/clone[any protocol]
 supported by Mercurial, which includes SSH and HTTPS.
 +
-The Merurial repository will be cloned, the list of versions (and associated
+The Mercurial repository will be cloned, the list of versions (and associated
 _shard.yml_) will be extracted from Mercurial tags (e.g., _v1.2.3_).
 +
 One of the other attributes (_version_, _tag_, _branch_, _bookmark_ or _commit_) is
