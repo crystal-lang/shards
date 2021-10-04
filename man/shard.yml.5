@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.16
-.\"      Date: 2021-08-14
+.\" Generator: Asciidoctor 2.0.12
+.\"      Date: 2021-10-04
 .\"    Manual: File Formats
 .\"    Source: shards 0.15.0
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-08-14" "shards 0.15.0" "File Formats"
+.TH "SHARD.YML" "5" "2021-10-04" "shards 0.15.0" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -165,13 +165,13 @@ It may contain dots and dashes but not consecutive ones.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It may contain a letter to make it a \*(Aqprerelease\*(Aq.
+It may contain a letter to make it a \(aqprerelease\(aq.
 .RE
 .sp
 Examples: \fI1.2.3\fP, \fI2.0.0.1\fP, \fI1.0.0.alpha\fP \fI2.0.0\-rc1\fP or \fI2016.09\fP.
 .sp
 While Shards doesn\(cqt enforce it, following a rational versioning scheme like
-.URL "http://semver.org/" "Semantic Versioning" ""
+.URL "http://semver.org/" "Semantic Versioning" " "
 or
 .URL "http://calver.org/" "Calendar Versioning"
 is highly recommended.
@@ -435,7 +435,7 @@ libraries:
 \fBlicense\fP
 .RS 4
   An \c
-.URL "http://opensource.org/" "OSI license" ""
+.URL "http://opensource.org/" "OSI license" " "
 name or an URL to a license file
 (string, recommended).
 .RE
@@ -539,8 +539,8 @@ the dependency.
 .RS 4
 A Git repository URL (string).
 .sp
-The URL may be [any protocol](\c
-.URL "https://git\-scm.com/docs/git\-clone#_git_urls" "" ")"
+The URL may be \c
+.URL "https://git\-scm.com/docs/git\-clone#_git_urls" "any protocol"
 supported by Git, which includes SSH, GIT and HTTPS.
 .sp
 The Git repository will be cloned, the list of versions (and associated
@@ -580,6 +580,24 @@ Bitbucket repository URL as \fIuser/repo\fP (string).
 Extends the \fIgit\fP resolver, and acts exactly like it.
 .sp
 \fBExample:\fP \fIbitbucket: tom/library\fP
+.RE
+.sp
+\fBhg\fP
+.RS 4
+A Mercurial repository URL (string).
+.sp
+The URL may be \c
+.URL "https://www.mercurial\-scm.org/repo/hg/help/clone" "any protocol"
+supported by Mercurial, which includes SSH and HTTPS.
+.sp
+The Mercurial repository will be cloned, the list of versions (and associated
+\fIshard.yml\fP) will be extracted from Mercurial tags (e.g., \fIv1.2.3\fP).
+.sp
+One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP, \fIbookmark\fP or \fIcommit\fP) is
+required. When missing, Shards will install the \fI@\fP bookmark or \fItip\fP.
+.sp
+\fBExample:\fP \fIhg: \c
+.URL "https://hg.example.org/crystal\-library" "" "\fP"
 .RE
 .sp
 \fBversion\fP
@@ -662,17 +680,23 @@ the \fI~>\fP operator has a special meaning, best shown by example:
 .sp
 \fBbranch\fP
 .RS 4
-Install the specified branch of a git dependency (string).
+Install the specified branch of a git dependency or the named branch
+of a mercurial dependency (string).
 .RE
 .sp
 \fBcommit\fP
 .RS 4
-Install the specified commit of a git dependency (string).
+Install the specified commit of a git or mercurial dependency (string).
 .RE
 .sp
 \fBtag\fP
 .RS 4
-Install the specified tag of a git dependency (string).
+Install the specified tag of a git or mercurial dependency (string).
+.RE
+.sp
+\fBbookmark\fP
+.RS 4
+Install the specified bookmark of a mercurial dependency (string).
 .RE
 .SH "EXAMPLE:"
 .sp
@@ -684,7 +708,7 @@ with some dependencies:
 .fam C
 name: shards
 version: 1.2.3
-crystal: \*(Aq>= 0.35.0\*(Aq
+crystal: \(aq>= 0.35.0\(aq
 
 authors:
 \- Julien Portalier <julien@example.com>
