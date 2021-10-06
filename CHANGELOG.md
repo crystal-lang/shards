@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.16.0 - 2021-10-06
+
+Fixes:
+- Fix error message for invalid shard.yml ([#516](https://github.com/crystal-lang/shards/pull/516), thanks @straight-shoota)
+- [Makefile] Fix shard.lock recipe ([#515](https://github.com/crystal-lang/shards/pull/515), thanks @straight-shoota)
+- Fix pass no-color and verbose flags to crystal build ([#517](https://github.com/crystal-lang/shards/pull/517), thanks @straight-shoota)
+
+Features:
+- Resolver for Mercurial repositories ([#458](https://github.com/crystal-lang/shards/pull/458), thanks @f-fr)
+- Update manpages with mercurial information ([#526](https://github.com/crystal-lang/shards/pull/526), thanks @straight-shoota)
+- Add `!=` operator for version resolve ([#520](https://github.com/crystal-lang/shards/pull/520), thanks @syeopite)
+- Compress manpages on install ([#524](https://github.com/crystal-lang/shards/pull/524), thanks @straight-shoota)
+
 ## v0.15.0 - 2021-06-29
 
 Fixes:
