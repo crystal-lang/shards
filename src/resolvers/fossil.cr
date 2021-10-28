@@ -207,21 +207,21 @@ module Shards
 
     def local_path
       @local_path ||= begin
-                        uri = parse_uri(fossil_url)
+        uri = parse_uri(fossil_url)
 
-                        path = uri.path
-                        path = Path[path]
-                        # E.g. turns "c:\local\path.git" into "c\local\path.git". Or just drops the leading slash.
-                        if (anchor = path.anchor)
-                          path = Path[path.drive.to_s.rchop(":"), path.relative_to(anchor)]
-                        end
+        path = uri.path
+        path = Path[path]
+        # E.g. turns "c:\local\path.git" into "c\local\path.git". Or just drops the leading slash.
+        if (anchor = path.anchor)
+          path = Path[path.drive.to_s.rchop(":"), path.relative_to(anchor)]
+        end
 
-                        if host = uri.host
-                          File.join(Shards.cache_path, host)
-                        else
-                          File.join(Shards.cache_path, path)
-                        end
-                      end
+        if host = uri.host
+          File.join(Shards.cache_path, host)
+        else
+          File.join(Shards.cache_path, path)
+        end
+      end
     end
 
     def local_fossil_file
