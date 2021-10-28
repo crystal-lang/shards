@@ -335,6 +335,21 @@ required. When missing, Shards will install the _@_ bookmark or _tip_.
 +
 *Example:* _hg: https://hg.example.org/crystal-library_
 
+*fossil*::
+
+A Fossil repository URL (string).
++
+The URL may be https://fossil-scm.org/home/help/clone[any protocol]
+supported by Fossil, which includes SSH and HTTPS.
++
+The Fossil repository will be cloned, the list of versions (and associated
+_shard.yml_) will be extracted from Fossil tags (e.g., _v1.2.3_).
++
+One of the other attributes (_version_, _tag_, _branch_, or _commit_) is
+required. When missing, Shards will install _trunk_.
++
+*Example:* _fossil: https://fossil.example.org/crystal-library_
+
 *version*::
 A version requirement (string).
 +
@@ -357,14 +372,16 @@ the _~>_ operator has a special meaning, best shown by example:
 --
 
 *branch*::
-  Install the specified branch of a git dependency or the named branch
-  of a mercurial dependency (string).
+  Install the specified branch of a git dependency, or the named branch
+  of a mercurial or fossil dependency (string).
 
 *commit*::
-  Install the specified commit of a git or mercurial dependency (string).
+  Install the specified commit of a git, mercurial, or fossil dependency
+  (string).
 
 *tag*::
-  Install the specified tag of a git or mercurial dependency (string).
+  Install the specified tag of a git, mercurial, or fossil dependency
+  (string).
 
 *bookmark*::
   Install the specified bookmark of a mercurial dependency (string).
