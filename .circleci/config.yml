@@ -52,8 +52,8 @@ jobs:
       - image: crystallang/crystal:latest
     steps:
       - run:
-          name: Install mercurial
-          command: apt-get update && apt-get install mercurial -y
+          name: Install mercurial and fossil
+          command: apt-get update && apt-get install mercurial fossil -y
       - shards-make-test
 
   test-on-osx:
@@ -63,8 +63,8 @@ jobs:
       - with-brew-cache:
           steps:
             - run:
-                name: Install Crystal and Mercurial
-                command: brew install crystal mercurial
+                name: Install Crystal, Mercurial, and Fossil
+                command: brew install crystal mercurial fossil
       - shards-make-test
 
   test-on-nightly:
@@ -72,8 +72,8 @@ jobs:
       - image: crystallang/crystal:nightly
     steps:
       - run:
-          name: Install mercurial
-          command: apt-get update && apt-get install mercurial -y
+          name: Install mercurial and fossil
+          command: apt-get update && apt-get install mercurial fossil -y
       - shards-make-test
 
 workflows:
