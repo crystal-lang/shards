@@ -75,17 +75,17 @@ module Shards
     end
   end
 
-  struct FossilTipRef < FossilRef
+  struct FossilTrunkRef < FossilRef
     def to_fossil_ref
-      "tip"
+      "trunk"
     end
 
     def to_s(io)
-      io << "tip"
+      io << "trunk"
     end
 
     def to_yaml(yaml)
-      raise NotImplementedError.new("FossilTipRef is for internal use only")
+      raise NotImplementedError.new("FossilTrunkRef is for internal use only")
     end
   end
 
@@ -135,7 +135,7 @@ module Shards
     private def spec_at_ref(ref : FossilRef, commit) : Spec
       update_local_cache
 
-      unless file_exists?(ref, SPEC_FILENAME)
+      unless capture("fossil ls -R #{Process.quote(local_fossil_file)} -r #{Process.quote(ref.to_fossil_ref)} #{Process.quote(SPEC_FILENAME)}").strip == SPEC_FILENAME
         raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
       end
 
@@ -159,7 +159,7 @@ module Shards
 
     def latest_version_for_ref(ref : FossilRef?) : Version
       update_local_cache
-      ref ||= FossilTipRef.new
+      ref ||= FossilTrunkRef.new
       begin
         commit = commit_sha1_at(ref)
       rescue Error
@@ -174,7 +174,7 @@ module Shards
       case ref
       when FossilCommitRef
         ref =~ fossil_ref(version)
-      when FossilBranchRef, FossilTipRef
+      when FossilBranchRef, FossilTrunkRef
         # TODO: check if version is the branch
         version.has_metadata?
       else
@@ -217,7 +217,7 @@ module Shards
                         end
 
                         if host = uri.host
-                          File.join(Shards.cache_path, host, path)
+                          File.join(Shards.cache_path, host)
                         else
                           File.join(Shards.cache_path, path)
                         end
@@ -225,7 +225,7 @@ module Shards
     end
 
     def local_fossil_file
-      @local_fossil_file ||= Path[local_path].join("..", "#{name}.fossil").normalize.to_s
+      @local_fossil_file ||= Path[local_path].join("#{name}.fossil").normalize.to_s
     end
 
     def fossil_url
@@ -297,21 +297,17 @@ module Shards
 
     private def mirror_repository
       path = local_path
-      FileUtils.rm_r(path) if File.exists?(path)
+      fossil_file = Path[path].join("#{name}.fossil").to_s
       Dir.mkdir_p(path)
+      FileUtils.rm(fossil_file) if File.exists?(fossil_file)
 
       source = fossil_url
       # Remove a "file://" from the beginning, otherwise the path might be invalid
       # on Windows.
       source = source.lchop("file://")
 
-      Log.debug { "Local path: #{local_path}" }
       fossil_retry(err: "Failed to clone #{source}") do
-        # We checkout the working directory so that "." is meaningful.
-        #
-        # An alternative would be to use the `@` bookmark, but only as long
-        # as nothing new is committed.
-        run_in_current_folder "fossil clone #{Process.quote(source)} #{Process.quote(path)}.fossil"
+        run_in_current_folder "fossil clone #{Process.quote(source)} #{Process.quote(fossil_file)}"
       end
     end
 
@@ -326,16 +322,19 @@ module Shards
       loop do
         yield
         break
-      rescue Error
+      rescue inner_err : Error
         retries += 1
         next if retries < 3
-        raise Error.new(err)
+        Log.debug { inner_err }
+        raise Error.new("#{err}: #{inner_err}")
       end
     end
 
     private def delete_repository
       Log.debug { "rm -rf #{Process.quote(local_path)}'" }
       Shards::Helpers.rm_rf(local_path)
+      Log.debug { "rm -rf #{Process.quote(local_fossil_file)}'" }
+      Shards::Helpers.rm_rf(local_fossil_file)
       @origin_url = nil
     end
 
@@ -344,13 +343,10 @@ module Shards
     end
 
     private def valid_repository?
-      File.each_line(File.join(local_path, "config")) do |line|
-        return true if line =~ /mirror\s*=\s*true/
-      end
-      false
+      File.exists?(local_fossil_file)
     end
 
-    private def origin_url
+    protected def origin_url
       @origin_url ||= capture("fossil remote-url -R #{Process.quote(local_fossil_file)}").strip
     end
 
@@ -426,7 +422,6 @@ module Shards
         output.to_s if capture
       else
         message = error.to_s
-        Log.debug { caller.join("\n  => ") }
         raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
