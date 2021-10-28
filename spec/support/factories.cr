@@ -156,6 +156,86 @@ def checkout_hg_rev(project, rev)
   end
 end
 
+def create_fossil_repository(project, *versions)
+  Dir.cd(tmp_path) do
+    run "fossil init #{Process.quote(project)}.fossil"
+    run "fossil open #{Process.quote(project)}.fossil --workdir #{Process.quote(fossil_path(project))}"
+  end
+
+  Dir.mkdir(File.join(fossil_path(project), "src"))
+  File.write(File.join(fossil_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
+
+  Dir.cd(fossil_path(project)) do
+    run %|fossil add #{Process.quote("src/#{project}.cr")}|
+  end
+
+  versions.each { |version| create_fossil_release project, version, tag: "v#{version}" }
+end
+
+def create_fossil_release(project, version, shard : Bool | NamedTuple = true, tag : String? = nil)
+  create_fossil_version_commit(project, version, shard, tag)
+end
+
+def create_fossil_version_commit(project, version, shard : Bool | NamedTuple = true, tag : String? = nil)
+  Dir.cd(fossil_path(project)) do
+    if shard
+      contents = shard.is_a?(NamedTuple) ? shard : nil
+      create_shard project, version, contents
+    end
+
+    name = shard[:name]? if shard.is_a?(NamedTuple)
+    name ||= project
+    File.touch "src/#{name}.cr"
+    run "fossil addremove"
+
+    create_fossil_commit project, "release: v#{version}", tag
+  end
+end
+
+def create_fossil_commit(project, message = "new commit", tag : String? = nil)
+  Dir.cd(fossil_path(project)) do
+    File.write("src/#{project}.cr", "# #{message}", mode: "a")
+    run "fossil addremove"
+
+    # Use --hash here to work around a file that's changed, but the size and
+    # mtime are the same.  Depending on the resolution of mtime on the
+    # underlying filesystem, shard.yml may fall into this edge case during
+    # testing.
+    #
+    # https://fossil-users.fossil-scm.narkive.com/9ybRAo1U/error-file-is-different-on-disk-compared-to-the-repository-during-commti
+    if tag
+      run "fossil commit --hash --tag #{Process.quote(tag)} -m #{Process.quote(message)}"
+    else
+      run "fossil commit --hash -m #{Process.quote(message)}"
+    end
+  end
+end
+
+def create_fork_fossil_repository(project, upstream)
+  Dir.cd(tmp_path) do
+    run "fossil clone #{Process.quote(fossil_url(upstream))} #{Process.quote(project)}"
+  end
+end
+
+def create_fossil_tag(project, version)
+  Dir.cd(fossil_path(project)) do
+    run "fossil tag add #{Process.quote(version)} current"
+  end
+end
+
+def checkout_new_fossil_branch(project, branch)
+  Dir.cd(fossil_path(project)) do
+    run "fossil branch new #{Process.quote(branch)} current"
+    run "fossil checkout branch"
+  end
+end
+
+def checkout_fossil_rev(project, rev)
+  Dir.cd(fossil_path(project)) do
+    run "fossil checkout #{Process.quote(rev)}"
+  end
+end
+
 def create_shard(project, version, contents : NamedTuple? = nil)
   spec = {name: project, version: version, crystal: Shards.crystal_version}
   spec = spec.merge(contents) if contents
@@ -206,6 +286,20 @@ def hg_path(project)
   File.join(tmp_path, project.to_s)
 end
 
+def fossil_commits(project, rev = "trunk")
+  Dir.cd(fossil_path(project)) do
+    run("fossil timeline #{Process.quote(rev)} -t ci -F %H").strip.split('\n')[..-2]
+  end
+end
+
+def fossil_url(project)
+  "file://#{Path[fossil_path(project)].to_posix}"
+end
+
+def fossil_path(project)
+  File.join(tmp_path, "#{project.to_s}")
+end
+
 def rel_path(project)
   "../../spec/.repositories/#{project}"
 end
@@ -244,6 +338,7 @@ def run(command, *, env = nil)
     # FIXME: Concurrent streams are currently broken on Windows. Need to drop one for now.
     error = nil
   {% end %}
+
   status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
 
   if status.success?

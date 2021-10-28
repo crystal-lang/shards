@@ -14,6 +14,10 @@ def hg_branch(name)
   Shards::HgBranchRef.new(name)
 end
 
+def fossil_branch(name)
+  Shards::FossilBranchRef.new(name)
+end
+
 def version(version)
   Shards::Version.new(version)
 end
