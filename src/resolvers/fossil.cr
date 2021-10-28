@@ -198,8 +198,6 @@ module Shards
       Log.debug { "Local path: #{local_path}" }
       Log.debug { "Install path: #{install_path}" }
 
-      install_fossil_file = Path[install_path].join("..", "#{name}.fossil").normalize.to_s
-      #run "fossil clone #{Process.quote(local_fossil_file)} #{install_fossil_file}"
       run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
     end
 
