@@ -54,6 +54,9 @@ jobs:
       - run:
           name: Install mercurial and fossil
           command: apt-get update && apt-get install mercurial fossil -y
+      - run:
+          name: Set environment variables
+          command: echo USER="$USER" >> "${BASH_ENV}"
       - shards-make-test
 
   test-on-osx:
@@ -70,10 +73,15 @@ jobs:
   test-on-nightly:
     docker:
       - image: crystallang/crystal:nightly
+    environment:
+      USER: fossil-user
     steps:
       - run:
           name: Install mercurial and fossil
           command: apt-get update && apt-get install mercurial fossil -y
+      - run:
+          name: Set environment variables
+          command: echo USER="$USER" >> "${BASH_ENV}"
       - shards-make-test
 
 workflows:
