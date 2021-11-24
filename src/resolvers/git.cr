@@ -144,26 +144,30 @@ module Shards
       update_local_cache
       ref = git_ref(version)
 
-      if file_exists?(ref, SPEC_FILENAME)
-        capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
+      if file_exists?(ref, spec_filename)
+        capture("git show #{Process.quote("#{ref.to_git_ref}:#{spec_filename}")}")
       else
-        Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
+        Log.debug { "Missing \"#{spec_filename}\" for #{name.inspect} at #{ref}" }
         nil
       end
+    end
+
+    def spec_filename
+      File.join(subdir, SPEC_FILENAME)
     end
 
     private def spec_at_ref(ref : GitRef, commit) : Spec
       update_local_cache
 
-      unless file_exists?(ref, SPEC_FILENAME)
-        raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
+      unless file_exists?(ref, spec_filename)
+        raise Error.new "No #{spec_filename} was found for shard #{name.inspect} at commit #{commit}"
       end
 
-      spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
+      spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{spec_filename}")}")
       begin
         Spec.from_yaml(spec_yaml)
       rescue error : Error
-        raise Error.new "Invalid #{SPEC_FILENAME} for shard #{name.inspect} at commit #{commit}: #{error.message}"
+        raise Error.new "Invalid #{spec_filename} for shard #{name.inspect} at commit #{commit}: #{error.message}"
       end
     end
 
@@ -214,11 +218,19 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git --work-tree=#{Process.quote(install_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
+      temp_path = File.join(Dir.tempdir, "shards_#{Process.pid}")
+      Dir.mkdir_p(temp_path)
+      run "git --work-tree=#{Process.quote(temp_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
+      FileUtils.cp_r(File.join(temp_path, subdir, "."), install_path)
     end
 
     def commit_sha1_at(ref : GitRef)
       capture("git log -n 1 --pretty=%H #{Process.quote(ref.to_git_ref)}").strip
+    end
+
+    def subdir
+      uri = parse_uri(git_url)
+      subdir = uri.query_params.fetch("subdir", "")
     end
 
     def local_path
@@ -316,8 +328,9 @@ module Shards
       # be used interactively.
       # This configuration can be overriden by defining the environment
       # variable `GIT_ASKPASS`.
-      git_retry(err: "Failed to clone #{git_url}") do
-        run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
+      url = git_url.split("?").first
+      git_retry(err: "Failed to clone #{url}") do
+        run_in_current_folder "git clone -c core.askPass=true --mirror --quiet -- #{Process.quote(url)} #{Process.quote(local_path)}"
       end
     end
 
