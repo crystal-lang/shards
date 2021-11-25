@@ -118,6 +118,28 @@ module Shards
       Spec.from_file(install_path("library", "shard.yml")).version.should eq(version "0.2.0")
     end
 
+    it "install subdirectory" do
+      Dir.cd(tmp_path) do
+        run "git init monorepo"
+      end
+      Dir.cd(git_path("monorepo")) do
+        run "git checkout --orphan master"
+        spec = {name: "sublibrary", version: "0.1.0", crystal: Shards.crystal_version}
+        create_file "monorepo/sublibrary", "shard.yml", spec.to_yaml
+        create_file "monorepo/sublibrary/src", "sublibrary.cr", "# foo"
+        run "git add ."
+        run "git commit --allow-empty --no-gpg-sign -m #{Process.quote("release: v0.1.0")}"
+        run "git tag --no-sign #{Process.quote("v0.1.0")}"
+      end
+
+      library = Shards::GitResolver.new("sublibrary", git_url("monorepo") + "?subdir=sublibrary")
+      library.install_sources(version("0.1.0"), install_path("sublibrary"))
+
+      File.exists?(install_path("sublibrary", "src/sublibrary.cr")).should be_true
+      File.exists?(install_path("sublibrary", "shard.yml")).should be_true
+      Spec.from_file(install_path("sublibrary", "shard.yml")).version.should eq(version "0.1.0")
+    end
+
     it "origin changed" do
       library = GitResolver.new("library", git_url("library"))
       library.install_sources(version("0.1.2"), install_path("library"))

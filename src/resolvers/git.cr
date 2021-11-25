@@ -231,6 +231,11 @@ module Shards
     def subdir
       uri = parse_uri(git_url)
       subdir = uri.query_params.fetch("subdir", "")
+      if subdir.blank? && git_url.includes?("?")
+        params = git_url.split("?").last
+        subdir = URI::Params.parse(params).fetch("subdir", "")
+      end
+      subdir
     end
 
     def local_path
