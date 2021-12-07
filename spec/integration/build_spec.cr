@@ -72,6 +72,21 @@ describe "build" do
     end
   end
 
+  pending "reports warning without failing" do
+    File.write File.join(application_path, "src", "cli.cr"), <<-CODE
+      @[Deprecated]
+      def a
+      end
+      a
+      CODE
+
+    Dir.cd(application_path) do
+      err = run "shards build --no-color app"
+      err.should match(/eprecated/)
+      File.exists?(bin_path("app")).should be_true
+    end
+  end
+
   it "errors when no targets defined" do
     File.write File.join(application_path, "shard.yml"), <<-YAML
       name: build
