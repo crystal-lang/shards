@@ -26,9 +26,11 @@ INSTALL ?= /usr/bin/install
 MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
 MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
 
-all: bin/shards
+all: build
 
 include docs.mk
+
+build: phony bin/shards
 
 clean: phony clean_docs
 	rm -f bin/shards
