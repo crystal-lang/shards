@@ -106,7 +106,7 @@ private def setup_repositories
   create_git_release "transitive", "0.2.0", {
     dependencies: {version: {git: git_url(:version)}},
     scripts:      {
-      postinstall: %(${CRYSTAL:-crystal} build src/version.cr),
+      postinstall: %(#{{{ flag?(:win32) ? "crystal" : "${CRYSTAL:-crystal}" }}} build src/version.cr),
     },
   }
 
