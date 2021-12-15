@@ -18,6 +18,9 @@ def create_git_repository(project, *versions)
     run "git init #{Process.quote(project)}"
     Dir.cd(Process.quote(project)) do
       run "git checkout --orphan master"
+
+      run "git config user.email author@example.com"
+      run "git config user.name Author"
     end
   end
 
@@ -34,6 +37,11 @@ end
 def create_fork_git_repository(project, upstream)
   Dir.cd(tmp_path) do
     run "git clone #{Process.quote(git_url(upstream))} #{Process.quote(project)}"
+
+    Dir.cd(Process.quote(project)) do
+      run "git config user.email fork@example.com"
+      run "git config user.name Fork"
+    end
   end
 end
 
