@@ -7,7 +7,7 @@ module Shards
     end
 
     def read_spec(version = nil) : String?
-      spec_path = File.join(local_path, SPEC_FILENAME)
+      spec_path = File.join(expanded_local_path, SPEC_FILENAME)
 
       if File.exists?(spec_path)
         File.read(spec_path)
