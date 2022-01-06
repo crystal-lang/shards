@@ -47,7 +47,38 @@ module Shards
       end
     end
 
+    private def prefetch_local_caches(lock_index, deps)
+      count = 0
+      active = 0
+      ch = Channel(Exception?).new(deps.size + 1)
+      deps.each do |dep|
+        next unless lock = lock_index[dep.name]?
+        next unless dep.matches?(lock.version)
+        count += 1
+        active += 1
+        while active > Shards.parallel_fetch
+          sleep 0.1
+        end
+        spawn do
+          begin
+            dep.resolver.update_local_cache
+            ch.send(nil)
+            active -= 1
+          rescue ex : Exception
+            ch.send(ex)
+          end
+        end
+      end
+
+      count.times do
+        obj = ch.receive
+        raise obj if obj.is_a? Exception
+      end
+    end
+
     private def add_lock(base, lock_index, deps : Array(Dependency))
+      prefetch_local_caches(lock_index, deps) if Shards.parallel_fetch > 1
+
       deps.each do |dep|
         if lock = lock_index[dep.name]?
           next unless dep.matches?(lock.version)

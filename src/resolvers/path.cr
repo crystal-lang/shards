@@ -45,6 +45,9 @@ module Shards
       "#{version.value} at #{source}"
     end
 
+    def update_local_cache
+    end
+
     register_resolver "path", PathResolver
   end
 end

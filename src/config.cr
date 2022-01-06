@@ -107,4 +107,7 @@ module Shards
   class_property? local = false
   class_property? skip_postinstall = false
   class_property? skip_executables = false
+
+  # Defaults to 1 (disabled) when running in `crystal spec`
+  class_property parallel_fetch : Int32 = {{ @top_level.has_constant?("Spec") ? 1 : 8 }}
 end
