@@ -58,7 +58,7 @@ Exit status:
 *init*::
 Initializes a default _shard.yml_ in the current folder.
 
-*install* [--frozen] [--without-development] [--production] [--skip-postinstall] [--skip-executables]::
+*install* [--frozen] [--without-development] [--production] [--skip-postinstall] [--skip-executables] [--parallel-fetch=N]::
 Resolves and installs dependencies into the _lib_ folder. If not already
 present, generates a _shard.lock_ file from resolved dependencies, locking
 version numbers or Git commits.
@@ -74,6 +74,7 @@ doesn't generate a conflict, thus generating a new _shard.lock_ file.
 --production:: same as _--frozen_ and _--without-development_
 --skip-postinstall:: Does not run postinstall of dependencies.
 --skip-executables:: Does not install executables.
+--parallel-fetch:: Number of git fetches to perform in parallel (default: 8).
 --
 
 *list* [--tree]::
