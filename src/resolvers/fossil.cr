@@ -198,7 +198,7 @@ module Shards
       Log.debug { "Local path: #{local_path}" }
       Log.debug { "Install path: #{install_path}" }
 
-      run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
+      run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
     end
 
     def commit_sha1_at(ref : FossilRef)
