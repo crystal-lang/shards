@@ -425,11 +425,7 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      if path
-        status = Process.run(command, shell: true, output: output, error: error, chdir: path)
-      else
-        status = Process.run(command, shell: true, output: output, error: error)
-      end
+      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
 
       if status.success?
         output.to_s if capture
