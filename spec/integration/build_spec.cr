@@ -72,7 +72,7 @@ describe "build" do
     end
   end
 
-  pending "reports warning without failing" do
+  it "reports warning without failing" do
     File.write File.join(application_path, "src", "cli.cr"), <<-CODE
       @[Deprecated]
       def a

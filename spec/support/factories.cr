@@ -234,7 +234,7 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command, *, env = nil)
+def run(command, *, env = nil, return_error = false)
   cmd_env = {
     "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
@@ -247,7 +247,8 @@ def run(command, *, env = nil)
   status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
 
   if status.success?
-    output.to_s.gsub("\r\n", "\n")
+    output = output.to_s.gsub("\r\n", "\n")
+    output + error.to_s
   else
     raise FailedCommand.new("command failed: #{command}", output.to_s.gsub("\r\n", "\n"), error.to_s.gsub("\r\n", "\n"))
   end
