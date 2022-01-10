@@ -41,10 +41,10 @@ module Shards
           args << "--verbose"
         end
         options.each { |option| args << option }
-        Log.debug { "crystal #{args.join(' ')}" }
+        Log.debug { "#{Shards.crystal_bin} #{args.join(' ')}" }
 
         error = IO::Memory.new
-        status = Process.run("crystal", args: args, output: Process::Redirect::Inherit, error: error)
+        status = Process.run(Shards.crystal_bin, args: args, output: Process::Redirect::Inherit, error: error)
         unless status.success?
           raise Error.new("Error target #{target.name} failed to compile:\n#{error}")
         else
