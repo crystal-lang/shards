@@ -45,10 +45,10 @@ module Shards
 
         error = IO::Memory.new
         status = Process.run(Shards.crystal_bin, args: args, output: Process::Redirect::Inherit, error: error)
-        unless status.success?
-          raise Error.new("Error target #{target.name} failed to compile:\n#{error}")
+        if status.success?
+          STDERR.puts error unless error.empty?
         else
-          STDERR << error if error.size > 0
+          raise Error.new("Error target #{target.name} failed to compile:\n#{error}")
         end
       end
     end
