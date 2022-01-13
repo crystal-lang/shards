@@ -242,7 +242,7 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command, *, env = nil, return_error = false)
+def run(command, *, env = nil)
   cmd_env = {
     "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
