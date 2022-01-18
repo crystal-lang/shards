@@ -254,9 +254,12 @@ def run(command, *, env = nil)
   {% end %}
   status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
 
+  output = output.to_s.gsub("\r\n", "\n")
+  error = error.to_s.gsub("\r\n", "\n")
+
   if status.success?
-    output.to_s.gsub("\r\n", "\n")
+    output + error
   else
-    raise FailedCommand.new("command failed: #{command}", output.to_s.gsub("\r\n", "\n"), error.to_s.gsub("\r\n", "\n"))
+    raise FailedCommand.new("command failed: #{command}", output, error)
   end
 end
