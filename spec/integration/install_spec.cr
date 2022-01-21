@@ -904,12 +904,22 @@ describe "install" do
     end
   end
 
-  it "shows missing shard.yml in debug info" do
-    metadata = {dependencies: {noshardyml: "*"}}
-    with_shard(metadata) do
-      stdout = run "shards install --no-color -v"
-      assert_installed "noshardyml", "0.2.0"
-      stdout.should contain(%(D: Missing "shard.yml" for "noshardyml" at tag v0.1.0))
+  describe "shows missing shard.yml in debug info" do
+    it "git" do
+      metadata = {dependencies: {noshardyml: "*"}}
+      with_shard(metadata) do
+        stdout = run "shards install --no-color -v"
+        assert_installed "noshardyml", "0.2.0"
+        stdout.should contain(%(D: Missing "shard.yml" for "noshardyml" at tag v0.1.0))
+      end
+    end
+
+    it "path" do
+      metadata = {dependencies: {nonexistent: { path: "nonexistent-path"}}}
+      with_shard(metadata) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color -v" }
+        ex.stdout.should contain(%(E: Missing "shard.yml" for "nonexistent" at "#{File.expand_path("nonexistent-path")}"))
+      end
     end
   end
 
