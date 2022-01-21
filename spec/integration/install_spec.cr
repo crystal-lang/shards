@@ -915,10 +915,10 @@ describe "install" do
     end
 
     it "path" do
-      metadata = {dependencies: {nonexistent: { path: "nonexistent-path"}}}
+      metadata = {dependencies: {reallynoshardyml: { path: rel_path("reallynoshardyml") }}}
       with_shard(metadata) do
         ex = expect_raises(FailedCommand) { run "shards install --no-color -v" }
-        ex.stdout.should contain(%(E: Missing "shard.yml" for "nonexistent" at "#{File.expand_path("nonexistent-path")}"))
+        ex.stdout.should contain(%(E: Missing "shard.yml" for "reallynoshardyml" at "#{File.expand_path(rel_path("reallynoshardyml"))}"))
       end
     end
   end
