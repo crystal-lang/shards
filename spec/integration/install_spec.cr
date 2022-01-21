@@ -914,7 +914,7 @@ describe "install" do
   end
 
   it "expands path and shows in debug info if missing" do
-    metadata = {dependencies: {nonexistent: { path: "~/nonexistent-path" }}}
+    metadata = {dependencies: {nonexistent: {path: "~/nonexistent-path"}}}
     with_shard(metadata) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color -v" }
       ex.stdout.should contain(%(E: Failed no such path: #{Path.home.join("nonexistent-path")}))
