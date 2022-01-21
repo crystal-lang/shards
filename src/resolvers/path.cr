@@ -29,7 +29,7 @@ module Shards
     end
 
     private def expanded_local_path
-      File.expand_path(local_path).tap do |path|
+      File.expand_path(local_path, home: true).tap do |path|
         raise Error.new("Failed no such path: #{path}") unless Dir.exists?(path)
       end
     end
