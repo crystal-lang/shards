@@ -56,7 +56,7 @@ jobs:
           command: apt-get update && apt-get install mercurial fossil -y
       - run:
           name: Set environment variables
-          command: echo USER="$USER" >> "${BASH_ENV}"
+          command: echo USER="$CIRCLE_PROJECT_USERNAME" >> "${BASH_ENV}"
       - shards-make-test
 
   test-on-osx:
@@ -76,7 +76,7 @@ jobs:
     environment:
       USER: fossil-user
     steps:
-      - run:
+      - run:yes
           name: Install mercurial and fossil
           command: apt-get update && apt-get install mercurial fossil -y
       - run:
