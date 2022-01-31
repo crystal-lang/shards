@@ -76,7 +76,7 @@ jobs:
     environment:
       USER: fossil-user
     steps:
-      - run:yes
+      - run:
           name: Install mercurial and fossil
           command: apt-get update && apt-get install mercurial fossil -y
       - run:
