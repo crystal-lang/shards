@@ -91,6 +91,8 @@ module Shards
 
   class FossilResolver < Resolver
     @@has_fossil_command : Bool?
+    @@fossil_version_maj : Int8?
+    @@fossil_version_min : Int8?
     @@fossil_version : String?
 
     @origin_url : String?
@@ -117,7 +119,24 @@ module Shards
     end
 
     protected def self.fossil_version
-      @@fossil_version ||= `fossil version`[/version\s+([^\s]*)/, 1]
+      unless @@fossil_version
+        @@fossil_version = `fossil version`[/version\s+([^\s]*)/, 1]
+        maj, min = @@fossil_version.not_nil!.split('.').map &.to_i8
+        @@fossil_version_maj = maj
+        @@fossil_version_min = min
+      end
+
+      @@fossil_version
+    end
+
+    protected def self.fossil_version_maj
+      self.fossil_version unless @@fossil_version_maj
+      @@fossil_version_maj.not_nil!
+    end
+
+    protected def self.fossil_version_min
+      self.fossil_version unless @@fossil_version_min
+      @@fossil_version_min.not_nil!
     end
 
     def read_spec(version : Version) : String?
@@ -198,7 +217,16 @@ module Shards
       Log.debug { "Local path: #{local_path}" }
       Log.debug { "Install path: #{install_path}" }
 
-      run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
+      # The --workdir argument was introduced in version 2.12, so we have to
+      # fake it
+      if FossilResolver.fossil_version_maj <= 2 &&
+         FossilResolver.fossil_version_min <= 12
+        Dir.cd(install_path) do
+          run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}"
+        end
+      else
+        run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
+      end
     end
 
     def commit_sha1_at(ref : FossilRef)
