@@ -93,6 +93,7 @@ module Shards
     @@has_fossil_command : Bool?
     @@fossil_version_maj : Int8?
     @@fossil_version_min : Int8?
+    @@fossil_version_rev : Int8?
     @@fossil_version : String?
 
     @origin_url : String?
@@ -121,9 +122,10 @@ module Shards
     protected def self.fossil_version
       unless @@fossil_version
         @@fossil_version = `fossil version`[/version\s+([^\s]*)/, 1]
-        maj, min = @@fossil_version.not_nil!.split('.').map &.to_i8
-        @@fossil_version_maj = maj
-        @@fossil_version_min = min
+        pieces = @@fossil_version.not_nil!.split('.')
+        @@fossil_version_maj = pieces[0].to_i8
+        @@fossil_version_min = pieces[1].to_i8
+        @@fossil_version_rev = (pieces[2]?.try &.to_i8 || 0i8)
       end
 
       @@fossil_version
@@ -137,6 +139,11 @@ module Shards
     protected def self.fossil_version_min
       self.fossil_version unless @@fossil_version_min
       @@fossil_version_min.not_nil!
+    end
+
+    protected def self.fossil_version_rev
+      self.fossil_version unless @@fossil_version_rev
+      @@fossil_version_rev.not_nil!
     end
 
     def read_spec(version : Version) : String?
@@ -185,8 +192,11 @@ module Shards
         raise Error.new "Could not find #{ref.full_info} for shard #{name.inspect} in the repository #{source}"
       end
 
-      spec = spec_at_ref(ref, commit)
-      Version.new "#{spec.version.value}+fossil.commit.#{commit}"
+      if spec = spec_at_ref(ref, commit)
+        Version.new "#{spec.version.value}+fossil.commit.#{commit}"
+      else
+        raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
+      end
     end
 
     def matches_ref?(ref : FossilRef, version : Version)
@@ -221,16 +231,41 @@ module Shards
       # fake it
       if FossilResolver.fossil_version_maj <= 2 &&
          FossilResolver.fossil_version_min < 12
-        Dir.cd(install_path) do
-          run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}"
-        end
+        Log.debug { "Opening Fossil repo #{local_fossil_file} in directory #{install_path}" }
+        run("fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --nested", install_path)
       else
-        run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --workdir #{install_path}"
+        run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}  --nested --workdir #{install_path}"
       end
     end
 
     def commit_sha1_at(ref : FossilRef)
-      capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -n 1 -F %H -R #{Process.quote(local_fossil_file)}").strip.lines[0]
+      # Fossil versions before 2.14 do not support the --format/-F for the
+      # timeline command.
+      if FossilResolver.fossil_version_maj <= 2 &&
+         FossilResolver.fossil_version_min < 14
+        # Capture the short artifact name from the timeline using a regex.
+        # -W 0  = unlimited line width
+        # -n 1  = limit results to one entry
+        # -t ci = Display only checkins on the timeline
+        shortShas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
+
+        # We only want the lines with short artifact names
+        retLines = shortShas.strip.lines.flat_map do |line|
+          /^.+ \[(.+)\].*/.match(line).try &.[1]
+        end
+
+        # Remove empty results
+        retLines.reject! &.nil?
+        return "" if retLines.empty?
+
+        # Call the whatis command so we can properly expand the short artifact
+        # name to the full artifact hash.
+        whatis = capture("fossil whatis #{retLines[0]} -R #{Process.quote(local_fossil_file)}")
+        /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
+      else
+        # Fossil v2.14 and newer support -F %H, so use that.
+        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}")
+      end
     end
 
     def local_path
