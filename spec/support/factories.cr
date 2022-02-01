@@ -306,7 +306,7 @@ def fossil_commits(project, rev = "trunk")
   # using an old Fossil version.  See the #commit_sha1_at method in
   # src/resolvers/fossil.cr for info.
   Dir.cd(fossil_path(project)) do
-    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.lines
+    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.split('\n')
     retLines = retStr.flat_map do |line|
       /^.+ \[(.+)\].*/.match(line).try &.[1]
     end

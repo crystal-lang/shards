@@ -250,7 +250,7 @@ module Shards
         shortShas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
 
         # We only want the lines with short artifact names
-        retLines = shortShas.strip.lines.flat_map do |line|
+        retLines = shortShas.strip.split('\n').flat_map do |line|
           /^.+ \[(.+)\].*/.match(line).try &.[1]
         end
 
