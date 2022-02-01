@@ -159,7 +159,14 @@ end
 def create_fossil_repository(project, *versions)
   Dir.cd(tmp_path) do
     run "fossil init #{Process.quote(project)}.fossil"
-    run "fossil open #{Process.quote(project)}.fossil --workdir #{Process.quote(fossil_path(project))}"
+
+    # Use a workaround so we don't use --workdir in case the specs are run on a
+    # machine with an old Fossil version.  See the #install_sources method in
+    # src/resolvers/fossil.cr
+    Dir.mkdir(fossil_path(project)) unless Dir.exists?(fossil_path(project))
+    Dir.cd(fossil_path(project)) do
+      run "fossil open #{Process.quote(File.join(tmp_path, project))}.fossil"
+    end
   end
 
   Dir.mkdir(File.join(fossil_path(project), "src"))
@@ -287,8 +294,17 @@ def hg_path(project)
 end
 
 def fossil_commits(project, rev = "trunk")
+  # This is using the workaround code in case the machine running the specs is
+  # using an old Fossil version.  See the #commit_sha1_at method in
+  # src/resolvers/fossil.cr for info.
   Dir.cd(fossil_path(project)) do
-    run("fossil timeline #{Process.quote(rev)} -t ci -F %H").strip.split('\n')[..-2]
+    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.lines
+    retLines = retStr.flat_map do |line|
+      /^.+ \[(.+)\].*/.match(line).try &.[1]
+    end
+
+    retLines.reject! &.nil?
+    [/artifact:\s+(.+)/.match(run("fossil whatis #{retLines[0]}")).not_nil!.[1]]
   end
 end
 
