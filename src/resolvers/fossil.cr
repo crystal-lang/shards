@@ -220,7 +220,7 @@ module Shards
       # The --workdir argument was introduced in version 2.12, so we have to
       # fake it
       if FossilResolver.fossil_version_maj <= 2 &&
-         FossilResolver.fossil_version_min <= 12
+         FossilResolver.fossil_version_min < 12
         Dir.cd(install_path) do
           run "fossil open -nested #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}"
         end
