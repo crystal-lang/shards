@@ -47,13 +47,11 @@ module Shards
       end
     end
 
-    private def prefetch_local_caches(lock_index, deps)
+    private def prefetch_local_caches(deps)
       count = 0
       active = 0
       ch = Channel(Exception?).new(deps.size + 1)
       deps.each do |dep|
-        next unless lock = lock_index[dep.name]?
-        next unless dep.matches?(lock.version)
         count += 1
         active += 1
         while active > Shards.parallel_fetch
@@ -77,7 +75,7 @@ module Shards
     end
 
     private def add_lock(base, lock_index, deps : Array(Dependency))
-      prefetch_local_caches(lock_index, deps) if Shards.parallel_fetch > 1
+      prefetch_local_caches(deps) if Shards.parallel_fetch > 1
 
       deps.each do |dep|
         if lock = lock_index[dep.name]?
@@ -94,6 +92,8 @@ module Shards
                @spec.dependencies
              end
       deps = apply_overrides(deps)
+
+      prefetch_local_caches(deps) if Shards.parallel_fetch > 1
 
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       if locks = @locks
