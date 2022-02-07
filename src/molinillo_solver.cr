@@ -61,7 +61,7 @@ module Shards
         end
         spawn do
           begin
-            dep.resolver.update_local_cache
+            dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
             ch.send(nil)
             active -= 1
           rescue ex : Exception
