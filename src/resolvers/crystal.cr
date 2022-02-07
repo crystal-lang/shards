@@ -21,8 +21,5 @@ module Shards
     def report_version(version : Version) : String
       version.value
     end
-
-    def update_local_cache
-    end
   end
 end
