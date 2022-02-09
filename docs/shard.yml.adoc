@@ -337,7 +337,7 @@ required. When missing, Shards will install the _@_ bookmark or _tip_.
 
 *fossil*::
 
-A Fossil repository URL (string).
+A https://www.fossil-scm.org[Fossil] repository URL (string).
 +
 The URL may be https://fossil-scm.org/home/help/clone[any protocol]
 supported by Fossil, which includes SSH and HTTPS.
