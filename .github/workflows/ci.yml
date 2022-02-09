@@ -41,7 +41,7 @@ jobs:
           crystal: ${{ matrix.crystal }}
 
       - name: Install Fossil
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
           sudo apt-get install fossil
