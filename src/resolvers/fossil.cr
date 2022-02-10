@@ -264,7 +264,7 @@ module Shards
         /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
       else
         # Fossil v2.14 and newer support -F %H, so use that.
-        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}")
+        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").split('\n')[0]
       end
     end
 
