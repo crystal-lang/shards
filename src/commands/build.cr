@@ -3,7 +3,7 @@ require "./command"
 module Shards
   module Commands
     class Build < Command
-      def run(targets, options)
+      def run(targets, options, jobs)
         if spec.targets.empty?
           raise Error.new("Targets not defined in #{SPEC_FILENAME}")
         end
@@ -17,12 +17,33 @@ module Shards
           targets = spec.targets.map(&.name)
         end
 
+        job_targets = Channel(Target).new(targets.size)
+        done = Channel(Error?).new
+        jobs.times do
+          spawn do
+            while target = job_targets.receive?
+              begin
+                build(target, options)
+                done.send(nil)
+              rescue ex : Error
+                done.send(ex)
+              end
+            end
+          end
+        end
+
         targets.each do |name|
           if target = spec.targets.find { |t| t.name == name }
-            build(target, options)
+            job_targets.send(target)
           else
             raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}.")
           end
+        end
+        job_targets.close
+
+        targets.size.times do
+          ex = done.receive
+          raise ex if ex
         end
       end
 
