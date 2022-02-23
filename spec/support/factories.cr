@@ -16,8 +16,11 @@ end
 def create_git_repository(project, *versions)
   Dir.cd(tmp_path) do
     run "git init #{Process.quote(project)}"
-    Dir.cd(Process.quote(project)) do
+    Dir.cd(git_path(project)) do
       run "git checkout --orphan master"
+
+      run "git config user.email author@example.com"
+      run "git config user.name Author"
     end
   end
 
@@ -34,6 +37,11 @@ end
 def create_fork_git_repository(project, upstream)
   Dir.cd(tmp_path) do
     run "git clone #{Process.quote(git_url(upstream))} #{Process.quote(project)}"
+
+    Dir.cd(git_path(project)) do
+      run "git config user.email fork@example.com"
+      run "git config user.name Fork"
+    end
   end
 end
 
@@ -226,7 +234,7 @@ module Shards::Specs
   def self.crystal_path
     # Memoize so each integration spec do not need to create this process.
     # If crystal is bin/crystal this also reduce the noise of Using compiled compiler at ...
-    @@crystal_path ||= "#{Shards::INSTALL_DIR}#{Process::PATH_DELIMITER}#{`crystal env CRYSTAL_PATH`.chomp}"
+    @@crystal_path ||= "#{Shards::INSTALL_DIR}#{Process::PATH_DELIMITER}#{`#{Shards.crystal_bin} env CRYSTAL_PATH`.chomp}"
   end
 end
 
@@ -246,9 +254,12 @@ def run(command, *, env = nil)
   {% end %}
   status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
 
+  output = output.to_s.gsub("\r\n", "\n")
+  error = error.to_s.gsub("\r\n", "\n")
+
   if status.success?
-    output.to_s.gsub("\r\n", "\n")
+    output + error
   else
-    raise FailedCommand.new("command failed: #{command}", output.to_s.gsub("\r\n", "\n"), error.to_s.gsub("\r\n", "\n"))
+    raise FailedCommand.new("command failed: #{command}", output, error)
   end
 end
