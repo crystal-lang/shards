@@ -107,4 +107,5 @@ module Shards
   class_property? local = false
   class_property? skip_postinstall = false
   class_property? skip_executables = false
+  class_property jobs = 1
 end

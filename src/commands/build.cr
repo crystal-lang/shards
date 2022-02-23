@@ -3,7 +3,7 @@ require "./command"
 module Shards
   module Commands
     class Build < Command
-      def run(targets, options, jobs)
+      def run(targets, options)
         if spec.targets.empty?
           raise Error.new("Targets not defined in #{SPEC_FILENAME}")
         end
@@ -19,7 +19,7 @@ module Shards
 
         job_targets = Channel(Target).new(targets.size)
         done = Channel(Error?).new
-        jobs.times do
+        Shards.jobs.times do
           spawn do
             while target = job_targets.receive?
               begin

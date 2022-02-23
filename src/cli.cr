@@ -27,7 +27,6 @@ module Shards
   def self.run
     OptionParser.parse(cli_options) do |opts|
       path = Dir.current
-      jobs = 1
 
       opts.on("--no-color", "Disable colored output.") { self.colors = false }
       opts.on("--version", "Print the `shards` version.") { puts self.version_string; exit }
@@ -50,7 +49,7 @@ module Shards
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       # TODO: remove in the future
       opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
-      opts.on("-j JOBS", "--jobs=JOBS", "How many parallel build jobs to execute (default: 1)") { |v| jobs = v.to_i }
+      opts.on("-j JOBS", "--jobs=JOBS", "How many parallel build jobs to execute (default: 1)") { |v| self.jobs = v.to_i }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
@@ -58,7 +57,7 @@ module Shards
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
         when "build"
-          build(path, args[1..-1], jobs)
+          build(path, args[1..-1])
         when "check"
           Commands::Check.run(path)
         when "init"
@@ -121,7 +120,7 @@ module Shards
     )
   end
 
-  def self.build(path, args, jobs)
+  def self.build(path, args)
     targets = [] of String
     options = [] of String
 
@@ -139,7 +138,7 @@ module Shards
       Commands::Install.run(path)
     end
 
-    Commands::Build.run(path, targets, options, jobs)
+    Commands::Build.run(path, targets, options)
   end
 end
 
