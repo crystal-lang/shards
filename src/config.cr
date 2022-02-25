@@ -108,5 +108,5 @@ module Shards
   class_property? skip_postinstall = false
   class_property? skip_executables = false
 
-  class_property parallel_fetch : Int32 = 8
+  class_property jobs : Int32 = 8
 end

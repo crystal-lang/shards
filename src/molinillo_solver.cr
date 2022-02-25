@@ -48,7 +48,7 @@ module Shards
     end
 
     private def prefetch_local_caches(deps)
-      return unless Shards.parallel_fetch > 1
+      return unless Shards.jobs > 1
 
       count = 0
       active = 0
@@ -56,7 +56,7 @@ module Shards
       deps.each do |dep|
         count += 1
         active += 1
-        while active > Shards.parallel_fetch
+        while active > Shards.jobs
           sleep 0.1
         end
         spawn do

@@ -47,7 +47,7 @@ module Shards
         self.skip_executables = true
       end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
-      opts.on("--parallel-fetch=N", "Number of git fetches to perform in parallel (default: 8)") { |n| self.parallel_fetch = n.to_i }
+      opts.on("--jobs=N", "Number of git fetches to perform in parallel (default: 8)") { |n| self.jobs = n.to_i }
       # TODO: remove in the future
       opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
