@@ -128,4 +128,24 @@ describe "run" do
       ex.stdout.should contain("This command fails")
     end
   end
+
+  it "forwards additional ARGV to child process" do
+    File.write File.join(application_path, "src", "args.cr"), <<-CR
+      print "args: ", ARGV.join(',')
+      CR
+
+    File.write File.join(application_path, "shard.yml"), <<-YAML
+      name: build
+      version: 0.1.0
+      targets:
+        app:
+          main: src/args.cr
+      YAML
+
+    Dir.cd(application_path) do
+      output = run("shards run --no-color -- foo bar baz")
+      output.should contain("Executing: app foo bar baz")
+      output.should contain("args: foo,bar,baz")
+    end
+  end
 end
