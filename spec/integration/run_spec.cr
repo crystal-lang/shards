@@ -76,11 +76,12 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      run "shards run --no-color"
+      output = run("shards run --no-color")
 
       File.exists?(bin_path("app")).should be_true
 
-      `#{bin_path("app")}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
+      output.should contain("Executing: app")
+      output.chomp.should contain(File.join(application_path, "src", "cli.cr"))
     end
   end
 
@@ -96,12 +97,13 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      run "shards run --no-color app"
+      output = run("shards run --no-color app")
 
       File.exists?(bin_path("app")).should be_true
       File.exists?(bin_path("alt")).should be_false
 
-      `#{bin_path("app")}`.chomp.should eq(File.join(application_path, "src", "cli.cr"))
+      output.should contain("Executing: app")
+      output.chomp.should contain(File.join(application_path, "src", "cli.cr"))
     end
   end
 
