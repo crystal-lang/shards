@@ -74,7 +74,7 @@ doesn't generate a conflict, thus generating a new _shard.lock_ file.
 --production:: same as _--frozen_ and _--without-development_
 --skip-postinstall:: Does not run postinstall of dependencies.
 --skip-executables:: Does not install executables.
---jobs:: Number of git fetches to perform in parallel (default: 8).
+--jobs:: Number of repository downloads to perform in parallel (default: 8). Currently only for git.
 --
 
 *list* [--tree]::
