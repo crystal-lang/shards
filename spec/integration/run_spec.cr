@@ -1,7 +1,7 @@
 require "./spec_helper"
 
-def bin_path(name)
-  File.join(application_path, "bin", name)
+private def bin_path(name)
+  File.join(application_path, "bin", Shards::Helpers.exe(name))
 end
 
 describe "run" do
