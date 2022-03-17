@@ -12,7 +12,7 @@ module Shards
       if File.exists?(spec_path)
         File.read(spec_path)
       else
-        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect}")
+        raise Error.new("Missing #{SPEC_FILENAME.inspect} for #{name.inspect} at #{File.expand_path(local_path).inspect}")
       end
     end
 
