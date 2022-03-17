@@ -9,10 +9,11 @@ module Shards
   DEFAULT_COMMAND = "install"
   DEFAULT_VERSION = "0"
 
-  VERSION_REFERENCE     = /^v?\d+[-.][-.a-zA-Z\d]+$/
-  VERSION_TAG           = /^v(\d+[-.][-.a-zA-Z\d]+)$/
-  VERSION_AT_GIT_COMMIT = /^(\d+[-.][-.a-zA-Z\d]+)\+git\.commit\.([0-9a-f]+)$/
-  VERSION_AT_HG_COMMIT  = /^(\d+[-.][-.a-zA-Z\d]+)\+hg\.commit\.([0-9a-f]+)$/
+  VERSION_REFERENCE        = /^v?\d+[-.][-.a-zA-Z\d]+$/
+  VERSION_TAG              = /^v(\d+[-.][-.a-zA-Z\d]+)$/
+  VERSION_AT_GIT_COMMIT    = /^(\d+[-.][-.a-zA-Z\d]+)\+git\.commit\.([0-9a-f]+)$/
+  VERSION_AT_HG_COMMIT     = /^(\d+[-.][-.a-zA-Z\d]+)\+hg\.commit\.([0-9a-f]+)$/
+  VERSION_AT_FOSSIL_COMMIT = /^(\d+[-.][-.a-zA-Z\d]+)\+fossil\.commit\.([0-9a-f]+)$/
 
   def self.cache_path
     @@cache_path ||= find_or_create_cache_path
