@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.17.0 - 2022-03-23
+
+- Add `make build` recipe ([#533](https://github.com/crystal-lang/shards/pull/533), thanks @straight-shoota)
+- Fix unexpected token compiler error match ([#532](https://github.com/crystal-lang/shards/pull/532), thanks @straight-shoota)
+- Honour `CRYSTAL` env var ([#534](https://github.com/crystal-lang/shards/pull/534), thanks @straight-shoota)
+- No longer depend of external git user config ([#536](https://github.com/crystal-lang/shards/pull/536), thanks @luislavena)
+- [CI] Update circleci xcode 13.2.1 ([#537](https://github.com/crystal-lang/shards/pull/537), thanks @straight-shoota)
+- Feat: output STDERR from the building process ([#540](https://github.com/crystal-lang/shards/pull/540), thanks @beta-ziliani)
+- Fix grammar problems ([#543](https://github.com/crystal-lang/shards/pull/543), thanks @dinko-pehar)
+- Add fossil resolver ([#530](https://github.com/crystal-lang/shards/pull/530), thanks @MistressRemilia)
+- Add expanded local path to `shard.yml` error message in `PathResolver` ([#541](https://github.com/crystal-lang/shards/pull/541), thanks @straight-shoota)
+- Avoid user defined git template in resolver ([#528](https://github.com/crystal-lang/shards/pull/528), thanks @lzap)
+- Add run command ([#546](https://github.com/crystal-lang/shards/pull/546), thanks @luislavena)
+- re-enabled ~ support in path resolver ([#538](https://github.com/crystal-lang/shards/pull/538), thanks @masukomi)
+- Add `--jobs` (parallel git fetch) ([#539](https://github.com/crystal-lang/shards/pull/539), thanks @m-o-e)
+
 ## v0.16.0 - 2021-10-06
 
 Fixes:
