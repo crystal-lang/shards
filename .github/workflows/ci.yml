@@ -40,6 +40,22 @@ jobs:
         with:
           crystal: ${{ matrix.crystal }}
 
+      - name: Install Fossil
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install fossil
+
+      - name: Install Fossil
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install fossil
+
+      - name: Install Fossil
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: choco install fossil
+
       - name: Download source
         uses: actions/checkout@v2
 
