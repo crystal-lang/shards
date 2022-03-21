@@ -51,19 +51,19 @@ module Shards
       return unless Shards.jobs > 1
 
       count = 0
-      active = 0
+      active = Atomic.new(0)
       ch = Channel(Exception?).new(deps.size + 1)
       deps.each do |dep|
         count += 1
-        active += 1
-        while active > Shards.jobs
+        active.add(1)
+        while active.get > Shards.jobs
           sleep 0.1
         end
         spawn do
           begin
             dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
             ch.send(nil)
-            active -= 1
+            active.sub(1)
           rescue ex : Exception
             ch.send(ex)
           end
