@@ -63,9 +63,10 @@ module Shards
           begin
             dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
             ch.send(nil)
-            active.sub(1)
           rescue ex : Exception
             ch.send(ex)
+          ensure
+            active.sub(1)
           end
         end
       end
