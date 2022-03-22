@@ -7,7 +7,7 @@ module Shards
     end
 
     def read_spec(version = nil) : String?
-      spec_path = File.join(local_path, SPEC_FILENAME)
+      spec_path = File.join(expanded_local_path, SPEC_FILENAME)
 
       if File.exists?(spec_path)
         File.read(spec_path)
@@ -29,7 +29,7 @@ module Shards
     end
 
     private def expanded_local_path
-      File.expand_path(local_path).tap do |path|
+      File.expand_path(local_path, home: true).tap do |path|
         raise Error.new("Failed no such path: #{path}") unless Dir.exists?(path)
       end
     end
