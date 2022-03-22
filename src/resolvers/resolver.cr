@@ -88,6 +88,9 @@ module Shards
     abstract def install_sources(version : Version, install_dir : String)
     abstract def report_version(version : Version) : String
 
+    def update_local_cache
+    end
+
     def parse_requirement(params : Hash(String, String)) : Requirement
       if version = params["version"]?
         VersionReq.new version

@@ -47,7 +47,39 @@ module Shards
       end
     end
 
+    private def prefetch_local_caches(deps)
+      return unless Shards.jobs > 1
+
+      count = 0
+      active = Atomic.new(0)
+      ch = Channel(Exception?).new(deps.size + 1)
+      deps.each do |dep|
+        count += 1
+        active.add(1)
+        while active.get > Shards.jobs
+          sleep 0.1
+        end
+        spawn do
+          begin
+            dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
+            ch.send(nil)
+          rescue ex : Exception
+            ch.send(ex)
+          ensure
+            active.sub(1)
+          end
+        end
+      end
+
+      count.times do
+        obj = ch.receive
+        raise obj if obj.is_a? Exception
+      end
+    end
+
     private def add_lock(base, lock_index, deps : Array(Dependency))
+      prefetch_local_caches(deps)
+
       deps.each do |dep|
         if lock = lock_index[dep.name]?
           next unless dep.matches?(lock.version)
@@ -63,6 +95,8 @@ module Shards
                @spec.dependencies
              end
       deps = apply_overrides(deps)
+
+      prefetch_local_caches(deps)
 
       base = Molinillo::DependencyGraph(Dependency, Dependency).new
       if locks = @locks

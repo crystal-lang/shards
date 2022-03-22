@@ -283,7 +283,7 @@ module Shards
       end
     end
 
-    private def update_local_cache
+    def update_local_cache
       if cloned_repository? && origin_changed?
         delete_repository
         @updated_cache = false
@@ -317,7 +317,7 @@ module Shards
       # This configuration can be overridden by defining the environment
       # variable `GIT_ASKPASS`.
       git_retry(err: "Failed to clone #{git_url}") do
-        run_in_current_folder "git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
+        run_in_folder "git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
       end
     end
 
@@ -411,12 +411,12 @@ module Shards
         dependency_name = File.basename(path, ".git")
         raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
       end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture)
-      end
+      run_in_folder(command, path, capture)
     end
 
-    private def run_in_current_folder(command, capture = false)
+    # Chdir to a folder and run command.
+    # Runs in current folder if `path` is nil.
+    private def run_in_folder(command, path : String? = nil, capture = false)
       unless GitResolver.has_git_command?
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
@@ -425,7 +425,7 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error)
+      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
 
       if status.success?
         output.to_s if capture
