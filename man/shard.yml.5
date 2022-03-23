@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.12
-.\"      Date: 2021-10-06
+.\" Generator: Asciidoctor 2.0.17
+.\"      Date: 2022-03-22
 .\"    Manual: File Formats
-.\"    Source: shards 0.16.0
+.\"    Source: shards 0.17.0
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2021-10-06" "shards 0.16.0" "File Formats"
+.TH "SHARD.YML" "5" "2022-03-22" "shards 0.17.0" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -165,13 +165,13 @@ It may contain dots and dashes but not consecutive ones.
 .  sp -1
 .  IP \(bu 2.3
 .\}
-It may contain a letter to make it a \(aqprerelease\(aq.
+It may contain a letter to make it a \*(Aqprerelease\*(Aq.
 .RE
 .sp
 Examples: \fI1.2.3\fP, \fI2.0.0.1\fP, \fI1.0.0.alpha\fP \fI2.0.0\-rc1\fP or \fI2016.09\fP.
 .sp
 While Shards doesn\(cqt enforce it, following a rational versioning scheme like
-.URL "http://semver.org/" "Semantic Versioning" " "
+.URL "http://semver.org/" "Semantic Versioning" ""
 or
 .URL "http://calver.org/" "Calendar Versioning"
 is highly recommended.
@@ -223,7 +223,7 @@ authors:
 A restriction to indicate which are the supported crystal versions. This will
 usually express a lower and upper\-bound constraints (string, recommended)
 .sp
-When resolving dependencies, this information is not used. After dependencies
+When resolving dependencies, this information is not used. After dependecies
 have been determined shards checks all of them are expected to work with
 the current crystal version. If not, a warning appears for the offending
 dependencies. The resolved versions are installed and can be used at your
@@ -435,7 +435,7 @@ libraries:
 \fBlicense\fP
 .RS 4
   An \c
-.URL "http://opensource.org/" "OSI license" " "
+.URL "http://opensource.org/" "OSI license" ""
 name or an URL to a license file
 (string, recommended).
 .RE
@@ -600,6 +600,26 @@ required. When missing, Shards will install the \fI@\fP bookmark or \fItip\fP.
 .URL "https://hg.example.org/crystal\-library" "" "\fP"
 .RE
 .sp
+\fBfossil\fP
+.RS 4
+A \c
+.URL "https://www.fossil\-scm.org" "Fossil" ""
+repository URL (string).
+.sp
+The URL may be \c
+.URL "https://fossil\-scm.org/home/help/clone" "any protocol"
+supported by Fossil, which includes SSH and HTTPS.
+.sp
+The Fossil repository will be cloned, the list of versions (and associated
+\fIshard.yml\fP) will be extracted from Fossil tags (e.g., \fIv1.2.3\fP).
+.sp
+One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP, or \fIcommit\fP) is
+required. When missing, Shards will install \fItrunk\fP.
+.sp
+\fBExample:\fP \fIfossil: \c
+.URL "https://fossil.example.org/crystal\-library" "" "\fP"
+.RE
+.sp
 \fBversion\fP
 .RS 4
 A version requirement (string).
@@ -680,18 +700,20 @@ the \fI~>\fP operator has a special meaning, best shown by example:
 .sp
 \fBbranch\fP
 .RS 4
-Install the specified branch of a git dependency or the named branch
-of a mercurial dependency (string).
+Install the specified branch of a git dependency, or the named branch
+of a mercurial or fossil dependency (string).
 .RE
 .sp
 \fBcommit\fP
 .RS 4
-Install the specified commit of a git or mercurial dependency (string).
+Install the specified commit of a git, mercurial, or fossil dependency
+(string).
 .RE
 .sp
 \fBtag\fP
 .RS 4
-Install the specified tag of a git or mercurial dependency (string).
+Install the specified tag of a git, mercurial, or fossil dependency
+(string).
 .RE
 .sp
 \fBbookmark\fP
@@ -708,7 +730,7 @@ with some dependencies:
 .fam C
 name: shards
 version: 1.2.3
-crystal: \(aq>= 0.35.0\(aq
+crystal: \*(Aq>= 0.35.0\*(Aq
 
 authors:
 \- Julien Portalier <julien@example.com>
