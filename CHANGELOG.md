@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.17.0 - 2022-03-23
+## v0.17.0 - 2022-03-24
 
 - Add `make build` recipe ([#533](https://github.com/crystal-lang/shards/pull/533), thanks @straight-shoota)
 - Fix unexpected token compiler error match ([#532](https://github.com/crystal-lang/shards/pull/532), thanks @straight-shoota)
