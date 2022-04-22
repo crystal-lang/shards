@@ -82,7 +82,7 @@ describe "build" do
       CODE
 
       Dir.cd(application_path) do
-        err = run "shards build --no-color app"
+        err = run "shards build --no-color app", clear_env: true
         err.should match(/eprecated/)
         File.exists?(bin_path("app")).should be_true
       end
