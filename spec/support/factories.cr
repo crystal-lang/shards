@@ -356,6 +356,9 @@ def run(command, *, env = nil, clear_env = false)
   cmd_env = {
     "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
+  if clear_env
+    cmd_env["CRYSTAL_OPTS"] = ""
+  end
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
   {% if flag?(:win32) %}
@@ -363,7 +366,7 @@ def run(command, *, env = nil, clear_env = false)
     error = nil
   {% end %}
 
-  status = Process.run(command, shell: true, env: cmd_env, clear_env: clear_env, output: output, error: error || Process::Redirect::Close)
+  status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
 
   output = output.to_s.gsub("\r\n", "\n")
   error = error.to_s.gsub("\r\n", "\n")
