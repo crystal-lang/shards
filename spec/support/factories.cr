@@ -352,10 +352,13 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command, *, env = nil)
+def run(command, *, env = nil, clear_env = false)
   cmd_env = {
     "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
+  if clear_env
+    cmd_env["CRYSTAL_OPTS"] = ""
+  end
   cmd_env.merge!(env) if env
   output, error = IO::Memory.new, IO::Memory.new
   {% if flag?(:win32) %}
