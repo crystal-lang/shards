@@ -8,6 +8,11 @@ module Shards
       def run
         return unless lockfile?
 
+        unless Dir.exists?(Shards.install_path)
+          Log.info { "Pruned nothing, because #{File.basename(Shards.install_path)}/ does not exist" }
+          return
+        end
+
         Dir.each_child(Shards.install_path) do |name|
           path = File.join(Shards.install_path, name)
           next unless File.directory?(path)
