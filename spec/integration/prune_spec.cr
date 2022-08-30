@@ -36,4 +36,9 @@ describe "prune" do
     Dir.cd(application_path) { run "shards prune" }
     installed_dependencies.sort.should eq([".keep_hidden", "keep_not_hidden", "web"])
   end
+
+  it "should not fail if the install directory does not exist" do
+    run "rm -rf #{install_path}"
+    Dir.cd(application_path) { run "shards prune" }
+  end
 end
