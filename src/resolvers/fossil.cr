@@ -320,9 +320,7 @@ module Shards
       when VERSION_AT_FOSSIL_COMMIT
         FossilVersion.new $1, $2
       else
-        err = Error.new("Invalid version for fossil resolver: #{version}")
-        pp err.backtrace
-        raise err
+        raise Error.new("Invalid version for fossil resolver: #{version}")
       end
     end
 
