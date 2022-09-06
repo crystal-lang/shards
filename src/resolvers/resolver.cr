@@ -85,7 +85,7 @@ module Shards
     end
 
     abstract def read_spec(version : Version) : String?
-    abstract def install_sources(version : Version, install_dir : String)
+    abstract def install_sources(version : Version, install_path : String)
     abstract def report_version(version : Version) : String
 
     def update_local_cache
