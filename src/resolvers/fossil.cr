@@ -402,7 +402,10 @@ module Shards
     end
 
     private def cloned_repository?
-      Dir.exists?(local_path)
+      # Check for both the local_path and the local_fossil_file, otherwise this
+      # method can give false positives if it's looking for repositories from
+      # the same base site.
+      Dir.exists?(local_path) && File.exists?(local_fossil_file)
     end
 
     private def valid_repository?
