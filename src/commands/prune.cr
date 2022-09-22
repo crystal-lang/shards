@@ -6,7 +6,7 @@ module Shards
   module Commands
     class Prune < Command
       def run
-        return unless lockfile?
+        return unless lockfile? && Dir.exists?(Shards.install_path)
 
         Dir.each_child(Shards.install_path) do |name|
           path = File.join(Shards.install_path, name)
