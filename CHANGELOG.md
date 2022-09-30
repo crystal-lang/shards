@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.17.1 - 2022-09-30
+
+- Fix: Don't raise an exception if install_path doesn't exist ([#557](https://github.com/crystal-lang/shards/pull/557), thanks @mjoerussell)
+- Fix Fossil resolver when multiple dependencies are coming from the same website ([#558](https://github.com/crystal-lang/shards/pull/558), thanks @MistressRemilia)
+- Adjust parameter name for `Resolver#install_sources` ([#559](https://github.com/crystal-lang/shards/pull/559), thanks @straight-shoota)
+
 ## v0.17.0 - 2022-03-24
 
 - Add `make build` recipe ([#533](https://github.com/crystal-lang/shards/pull/533), thanks @straight-shoota)
