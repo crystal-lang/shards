@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.17
-.\"      Date: 2022-03-24
+.\"      Date: 2022-09-30
 .\"    Manual: Shards Manual
-.\"    Source: shards 0.17.0
+.\"    Source: shards 0.17.1
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2022-03-24" "shards 0.17.0" "Shards Manual"
+.TH "SHARDS" "1" "2022-09-30" "shards 0.17.1" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -92,7 +92,7 @@ Dependencies are not satisfied.
 Initializes a default \fIshard.yml\fP in the current folder.
 .RE
 .sp
-\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall] [\-\-skip\-executables]
+\fBinstall\fP [\-\-frozen] [\-\-without\-development] [\-\-production] [\-\-skip\-postinstall] [\-\-skip\-executables] [\-\-jobs=N]
 .RS 4
 Resolves and installs dependencies into the \fIlib\fP folder. If not already
 present, generates a \fIshard.lock\fP file from resolved dependencies, locking
@@ -126,6 +126,11 @@ Does not run postinstall of dependencies.
 \-\-skip\-executables
 .RS 4
 Does not install executables.
+.RE
+.sp
+\-\-jobs
+.RS 4
+Number of repository downloads to perform in parallel (default: 8). Currently only for git.
 .RE
 .RE
 .sp
