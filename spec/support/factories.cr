@@ -352,7 +352,7 @@ def tmp_path
   Shards::Specs.tmp_path
 end
 
-def run(command, *, env = nil, clear_env = false)
+def run(command, *, env = nil, clear_env = false, input = Process::Redirect::Close)
   cmd_env = {
     "CRYSTAL_PATH" => Shards::Specs.crystal_path,
   }
@@ -366,7 +366,7 @@ def run(command, *, env = nil, clear_env = false)
     error = nil
   {% end %}
 
-  status = Process.run(command, shell: true, env: cmd_env, output: output, error: error || Process::Redirect::Close)
+  status = Process.run(command, shell: true, env: cmd_env, input: input, output: output, error: error || Process::Redirect::Close)
 
   output = output.to_s.gsub("\r\n", "\n")
   error = error.to_s.gsub("\r\n", "\n")

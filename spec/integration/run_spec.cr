@@ -148,4 +148,25 @@ describe "run" do
       output.should contain("args: foo,bar,baz")
     end
   end
+
+  it "works well with stdin" do
+    File.write File.join(application_path, "src", "stdin.cr"), <<-CR
+      print "input: ", STDIN.gets.inspect
+      CR
+
+    File.write File.join(application_path, "shard.yml"), <<-YAML
+      name: build
+      version: 0.1.0
+      targets:
+        app:
+          main: src/stdin.cr
+      YAML
+
+    Dir.cd(application_path) do
+      input = IO::Memory.new("hello from stdin")
+      output = run("shards run --no-color", input: input)
+      output.should contain("Executing: app")
+      output.should contain(%(input: "hello from stdin"))
+    end
+  end
 end

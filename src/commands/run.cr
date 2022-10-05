@@ -28,7 +28,7 @@ module Shards
           Commands::Build.run(path, [target.name], options)
 
           Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
-          status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
+          status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, input: Process::Redirect::Inherit, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
           unless status.success?
             exit status.exit_code
           end
