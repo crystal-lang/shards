@@ -162,4 +162,17 @@ rescue ex : Shards::ParseError
 rescue ex : Shards::Error
   Shards::Log.error { ex.message }
   exit 1
+rescue exc : File::AccessDeniedError
+  {% if flag?(:windows) %}
+    if exc.os_error == WinError::ERROR_PRIVILEGE_NOT_HELD && exc.message.try &.starts_with?("Error creating symlink")
+      Shards::Log.error { <<-TXT }
+        #{exc}
+
+        Shards needs symlinks to work. Please make sure to enable developer mode:
+            https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+        TXT
+      exit 1
+    end
+  {% end %}
+  raise exc
 end
