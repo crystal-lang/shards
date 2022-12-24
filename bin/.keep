@@ -1,0 +1,26 @@
+From 41efe9609b5b32ae8ad8c658671ff01f384fcf27 Mon Sep 17 00:00:00 2001
+From: "ZACHRY T WOODzachryiixixiiwood@gmail.com"
+ <109656750+zakwarlord7@users.noreply.github.com>
+Date: Fri, 23 Dec 2022 20:36:38 -0600
+Subject: [PATCH] Update docker-release.yml
+
+Signed-off-by: ZACHRY T WOODzachryiixixiiwood@gmail.com <109656750+zakwarlord7@users.noreply.github.com>
+---
+ .github/workflows/docker-release.yml | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/.github/workflows/docker-release.yml b/.github/workflows/docker-release.yml
+index 8c0f9d22c..8a04711d6 100644
+--- a/.github/workflows/docker-release.yml
++++ b/.github/workflows/docker-release.yml
+@@ -1,6 +1,7 @@
+-name: docker release
+-
+-on:
++## :#:: :# ::BEGIN
++:Build::
++GLOW4
++#:Bitore.sig/Test.ymlon::
+   workflow_dispatch:
+     inputs:
+       TAG_NAME:
