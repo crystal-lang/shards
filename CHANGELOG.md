@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.17.2 - 2022-12-26
+## v0.17.2 - 2022-12-28
 
 - Improve error message when symlink failed on Windows ([#565](https://github.com/crystal-lang/shards/pull/565), thanks @straight-shoota)
 - Inherit the standard input descriptor ([#561](https://github.com/crystal-lang/shards/pull/561), thanks @hovsater)
