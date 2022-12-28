@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.17.2 - 2022-12-28
+
+- Improve error message when symlink failed on Windows ([#565](https://github.com/crystal-lang/shards/pull/565), thanks @straight-shoota)
+- Inherit the standard input descriptor ([#561](https://github.com/crystal-lang/shards/pull/561), thanks @hovsater)
+
 ## v0.17.1 - 2022-09-30
 
 - Fix: Don't raise an exception if install_path doesn't exist ([#557](https://github.com/crystal-lang/shards/pull/557), thanks @mjoerussell)
