@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.18
-.\"      Date: 2022-12-28
+.\"      Date: 2023-01-07
 .\"    Manual: File Formats
 .\"    Source: shards 0.17.2
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2022-12-28" "shards 0.17.2" "File Formats"
+.TH "SHARD.YML" "5" "2023-01-07" "shards 0.17.2" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -674,7 +674,7 @@ Examples: \fI1.2.3\fP, \fI>= 1.0.0\fP, \fI>= 1.0.0, < 2.0\fP or \fI~> 2.0\fP.
 .sp
 Most of the version operators, like \fI>= 1.0.0\fP, are self\-explanatory, but
 the \fI~>\fP operator has a special meaning.
-It specifies a minimum version, but allows the last digit specified to go up, for example:
+It specifies a minimum version, but allows the last digit specified to go up, excluding the major release number:
 .RE
 .sp
 .RS 4
@@ -719,6 +719,17 @@ It specifies a minimum version, but allows the last digit specified to go up, fo
 .  IP \(bu 2.3
 .\}
 \fI~> 0.3\fP is identical to \fI>= 0.3 and < 1.0\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI~> 1\fP is identical to \fI>= 1.0 and < 2.0\fP.
 .RE
 .if n .sp
 .RS 4

@@ -366,12 +366,13 @@ Examples: _1.2.3_, _>= 1.0.0_, _>= 1.0.0, < 2.0_ or _~> 2.0_.
 +
 Most of the version operators, like _>= 1.0.0_, are self-explanatory, but
 the _~>_ operator has a special meaning.
-It specifies a minimum version, but allows the last digit specified to go up, for example:
+It specifies a minimum version, but allows the last digit specified to go up, excluding the major release number:
 --
 - _~> 0.3.5_ is identical to _>= 0.3.5 and < 0.4.0_.
 - _~> 2.0.3_ is identical to _>= 2.0.3 and < 2.1_.
 - _~> 2.1_ is identical to _>= 2.1 and < 3.0_.
 - _~> 0.3_ is identical to _>= 0.3 and < 1.0_.
+- _~> 1_ is identical to _>= 1.0 and < 2.0_.
 --
 
 NOTE: Even though _2.1.0-dev_ is strictly before _2.1.0_, a version constraint like _~> 2.0.3_
