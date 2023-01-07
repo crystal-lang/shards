@@ -673,7 +673,8 @@ Multiple requirements can be separated by commas.
 Examples: \fI1.2.3\fP, \fI>= 1.0.0\fP, \fI>= 1.0.0, < 2.0\fP or \fI~> 2.0\fP.
 .sp
 Most of the version operators, like \fI>= 1.0.0\fP, are self\-explanatory, but
-the \fI~>\fP operator has a special meaning, best shown by example:
+the \fI~>\fP operator has a special meaning.
+It specifies a minimum version, but allows the last digit specified to go up, for example:
 .RE
 .sp
 .RS 4
@@ -684,7 +685,18 @@ the \fI~>\fP operator has a special meaning, best shown by example:
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\fI~> 2.0.3\fP is identical to \fI>= 2.0.3 and < 2.1\fP;
+\fI~> 0.3.5\fP is identical to \fI>= 0.3.5 and < 0.4.0\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI~> 2.0.3\fP is identical to \fI>= 2.0.3 and < 2.1\fP.
 .RE
 .sp
 .RS 4
@@ -696,6 +708,32 @@ the \fI~>\fP operator has a special meaning, best shown by example:
 .  IP \(bu 2.3
 .\}
 \fI~> 2.1\fP is identical to \fI>= 2.1 and < 3.0\fP.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI~> 0.3\fP is identical to \fI>= 0.3 and < 1.0\fP.
+.RE
+.if n .sp
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+.B Note
+.ps -1
+.br
+.sp
+Even though \fI2.1.0\-dev\fP is strictly before \fI2.1.0\fP, a version constraint like \fI~> 2.0.3\fP
+would not install it since only the \fI.3\fP can change but the \fI2.0\fP part is fixed.
+.sp .5v
 .RE
 .sp
 \fBbranch\fP
