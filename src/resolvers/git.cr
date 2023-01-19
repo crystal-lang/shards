@@ -332,10 +332,11 @@ module Shards
       loop do
         yield
         break
-      rescue Error
+      rescue inner_err : Error
         retries += 1
         next if retries < 3
-        raise Error.new(err)
+        Log.debug { inner_err }
+        raise Error.new("#{err}: #{inner_err}")
       end
     end
 
