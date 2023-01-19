@@ -433,8 +433,10 @@ module Shards
         str = error.to_s
         if str.starts_with?("error: ") && (idx = str.index('\n'))
           message = str[7...idx]
+          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
+        else
+          raise Error.new("Failed #{command}.\n#{str}")
         end
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
 
