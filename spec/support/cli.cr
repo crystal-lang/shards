@@ -8,7 +8,7 @@ Spec.before_each do
   end
 end
 
-def with_shard(metadata, lock = nil, override = nil)
+def with_shard(metadata, lock = nil, override = nil, &)
   Dir.cd(application_path) do
     File.write "shard.yml", to_shard_yaml(metadata)
     File.write "shard.lock", to_lock_yaml(lock) if lock
