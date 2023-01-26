@@ -321,7 +321,7 @@ def fossil_url(project)
 end
 
 def fossil_path(project)
-  File.join(tmp_path, "#{project}")
+  File.join(tmp_path, project.to_s)
 end
 
 def rel_path(project)
