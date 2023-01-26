@@ -174,7 +174,7 @@ module Shards
 
       @search_results[{dependency.name, dependency.requirement}] ||= begin
         resolver = dependency.resolver
-        versions = Versions.sort(versions_for(dependency, resolver)).reverse
+        versions = Versions.sort(versions_for(dependency, resolver)).reverse!
         result = versions.map do |version|
           @specs[{dependency.name, version}] ||= begin
             resolver.spec(version).tap do |spec|

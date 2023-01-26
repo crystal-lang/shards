@@ -306,13 +306,13 @@ def fossil_commits(project, rev = "trunk")
   # using an old Fossil version.  See the #commit_sha1_at method in
   # src/resolvers/fossil.cr for info.
   Dir.cd(fossil_path(project)) do
-    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.split('\n')
-    retLines = retStr.flat_map do |line|
+    ret_str = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.split('\n')
+    ret_lines = ret_str.flat_map do |line|
       /^.+ \[(.+)\].*/.match(line).try &.[1]
     end
 
-    retLines.reject! &.nil?
-    [/artifact:\s+(.+)/.match(run("fossil whatis #{retLines[0]}")).not_nil!.[1]]
+    ret_lines.reject! &.nil?
+    [/artifact:\s+(.+)/.match(run("fossil whatis #{ret_lines[0]}")).not_nil!.[1]]
   end
 end
 
@@ -321,7 +321,7 @@ def fossil_url(project)
 end
 
 def fossil_path(project)
-  File.join(tmp_path, "#{project.to_s}")
+  File.join(tmp_path, "#{project}")
 end
 
 def rel_path(project)

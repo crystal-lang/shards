@@ -15,7 +15,7 @@ module Shards
       end
 
       private def has_dependencies?
-        spec.dependencies.any? || (Shards.with_development? && spec.development_dependencies.any?)
+        !spec.dependencies.empty? || (Shards.with_development? && !spec.development_dependencies.empty?)
       end
 
       private def verify(dependencies)
@@ -28,7 +28,7 @@ module Shards
         end
       end
 
-      private def installed?(dependency)
+      private def installed?(dependency) : Bool
         unless lock = locks.shards.find { |d| d.name == dependency.name }
           Log.debug { "#{dependency.name}: not locked" }
           return false
@@ -36,14 +36,14 @@ module Shards
 
         if dependency.resolver != lock.resolver
           Log.debug { "#{dependency.name}: source changed" }
-          return false
+          false
         elsif !dependency.matches?(lock.version)
           Log.debug { "#{dependency.name}: lock conflict" }
-          return false
+          false
         else
           return false unless lock.installed?
           verify(lock.spec.dependencies)
-          return true
+          true
         end
       end
 

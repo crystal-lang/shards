@@ -31,7 +31,7 @@ def to_shard_yaml(metadata)
           value.each do |target, info|
             yml << "  " << target.to_s << ":\n"
             if info.responds_to?(:each)
-              info.each do |main, src|
+              info.each do |_, src|
                 yml << "    main: " << src.inspect << '\n'
               end
             end

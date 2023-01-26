@@ -36,7 +36,7 @@ class Shards::Info
 
           yaml.scalar "shards"
           yaml.mapping do
-            installed.each do |name, dep|
+            installed.each do |_, dep|
               dep.to_yaml(yaml)
             end
           end

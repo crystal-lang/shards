@@ -247,20 +247,20 @@ module Shards
         # -W 0  = unlimited line width
         # -n 1  = limit results to one entry
         # -t ci = Display only checkins on the timeline
-        shortShas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
+        short_shas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
 
         # We only want the lines with short artifact names
-        retLines = shortShas.strip.split('\n').flat_map do |line|
+        ret_lines = short_shas.strip.split('\n').flat_map do |line|
           /^.+ \[(.+)\].*/.match(line).try &.[1]
         end
 
         # Remove empty results
-        retLines.reject! &.nil?
-        return "" if retLines.empty?
+        ret_lines.reject! &.nil?
+        return "" if ret_lines.empty?
 
         # Call the whatis command so we can properly expand the short artifact
         # name to the full artifact hash.
-        whatis = capture("fossil whatis #{retLines[0]} -R #{Process.quote(local_fossil_file)}")
+        whatis = capture("fossil whatis #{ret_lines[0]} -R #{Process.quote(local_fossil_file)}")
         /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
       else
         # Fossil v2.14 and newer support -F %H, so use that.
