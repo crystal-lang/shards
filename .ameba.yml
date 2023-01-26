@@ -4,3 +4,7 @@ Globs:
 
 Layout/TrailingWhitespace:
   Enabled: false
+
+# might revisit this another time
+Metrics/CyclomaticComplexity:
+  Enabled: false
