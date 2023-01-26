@@ -533,6 +533,7 @@ describe "install" do
         override = {dependencies: {
           awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
         }}
+        git_commits(:forked_awesome).first?.should_not be_nil
 
         with_shard(metadata, lock, override) do
           ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
@@ -550,6 +551,7 @@ describe "install" do
         override = {dependencies: {
           awesome: {git: git_url(:forked_awesome), branch: "feature/super"},
         }}
+        git_commits(:forked_awesome).first?.should_not be_nil
 
         with_shard(metadata, lock, override) do
           ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
