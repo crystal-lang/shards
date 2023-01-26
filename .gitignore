@@ -1,8 +1,8 @@
 /.crystal
 /.shards
 /lib
-/bin/shards
-/bin/shards.dwarf
+/bin
+!/bin.keep
 /spec/.repositories
 /spec/.shards
 /spec/unit/.lib
