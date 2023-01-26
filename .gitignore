@@ -2,7 +2,7 @@
 /.shards
 /lib
 /bin
-!/bin.keep
+!/bin/.keep
 /spec/.repositories
 /spec/.shards
 /spec/unit/.lib
