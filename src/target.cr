@@ -9,7 +9,10 @@ module Shards
       main = nil
 
       pull.each_in_mapping do
-        main = pull.read_scalar if pull.read_scalar == "main"
+        if pull.read_scalar == "main"
+          main = pull.read_scalar
+        end
+        # ignore unknown dependency mapping for future extensions
       end
 
       unless main
