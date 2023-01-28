@@ -15,7 +15,7 @@ module Shards
       end
 
       private def has_dependencies?
-        !spec.dependencies.empty? || (Shards.with_development? && !spec.development_dependencies.empty?)
+        spec.dependencies.any? || (Shards.with_development? && spec.development_dependencies.any?)
       end
 
       private def verify(dependencies)

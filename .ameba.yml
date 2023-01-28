@@ -8,3 +8,7 @@ Layout/TrailingWhitespace:
 # might revisit this another time
 Metrics/CyclomaticComplexity:
   Enabled: false
+
+# See: https://forum.crystal-lang.org/t/collections-any-vs-empty/5303
+Performance/AnyInsteadOfEmpty:
+  Enabled: false
