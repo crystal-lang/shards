@@ -107,6 +107,19 @@ Run `make test` to run the test suites:
 
 Run `make docs` to build the manpages.
 
+### Devenv
+
+This repository contains a configuration for [devenv.sh](https://devenv.sh) which
+makes it easy to setup a reproducible environment with all necessary tools for
+building and testing.
+
+- Checkout the repository
+- Run `devenv shell` to get a shell with development environment
+
+A hook for [automatic shell activation](https://devenv.sh/automatic-shell-activation/)
+is also included. If you have `direnv` installed, the devenv environment loads
+automatically upon entering the repo folder.
+
 ## License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for

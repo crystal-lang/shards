@@ -10,3 +10,8 @@
 /spec/unit/.lib
 /tmp
 /docs/*.html
+
+# Devenv
+.devenv*
+devenv.local.nix
+.direnv/
