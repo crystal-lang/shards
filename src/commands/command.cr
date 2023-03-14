@@ -73,7 +73,7 @@ module Shards
       Shards::Lock.write(packages, override_path, LOCK_FILENAME)
     end
 
-    def handle_resolver_errors
+    def handle_resolver_errors(&)
       yield
     rescue e : Molinillo::ResolverError
       Log.error { e.message }

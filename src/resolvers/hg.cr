@@ -352,7 +352,7 @@ module Shards
       end
     end
 
-    private def hg_retry(err = "Failed to update repository")
+    private def hg_retry(err = "Failed to update repository", &)
       retries = 0
       loop do
         return yield

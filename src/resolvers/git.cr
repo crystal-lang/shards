@@ -327,7 +327,7 @@ module Shards
       end
     end
 
-    private def git_retry(err = "Failed to fetch repository")
+    private def git_retry(err = "Failed to fetch repository", &)
       retries = 0
       loop do
         yield
