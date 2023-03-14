@@ -1270,7 +1270,7 @@ describe "install" do
   it "fails when git is missing" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"PATH" => File.expand_path("../../bin", __DIR__), "SHARDS_CACHE_PATH" => "" } }
+      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"PATH" => File.expand_path("../../bin", __DIR__), "SHARDS_CACHE_PATH" => ""} }
       ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end
