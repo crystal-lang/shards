@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.17.3 - 2023-04-07
+
+- Fix swallowing original error message in `git_retry` ([#573](https://github.com/crystal-lang/shards/pull/573), thanks @straight-shoota)
+- `crystal tool format` with 1.8-dev ([#575](https://github.com/crystal-lang/shards/pull/575), thanks @straight-shoota)
+- Docs: Tilde version operator improvements ([#571](https://github.com/crystal-lang/shards/pull/571), thanks @Blacksmoke16)
+- Fix avoid swallowing error message if git command failed ([#569](https://github.com/crystal-lang/shards/pull/569), thanks @straight-shoota)
+
 ## v0.17.2 - 2022-12-28
 
 - Improve error message when symlink failed on Windows ([#565](https://github.com/crystal-lang/shards/pull/565), thanks @straight-shoota)
