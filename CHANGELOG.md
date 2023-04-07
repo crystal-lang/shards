@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.17.3 - 2023-04-05
+## v0.17.3 - 2023-04-07
 
 - Fix swallowing original error message in `git_retry` ([#573](https://github.com/crystal-lang/shards/pull/573), thanks @straight-shoota)
 - `crystal tool format` with 1.8-dev ([#575](https://github.com/crystal-lang/shards/pull/575), thanks @straight-shoota)
