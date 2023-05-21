@@ -1,4 +1,5 @@
 require "uri"
+require "grits"
 require "./resolver"
 require "../versions"
 require "../logger"
@@ -204,9 +205,12 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("git tag --list #{GitResolver.git_column_never}")
-        .split('\n')
-        .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+      versions = [] of String
+      Grits::Repo.open(local_path) do |repo|
+        versions.concat(repo.tag_list)
+      end
+
+      versions.compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
     def install_sources(version : Version, install_path : String)
@@ -317,13 +321,24 @@ module Shards
       # This configuration can be overridden by defining the environment
       # variable `GIT_ASKPASS`.
       git_retry(err: "Failed to clone #{git_url}") do
-        run_in_folder "git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
+        options = Grits::CloneOptions.default
+        options.on_remote_create do |repo, name, url|
+          repo.mirror_remote("origin", url)
+        end
+
+        options.bare = true
+
+        Grits::Repo.clone(git_url, local_path, options) {}
       end
     end
 
     private def fetch_repository
       git_retry(err: "Failed to update #{git_url}") do
-        run "git fetch --all --quiet"
+        Grits::Repo.open(local_path) do |repo|
+          repo.remotes do |remotes|
+            remotes.each(&.fetch)
+          end
+        end
       end
     end
 
@@ -332,7 +347,7 @@ module Shards
       loop do
         yield
         break
-      rescue inner_err : Error
+      rescue inner_err : Grits::Error::Git
         retries += 1
         next if retries < 3
         Log.debug { inner_err }
@@ -357,8 +372,17 @@ module Shards
       false
     end
 
-    private def origin_url
-      @origin_url ||= capture("git ls-remote --get-url origin").strip
+    private def origin_url : String
+      if url = @origin_url
+        return url
+      end
+
+      Grits::Repo.open(local_path) do |repo|
+        remote = repo.remote("origin")
+        @origin_url = remote.url
+      end
+
+      return @origin_url.not_nil!
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
