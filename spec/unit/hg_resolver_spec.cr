@@ -11,7 +11,7 @@ module Shards
     end
   end
 
-  describe HgResolver do
+  describe HgResolver, tags: %w[hg] do
     before_each do
       create_hg_repository "empty"
       create_hg_commit "empty", "initial release"

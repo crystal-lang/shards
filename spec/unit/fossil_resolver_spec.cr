@@ -12,7 +12,7 @@ module Shards
     end
   end
 
-  describe FossilResolver do
+  describe FossilResolver, tags: %w[fossil] do
     before_each do
       create_fossil_repository "empty"
       create_fossil_commit "empty", "initial release"

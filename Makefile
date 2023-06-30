@@ -3,6 +3,9 @@
 release ?=      ## Compile in release mode
 debug ?=        ## Add symbolic debug info
 static ?=       ## Enable static linking
+skip_fossil ?=  ## Skip fossil tests
+skip_git ?=     ## Skip git tests
+skip_hg ?=      ## Skip hg tests
 
 CRYSTAL ?= crystal
 SHARDS ?= shards
@@ -53,7 +56,7 @@ uninstall: phony
 test: test_unit test_integration
 
 test_unit: phony lib
-	$(CRYSTAL) spec ./spec/unit/
+	$(CRYSTAL) spec ./spec/unit/ $(if $(skip_fossil),--tag ~fossil) $(if $(skip_git),--tag ~git) $(if $(skip_hg),--tag ~hg)
 
 test_integration: bin/shards phony
 	$(CRYSTAL) spec ./spec/integration/
