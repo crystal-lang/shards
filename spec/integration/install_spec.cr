@@ -848,6 +848,18 @@ describe "install" do
     File.read(crystal).should eq %(puts "crystal")
   end
 
+  it "errors on missing executable" do
+    metadata = {
+      dependencies: {"executable_missing": "*"},
+    }
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain <<-ERROR
+        E: Could not find executable "nonexistent"
+        ERROR
+    end
+  end
+
   it "skips installing executables" do
     metadata = {
       dependencies: {binary: "0.1.0"},
