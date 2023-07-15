@@ -836,13 +836,16 @@ describe "install" do
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
     foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
+    crystal = File.join(application_path, "bin", "crystal.cr")
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
     File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
+    File.exists?(crystal).should be_true
 
     `#{Process.quote(foobar)}`.should eq("OK")
     `#{Process.quote(baz)}`.should eq("KO")
+    File.read(crystal).should eq %(puts "crystal")
   end
 
   it "skips installing executables" do
