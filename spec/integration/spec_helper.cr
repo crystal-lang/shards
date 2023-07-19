@@ -127,9 +127,13 @@ private def setup_repositories
   create_git_repository "binary"
   create_executable "binary", "bin/foobar", %(print "OK")
   create_executable "binary", "bin/baz", %(print "KO")
-  create_git_release "binary", "0.1.0", {executables: ["foobar", "baz"]}
+  create_file "binary", "bin/crystal.cr", %(puts "crystal")
+  create_git_release "binary", "0.1.0", {executables: ["foobar", "baz", "crystal.cr"]}
   create_executable "binary", "bin/foo", %(print "FOO")
   create_git_release "binary", "0.2.0", {executables: ["foobar", "baz", "foo"]}
+
+  create_git_repository "executable_missing"
+  create_git_release "executable_missing", "0.1.0", {executables: ["nonexistent"]}
 
   create_git_repository "c"
   create_git_release "c", "0.1.0", {dependencies: {d: {git: git_url(:d), version: "0.1.0"}}}
