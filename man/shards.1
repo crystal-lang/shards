@@ -1,7 +1,7 @@
 '\" t
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.18
+.\" Generator: Asciidoctor 2.0.17
 .\"      Date: 2023-04-07
 .\"    Manual: Shards Manual
 .\"    Source: shards 0.17.3
@@ -200,7 +200,9 @@ Disables colored output.
 .sp
 \-\-local
 .RS 4
-Don\(cqt update remote repositories, use the local cache only.
+Do not update remote repository cache. Instead, Shards will use the local copies
+already present in the cache (see \fBSHARDS_CACHE_PATH\fP).
+The command will fail if a depedency is unavailable in the cache.
 .RE
 .sp
 \-q, \-\-quiet
