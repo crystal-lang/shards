@@ -75,6 +75,8 @@ module Shards
 
     private def install_lib_path
       lib_path = File.join(install_path, Shards::INSTALL_DIR)
+      return if File.exists?(lib_path)
+
       Log.debug { "Link #{Shards.install_path} to #{lib_path}" }
       Dir.mkdir_p(File.dirname(lib_path))
       target = File.join(Path.new(Shards::INSTALL_DIR).parts.map { ".." })
