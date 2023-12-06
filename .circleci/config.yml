@@ -60,7 +60,7 @@ jobs:
 
   test-on-osx:
     macos:
-      xcode: 13.2.1
+      xcode: 15.0.0
     steps:
       - with-brew-cache:
           steps:
