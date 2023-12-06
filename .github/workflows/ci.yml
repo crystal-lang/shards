@@ -74,7 +74,7 @@ jobs:
       - name: Download source
         uses: actions/checkout@v2
       - name: Build manpages
-        uses: Analog-inc/asciidoctor-action@master
+        uses: Analog-inc/asciidoctor-action@v1.3.1
         with:
           shellcommand: "make -B manpages SOURCE_DATE_EPOCH=\"$(date +%s --utc --date \"$(grep -m1 -o -E 'Date: .*' man/shard.yml.5 | cut -d' ' -f2)\")\""
       - name: Ensure no changes
