@@ -20,6 +20,7 @@
 - *(ci)* Ensure manpages are generated with no diff ([#594](https://github.com/crystal-lang/shards/pull/594), thanks @straight-shoota)
 - *(ci)* Upgrade xcode version on circleci ([#603](https://github.com/crystal-lang/shards/pull/603), thanks @straight-shoota)
 - *(ci)* Pin GHA runner versions ([#604](https://github.com/crystal-lang/shards/pull/604), thanks @straight-shoota)
+- *(ci)* Pin `Analog-inc/asciidoctor-action` version ([#602](https://github.com/crystal-lang/shards/pull/602), thanks @straight-shoota)
 
 ## v0.17.3 - 2023-04-07
 
