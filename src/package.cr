@@ -66,15 +66,21 @@ module Shards
       # link the project's lib path as the shard's lib path, so the dependency
       # can access transitive dependencies:
       unless resolver.is_a?(PathResolver)
-        lib_path = File.join(install_path, Shards::INSTALL_DIR)
-        Log.debug { "Link #{Shards.install_path} to #{lib_path}" }
-        Dir.mkdir_p(File.dirname(lib_path))
-        target = File.join(Path.new(Shards::INSTALL_DIR).parts.map { ".." })
-        File.symlink(target, lib_path)
+        install_lib_path
       end
 
       Shards.info.installed[name] = self
       Shards.info.save
+    end
+
+    private def install_lib_path
+      lib_path = File.join(install_path, Shards::INSTALL_DIR)
+      return if File.exists?(lib_path)
+
+      Log.debug { "Link #{Shards.install_path} to #{lib_path}" }
+      Dir.mkdir_p(File.dirname(lib_path))
+      target = File.join(Path.new(Shards::INSTALL_DIR).parts.map { ".." })
+      File.symlink(target, lib_path)
     end
 
     protected def cleanup_install_directory
