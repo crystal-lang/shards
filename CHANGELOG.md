@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.17.4 - 2023-12-22
+
+### Bugfixes
+
+- Do not try to override existing lib path in dependency ([#599](https://github.com/crystal-lang/shards/pull/599), thanks @straight-shoota)
+- Fix install non-`.exe` executables on Windows ([#593](https://github.com/crystal-lang/shards/pull/593), thanks @straight-shoota)
+
+### Specs
+
+- Add tags to resolver specs ([#589](https://github.com/crystal-lang/shards/pull/589), thanks @straight-shoota)
+
+### Documentation
+
+- Clarify documentation of `--local` flag ([#587](https://github.com/crystal-lang/shards/pull/587), thanks @straight-shoota)
+
+### Infrastructure
+
+- *(ci)* Ensure manpages are generated with no diff ([#594](https://github.com/crystal-lang/shards/pull/594), thanks @straight-shoota)
+- *(ci)* Upgrade xcode version on circleci ([#603](https://github.com/crystal-lang/shards/pull/603), thanks @straight-shoota)
+- *(ci)* Pin GHA runner versions ([#604](https://github.com/crystal-lang/shards/pull/604), thanks @straight-shoota)
+- *(ci)* Pin `Analog-inc/asciidoctor-action` version ([#602](https://github.com/crystal-lang/shards/pull/602), thanks @straight-shoota)
+
 ## v0.17.3 - 2023-04-07
 
 - Fix swallowing original error message in `git_retry` ([#573](https://github.com/crystal-lang/shards/pull/573), thanks @straight-shoota)
