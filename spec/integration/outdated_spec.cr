@@ -150,7 +150,7 @@ describe "outdated" do
   end
 
   describe "non-release" do
-    describe "without release" do
+    describe "without releases" do
       it "latest any" do
         with_shard({dependencies: {missing: "*"}}, {missing: "0.1.0+git.commit.#{git_commits("missing").first}"}) do
           run "shards install"
