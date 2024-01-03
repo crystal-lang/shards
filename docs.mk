@@ -14,7 +14,10 @@ manpages: $(MAN_FILES)
 
 htmlpages: $(HTML_FILES)
 
-man/%.1 man/%.5: docs/%.adoc
+man/%.1: docs/%.adoc
+	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) $(ASCIIDOC) $(ASCIIDOC_OPTIONS) $< -b manpage -o $@
+
+man/%.5: docs/%.adoc
 	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) $(ASCIIDOC) $(ASCIIDOC_OPTIONS) $< -b manpage -o $@
 
 docs/%.html: docs/%.adoc
