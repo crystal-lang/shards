@@ -127,7 +127,7 @@ after a command.
 --local::
   Do not update remote repository cache. Instead, Shards will use the local copies
   already present in the cache (see *SHARDS_CACHE_PATH*).
-  The command will fail if a depedency is unavailable in the cache.
+  The command will fail if a dependency is unavailable in the cache.
 
 -q, --quiet::
   Decreases the log verbosity, printing only warnings and errors.
@@ -157,7 +157,7 @@ Defaults to _.cache/shards_ in the home directory (_$XDG_CACHE_HOME_ or _$HOME_)
 or the current directory.
 
 SHARDS_INSTALL_PATH::
-Defines the location where dependecies are installed.
+Defines the location where dependencies are installed.
 Defaults to _lib_.
 
 SHARDS_BIN_PATH::
