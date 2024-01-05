@@ -54,45 +54,39 @@ all: build
 
 include docs.mk
 
-.PHONY: build
-build: bin/shards
+build: ## Build shards
+build: phony bin/shards
 
-.PHONY: clean
 clean: ## Remove build artifacts
-clean: clean_docs
+clean: phony clean_docs
 	rm -f bin/shards
 
 bin/shards: $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
 	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
 
-.PHONY: install
 install: ## Install shards
-install: bin/shards man/shards.1.gz man/shard.yml.5.gz
+install: bin/shards man/shards.1.gz man/shard.yml.5.gz phony
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
 	$(INSTALL) -m 0755 bin/shards "$(BINDIR)"
 	$(INSTALL) -m 0644 man/shards.1.gz "$(MANDIR)/man1"
 	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(MANDIR)/man5"
 
-.PHONY: uninstall
 uninstall: ## Uninstall shards
-uninstall:
+uninstall: phony
 	rm -f "$(BINDIR)/shards"
 	rm -f "$(MANDIR)/man1/shards.1.gz"
 	rm -f "$(MANDIR)/man5/shard.yml.5.gz"
 
-.PHONY: test
 test: ## Run all tests
 test: test_unit test_integration
 
-.PHONY: test_unit
 test_unit: ## Run unit tests
-test_unit: lib
+test_unit: phony lib
 	$(CRYSTAL) spec ./spec/unit/ $(if $(skip_fossil),--tag ~fossil) $(if $(skip_git),--tag ~git) $(if $(skip_hg),--tag ~hg)
 
-.PHONY: test_integration
 test_integration: ## Run integration tests
-test_integration: bin/shards
+test_integration: bin/shards phony
 	$(CRYSTAL) spec ./spec/integration/
 
 lib: shard.lock
@@ -104,6 +98,8 @@ shard.lock: shard.yml
 
 man/%.gz: man/%
 	gzip -c -9 $< > $@
+
+phony:
 
 .PHONY: help
 help: ## Show this help
