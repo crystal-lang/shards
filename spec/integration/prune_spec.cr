@@ -38,7 +38,7 @@ describe "prune" do
   end
 
   it "should not fail if the install directory does not exist" do
-    run "rm -rf #{install_path}"
+    FileUtils.rm_rf(install_path)
     Dir.cd(application_path) { run "shards prune" }
   end
 end
