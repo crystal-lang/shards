@@ -27,6 +27,7 @@ skip_hg ?=      ## Skip hg tests
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
+SHELL := cmd.exe
 CXX := cl.exe
 
 GLOB = $(shell dir $1 /B /S 2>NUL)
