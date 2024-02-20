@@ -92,6 +92,18 @@ module Shards
       end
     end
 
+    def check_symlink_privilege
+      {% if flag?(:win32) %}
+        return if Shards::Helpers.developer_mode?
+        return if Shards::Helpers.privilege_enabled?("SeCreateSymbolicLinkPrivilege")
+
+        raise Shards::Error.new(<<-EOS)
+        Shards needs symlinks to work. Please enable Developer Mode, or run Shards with elevated rights:
+            https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+        EOS
+      {% end %}
+    end
+
     def touch_install_path
       Dir.mkdir_p(Shards.install_path)
       File.touch(Shards.install_path)
