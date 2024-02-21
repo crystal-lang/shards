@@ -20,13 +20,21 @@ module Shards
   end
 
   private def self.find_or_create_cache_path
-    candidates = [
-      ENV["SHARDS_CACHE_PATH"]?,
-      ENV["XDG_CACHE_HOME"]?.try { |cache| File.join(cache, "shards") },
-      ENV["HOME"]?.try { |home| File.join(home, ".cache", "shards") },
-      ENV["HOME"]?.try { |home| File.join(home, ".cache", ".shards") },
-      File.join(Dir.current, ".shards"),
-    ]
+    candidates = {% begin %}
+      [
+        ENV["SHARDS_CACHE_PATH"]?,
+        {% if flag?(:windows) %}
+          ENV["LOCALAPPDATA"]?.try { |dir| File.join(dir, "shards", "cache") },
+          ENV["USERPROFILE"]?.try { |home| File.join(home, ".cache", "shards") },
+          ENV["USERPROFILE"]?.try { |home| File.join(home, ".shards") },
+        {% else %}
+          ENV["XDG_CACHE_HOME"]?.try { |cache| File.join(cache, "shards") },
+          ENV["HOME"]?.try { |home| File.join(home, ".cache", "shards") },
+          ENV["HOME"]?.try { |home| File.join(home, ".cache", ".shards") },
+        {% end %}
+        File.join(Dir.current, ".shards"),
+      ]
+    {% end %}
 
     candidates.each do |candidate|
       next unless candidate
