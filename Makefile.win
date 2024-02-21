@@ -1,0 +1,139 @@
+.POSIX:
+
+# Recipes for this Makefile
+
+## Build shards
+##   $ make -f Makefile.win
+## Build shards in release mode
+##   $ make -f Makefile.win release=1
+## Run tests
+##   $ make -f Makefile.win test
+## Run tests without fossil tests
+##   $ make -f Makefile.win test skip_fossil=1
+## Install shards
+##   $ make -f Makefile.win install
+## Uninstall shards
+##   $ make -f Makefile.win uninstall
+## Build and install shards
+##   $ make -f Makefile.win build && sudo make -f Makefile.win install
+
+release ?=      ## Compile in release mode
+debug ?=        ## Add symbolic debug info
+static ?=       ## Enable static linking
+skip_fossil ?=  ## Skip fossil tests
+skip_git ?=     ## Skip git tests
+skip_hg ?=      ## Skip hg tests
+
+MAKEFLAGS += --no-builtin-rules
+.SUFFIXES:
+
+SHELL := cmd.exe
+CXX := cl.exe
+
+GLOB = $(shell dir $1 /B /S 2>NUL)
+MKDIR = if not exist $1 mkdir $1
+MV = move /Y $1 $2
+RM = if exist $1 del /F /Q $1
+
+CRYSTAL ?= crystal.exe
+SHARDS ?= shards.exe
+override FLAGS += $(if $(release),--release )$(if $(debug),-d )$(if $(static),--static )
+
+SHARDS_SOURCES = $(call GLOB,src\\*.cr)
+MOLINILLO_SOURCES = $(call GLOB,lib\\molinillo\\src\\*.cr)
+SOURCES = $(SHARDS_SOURCES) $(MOLINILLO_SOURCES)
+TEMPLATES = $(call GLOB,src\\templates\\*.ecr)
+
+SHARDS_CONFIG_BUILD_COMMIT := $(shell git rev-parse --short HEAD)
+SOURCE_DATE_EPOCH := $(shell git show -s --format=%ct HEAD)
+export_vars = $(eval export SHARDS_CONFIG_BUILD_COMMIT SOURCE_DATE_EPOCH)
+
+MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
+MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
+
+prefix ?= $(or $(ProgramW6432),$(ProgramFiles))\crystal## Install path prefix
+BINDIR ?= $(prefix)
+
+.PHONY: all
+all: build
+
+.PHONY: build
+build: bin\shards.exe
+
+.PHONY: clean
+clean: ## Remove build artifacts
+clean:
+	$(call RM,"bin\shards.exe")
+
+bin\shards.exe: $(SOURCES) $(TEMPLATES) lib
+	@$(call MKDIR,"bin")
+	$(call export_vars)
+	$(CRYSTAL) build $(FLAGS) -o bin\shards.exe src\shards.cr
+
+.PHONY: install
+install: ## Install shards
+install: bin\shards.exe
+	$(call MKDIR,"$(BINDIR)")
+	$(call INSTALL,"bin\shards.exe","$(BINDIR)\shards.exe")
+	$(call INSTALL,"bin\shards.pdb","$(BINDIR)\shards.pdb")
+
+.PHONY: uninstall
+uninstall: ## Uninstall shards
+uninstall:
+	$(call RM,"$(BINDIR)\shards.exe")
+	$(call RM,"$(BINDIR)\shards.pdb")
+
+.PHONY: test
+test: ## Run all tests
+test: test_unit test_integration
+
+.PHONY: test_unit
+test_unit: ## Run unit tests
+test_unit: lib
+	$(CRYSTAL) spec $(if $(skip_fossil),--tag ~fossil )$(if $(skip_git),--tag ~git )$(if $(skip_hg),--tag ~hg ).\spec\unit
+
+.PHONY: test_integration
+test_integration: ## Run integration tests
+test_integration: bin\shards.exe
+	$(CRYSTAL) spec .\spec\integration
+
+lib: shard.lock
+	$(call MKDIR,"lib\molinillo")
+	$(SHARDS) install || (curl -L $(MOLINILLO_URL) | tar -xzf - -C lib\molinillo --strip-components=1)
+
+shard.lock: shard.yml
+	if not "$(SHARDS)" == "false" $(SHARDS) update
+
+.PHONY: help
+help: ## Show this help
+	@setlocal EnableDelayedExpansion &\
+	echo. &\
+	echo targets: &\
+	(for /F "usebackq tokens=1* delims=:" %%g in ($(MAKEFILE_LIST)) do (\
+		if not "%%h" == "" (\
+			set "_line=%%g                " &\
+			set "_rest=%%h" &\
+			set "_comment=!_rest:* ## =!" &\
+			if not "!_comment!" == "!_rest!"\
+				if "!_line:_rest=!" == "!_line!"\
+					echo   !_line:~0,17!!_comment!\
+		)\
+	)) &\
+	echo. &\
+	echo optional variables: &\
+	(for /F "usebackq tokens=1,3 delims=?#" %%g in ($(MAKEFILE_LIST)) do (\
+		if not "%%h" == "" (\
+			set "_var=%%g              " &\
+			echo   !_var:~0,15! %%h\
+		)\
+	)) &\
+	echo. &\
+	echo recipes: &\
+	(for /F "usebackq tokens=* delims=" %%g in ($(MAKEFILE_LIST)) do (\
+		set "_line=%%g" &\
+		if "!_line:~0,7!" == "##   $$ " (\
+			echo !_name! &\
+			echo  !_line:~2!\
+		) else if "!_line:~0,3!" == "## "\
+			set "_name=  !_line:~3!"\
+	))
