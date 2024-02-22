@@ -1,0 +1,7 @@
+## Sources
+
+*.cr text eol=lf
+
+## Syntax highlighting
+
+Makefile.win linguist-language=makefile
