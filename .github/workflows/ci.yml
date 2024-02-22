@@ -16,6 +16,8 @@ jobs:
         include:
           - os: windows-2022
             crystal: nightly
+          - os: ubuntu-22.04
+            crystal: 1.0.0
     runs-on: ${{ matrix.os }}
 
     steps:
