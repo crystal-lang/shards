@@ -73,7 +73,7 @@ module Shards
       Shards::Lock.write(packages, override_path, LOCK_FILENAME)
     end
 
-    def handle_resolver_errors
+    def handle_resolver_errors(&)
       yield
     rescue e : Molinillo::ResolverError
       Log.error { e.message }
@@ -90,6 +90,18 @@ module Shards
           Log.warn { "Shard \"#{package.name}\" may be incompatible with Crystal #{Shards.crystal_version}" }
         end
       end
+    end
+
+    def check_symlink_privilege
+      {% if flag?(:win32) %}
+        return if Shards::Helpers.developer_mode?
+        return if Shards::Helpers.privilege_enabled?("SeCreateSymbolicLinkPrivilege")
+
+        raise Shards::Error.new(<<-EOS)
+        Shards needs symlinks to work. Please enable Developer Mode, or run Shards with elevated rights:
+            https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+        EOS
+      {% end %}
     end
 
     def touch_install_path

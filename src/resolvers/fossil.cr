@@ -380,7 +380,7 @@ module Shards
       end
     end
 
-    private def fossil_retry(err = "Failed to fetch repository")
+    private def fossil_retry(err = "Failed to fetch repository", &)
       retries = 0
       loop do
         yield

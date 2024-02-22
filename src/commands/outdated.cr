@@ -9,6 +9,8 @@ module Shards
       @output = IO::Memory.new
 
       def run(@prereleases = false)
+        check_symlink_privilege
+
         return unless has_dependencies?
 
         Log.info { "Resolving dependencies" }

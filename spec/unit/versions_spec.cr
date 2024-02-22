@@ -183,10 +183,11 @@ module Shards
     end
 
     it "resolve approximate" do
-      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0)
+      versions = %w(0.0.1 0.1.0 0.1.1 0.1.2 0.2.0 0.10.0 1.0.0 1.5.0 2.0.0)
 
       resolve(versions, "~> 0.1.0").should eq(["0.1.0", "0.1.1", "0.1.2"])
       resolve(versions, "~> 0.1").should eq(["0.1.0", "0.1.1", "0.1.2", "0.2.0", "0.10.0"])
+      resolve(versions, "~> 1").should eq(["1.0.0", "1.5.0"])
 
       resolve(["0.1"], "~> 0.1").should eq(["0.1"])
       resolve(["0.1"], "~> 0.1.0").should eq(["0.1"])
@@ -233,7 +234,10 @@ module Shards
 
       matches?("1.0.0", "~> 1.0.0").should be_true
       matches?("1.0.0", "~> 1.0").should be_true
+      matches?("1.0.0", "~> 1").should be_true
+      matches?("1.1.0", "~> 1").should be_true
       matches?("1.0.0", "~> 1.1").should be_false
+      matches?("2.0.0", "~> 1").should be_false
       matches?("1.0.1", "~> 1.0.0").should be_true
       matches?("1.0.0", "~> 1.0.1").should be_false
 

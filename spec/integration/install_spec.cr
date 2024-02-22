@@ -836,13 +836,28 @@ describe "install" do
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
     foo = File.join(application_path, "bin", Shards::Helpers.exe("foo"))
+    crystal = File.join(application_path, "bin", "crystal.cr")
 
     File.exists?(foobar).should be_true # "Expected to have installed bin/foobar executable"
     File.exists?(baz).should be_true    # "Expected to have installed bin/baz executable"
     File.exists?(foo).should be_false   # "Expected not to have installed bin/foo executable"
+    File.exists?(crystal).should be_true
 
     `#{Process.quote(foobar)}`.should eq("OK")
     `#{Process.quote(baz)}`.should eq("KO")
+    File.read(crystal).should eq %(puts "crystal")
+  end
+
+  it "errors on missing executable" do
+    metadata = {
+      dependencies: {"executable_missing": "*"},
+    }
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain <<-ERROR
+        E: Could not find executable "nonexistent"
+        ERROR
+    end
   end
 
   it "skips installing executables" do
@@ -1264,6 +1279,14 @@ describe "install" do
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
+    end
+  end
+
+  it "fails when git is missing" do
+    metadata = {dependencies: {web: "*"}}
+    with_shard(metadata) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"PATH" => File.expand_path("../../bin", __DIR__), "SHARDS_CACHE_PATH" => ""} }
+      ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end
 end

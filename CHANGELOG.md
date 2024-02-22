@@ -1,12 +1,56 @@
-# CHANGELOG
+# Changelog
 
-## v0.17.1 - 2022-09-30
+## [0.17.4] (2023-12-22)
+
+[0.17.4]: https://github.com/crystal-lang/shards/releases/0.17.4
+
+### Bugfixes
+
+- Do not try to override existing lib path in dependency ([#599](https://github.com/crystal-lang/shards/pull/599), thanks @straight-shoota)
+- Fix install non-`.exe` executables on Windows ([#593](https://github.com/crystal-lang/shards/pull/593), thanks @straight-shoota)
+
+### Specs
+
+- Add tags to resolver specs ([#589](https://github.com/crystal-lang/shards/pull/589), thanks @straight-shoota)
+
+### Documentation
+
+- Clarify documentation of `--local` flag ([#587](https://github.com/crystal-lang/shards/pull/587), thanks @straight-shoota)
+
+### Infrastructure
+
+- *(ci)* Ensure manpages are generated with no diff ([#594](https://github.com/crystal-lang/shards/pull/594), thanks @straight-shoota)
+- *(ci)* Upgrade xcode version on circleci ([#603](https://github.com/crystal-lang/shards/pull/603), thanks @straight-shoota)
+- *(ci)* Pin GHA runner versions ([#604](https://github.com/crystal-lang/shards/pull/604), thanks @straight-shoota)
+- *(ci)* Pin `Analog-inc/asciidoctor-action` version ([#602](https://github.com/crystal-lang/shards/pull/602), thanks @straight-shoota)
+
+## [0.17.3] (2023-04-07)
+
+[0.17.3]: https://github.com/crystal-lang/shards/releases/0.17.3
+
+- Fix swallowing original error message in `git_retry` ([#573](https://github.com/crystal-lang/shards/pull/573), thanks @straight-shoota)
+- `crystal tool format` with 1.8-dev ([#575](https://github.com/crystal-lang/shards/pull/575), thanks @straight-shoota)
+- Docs: Tilde version operator improvements ([#571](https://github.com/crystal-lang/shards/pull/571), thanks @Blacksmoke16)
+- Fix avoid swallowing error message if git command failed ([#569](https://github.com/crystal-lang/shards/pull/569), thanks @straight-shoota)
+
+## [0.17.2] (2022-12-28)
+
+[0.17.2]: https://github.com/crystal-lang/shards/releases/0.17.2
+
+- Improve error message when symlink failed on Windows ([#565](https://github.com/crystal-lang/shards/pull/565), thanks @straight-shoota)
+- Inherit the standard input descriptor ([#561](https://github.com/crystal-lang/shards/pull/561), thanks @hovsater)
+
+## [0.17.1] (2022-09-30)
+
+[0.17.1]: https://github.com/crystal-lang/shards/releases/0.17.1
 
 - Fix: Don't raise an exception if install_path doesn't exist ([#557](https://github.com/crystal-lang/shards/pull/557), thanks @mjoerussell)
 - Fix Fossil resolver when multiple dependencies are coming from the same website ([#558](https://github.com/crystal-lang/shards/pull/558), thanks @MistressRemilia)
 - Adjust parameter name for `Resolver#install_sources` ([#559](https://github.com/crystal-lang/shards/pull/559), thanks @straight-shoota)
 
-## v0.17.0 - 2022-03-24
+## [0.17.0] (2022-03-24)
+
+[0.17.0]: https://github.com/crystal-lang/shards/releases/0.17.0
 
 - Add `make build` recipe ([#533](https://github.com/crystal-lang/shards/pull/533), thanks @straight-shoota)
 - Fix unexpected token compiler error match ([#532](https://github.com/crystal-lang/shards/pull/532), thanks @straight-shoota)
@@ -22,68 +66,81 @@
 - Re-enabled `~` support in path resolver ([#538](https://github.com/crystal-lang/shards/pull/538), thanks @masukomi)
 - Add `--jobs` flag (parallel git fetch) ([#539](https://github.com/crystal-lang/shards/pull/539), thanks @m-o-e)
 
-## v0.16.0 - 2021-10-06
+## [0.16.0] (2021-10-06)
 
-Fixes:
+[0.16.0]: https://github.com/crystal-lang/shards/releases/0.16.0
+
+### Fixes
+
 - Fix error message for invalid shard.yml ([#516](https://github.com/crystal-lang/shards/pull/516), thanks @straight-shoota)
 - [Makefile] Fix shard.lock recipe ([#515](https://github.com/crystal-lang/shards/pull/515), thanks @straight-shoota)
 - Fix pass no-color and verbose flags to crystal build ([#517](https://github.com/crystal-lang/shards/pull/517), thanks @straight-shoota)
 
-Features:
+### Features
+
 - Resolver for Mercurial repositories ([#458](https://github.com/crystal-lang/shards/pull/458), thanks @f-fr)
 - Update manpages with mercurial information ([#526](https://github.com/crystal-lang/shards/pull/526), thanks @straight-shoota)
 - Add `!=` operator for version resolve ([#520](https://github.com/crystal-lang/shards/pull/520), thanks @syeopite)
 - Compress manpages on install ([#524](https://github.com/crystal-lang/shards/pull/524), thanks @straight-shoota)
 
-## v0.15.0 - 2021-06-29
+## [0.15.0] (2021-06-29)
 
-Fixes:
+[0.15.0]: https://github.com/crystal-lang/shards/releases/0.15.0
+
+### Fixes
 
 - Let `shards build` error if no targets defined ([#490](https://github.com/crystal-lang/shards/pull/490), thanks @straight-shoota)
 - Fix to allow empty `shard.override.yml` ([#495](https://github.com/crystal-lang/shards/pull/495), thanks @straight-shoota)
 - Stop expecting master to be the default branch for git ([#503](https://github.com/crystal-lang/shards/pull/503), thanks @szabgab)
 
-Features:
+### Features
+
 - Add documentation for `shard.override.yml` ([#494](https://github.com/crystal-lang/shards/pull/494), thanks @straight-shoota)
 - Warn only crystal version ([#496](https://github.com/crystal-lang/shards/pull/496), thanks @beta-ziliani, @bcardiff)
 - Don't default the Crystal version to `<1.0.0`, use only the lower bound ([#493](https://github.com/crystal-lang/shards/pull/493), thanks @oprypin)
 - Add `--skip-executables` ([#506](https://github.com/crystal-lang/shards/pull/506), thanks @straight-shoota)
 
-Others:
+### Others
 
 - Escape automatic ligatures in AsciiDoc ([#489](https://github.com/crystal-lang/shards/pull/489), thanks @elebow)
 - Fix links in README ([#500](https://github.com/crystal-lang/shards/pull/500), [#483](https://github.com/crystal-lang/shards/pull/483), thanks @szabgab, @kimburgess)
 - Correct list identation in shard.yml.adoc ([#492](https://github.com/crystal-lang/shards/pull/492/files), thanks @elebow)
 - Add getting started section to README ([#513](https://github.com/crystal-lang/shards/pull/513), thanks @straight-shoota)
 
-## v0.14.1 - 2021-03-10
+## [0.14.1] (2021-03-10)
 
-Fixes:
+[0.14.1]: https://github.com/crystal-lang/shards/releases/0.14.1
+
+### Fixes
 
 - Fix broken `SOURCE_DATE_EPOCH` in `docs.mk`. ([#479](https://github.com/crystal-lang/shards/pull/479), thanks @straight-shoota)
 
-## v0.14.0 - 2021-02-23
+## [0.14.0] (2021-02-23)
 
-Fixes:
+[0.14.0]: https://github.com/crystal-lang/shards/releases/0.14.0
+
+### Fixes
 
 - Improve error message when locked version is missing in source. ([#466](https://github.com/crystal-lang/shards/pull/466), thanks @straight-shoota)
 - Fix touch install_path to not accidentally create file. ([#478](https://github.com/crystal-lang/shards/pull/478), thanks @straight-shoota)
 
-Features:
+### Features
 
 - Add `--frozen` and `--without-development` CLI flags. ([#473](https://github.com/crystal-lang/shards/pull/473), thanks @straight-shoota)
 - Add `--skip-postinstall` cli option to install and update. ([#475](https://github.com/crystal-lang/shards/pull/475), thanks @bcardiff)
 - Treat github sources as case insensitive. ([#471](https://github.com/crystal-lang/shards/pull/471), thanks @stakach)
 
-Others:
+### Others
 
 - Rewrite manpages in Asciidoc. ([#262](https://github.com/crystal-lang/shards/pull/262), thanks @straight-shoota)
 - CI improvements and housekeeping. ([#454](https://github.com/crystal-lang/shards/pull/454), [#464](https://github.com/crystal-lang/shards/pull/464), thanks @j8r, @Sija)
 - Bump crystal-molinillo to 0.2.0. ([#476](https://github.com/crystal-lang/shards/pull/476), thanks @bcardiff)
 
-## v0.13.0 - 2021-01-21
+## [0.13.0] (2021-01-21)
 
-Fixes:
+[0.13.0]: https://github.com/crystal-lang/shards/releases/0.13.0
+
+### Fixes
 
 - Fix outdated command for dependencies with no releases. ([#455](https://github.com/crystal-lang/shards/pull/455), thanks @straight-shoota)
 - Fix outdated command with non-release installed. ([#456](https://github.com/crystal-lang/shards/pull/456), thanks @straight-shoota)
@@ -93,11 +150,11 @@ Fixes:
 - Allow empty scalar for mappings/sequences. ([#451](https://github.com/crystal-lang/shards/pull/451), thanks @straight-shoota)
 - Fix working directory in `capture`. ([#457](https://github.com/crystal-lang/shards/pull/457), thanks @f-fr)
 
-Features:
+### Features
 
 - Add a fallback to alternate shards commands. ([#202](https://github.com/crystal-lang/shards/pull/202), thanks @Willamin)
 
-Others:
+### Others
 
 - Use git's `checkout` feature directly to write out repo files. ([#435](https://github.com/crystal-lang/shards/pull/435), thanks @oprypin)
 - Use `Process.quote` instead of the old platform-specific helper. ([#437](https://github.com/crystal-lang/shards/pull/437), thanks @oprypin)
@@ -108,23 +165,25 @@ Others:
 - Cleanup unused code. ([#460](https://github.com/crystal-lang/shards/pull/460), thanks @f-fr)
 - Fix outdated content in the `README.md` and `SPEC.md`. ([#434](https://github.com/crystal-lang/shards/pull/434), [#461](https://github.com/crystal-lang/shards/pull/461), [#462](https://github.com/crystal-lang/shards/pull/462), thanks @kojix2, @straight-shoota, @KimBurgess)
 
-## v0.12.0 - 2020-08-05
+## [0.12.0] (2020-08-05)
 
-Fixes:
+[0.12.0]: https://github.com/crystal-lang/shards/releases/0.12.0
+
+### Fixes
 
 - Disable interactive credential prompt for git resolver. ([#411](https://github.com/crystal-lang/shards/pull/411), thanks @straight-shoota)
 - Display dependency name on parsing errors of `shard.yml`. ([#408](https://github.com/crystal-lang/shards/pull/408), thanks @straight-shoota)
 - Handle ambiguous dependencies and update `shard.lock` if source of dependency change. ([#419](https://github.com/crystal-lang/shards/pull/419), [#429](https://github.com/crystal-lang/shards/pull/429), thanks @bcardiff)
 - Reinstall when resolver changes. ([#425](https://github.com/crystal-lang/shards/pull/425), thanks @waj)
 
-Features:
+### Features
 
 - Shards overrides. ([#422](https://github.com/crystal-lang/shards/pull/422), [#429](https://github.com/crystal-lang/shards/pull/429), thanks @bcardiff)
 - Add `--ignore-crystal-version` related suggestion and warnings to guide user. ([#418](https://github.com/crystal-lang/shards/pull/418), thanks @bcardiff)
 - Allow shards to read `SHARDS_OPTS` for addition command options. ([#417](https://github.com/crystal-lang/shards/pull/417), [#420](https://github.com/crystal-lang/shards/pull/420), thanks @bcardiff)
 - Add convenient makefile arguments for packaging. ([#414](https://github.com/crystal-lang/shards/pull/414), thanks @bcardiff)
 
-Others:
+### Others
 
 - Bump required Crystal to 0.35. ([#424](https://github.com/crystal-lang/shards/pull/424), thanks @bcardiff)
 - Refactor: Move install responsibilities from `Resolver` to `Package`. ([#426](https://github.com/crystal-lang/shards/pull/426), thanks @waj)
@@ -133,15 +192,19 @@ Others:
 - Spec: Fix failure under 32-bit Linux. ([#416](https://github.com/crystal-lang/shards/pull/416), thanks @lugia-kun)
 - Fix builds. ([#421](https://github.com/crystal-lang/shards/pull/421), [#423](https://github.com/crystal-lang/shards/pull/423), thanks @bcardiff)
 
-## v0.11.1 - 2020-06-08
+## [0.11.1] (2020-06-08)
 
-Fixes:
+[0.11.1]: https://github.com/crystal-lang/shards/releases/0.11.1
+
+### Fixes
 
 - Support `crystal: x.y` values (without patch). ([#404](https://github.com/crystal-lang/shards/pull/404), thanks @bcardiff)
 
-## v0.11.0 - 2020-06-05
+## [0.11.0] (2020-06-05)
 
-Features:
+[0.11.0]: https://github.com/crystal-lang/shards/releases/0.11.0
+
+### Features
 
 -  **(breaking-change)** Use `crystal:` property to filter candidates version. ([#395](https://github.com/crystal-lang/shards/pull/395), thanks @waj, @bcardiff)
 - Introduce `shard.lock` 2.0 format, run `shards install` to migrate. ([#349](https://github.com/crystal-lang/shards/pull/349), [#400](https://github.com/crystal-lang/shards/pull/400), thanks @waj)
@@ -151,14 +214,14 @@ Features:
 - Add error on duplicate arguments in `shard.yml`. ([#387](https://github.com/crystal-lang/shards/pull/387), thanks @straight-shoota)
 - Replace `.sha1` files with a single `.shards.info`. ([#349](https://github.com/crystal-lang/shards/pull/349), [#366](https://github.com/crystal-lang/shards/pull/366), [#368](https://github.com/crystal-lang/shards/pull/368), [#401](https://github.com/crystal-lang/shards/pull/401), thanks @waj)
 
-Fixes:
+### Fixes
 
 - Improve `GitRef` dependencies and locks. ([#388](https://github.com/crystal-lang/shards/pull/388), [#389](https://github.com/crystal-lang/shards/pull/389), thanks @waj,  @straight-shoota)
 - Fix crash when a shard version didn't contain a `shard.yml`. ([#362](https://github.com/crystal-lang/shards/pull/362), thanks @waj)
 - Avoid `shard.lock` being overwritten when dependencies are up to date. ([#370](https://github.com/crystal-lang/shards/pull/370), thanks @waj)
 - Detect version mismatches between `shard.yml` and git tags . ([#341](https://github.com/crystal-lang/shards/pull/341), thanks @RX14)
 
-Others:
+### Others
 
 - Add compatibility with Crystal 0.35. Drop compatibility with < 0.34. ([#379](https://github.com/crystal-lang/shards/pull/379), [#391](https://github.com/crystal-lang/shards/pull/391), [#397](https://github.com/crystal-lang/shards/pull/397), thanks @waj, @bcardiff)
 - Explicitly state build_options in help output. ([#364](https://github.com/crystal-lang/shards/pull/364), thanks @Darwinnn)
@@ -170,9 +233,11 @@ Others:
 - Make sure tags in specs aren't signed. ([#382](https://github.com/crystal-lang/shards/pull/382), thanks @repomaa)
 - Code clean-up. ([#356](https://github.com/crystal-lang/shards/pull/356), [#375](https://github.com/crystal-lang/shards/pull/375), thanks @straight-shoota)
 
-## v0.10.0 - 2020-04-01
+## [0.10.0] (2020-04-01)
 
-Features:
+[0.10.0]: https://github.com/crystal-lang/shards/releases/0.10.0
+
+### Features
 
 - Use [crystal-molinillo](https://github.com/crystal-lang/crystal-molinillo) to resolve dependencies, drop the SAT solver. [#322](https://github.com/crystal-lang/shards/pull/322), [#329](https://github.com/crystal-lang/shards/pull/329), [#336](https://github.com/crystal-lang/shards/pull/336).
 - Automatic unlock on install and update. [#337](https://github.com/crystal-lang/shards/pull/337)
@@ -180,41 +245,50 @@ Features:
 - Support shard renames. [#327](https://github.com/crystal-lang/shards/pull/327)
 - Add SPEC for repository, homepage, documentation properties. [#265](https://github.com/crystal-lang/shards/pull/265)
 
-Fixes:
+### Fixes
 
 - Allow changes in the source protocol without triggering an actual change in the source. [#315](https://github.com/crystal-lang/shards/pull/315)
 - Make shards reproducible via `SOURCE_DATE_EPOCH` environment variable. [#314](https://github.com/crystal-lang/shards/pull/314)
 - Check non hidden files are not pruned. [#330](https://github.com/crystal-lang/shards/pull/330)
 - Validation of changes in production mode for dependencies referenced by commit. [#340](https://github.com/crystal-lang/shards/pull/340)
 
-Others:
+### Others
 
 - Upgrade to Crystal 0.34.0. [#296](https://github.com/crystal-lang/shards/pull/296), [#331](https://github.com/crystal-lang/shards/pull/331), [#335](https://github.com/crystal-lang/shards/pull/335)
 - Replace [minitest](https://github.com/ysbaddaden/minitest.cr) in favor of std-lib spec. [#334](https://github.com/crystal-lang/shards/pull/334)
 - CI improvements and housekeeping. [#333](https://github.com/crystal-lang/shards/pull/333), [#317](https://github.com/crystal-lang/shards/pull/317), [#323](https://github.com/crystal-lang/shards/pull/323), [#328](https://github.com/crystal-lang/shards/pull/328)
 
-## v0.9.0 - 2019-06-13
+## [0.9.0] (2019-06-13)
 
-Fixes:
+[0.9.0]: https://github.com/crystal-lang/shards/releases/0.9.0
+
+### Fixes
+
 - Allow resolving pre-release when installing git refs;
 - Report all available versions (Git resolver);
 - Don't prune everything in `lib` directory.
 
-## v0.9.0.rc2 - 2019-05-07
+## [0.9.0.rc2] (2019-05-07)
 
-Fixes:
+[0.9.0.rc2]: https://github.com/crystal-lang/shards/releases/0.9.0.rc2
+
+### Fixes
+
 - Exit with non-zero status on dependency resolve error;
 - Install dependency at HEAD when no version tags are defined;
 - Install executables using `shard.yml` at commit (not version).
 
-## v0.9.0.rc1 - 2019-01-11
+## [0.9.0.rc1] (2019-01-11)
+
+[0.9.0.rc1]: https://github.com/crystal-lang/shards/releases/0.9.0.rc1
 
 Breaking changes:
 - Dependency solver was overhauled;
 - Git tag refs that match a version number are now an actual version (i.e.
   `tag: v1.0.0` is converted to `version: 1.0.0`).
 
-Features:
+### Features
+
 - Update specified shards only, trying to keep other shards to their locked
   version if possible;
 - Add `--local` argument to use the cache as-is, allowing to skip git fetches
@@ -225,23 +299,28 @@ Features:
 - Add the *lock* command that behaves like the *install* and *update* commands
   but that only creates a lockfile, and doesn't install anything.
 
-Fixes:
+### Fixes
+
 - Transitive dependencies are now available to all installed shards, allowing
   postinstall scripts to compile any Crystal application;
 - Don't consider metadata when considering a pre-release version number.
 
-## v0.9.0.beta - 2019-01-11
+## [0.9.0.beta] (2019-01-11)
+
+[0.9.0.beta]: https://github.com/crystal-lang/shards/releases/0.9.0.beta
 
 Breaking changes:
 - A `shard.yml` spec is now required in libraries.
 - Drop support for obsolete Projectfile.
 
-Features:
+### Features
+
 - Experimental support for prereleases. Add a letter to a version number to
   declare a pre-release. For example `1.2.3.alpha` or `1.0.0-rc1`.
 - Ignore semver metadata (+abc).
 
-Fixes:
+### Fixes
+
 - Approximate operator used to match invalid version numbers (e.g. `~> 0.1.0`
   wrongly matched `0.10.0`).
 - Unbalanced version numbers, such as `1.0.0` and `1.0.0.1` are now correctly
@@ -249,20 +328,27 @@ Fixes:
 - Force the 'v' prefix in version tags.
 - `install -t` isn't supported on macOS.
 
-## v0.8.1 - 2018-06-17
+## [0.8.1] (2018-06-17)
 
-Fixes:
+[0.8.1]: https://github.com/crystal-lang/shards/releases/0.8.1
+
+### Fixes
+
 - Git repositories cloned with v0.8.0 can't fetch new remote refs anymore,
   which totally broke the `update` command.
 - The Path resolver incorrectly handled invalid symlinks.
 
-## v0.8.0 - 2018-06-05 [REVOKED]
+## [0.8.0] (2018-06-05 [REVOKED])
 
-Features:
+[0.8.0]: https://github.com/crystal-lang/shards/releases/0.8.0
+
+### Features
+
 - Install shard executables inside project bin folder on shard install.
   See #126.
 
-Changes:
+### Changes
+
 - Global cache for cloned Git repositories, aside crystal cache
   (e.g. `~/.cache/shards`). Customizable with `SHARDS_CACHE_PATH`.
 - Clone bare Git repositories instead of creating mirrors (fetch should be
@@ -271,15 +357,20 @@ Changes:
 - Allow loose shard versioning, accepting semver-like versions and alternatives
   such as calver.
 
-Fixes:
+### Fixes
+
 - Compatibility with Crystal 0.25.
 
-## v0.7.2 - 2017-11-16
+## [0.7.2] (2017-11-16)
 
-Features:
+[0.7.2]: https://github.com/crystal-lang/shards/releases/0.7.2
+
+### Features
+
 - Version command to print-out the project's version, see #147
 
-Fixes:
+### Fixes
+
 - Don't consider a Git refs to be a version number, see #169
 - Use installed spec for executing scripts, see #143
 - Don't expect `shard.lock` when `shard.yml` has no dependencies, see #145
@@ -287,15 +378,21 @@ Fixes:
 - Harmonize error messages
 - Correct shard.yml parse error line:column reporting
 
-## v0.7.1 - 2016-11-24
+## [0.7.1] (2016-11-24)
 
-Fixes:
+[0.7.1]: https://github.com/crystal-lang/shards/releases/0.7.1
+
+### Fixes
+
 - correctly updates or keeps dependencies, see #107, #141
 - upgrades minitest dependency so test do run
 
-## v0.7.0 - 2016-11-18
+## [0.7.0] (2016-11-18)
 
-Features:
+[0.7.0]: https://github.com/crystal-lang/shards/releases/0.7.0
+
+### Features
+
 - Build command for `targets` entry in SPEC
 - New Crystal search path algorithm (see breaking changes below)
 - Informational `crystal` entry in SPEC
@@ -308,80 +405,114 @@ Breaking Changes:
 - `postinstall` scripts are now executed from the root of the dependency,
   not the `src` directory
 
-Fixes:
+### Fixes
+
 - crash when dependency keys were unordered
 - `tar` command usage on OpenBSD
 - correctly report git errors
 - the update command created a lockfile for empty dependencies
 
-## v0.6.4 - 2016-11-18
+## [0.6.4] (2016-11-18)
 
-Fixes:
+[0.6.4]: https://github.com/crystal-lang/shards/releases/0.6.4
+
+### Fixes
+
 - Compatibility with Crystal 0.19.0
 
-## v0.6.3 - 2016-05-05
+## [0.6.3] (2016-05-05)
 
-Fixes:
+[0.6.3]: https://github.com/crystal-lang/shards/releases/0.6.3
+
+### Fixes
+
 - Compatibility with Crystal > 0.15.0
 - Relative paths for path dependencies, see #99
 
-## v0.6.2 - 2016-03-07
+## [0.6.2] (2016-03-07)
 
-Fixes:
+[0.6.2]: https://github.com/crystal-lang/shards/releases/0.6.2
+
+### Fixes
+
 - Don't crash when git binary is missing.
 
-## v0.6.1 - 2016-02-16
+## [0.6.1] (2016-02-16)
 
-Fixes:
+[0.6.1]: https://github.com/crystal-lang/shards/releases/0.6.1
+
+### Fixes
+
 - Compatibility with Crystal > 0.11.1
 
-## v0.6.0 - 2016-01-23
+## [0.6.0] (2016-01-23)
 
-Features:
+[0.6.0]: https://github.com/crystal-lang/shards/releases/0.6.0
+
+### Features
+
 - prune command to remove extraneous libs
 - init command to create an initial shard.yml
 
-Fixes:
+### Fixes
+
 - print details when postinstall script fails, see #84
 - path resolver didn't verify the path actually existed, see #77
 - recursion when shard name doesn't match dependency name, see #72
 
-## v0.5.4 - 2015-12-23
+## [0.5.4] (2015-12-23)
 
-Fixes:
+[0.5.4]: https://github.com/crystal-lang/shards/releases/0.5.4
+
+### Fixes
+
 - Compatibility with Crystal > 0.9.1
 
-## v0.5.3 - 2015-10-23
+## [0.5.3] (2015-10-23)
 
-Fixes:
+[0.5.3]: https://github.com/crystal-lang/shards/releases/0.5.3
+
+### Fixes
+
 - Git resolver didn't install the locked commit when using branch, tag or
   commit or just failed to install the dependency, see #65 and #67
 
-## v0.5.2 - 2015-10-02
+## [0.5.2] (2015-10-02)
 
-Fixes:
+[0.5.2]: https://github.com/crystal-lang/shards/releases/0.5.2
+
+### Fixes
+
 - compilation on Crystal 0.9.0
 
-## v0.5.1 - 2015-10-02
+## [0.5.1] (2015-10-02)
 
-Fixes:
+[0.5.1]: https://github.com/crystal-lang/shards/releases/0.5.1
+
+### Fixes
+
 - always generate a `shard.yml` when installing legacy dependencies, see #60
 - only create `libs` and `.shards` folders when required, see #61
 
-## v0.5.0 - 2015-09-28
+## [0.5.0] (2015-09-28)
+
+[0.5.0]: https://github.com/crystal-lang/shards/releases/0.5.0
 
 Breaking Change:
 - renamed `--no-colors` option as `--no-color` to match crystal
 
-Features:
+### Features
+
 - nice error messages for invalid `shard.yml` files
 
-Enhancements:
+### Enhancements
+
 - upgraded to Crystal 0.8.0
 - custom YAML parser for shard.yml compliant to the spec
 - binary releases for OS X and Linux 32 bits
 
-Fixes:
+### Fixes
+
 - install command fails to install dependencies on fresh projects
 - check command breaks whenever a dependency is missing
 - manager doesn't resolve dependencies of development dependencies recursively
@@ -389,9 +520,12 @@ Fixes:
 - don't generate lockfile for projects without dependencies
 - don't fail when loading empty Projectfile
 
-## v0.4.0 - 2015-09-14
+## [0.4.0] (2015-09-14)
 
-Features:
+[0.4.0]: https://github.com/crystal-lang/shards/releases/0.4.0
+
+### Features
+
 - lock resolved versions for indempotent installs across computers, see #27
 - `--production` parameter to skip development dependencies
 - postintall hook to run a command after installing a dependency, see #19
@@ -399,31 +533,44 @@ Features:
 Breaking Changes:
 - dropped support for custom dependency groups (but kept `development_dependencies`), see #27
 
-Fixes:
+### Fixes
+
 - compatibility with Crystal 0.7.7
 
-## v0.3.1 - 2015-08-16
+## [0.3.1] (2015-08-16)
 
-Fixes:
+[0.3.1]: https://github.com/crystal-lang/shards/releases/0.3.1
+
+### Fixes
+
 - don't install dependencies from optional groups recursively
 - manager didn't install path dependencies anymore
 
-## v0.3.0 - 2015-08-03
+## [0.3.0] (2015-08-03)
 
-Features:
+[0.3.0]: https://github.com/crystal-lang/shards/releases/0.3.0
+
+### Features
+
 - optional groups of dependencies, see #8
 - generates default `shard.yml` from Git tags and `Projectfile` dependencies, see #6
 
-Fixes:
+### Fixes
+
 - clone repository again when Git remote origin changes, see #4
 
-## v0.2.0 - 2015-06-03
+## [0.2.0] (2015-06-03)
 
-Fixes:
+[0.2.0]: https://github.com/crystal-lang/shards/releases/0.2.0
+
+### Fixes
+
 - correctly accesses git versioned `shard.yml` files;
 - correctly links/extracts the `src` folder as the `libs/<name>` folder for both
   Git and path resolvers.
 
-## v0.1.0 - 2015-05-23
+## [0.1.0] (2015-05-23)
+
+[0.1.0]: https://github.com/crystal-lang/shards/releases/0.1.0
 
 Initial release.

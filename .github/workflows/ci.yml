@@ -11,11 +11,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-22.04, macos-12]
         crystal: [latest, nightly]
         include:
-          - os: windows-latest
+          - os: windows-2022
             crystal: nightly
+          - os: ubuntu-22.04
+            crystal: 1.0.0
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -47,33 +49,35 @@ jobs:
           sudo apt-get install fossil
 
       - name: Install Fossil
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-12' }}
         run: |
           brew update
           brew install fossil
 
       - name: Install Fossil
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         run: choco install fossil
 
       - name: Download source
         uses: actions/checkout@v2
 
       - name: Build
-        run: make
+        run: make -f ${{ runner.os == 'Windows' && 'Makefile.win' || 'Makefile' }}
 
       - name: Run specs
-        run: make test
+        run: make -f ${{ runner.os == 'Windows' && 'Makefile.win' || 'Makefile' }} test
 
       - name: Check formatting
         run: crystal tool format --check src spec
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Download source
         uses: actions/checkout@v2
       - name: Build manpages
-        uses: Analog-inc/asciidoctor-action@master
+        uses: Analog-inc/asciidoctor-action@v1.3.1
         with:
-          shellcommand: "make manpages"
+          shellcommand: "make -B manpages SOURCE_DATE_EPOCH=\"$(date +%s --utc --date \"$(grep -m1 -o -E 'Date: .*' man/shard.yml.5 | cut -d' ' -f2)\")\""
+      - name: Ensure no changes
+        run: git diff --exit-code

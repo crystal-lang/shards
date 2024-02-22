@@ -327,15 +327,16 @@ module Shards
       end
     end
 
-    private def git_retry(err = "Failed to fetch repository")
+    private def git_retry(err = "Failed to fetch repository", &)
       retries = 0
       loop do
         yield
         break
-      rescue Error
+      rescue inner_err : Error
         retries += 1
         next if retries < 3
-        raise Error.new(err)
+        Log.debug { inner_err }
+        raise Error.new("#{err}: #{inner_err}")
       end
     end
 
@@ -433,8 +434,10 @@ module Shards
         str = error.to_s
         if str.starts_with?("error: ") && (idx = str.index('\n'))
           message = str[7...idx]
+          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
+        else
+          raise Error.new("Failed #{command}.\n#{str}")
         end
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
 

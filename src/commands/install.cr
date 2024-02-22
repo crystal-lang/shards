@@ -8,6 +8,7 @@ module Shards
         if Shards.frozen? && !lockfile?
           raise Error.new("Missing shard.lock")
         end
+        check_symlink_privilege
 
         Log.info { "Resolving dependencies" }
 

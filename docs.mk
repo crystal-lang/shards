@@ -8,20 +8,28 @@ HTML_FILES := docs/shards.html docs/shard.yml.html
 SHARDS_VERSION := $(shell cat VERSION)
 SOURCE_DATE_EPOCH := $(shell (git show -s --format=%ct HEAD || stat -c "%Y" Makefile || stat -f "%m" Makefile) 2> /dev/null)
 
+.PHONY: docs
+docs: ## Build documentation
 docs: manpages
 
+.PHONY: manpages
+manpages: ## Generate manpages from adoc
 manpages: $(MAN_FILES)
 
+.PHONY: htmlpages
+htmlpages: ## Generate HTML files from adoc
 htmlpages: $(HTML_FILES)
 
-man/%.1 man/%.5: docs/%.adoc
+man/%.1: docs/%.adoc
+	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) $(ASCIIDOC) $(ASCIIDOC_OPTIONS) $< -b manpage -o $@
+
+man/%.5: docs/%.adoc
 	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) $(ASCIIDOC) $(ASCIIDOC_OPTIONS) $< -b manpage -o $@
 
 docs/%.html: docs/%.adoc
 	SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) $(ASCIIDOC) $(ASCIIDOC_OPTIONS) $< -b html5 -o $@
 
-clean_docs: phony
+.PHONY: clean_docs
+clean_docs: ## Remove documentation data
 	rm -f $(MAN_FILES)
 	rm -rf docs/*.html
-
-phony:

@@ -11,7 +11,7 @@ module Shards
     end
   end
 
-  describe GitResolver do
+  describe GitResolver, tags: %w[git] do
     before_each do
       create_git_repository "empty"
       create_git_commit "empty", "initial release"

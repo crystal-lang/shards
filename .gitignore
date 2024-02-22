@@ -3,6 +3,8 @@
 /lib
 /bin/shards
 /bin/shards.dwarf
+/bin/shards.exe
+/bin/shards.pdb
 /spec/.repositories
 /spec/.shards
 /spec/unit/.lib

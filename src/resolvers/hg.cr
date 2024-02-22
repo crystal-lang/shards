@@ -352,7 +352,7 @@ module Shards
       end
     end
 
-    private def hg_retry(err = "Failed to update repository")
+    private def hg_retry(err = "Failed to update repository", &)
       retries = 0
       loop do
         return yield
@@ -457,10 +457,10 @@ module Shards
         str = error.to_s
         if str.starts_with?("abort: ") && (idx = str.index('\n'))
           message = str[7...idx]
+          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
         else
-          message = str
+          raise Error.new("Failed #{command}.\n#{str}")
         end
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
       end
     end
 
