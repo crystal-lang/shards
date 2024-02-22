@@ -5,6 +5,8 @@ module Shards
   module Commands
     class Lock < Command
       def run(shards : Array(String), print = false, update = false)
+        check_symlink_privilege
+
         Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec, override)

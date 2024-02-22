@@ -5,6 +5,8 @@ module Shards
   module Commands
     class Update < Command
       def run(shards : Array(String))
+        check_symlink_privilege
+
         Log.info { "Resolving dependencies" }
 
         solver = MolinilloSolver.new(spec, override)
