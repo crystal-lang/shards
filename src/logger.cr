@@ -2,7 +2,7 @@ require "colorize"
 require "log"
 
 module Shards
-  class_property? colors = true
+  class_property? colors : Bool = Colorize.on_tty_only!
 end
 
 Log.setup_from_env(
