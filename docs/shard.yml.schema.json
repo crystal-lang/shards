@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "shard.yml",
-  "description": "Metadata for projects managed by Crystal Shards",
+  "description": "Metadata for projects managed by Shards",
   "type": "object",
   "properties": {
     "name": {
@@ -22,7 +22,9 @@
       "title": "authors",
       "description": "A list of authors, along with their contact email",
       "items": {
-        "type": "string"
+        "type": "string",
+        "title": "author",
+        "description": "An authors name and contact email"
       }
     },
     "crystal": {
@@ -38,35 +40,36 @@
         "type": "object",
         "title": "dependency name",
         "description": "The name of the dependency",
+        "additionalProperties": false,
         "properties": {
           "github": {
             "type": "string",
-            "title": "github url",
+            "title": "GitHub URL",
             "description": "GitHub repository URL as user/repo"
           },
           "gitlab": {
             "type": "string",
-            "title": "gitlab url",
+            "title": "GitLab URL",
             "description": "GitLab repository URL as user/repo"
           },
           "bitbucket": {
             "type": "string",
-            "title": "bitbucket url",
+            "title": "Bitbucket URL",
             "description": "Bitbucket repository URL as user/repo"
           },
           "git": {
             "type": "string",
-            "title": "git url",
+            "title": "git URL",
             "description": "A Git repository URL"
           },
           "hg": {
             "type": "string",
-            "title": "mercurial url",
+            "title": "Mercurial URL",
             "description": "A Mercurial repository URL"
           },
           "fossil": {
             "type": "string",
-            "title": "fossil url",
+            "title": "Fossil URL",
             "description": "A Fossil repository URL"
           },
           "path": {
@@ -110,35 +113,36 @@
         "type": "object",
         "title": "dependency name",
         "description": "The name of the dependency",
+        "additionalProperties": false,
         "properties": {
           "github": {
             "type": "string",
-            "title": "github url",
+            "title": "GitHub URL",
             "description": "GitHub repository URL as user/repo"
           },
           "gitlab": {
             "type": "string",
-            "title": "gitlab url",
+            "title": "GitLab URL",
             "description": "GitLab repository URL as user/repo"
           },
           "bitbucket": {
             "type": "string",
-            "title": "bitbucket url",
+            "title": "Bitbucket URL",
             "description": "Bitbucket repository URL as user/repo"
           },
           "git": {
             "type": "string",
-            "title": "git url",
+            "title": "git URL",
             "description": "A Git repository URL"
           },
           "hg": {
             "type": "string",
-            "title": "mercurial url",
+            "title": "Mercurial URL",
             "description": "A Mercurial repository URL"
           },
           "fossil": {
             "type": "string",
-            "title": "fossil url",
+            "title": "Fossil URL",
             "description": "A Fossil repository URL"
           },
           "path": {
@@ -181,7 +185,7 @@
     },
     "documentation": {
       "type": "string",
-      "title": "documentation url",
+      "title": "documentation URL",
       "description": "The URL to a website providing the project's documentation for online browsing"
     },
     "executables": {
@@ -194,7 +198,7 @@
     },
     "homepage": {
       "type": "string",
-      "title": "homepage url",
+      "title": "homepage URL",
       "description": "The URL of the project's homepage"
     },
     "libraries": {
@@ -212,7 +216,7 @@
     },
     "repository": {
       "type": "string",
-      "title": "repository url",
+      "title": "repository URL",
       "description": "The URL of the project's canonical repository"
     },
     "scripts": {
@@ -234,6 +238,9 @@
       "description": "A list of targets to build",
       "additionalProperties": {
         "type": "object",
+        "title": "target name",
+        "description": "The name of the target",
+        "additionalProperties": false,
         "properties": {
           "main": {
             "type": "string",
