@@ -1,0 +1,262 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "shard.yml",
+  "description": "Metadata for projects managed by Shards",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "project name",
+      "description": "The name of the project",
+      "maxLength": 50,
+      "pattern": "^(?!.*__|.*--|.*crystal|[0-9_-])[a-z0-9_-]+(?<![_-])$"
+    },
+    "version": {
+      "type": "string",
+      "title": "project version",
+      "description": "The version number of the project",
+      "pattern": "^(?!.*\\.\\.|.*--)[0-9a-zA-Z.-]+$"
+    },
+    "authors": {
+      "type": "array",
+      "title": "authors",
+      "description": "A list of authors, along with their contact email",
+      "items": {
+        "type": "string",
+        "title": "author",
+        "description": "An authors name and contact email"
+      }
+    },
+    "crystal": {
+      "type": "string",
+      "title": "crystal version",
+      "description": "A restriction to indicate what Crystal versions are supported"
+    },
+    "dependencies": {
+      "type": "object",
+      "title": "dependencies",
+      "description": "A list of required dependencies\nhttps://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc#dependency-attributes",
+      "additionalProperties": {
+        "type": "object",
+        "title": "dependency name",
+        "description": "The name of the dependency",
+        "additionalProperties": false,
+        "properties": {
+          "github": {
+            "type": "string",
+            "title": "GitHub URL",
+            "description": "GitHub repository URL as user/repo"
+          },
+          "gitlab": {
+            "type": "string",
+            "title": "GitLab URL",
+            "description": "GitLab repository URL as user/repo"
+          },
+          "bitbucket": {
+            "type": "string",
+            "title": "Bitbucket URL",
+            "description": "Bitbucket repository URL as user/repo"
+          },
+          "git": {
+            "type": "string",
+            "title": "git URL",
+            "description": "A Git repository URL"
+          },
+          "hg": {
+            "type": "string",
+            "title": "Mercurial URL",
+            "description": "A Mercurial repository URL"
+          },
+          "fossil": {
+            "type": "string",
+            "title": "Fossil URL",
+            "description": "A Fossil repository URL"
+          },
+          "path": {
+            "type": "string",
+            "title": "local path",
+            "description": "A local path to the dependency"
+          },
+          "version": {
+            "type": "string",
+            "title": "version requirement",
+            "description": "A version requirement for the dependency"
+          },
+          "branch": {
+            "type": "string",
+            "title": "branch",
+            "description": "Install the specified branch of a Git dependency"
+          },
+          "commit": {
+            "type": "string",
+            "title": "commit",
+            "description": "Install the specified commit of a Git, Mercurial, or Fossil dependency"
+          },
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "description": "Install the specified tag of a Git, Mercurial, or Fossil dependency"
+          },
+          "bookmark": {
+            "type": "string",
+            "title": "bookmark",
+            "description": "Install the specified bookmark of a Mercurial dependency"
+          }
+        }
+      }
+    },
+    "development_dependencies": {
+      "type": "object",
+      "title": "development dependencies",
+      "description": "A list of dependencies required to work on the project, but not necessary to build and run the project\nhttps://github.com/crystal-lang/shards/blob/master/docs/shard.yml.adoc#dependency-attributes",
+      "additionalProperties": {
+        "type": "object",
+        "title": "dependency name",
+        "description": "The name of the dependency",
+        "additionalProperties": false,
+        "properties": {
+          "github": {
+            "type": "string",
+            "title": "GitHub URL",
+            "description": "GitHub repository URL as user/repo"
+          },
+          "gitlab": {
+            "type": "string",
+            "title": "GitLab URL",
+            "description": "GitLab repository URL as user/repo"
+          },
+          "bitbucket": {
+            "type": "string",
+            "title": "Bitbucket URL",
+            "description": "Bitbucket repository URL as user/repo"
+          },
+          "git": {
+            "type": "string",
+            "title": "git URL",
+            "description": "A Git repository URL"
+          },
+          "hg": {
+            "type": "string",
+            "title": "Mercurial URL",
+            "description": "A Mercurial repository URL"
+          },
+          "fossil": {
+            "type": "string",
+            "title": "Fossil URL",
+            "description": "A Fossil repository URL"
+          },
+          "path": {
+            "type": "string",
+            "title": "local path",
+            "description": "A local path to the dependency"
+          },
+          "version": {
+            "type": "string",
+            "title": "version requirement",
+            "description": "A version requirement for the dependency"
+          },
+          "branch": {
+            "type": "string",
+            "title": "branch",
+            "description": "Install the specified branch of a Git dependency"
+          },
+          "commit": {
+            "type": "string",
+            "title": "commit",
+            "description": "Install the specified commit of a Git, Mercurial, or Fossil dependency"
+          },
+          "tag": {
+            "type": "string",
+            "title": "tag",
+            "description": "Install the specified tag of a Git, Mercurial, or Fossil dependency"
+          },
+          "bookmark": {
+            "type": "string",
+            "title": "bookmark",
+            "description": "Install the specified bookmark of a Mercurial dependency"
+          }
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "title": "project description",
+      "description": "A single line description of the project"
+    },
+    "documentation": {
+      "type": "string",
+      "title": "documentation URL",
+      "description": "The URL to a website providing the project's documentation for online browsing"
+    },
+    "executables": {
+      "type": "array",
+      "title": "executables",
+      "description": "A list of executables to be installed",
+      "items": {
+        "type": "string"
+      }
+    },
+    "homepage": {
+      "type": "string",
+      "title": "homepage URL",
+      "description": "The URL of the project's homepage"
+    },
+    "libraries": {
+      "type": "object",
+      "title": "libraries",
+      "description": "A list of shared libraries the shard tries to link to",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "license": {
+      "type": "string",
+      "title": "license",
+      "description": "An OSI license name or an URL to a license file"
+    },
+    "repository": {
+      "type": "string",
+      "title": "repository URL",
+      "description": "The URL of the project's canonical repository"
+    },
+    "scripts": {
+      "type": "object",
+      "title": "scripts",
+      "description": "Script hooks to run",
+      "properties": {
+        "postinstall": {
+          "type": "string",
+          "title": "postinstall script",
+          "description": "Will be run whenever the dependency is installed or upgraded in a project that requires it"
+        }
+      },
+      "additionalProperties": false
+    },
+    "targets": {
+      "type": "object",
+      "title": "targets",
+      "description": "A list of targets to build",
+      "additionalProperties": {
+        "type": "object",
+        "title": "target name",
+        "description": "The name of the target",
+        "additionalProperties": false,
+        "properties": {
+          "main": {
+            "type": "string",
+            "title": "target main file",
+            "description": "The main source file to compile for this target"
+          }
+        },
+        "required": [
+          "main"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "version"
+  ],
+  "additionalProperties": false
+}
