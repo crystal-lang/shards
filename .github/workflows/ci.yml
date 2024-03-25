@@ -29,7 +29,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Install Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
 
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
@@ -59,7 +59,7 @@ jobs:
         run: choco install fossil
 
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build
         run: make -f ${{ runner.os == 'Windows' && 'Makefile.win' || 'Makefile' }}
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Download source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Build manpages
         uses: Analog-inc/asciidoctor-action@v1.3.1
         with:
