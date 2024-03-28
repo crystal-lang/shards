@@ -1,5 +1,52 @@
 # Changelog
 
+## [0.18.0] (2024-03-28)
+
+[0.18.0]: https://github.com/crystal-lang/shards/releases/0.18.0
+
+### Features
+
+- Support more cache directories on Windows ([#612], thanks @HertzDevil)
+- Detect symlink creation capability on Windows ([#617], thanks @HertzDevil)
+- Use `Colorize.on_tty_only!` ([#620], thanks @HertzDevil)
+
+### Documentation
+
+- Fix typos ([#607], thanks @kojix2)
+
+### Specs
+
+- Use `FileUtils.rm_rf` instead of shell command in spec ([#616], thanks @HertzDevil)
+
+### Infrastructure
+
+- Adjust changelog format to follow that of crystal ([#606], thanks @straight-shoota)
+- Add Windows binary paths to `.gitignore` ([#613], thanks @HertzDevil)
+- Add `.gitattributes` ([#614], thanks @HertzDevil)
+- Add CI job to test against Crystal 1.0 ([#618], thanks @HertzDevil)
+- Configure Renovate ([#564], thanks @renovate)
+- Refactor Makefile phony declaration ([#610], thanks @straight-shoota)
+- Add `make help` recipe ([#609], thanks @straight-shoota)
+- Add `Makefile.win` ([#615], thanks @HertzDevil)
+- Add JSON schema for `shard.yml` ([#623], thanks @nobodywasishere)
+- Fix Makefile incorrect peer target usage ([#608], thanks @straight-shoota)
+
+[#564]: https://github.com/crystal-lang/shards/pull/564
+[#606]: https://github.com/crystal-lang/shards/pull/606
+[#607]: https://github.com/crystal-lang/shards/pull/607
+[#608]: https://github.com/crystal-lang/shards/pull/608
+[#609]: https://github.com/crystal-lang/shards/pull/609
+[#610]: https://github.com/crystal-lang/shards/pull/610
+[#612]: https://github.com/crystal-lang/shards/pull/612
+[#613]: https://github.com/crystal-lang/shards/pull/613
+[#614]: https://github.com/crystal-lang/shards/pull/614
+[#615]: https://github.com/crystal-lang/shards/pull/615
+[#616]: https://github.com/crystal-lang/shards/pull/616
+[#617]: https://github.com/crystal-lang/shards/pull/617
+[#618]: https://github.com/crystal-lang/shards/pull/618
+[#620]: https://github.com/crystal-lang/shards/pull/620
+[#623]: https://github.com/crystal-lang/shards/pull/623
+
 ## [0.17.4] (2023-12-22)
 
 [0.17.4]: https://github.com/crystal-lang/shards/releases/0.17.4
