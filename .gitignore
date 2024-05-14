@@ -10,3 +10,12 @@
 /spec/unit/.lib
 /tmp
 /docs/*.html
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
