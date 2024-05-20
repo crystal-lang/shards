@@ -101,7 +101,7 @@ module Shards
         else
           program_name = "shards-#{args[0]}"
           if program_path = Process.find_executable(program_name)
-            run_shards_subcommand(program_path, args)
+            run_shards_subcommand(program_path, cli_options)
           else
             display_help_and_exit(opts)
           end
@@ -119,7 +119,7 @@ module Shards
     {% else %}
       shards_opts = ENV.fetch("SHARDS_OPTS", "").split
     {% end %}
-    ARGV.concat(shards_opts)
+    ARGV.dup.concat(shards_opts)
   end
 
   def self.run_shards_subcommand(process_name, args)
