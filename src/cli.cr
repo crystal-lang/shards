@@ -2,6 +2,8 @@ require "option_parser"
 require "./commands/*"
 
 module Shards
+  class_property? display_help : Bool = false
+
   def self.display_help_and_exit(opts)
     puts <<-HELP
       shards [<options>...] [<command>]
@@ -53,7 +55,7 @@ module Shards
       opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
-      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
+      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help = true }
 
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
@@ -105,6 +107,10 @@ module Shards
           else
             display_help_and_exit(opts)
           end
+        end
+
+        if display_help?
+          display_help_and_exit(opts)
         end
 
         exit
