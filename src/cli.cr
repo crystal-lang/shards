@@ -160,6 +160,6 @@ rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
 rescue ex : Shards::Error
-  Shards::Log.error { ex.message }
+  Shards::Log.error { ex.message.to_s + "\nYou might find useful information using the --verbose option" }
   exit 1
 end
