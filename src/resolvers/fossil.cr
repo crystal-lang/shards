@@ -213,9 +213,16 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
+      tags = capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
         .split('\n')
-        .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+
+      Log.debug { "Tags: #{tags.reject(&.empty?).join(", ")}" }
+
+      version_tags = tags.compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+
+      Log.debug { "Version tags (vX.Y): #{version_tags.join(", ")}" }
+
+      version_tags
     end
 
     def install_sources(version : Version, install_path : String)

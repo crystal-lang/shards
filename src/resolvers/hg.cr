@@ -221,10 +221,17 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("hg tags --template #{Process.quote("{tag}\n")}")
+      tags = capture("hg tags --template #{Process.quote("{tag}\n")}")
         .lines
         .sort!
-        .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+
+      Log.debug { "Tags: #{tags.reject(&.empty?).join(", ")}" }
+
+      version_tags = tags.compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+
+      Log.debug { "Version tags (vX.Y): #{version_tags.join(", ")}" }
+
+      version_tags
     end
 
     def install_sources(version : Version, install_path : String)
