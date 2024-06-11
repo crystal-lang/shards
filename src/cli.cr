@@ -26,6 +26,8 @@ module Shards
   end
 
   def self.run
+    display_help = false
+
     OptionParser.parse(cli_options) do |opts|
       path = Dir.current
 
@@ -53,7 +55,7 @@ module Shards
       opts.on("--ignore-crystal-version", "Has no effect. Kept for compatibility, to be removed in the future.") { }
       opts.on("-v", "--verbose", "Increase the log verbosity, printing all debug statements.") { self.set_debug_log_level }
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
-      opts.on("-h", "--help", "Print usage synopsis.") { self.display_help_and_exit(opts) }
+      opts.on("-h", "--help", "Print usage synopsis.") { display_help = true }
 
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
@@ -101,10 +103,14 @@ module Shards
         else
           program_name = "shards-#{args[0]}"
           if program_path = Process.find_executable(program_name)
-            run_shards_subcommand(program_path, args)
+            run_shards_subcommand(program_path, cli_options)
           else
             display_help_and_exit(opts)
           end
+        end
+
+        if display_help
+          display_help_and_exit(opts)
         end
 
         exit
@@ -119,7 +125,7 @@ module Shards
     {% else %}
       shards_opts = ENV.fetch("SHARDS_OPTS", "").split
     {% end %}
-    ARGV.concat(shards_opts)
+    ARGV.dup.concat(shards_opts)
   end
 
   def self.run_shards_subcommand(process_name, args)
