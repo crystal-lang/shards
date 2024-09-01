@@ -87,6 +87,10 @@ These requirements are only necessary for compiling Shards.
 
   Needed for building manpages.
 
+* [mercurial](https://www.mercurial-scm.org/) + [fossil](https://www.fossil-scm.org/home/doc/trunk/www/index.wiki)
+
+  For running unit tests. Can be installed on macos via `brew install mercurial` and `brew install fossil`.
+
 ### Getting started
 
 It is strongly recommended to use `make` for building shards and developing it.
