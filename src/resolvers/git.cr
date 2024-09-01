@@ -358,7 +358,7 @@ module Shards
     end
 
     private def origin_url
-      @origin_url ||= capture("git ls-remote --get-url origin").strip
+      @origin_url ||= capture("git ls-remote --get-url origin --bare").strip
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -426,7 +426,7 @@ module Shards
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
+      status = Process.run(command, shell: true, output: output, error: error, chdir: path, env: {"GIT_DIR" => local_path})
 
       if status.success?
         output.to_s if capture

@@ -1289,4 +1289,24 @@ describe "install" do
       ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end
+
+  it "installs dependencies from local cache without network requests" do
+    metadata = {
+      dependencies: {web: "*", orm: "*"},
+    }
+
+    with_shard(metadata) do
+      run "shards install --local"
+
+      # it installed dependencies (recursively)
+      assert_installed "web", "2.1.0"
+      assert_installed "orm", "0.5.0"
+      assert_installed "pg", "0.2.1"
+
+      # it locked dependencies
+      assert_locked "web", "2.1.0"
+      assert_locked "orm", "0.5.0"
+      assert_locked "pg", "0.2.1"
+    end
+  end
 end
