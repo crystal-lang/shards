@@ -1,4 +1,5 @@
 require "uri"
+require "ini"
 require "./resolver"
 require "../versions"
 require "../logger"
@@ -358,7 +359,15 @@ module Shards
     end
 
     private def origin_url
-      @origin_url ||= capture("git ls-remote --get-url origin").strip
+      @origin_url ||= begin
+        git_config_file = File.join(local_path, "config")
+
+        return nil unless File.exists?(git_config_file)
+
+        config = INI.parse(File.read(git_config_file))
+
+        return config.dig("remote \"origin\"", "url")
+      end
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -366,14 +375,14 @@ module Shards
       return false if origin_url == git_url
       return true if origin_url.nil? || git_url.nil?
 
-      origin_parsed = parse_uri(origin_url)
-      git_parsed = parse_uri(git_url)
+      origin_parsed = parse_uri(origin_url.not_nil!)
+      git_parsed = parse_uri(git_url.not_nil!)
 
       (origin_parsed.host != git_parsed.host) || (origin_parsed.path != git_parsed.path)
     end
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
-    private def parse_uri(raw_uri)
+    private def parse_uri(raw_uri : String)
       # Need to check for file URIs early, otherwise generic parsing will fail on a colon.
       if (path = raw_uri.lchop?("file://"))
         return URI.new(scheme: "file", path: path)
