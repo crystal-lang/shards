@@ -351,10 +351,7 @@ module Shards
     end
 
     private def valid_repository?
-      File.each_line(File.join(local_path, "config")) do |line|
-        return true if line =~ /mirror\s*=\s*true/
-      end
-      false
+      capture("git config --get-regexp 'remote\\..+\\.mirror'").each_line.any?(&.==("true"))
     end
 
     private def origin_url
