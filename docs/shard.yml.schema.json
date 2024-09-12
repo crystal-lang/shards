@@ -212,7 +212,7 @@
     "license": {
       "type": "string",
       "title": "license",
-      "description": "An OSI license name or an URL to a license file"
+      "description": "An SPDX license identifier or an URL to a license file"
     },
     "repository": {
       "type": "string",
