@@ -210,7 +210,7 @@ An https://spdx.org/licenses/[SPDX license identifier] or an URL to a license fi
 The OSI publishes https://opensource.org/licenses-old/category[a list] of open
 source licenses and their corresponding SPDX identifier.
 +
-Examples: _Apache-2.0_, _MIT_, _GPL-3.0-or-later_.
+Examples: _Apache-2.0_, _MIT_, _GPL-3.0-or-later_, _https://example.com/LICENSE_.
 
 *repository*::
 The URL of the project's canonical repository (string, recommended).
