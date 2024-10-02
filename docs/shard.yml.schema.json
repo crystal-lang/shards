@@ -230,7 +230,7 @@
           "description": "Will be run whenever the dependency is installed or upgraded in a project that requires it"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "targets": {
       "type": "object",
@@ -240,7 +240,7 @@
         "type": "object",
         "title": "target name",
         "description": "The name of the target",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
           "main": {
             "type": "string",
