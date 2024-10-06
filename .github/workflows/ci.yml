@@ -30,6 +30,7 @@ jobs:
 
       - name: Install Python
         uses: actions/setup-python@v5
+        id: python_3_9
         with:
           python-version: '3.9.13'
 
@@ -37,7 +38,7 @@ jobs:
         run: python -m pip install --upgrade pip
 
       - name: Install Mercurial
-        run: pip install mercurial
+        run: pip --python '${{ steps.python_3_9.outputs.python-path}}' install mercurial
 
       - name: Install Crystal
         uses: oprypin/install-crystal@v1
