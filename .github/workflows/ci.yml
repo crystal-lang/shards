@@ -36,6 +36,7 @@ jobs:
 
       - name: Install Mercurial
         run: pip install mercurial
+        if: ${{ matrix.os != 'windows-2022' }}
 
       - name: Install Crystal
         uses: oprypin/install-crystal@v1
@@ -54,9 +55,9 @@ jobs:
           brew update
           brew install fossil
 
-      - name: Install Fossil
+      - name: Install Fossil and Mercurial
         if: ${{ matrix.os == 'windows-2022' }}
-        run: choco install fossil
+        run: choco install fossil hg
 
       - name: Download source
         uses: actions/checkout@v4
