@@ -28,35 +28,26 @@ jobs:
           git config --global column.ui always
           git config --global core.autocrlf false
 
-      - name: Install Python
-        uses: actions/setup-python@v5
-
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install Mercurial
-        run: pip install mercurial
-
       - name: Install Crystal
         uses: oprypin/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
 
-      - name: Install Fossil
+      - name: Install Fossil and Mercurial
         if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
-          sudo apt-get install fossil
+          sudo apt-get install fossil mercurial
 
-      - name: Install Fossil
-        if: ${{ matrix.os == 'macos-12' }}
+      - name: Install Fossil and Mercurial
+        if: ${{ runner.os == 'macOS' }}
         run: |
           brew update
-          brew install fossil
+          brew install fossil mercurial
 
-      - name: Install Fossil
-        if: ${{ matrix.os == 'windows-2022' }}
-        run: choco install fossil
+      - name: Install Fossil and Mercurial
+        if: ${{ runner.os == 'Windows' }}
+        run: choco install fossil hg
 
       - name: Download source
         uses: actions/checkout@v4
