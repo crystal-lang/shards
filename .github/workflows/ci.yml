@@ -37,13 +37,13 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         run: |
           sudo apt-get update
-          sudo apt-get install fossil hg
+          sudo apt-get install fossil mercurial
 
       - name: Install Fossil and Mercurial
         if: ${{ runner.os == 'macOS' }}
         run: |
           brew update
-          brew install fossil hg
+          brew install fossil mercurial
 
       - name: Install Fossil and Mercurial
         if: ${{ runner.os == 'Windows' }}
