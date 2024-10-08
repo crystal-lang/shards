@@ -351,7 +351,14 @@ module Shards
     end
 
     private def valid_repository?
-      capture("git config --get-regexp 'remote\\..+\\.mirror'").each_line.any?(&.==("true"))
+      command = "git config --get remote.origin.mirror"
+      Log.debug { command }
+
+      output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
+        process.output.gets_to_end
+      end
+
+      return $?.success? && output.chomp == "true"
     end
 
     private def origin_url
