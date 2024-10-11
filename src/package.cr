@@ -139,7 +139,7 @@ module Shards
       end
     end
 
-    private def each_executable_path(name)
+    private def each_executable_path(name, &)
       exe = Shards::Helpers.exe(name)
       yield Path["bin", exe]
       yield Path["bin", name] unless name == exe
