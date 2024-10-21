@@ -358,10 +358,14 @@ module Shards
     end
 
     private def valid_repository?
-      File.each_line(File.join(local_path, "config")) do |line|
-        return true if line =~ /mirror\s*=\s*true/
+      command = "git config --get remote.origin.mirror"
+      Log.debug { command }
+
+      output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
+        process.output.gets_to_end
       end
-      false
+
+      return $?.success? && output.chomp == "true"
     end
 
     private def origin_url
