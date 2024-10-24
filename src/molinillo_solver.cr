@@ -57,7 +57,7 @@ module Shards
         count += 1
         active.add(1)
         while active.get > Shards.jobs
-          sleep 0.1
+          sleep 0.1.seconds
         end
         spawn do
           begin
