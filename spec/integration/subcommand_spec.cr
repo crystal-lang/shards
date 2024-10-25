@@ -32,7 +32,7 @@ describe "subcommand" do
   end
 end
 
-private def with_path(path)
+private def with_path(path, &)
   old_path = ENV["PATH"]
   ENV["PATH"] = "#{File.expand_path(path)}#{Process::PATH_DELIMITER}#{ENV["PATH"]}"
   yield
