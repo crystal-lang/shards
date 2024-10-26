@@ -204,13 +204,14 @@ libraries:
 ----
 
 *license*::
-An https://spdx.org/licenses/[SPDX license identifier] or an URL to a license file
-(string, recommended).
+An https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/[SPDX license expression]
+or an URL to a license file (string, recommended).
 +
 The OSI publishes https://opensource.org/licenses-old/category[a list] of open
 source licenses and their corresponding SPDX identifier.
 +
-Examples: _Apache-2.0_, _MIT_, _GPL-3.0-or-later_, _https://example.com/LICENSE_.
+Examples: _Apache-2.0_, _GPL-3.0-or-later_, _Apache-2.0 OR MIT_,
+_Apache-2.0 WITH Swift-exception_, _https://example.com/LICENSE_.
 
 *repository*::
 The URL of the project's canonical repository (string, recommended).
