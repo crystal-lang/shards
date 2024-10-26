@@ -29,7 +29,7 @@ module Shards
     it "parse license" do
       spec = Spec.from_yaml("name: shards\nversion: 0.1.0\nlicense: BSD-2-Clause")
       spec.license.should eq("BSD-2-Clause")
-      spec.license_url.should eq("http://opensource.org/licenses/BSD-2-Clause")
+      spec.license_url.should eq("https://spdx.org/licenses/BSD-2-Clause")
 
       spec = Spec.from_yaml("name: shards\nversion: 0.1.0\nlicense: http://example.com/LICENSE")
       spec.license.should eq("http://example.com/LICENSE")
