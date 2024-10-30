@@ -73,8 +73,18 @@ module Shards
       Shards::Lock.write(packages, override_path, LOCK_FILENAME)
     end
 
-    def handle_resolver_errors(&)
+    private def log_available_tags(conflicts)
+      conflicts.join(separator: "\n") do |k, v|
+        "For #{k} the available tags are: [#{v.requirement.resolver.available_tags.join(", ")}]"
+      end
+    end
+
+    def handle_resolver_errors(solver, &)
       yield
+    rescue e : Molinillo::VersionConflict(Shards::Dependency, Shards::Spec)
+      Log.error { e.message }
+      Log.error { log_available_tags(e.conflicts) }
+      raise Shards::Error.new("Failed to resolve dependencies")
     rescue e : Molinillo::ResolverError
       Log.error { e.message }
       raise Shards::Error.new("Failed to resolve dependencies")

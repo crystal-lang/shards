@@ -166,7 +166,6 @@ rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
 rescue ex : Shards::Error
-  msg = Shards::Log.level == Log::Severity::Debug ? "" : "\nYou might find useful information using the --verbose option"
-  Shards::Log.error { ex.message.to_s + msg }
+  Shards::Log.error { ex.message.to_s }
   exit 1
 end
