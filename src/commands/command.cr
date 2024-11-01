@@ -77,7 +77,7 @@ module Shards
     private def log_available_tags(conflicts)
       conflicts.join(separator: "\n") do |k, v|
         req = v.requirement
-        tags = req.resolver.available_tags
+        tags = req.resolver.available_tags.reverse
         req = req.requirement
 
         if req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
@@ -87,7 +87,7 @@ module Shards
         elsif tags.empty?
           "#{k} doesn't have any tag"
         else
-          "For #{k} the last available tags are #{tags.reverse.first(5).join(", ")}"
+          "For #{k} the last available tags are #{tags.first(5).join(", ")}"
         end
       end
     end
