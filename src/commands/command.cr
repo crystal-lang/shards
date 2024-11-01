@@ -1,6 +1,7 @@
 require "../lock"
 require "../spec"
 require "../override"
+require "levenshtein"
 
 module Shards
   abstract class Command
@@ -75,7 +76,19 @@ module Shards
 
     private def log_available_tags(conflicts)
       conflicts.join(separator: "\n") do |k, v|
-        "For #{k} the available tags are: [#{v.requirement.resolver.available_tags.join(", ")}]"
+        req = v.requirement
+        tags = req.resolver.available_tags
+        req = req.requirement
+
+        if req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
+          req = "v" + req.to_s
+          found = Levenshtein.find(req, tags, 6)
+          "For #{k} the closest available tag to #{req} is: #{found}"
+        elsif tags.empty?
+          "#{k} doesn't have any tag"
+        else
+          "For #{k} the last available tags are #{tags.reverse.first(5).join(", ")}"
+        end
       end
     end
 
