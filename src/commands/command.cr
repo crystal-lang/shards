@@ -77,17 +77,24 @@ module Shards
     private def log_available_tags(conflicts)
       conflicts.join(separator: "\n") do |k, v|
         req = v.requirement
-        tags = req.resolver.available_tags.reverse
+        resolver = req.resolver
+        releases = resolver.available_releases.map(&.to_s).reverse
         req = req.requirement
 
-        if req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
-          req = "v" + req.to_s
-          found = Levenshtein.find(req, tags, 6)
-          "For #{k} the closest available tag to #{req} is: #{found}"
-        elsif tags.empty?
-          "#{k} doesn't have any tag"
+        if releases.empty?
+          tags = resolver.available_tags.reverse!.first(5)
+          if tags.empty?
+            info = "And it doesn't have any tags either."
+          else
+            info = "For information, these are the latest tags: #{tags.join(", ")}."
+          end
+          "#{k} doesn't have any release. #{info} Refer to the shards manual for details."
+        elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
+          req = req.to_s
+          found = Levenshtein.find(req, releases)
+          "For #{k} the closest available release to #{req} is: #{found}."
         else
-          "For #{k} the last available tags are #{tags.first(5).join(", ")}"
+          "For #{k} the last available releases are #{releases.first(5).join(", ")}."
         end
       end
     end
