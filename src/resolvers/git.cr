@@ -205,9 +205,7 @@ module Shards
 
     def available_tags : Array(String)
       tags = capture("git tag --list #{GitResolver.git_column_never}")
-        .split('\n')
-
-      tags.reject(&.empty?)
+        .split('\n', remove_empty: true)
     end
 
     protected def versions_from_tags
