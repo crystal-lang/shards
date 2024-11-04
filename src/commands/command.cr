@@ -78,21 +78,22 @@ module Shards
       conflicts.join(separator: "\n") do |k, v|
         req = v.requirement
         resolver = req.resolver
+        tags = resolver.available_tags.reverse!.first(5)
         releases = resolver.available_releases.map(&.to_s).reverse
         req = req.requirement
 
         if releases.empty?
-          tags = resolver.available_tags.reverse!.first(5)
           if tags.empty?
             info = "And it doesn't have any tags either."
           else
             info = "For information, these are the latest tags: #{tags.join(", ")}."
           end
-          "#{k} doesn't have any release. #{info} Refer to the shards manual for details."
+          "#{k} doesn't have any release. #{info}"
         elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
           req = req.to_s
           found = Levenshtein.find(req, releases)
-          "For #{k} the closest available release to #{req} is: #{found}."
+          info = "For information, these are the latest tags: #{tags.join(", ")}."
+          "For #{k} the closest available release to #{req} is: #{found}. #{info}"
         else
           "For #{k} the last available releases are #{releases.first(5).join(", ")}."
         end
