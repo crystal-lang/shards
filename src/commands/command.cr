@@ -75,27 +75,31 @@ module Shards
     end
 
     private def log_available_tags(conflicts)
-      conflicts.join(separator: "\n") do |k, v|
-        req = v.requirement
-        resolver = req.resolver
-        tags = resolver.available_tags.reverse!.first(5)
-        releases = resolver.available_releases.map(&.to_s).reverse
-        req = req.requirement
+      String.build do |str|
+        conflicts.join(separator: "\n") do |k, v|
+          req = v.requirement
+          resolver = req.resolver
+          tags = resolver.available_tags.reverse!.first(5)
+          releases = resolver.available_releases.map(&.to_s).reverse
+          req = req.requirement
 
-        if releases.empty?
-          if tags.empty?
-            info = "And it doesn't have any tags either."
+          str << "- #{k} (#{req}): "
+          if releases.empty?
+            str << "It doesn't have any release. "
+            if tags.empty?
+              str << "And it doesn't have any tags either."
+            else
+              str << "These are the latest tags: #{tags.join(", ")}."
+            end
+          elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
+            req = req.to_s
+            found = Levenshtein.find(req, releases, 6) || "none"
+            info = "These are the latest tags: #{tags.join(", ")}."
+            str << "The closest available release to #{req} is: #{found}. #{info}"
           else
-            info = "For information, these are the latest tags: #{tags.join(", ")}."
+            str << "The last available releases are #{releases.first(5).join(", ")}."
           end
-          "#{k} doesn't have any release. #{info}"
-        elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
-          req = req.to_s
-          found = Levenshtein.find(req, releases)
-          info = "For information, these are the latest tags: #{tags.join(", ")}."
-          "For #{k} the closest available release to #{req} is: #{found}. #{info}"
-        else
-          "For #{k} the last available releases are #{releases.first(5).join(", ")}."
+          str << "\n"
         end
       end
     end
@@ -103,7 +107,6 @@ module Shards
     def handle_resolver_errors(solver, &)
       yield
     rescue e : Molinillo::VersionConflict(Shards::Dependency, Shards::Spec)
-      Log.error { e.message }
       Log.error { log_available_tags(e.conflicts) }
       raise Shards::Error.new("Failed to resolve dependencies")
     rescue e : Molinillo::ResolverError
