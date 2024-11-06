@@ -213,8 +213,8 @@ module Shards
     end
 
     def available_tags : Array(String)
-      tags = capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
-        .split('\n', remove_empty: true)
+      capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
+        .lines.reject!(&.empty?)
     end
 
     protected def versions_from_tags

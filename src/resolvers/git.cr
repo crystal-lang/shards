@@ -204,12 +204,12 @@ module Shards
     end
 
     def available_tags : Array(String)
-      tags = capture("git tag --list #{GitResolver.git_column_never}")
-        .split('\n', remove_empty: true)
+      capture("git tag --list #{GitResolver.git_column_never}")
+        .lines.reject!(&.empty?)
     end
 
     protected def versions_from_tags
-      tags = available_tags.compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
+      available_tags.compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
     def install_sources(version : Version, install_path : String)

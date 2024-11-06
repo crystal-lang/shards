@@ -191,7 +191,7 @@ module Shards
         .lines
         .sort!
 
-      tags.reject(&.empty?)
+      tags.reject!(&.empty?)
     end
 
     def available_releases : Array(Version)
