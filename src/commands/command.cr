@@ -76,30 +76,38 @@ module Shards
 
     private def log_available_tags(conflicts)
       String.build do |str|
-        conflicts.join(separator: "\n") do |k, v|
-          req = v.requirement
-          resolver = req.resolver
-          tags = resolver.available_tags.reverse!.first(5)
-          releases = resolver.available_releases.map(&.to_s).reverse
-          req = req.requirement
-
-          str << "- #{k} (#{req}): "
-          if releases.empty?
-            str << "It doesn't have any release. "
-            if tags.empty?
-              str << "And it doesn't have any tags either."
-            else
-              str << "These are the latest tags: #{tags.join(", ")}."
-            end
-          elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
-            req = req.to_s
-            found = Levenshtein.find(req, releases, 6) || "none"
-            info = "These are the latest tags: #{tags.join(", ")}."
-            str << "The closest available release to #{req} is: #{found}. #{info}"
-          else
-            str << "The last available releases are #{releases.first(5).join(", ")}."
+        shard_source_dependencys = conflicts.flat_map { |k, v| v.requirements.flat_map { |source, deps| deps.map { |dep| {k, source, dep} } } }
+        if shard_source_dependencys.size > 1
+          str << "Unable to satisfy the following requirements:\n\n"
+          shard_source_dependencys.each do |shard, source, dependency|
+            str << "- `#{shard} (#{dependency.requirement})` required by `#{source}`\n"
           end
-          str << "\n"
+        else
+          str << "Unable to satisfy the following requirement:\n\n"
+          shard_source_dependencys.each do |shard, source, dependency|
+            resolver = dependency.resolver
+            tags = resolver.available_tags.reverse!.first(5)
+            releases = resolver.available_releases.map(&.to_s).reverse
+            req = dependency.requirement
+
+            str << "- `#{shard} (#{req})` required by `#{source}`: "
+            if releases.empty?
+              str << "It doesn't have any release. "
+              if tags.empty?
+                str << "And it doesn't have any tags either."
+              else
+                str << "These are the latest tags: #{tags.join(", ")}."
+              end
+            elsif req.is_a?(Version) || (req.is_a?(VersionReq) && req.patterns.size == 1 && req.patterns[0] !~ /^(<|>|=)/)
+              req = req.to_s
+              found = Levenshtein.find(req, releases, 6) || "none"
+              info = "These are the latest tags: #{tags.join(", ")}."
+              str << "The closest available release to #{req} is: #{found}. #{info}"
+            else
+              str << "The last available releases are #{releases.first(5).join(", ")}."
+            end
+            str << "\n"
+          end
         end
       end
     end
