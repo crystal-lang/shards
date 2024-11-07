@@ -49,28 +49,37 @@ INSTALL ?= /usr/bin/install
 MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
 MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
 
+# MSYS2 support (native Windows should use `Makefile.win` instead)
+ifeq ($(OS),Windows_NT)
+  EXE := .exe
+  WINDOWS := 1
+else
+  EXE :=
+  WINDOWS :=
+endif
+
 .PHONY: all
 all: build
 
 include docs.mk
 
 .PHONY: build
-build: bin/shards
+build: bin/shards$(EXE)
 
 .PHONY: clean
 clean: ## Remove build artifacts
 clean: clean_docs
-	rm -f bin/shards
+	rm -f bin/shards$(EXE)
 
-bin/shards: $(SOURCES) $(TEMPLATES) lib
+bin/shards$(EXE): $(SOURCES) $(TEMPLATES) lib
 	@mkdir -p bin
-	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o bin/shards
+	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o "$@"
 
 .PHONY: install
 install: ## Install shards
-install: bin/shards man/shards.1.gz man/shard.yml.5.gz
+install: bin/shards$(EXE) man/shards.1.gz man/shard.yml.5.gz
 	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
-	$(INSTALL) -m 0755 bin/shards "$(BINDIR)"
+	$(INSTALL) -m 0755 bin/shards$(EXE) "$(BINDIR)"
 	$(INSTALL) -m 0644 man/shards.1.gz "$(MANDIR)/man1"
 	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(MANDIR)/man5"
 
@@ -92,7 +101,7 @@ test_unit: lib
 
 .PHONY: test_integration
 test_integration: ## Run integration tests
-test_integration: bin/shards
+test_integration: bin/shards$(EXE)
 	$(CRYSTAL) spec ./spec/integration/
 
 lib: shard.lock
