@@ -100,7 +100,15 @@ module Shards
       "git"
     end
 
-    private KNOWN_PROVIDERS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
+    private KNOWN_PROVIDERS = {
+      "www.github.com",
+      "github.com",
+      "www.bitbucket.com",
+      "bitbucket.com",
+      "www.gitlab.com",
+      "gitlab.com",
+      "codeberg.org",
+    }
 
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
@@ -120,6 +128,8 @@ module Shards
         end
       when "github", "bitbucket", "gitlab"
         {"git", "https://#{key}.com/#{source.downcase}.git"}
+      when "codeberg"
+        {"git", "https://#{key}.org/#{source.downcase}.git"}
       else
         raise "Unknown resolver #{key}"
       end
@@ -458,5 +468,6 @@ module Shards
     register_resolver "github", GitResolver
     register_resolver "gitlab", GitResolver
     register_resolver "bitbucket", GitResolver
+    register_resolver "codeberg", GitResolver
   end
 end

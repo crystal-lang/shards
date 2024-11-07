@@ -524,7 +524,8 @@ A path to the source file to compile (string).
 .SH "DEPENDENCY ATTRIBUTES"
 .sp
 Each dependency needs at least one attribute that defines the resolver for this
-dependency. Those can be \fIpath\fP, \fIgit\fP, \fIgithub\fP, \fIgitlab\fP, \fIbitbucket\fP.
+dependency. Those can be \fIpath\fP, \fIgit\fP, \fIgithub\fP, \fIgitlab\fP, \fIbitbucket\fP,
+\fIcodeberg\fP.
 .sp
 \fBpath\fP
 .RS 4
@@ -580,6 +581,15 @@ Bitbucket repository URL as \fIuser/repo\fP (string).
 Extends the \fIgit\fP resolver, and acts exactly like it.
 .sp
 \fBExample:\fP \fIbitbucket: tom/library\fP
+.RE
+.sp
+\fBcodeberg\fP
+.RS 4
+Codeberg repository URL as \fIuser/repo\fP (string).
+.sp
+Extends the \fIgit\fP resolver, and acts exactly like it.
+.sp
+\fBExample:\fP \fIcodeberg: tom/library\fP
 .RE
 .sp
 \fBhg\fP

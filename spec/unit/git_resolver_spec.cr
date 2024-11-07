@@ -39,12 +39,14 @@ module Shards
       GitResolver.normalize_key_source("gitlab", "repo/path").should eq({"git", "https://gitlab.com/repo/path.git"})
       GitResolver.normalize_key_source("gitlab", "rEpo/pAth").should eq({"git", "https://gitlab.com/repo/path.git"})
       GitResolver.normalize_key_source("gitlab", "REPO/PATH").should eq({"git", "https://gitlab.com/repo/path.git"})
+      GitResolver.normalize_key_source("codeberg", "REPO/PATH").should eq({"git", "https://codeberg.org/repo/path.git"})
 
       # normalise full git paths
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Github.com/Repo/Path.git?Shallow=true")[1].should eq "https://User:Pass@github.com/repo/path.git?Shallow=true"
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Bitbucket.com/Repo/Path.Git?Shallow=true")[1].should eq "https://User:Pass@bitbucket.com/repo/path.git?Shallow=true"
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Gitlab.com/Repo/Path?Shallow=true")[1].should eq "https://User:Pass@gitlab.com/repo/path.git?Shallow=true"
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@www.Github.com/Repo/Path?Shallow=true")[1].should eq "https://User:Pass@github.com/repo/path.git?Shallow=true"
+      GitResolver.normalize_key_source("git", "HTTPS://User:Pass@codeBerg.org/Repo/Path.Git?Shallow=true")[1].should eq "https://User:Pass@codeberg.org/repo/path.git?Shallow=true"
 
       # don't normalise other domains
       GitResolver.normalize_key_source("git", "HTTPs://mygitserver.com/Repo.git").should eq({"git", "HTTPs://mygitserver.com/Repo.git"})
