@@ -27,4 +27,4 @@ jobs:
         with:
           shellcommand: "make -B manpages SOURCE_DATE_EPOCH=\"$(date +%s --utc --date \"$(grep -m1 -o -E 'Date: .*' man/shard.yml.5 | cut -d' ' -f2)\")\""
       - name: Ensure no changes
-        run: git diff --exit-code || echo "`make manpages` produced changes. Please rebuild them.'
+        run: git diff --exit-code || echo '`make manpages` produced changes. Please rebuild them.'
