@@ -107,6 +107,7 @@ module Shards
       "bitbucket.com",
       "www.gitlab.com",
       "gitlab.com",
+      "www.codeberg.org",
       "codeberg.org",
     }
 
