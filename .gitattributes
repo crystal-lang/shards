@@ -2,6 +2,16 @@
 
 *.cr text eol=lf
 
+## Generated files
+
+# produced by `make manpages`
+man/shards.1 linguist-generated
+man/shard.yml.5 linguist-generated
+
+# produced by `make htmlpages`
+docs/shards.html linguist-generated
+docs/shard.yml.html linguist-generated
+
 ## Syntax highlighting
 
 Makefile.win linguist-language=makefile
