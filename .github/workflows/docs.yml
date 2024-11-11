@@ -1,0 +1,30 @@
+name: Docs
+
+on:
+  push:
+    paths:
+      - docs/*.adoc
+      - .github/workflows/docs.yml
+      - VERSION
+      - docs.mk
+  pull_request:
+    paths:
+      - docs/*.adoc
+      - .github/workflows/docs.yml
+      - VERSION
+      - docs.mk
+
+permissions: {}
+
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+      - name: Build manpages
+        uses: Analog-inc/asciidoctor-action@v1.3.2
+        with:
+          shellcommand: "make -B manpages SOURCE_DATE_EPOCH=\"$(date +%s --utc --date \"$(grep -m1 -o -E 'Date: .*' man/shard.yml.5 | cut -d' ' -f2)\")\""
+      - name: Ensure no changes
+        run: git diff --exit-code || echo '`make manpages` produced changes. Please rebuild the docs.'
