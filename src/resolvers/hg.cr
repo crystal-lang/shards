@@ -128,8 +128,8 @@ module Shards
   end
 
   class HgResolver < Resolver
-    @@has_hg_command : Bool?
-    @@hg_version : String?
+    @@command : Bool?
+    @@version : String?
 
     @origin_url : String?
 
@@ -146,15 +146,15 @@ module Shards
       end
     end
 
-    protected def self.has_hg_command?
-      if @@has_hg_command.nil?
-        @@has_hg_command = (Process.run("hg", ["--version"]).success? rescue false)
+    protected def self.command?
+      if @@command.nil?
+        @@command = (Process.run("hg", ["--version"]).success? rescue false)
       end
-      @@has_hg_command
+      @@command
     end
 
-    protected def self.hg_version
-      @@hg_version ||= `hg --version`[/\(version\s+([^)]*)\)/, 1]
+    protected def self.version
+      @@version ||= `hg --version`[/\(version\s+([^)]*)\)/, 1]
     end
 
     def read_spec(version : Version) : String?
@@ -242,7 +242,7 @@ module Shards
 
     def local_path
       @local_path ||= begin
-        uri = parse_uri(hg_url)
+        uri = parse_uri(vcs_url)
 
         path = uri.path
         path = Path[path]
@@ -259,7 +259,7 @@ module Shards
       end
     end
 
-    def hg_url
+    def vcs_url
       source.strip
     end
 
@@ -282,7 +282,7 @@ module Shards
 
     record HgVersion, value : String, commit : String? = nil
 
-    private def parse_hg_version(version : Version) : HgVersion
+    private def parse_version(version : Version) : HgVersion
       case version.value
       when VERSION_REFERENCE
         HgVersion.new version.value
@@ -294,11 +294,11 @@ module Shards
     end
 
     private def hg_ref(version : Version) : HgRef
-      hg_version = parse_hg_version(version)
-      if commit = hg_version.commit
+      version = parse_version(version)
+      if commit = version.commit
         HgCommitRef.new commit
       else
-        HgTagRef.new "v#{hg_version.value}"
+        HgTagRef.new "v#{version.value}"
       end
     end
 
@@ -309,7 +309,7 @@ module Shards
       end
 
       return if Shards.local? || @updated_cache
-      Log.info { "Fetching #{hg_url}" }
+      Log.info { "Fetching #{vcs_url}" }
 
       if cloned_repository?
         # repositories cloned with shards v0.8.0 won't fetch any new remote
@@ -332,7 +332,7 @@ module Shards
       FileUtils.rm_r(path) if File.exists?(path)
       Dir.mkdir_p(path)
 
-      source = hg_url
+      source = vcs_url
       # Remove a "file://" from the beginning, otherwise the path might be invalid
       # on Windows.
       source = source.lchop("file://")
@@ -347,7 +347,7 @@ module Shards
     end
 
     private def fetch_repository
-      hg_retry(err: "Failed to update #{hg_url}") do
+      hg_retry(err: "Failed to update #{vcs_url}") do
         run "hg pull"
       end
     end
@@ -383,13 +383,13 @@ module Shards
 
     # Returns whether origin URLs have differing hosts and/or paths.
     protected def origin_changed?
-      return false if origin_url == hg_url
-      return true if origin_url.nil? || hg_url.nil?
+      return false if origin_url == vcs_url
+      return true if origin_url.nil? || vcs_url.nil?
 
       origin_parsed = parse_uri(origin_url)
-      hg_parsed = parse_uri(hg_url)
+      vcs_parsed = parse_uri(vcs_url)
 
-      (origin_parsed.host != hg_parsed.host) || (origin_parsed.path != hg_parsed.path)
+      (origin_parsed.host != vcs_parsed.host) || (origin_parsed.path != vcs_parsed.path)
     end
 
     # Parses a URI string, with additional support for ssh+git URI schemes.
@@ -437,7 +437,7 @@ module Shards
     end
 
     private def run_in_current_folder(command, capture = false, raise_on_fail = true)
-      unless HgResolver.has_hg_command?
+      unless HgResolver.command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
 
@@ -465,9 +465,9 @@ module Shards
     end
 
     def report_version(version : Version) : String
-      hg_version = parse_hg_version(version)
-      if commit = hg_version.commit
-        "#{hg_version.value} at #{commit[0...7]}"
+      version = parse_version(version)
+      if commit = version.commit
+        "#{version.value} at #{commit[0...7]}"
       else
         version.value
       end

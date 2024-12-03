@@ -90,11 +90,11 @@ module Shards
   end
 
   class FossilResolver < Resolver
-    @@has_fossil_command : Bool?
+    @@command : Bool?
     @@fossil_version_maj : Int8?
     @@fossil_version_min : Int8?
     @@fossil_version_rev : Int8?
-    @@fossil_version : String?
+    @@version : String?
 
     @origin_url : String?
     @local_fossil_file : String?
@@ -112,37 +112,37 @@ module Shards
       end
     end
 
-    protected def self.has_fossil_command?
-      if @@has_fossil_command.nil?
-        @@has_fossil_command = (Process.run("fossil version", shell: true).success? rescue false)
+    protected def self.command?
+      if @@command.nil?
+        @@command = (Process.run("fossil version", shell: true).success? rescue false)
       end
-      @@has_fossil_command
+      @@command
     end
 
-    protected def self.fossil_version
-      unless @@fossil_version
-        @@fossil_version = `fossil version`[/version\s+([^\s]*)/, 1]
-        pieces = @@fossil_version.not_nil!.split('.')
+    protected def self.version
+      unless @@version
+        @@version = `fossil version`[/version\s+([^\s]*)/, 1]
+        pieces = @@version.not_nil!.split('.')
         @@fossil_version_maj = pieces[0].to_i8
         @@fossil_version_min = pieces[1].to_i8
         @@fossil_version_rev = (pieces[2]?.try &.to_i8 || 0i8)
       end
 
-      @@fossil_version
+      @@version
     end
 
     protected def self.fossil_version_maj
-      self.fossil_version unless @@fossil_version_maj
+      self.version unless @@fossil_version_maj
       @@fossil_version_maj.not_nil!
     end
 
     protected def self.fossil_version_min
-      self.fossil_version unless @@fossil_version_min
+      self.version unless @@fossil_version_min
       @@fossil_version_min.not_nil!
     end
 
     protected def self.fossil_version_rev
-      self.fossil_version unless @@fossil_version_rev
+      self.version unless @@fossil_version_rev
       @@fossil_version_rev.not_nil!
     end
 
@@ -270,7 +270,7 @@ module Shards
 
     def local_path
       @local_path ||= begin
-        uri = parse_uri(fossil_url)
+        uri = parse_uri(vcs_url)
 
         path = uri.path
         path = Path[path]
@@ -291,7 +291,7 @@ module Shards
       @local_fossil_file ||= Path[local_path].join("#{name}.fossil").normalize.to_s
     end
 
-    def fossil_url
+    def vcs_url
       source.strip
     end
 
@@ -313,7 +313,7 @@ module Shards
 
     record FossilVersion, value : String, commit : String? = nil
 
-    private def parse_fossil_version(version : Version) : FossilVersion
+    private def parse_version(version : Version) : FossilVersion
       case version.value
       when VERSION_REFERENCE
         FossilVersion.new version.value
@@ -325,11 +325,11 @@ module Shards
     end
 
     private def fossil_ref(version : Version) : FossilRef
-      fossil_version = parse_fossil_version(version)
-      if commit = fossil_version.commit
+      version = parse_version(version)
+      if commit = version.commit
         FossilCommitRef.new commit
       else
-        FossilTagRef.new "v#{fossil_version.value}"
+        FossilTagRef.new "v#{version.value}"
       end
     end
 
@@ -340,7 +340,7 @@ module Shards
       end
 
       return if Shards.local? || @updated_cache
-      Log.info { "Fetching #{fossil_url}" }
+      Log.info { "Fetching #{vcs_url}" }
 
       if cloned_repository?
         # repositories cloned with shards v0.8.0 won't fetch any new remote
@@ -364,7 +364,7 @@ module Shards
       Dir.mkdir_p(path)
       FileUtils.rm(fossil_file) if File.exists?(fossil_file)
 
-      source = fossil_url
+      source = vcs_url
       # Remove a "file://" from the beginning, otherwise the path might be invalid
       # on Windows.
       source = source.lchop("file://")
@@ -375,7 +375,7 @@ module Shards
     end
 
     private def fetch_repository
-      fossil_retry(err: "Failed to update #{fossil_url}") do
+      fossil_retry(err: "Failed to update #{vcs_url}") do
         run "fossil pull -R #{Process.quote(local_fossil_file)}"
       end
     end
@@ -418,13 +418,13 @@ module Shards
 
     # Returns whether origin URLs have differing hosts and/or paths.
     protected def origin_changed?
-      return false if origin_url == fossil_url
-      return true if origin_url.nil? || fossil_url.nil?
+      return false if origin_url == vcs_url
+      return true if origin_url.nil? || vcs_url.nil?
 
       origin_parsed = parse_uri(origin_url)
-      fossil_parsed = parse_uri(fossil_url)
+      vcs_parsed = parse_uri(vcs_url)
 
-      (origin_parsed.host != fossil_parsed.host) || (origin_parsed.path != fossil_parsed.path)
+      (origin_parsed.host != vcs_parsed.host) || (origin_parsed.path != vcs_parsed.path)
     end
 
     # Parses a URI string
@@ -473,7 +473,7 @@ module Shards
     end
 
     private def run_in_current_folder(command, capture = false)
-      unless FossilResolver.has_fossil_command?
+      unless FossilResolver.command?
         raise Error.new("Error missing fossil command line tool. Please install Fossil first!")
       end
 
@@ -493,9 +493,9 @@ module Shards
     end
 
     def report_version(version : Version) : String
-      fossil_version = parse_fossil_version(version)
-      if commit = fossil_version.commit
-        "#{fossil_version.value} at #{commit[0...7]}"
+      version = parse_version(version)
+      if commit = version.commit
+        "#{version.value} at #{commit[0...7]}"
       else
         version.value
       end
