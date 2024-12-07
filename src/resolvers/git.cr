@@ -90,11 +90,8 @@ module Shards
   end
 
   class GitResolver < Resolver
-    @@command : Bool?
-    @@git_column_never : String?
-    @@version : String?
 
-    @origin_url : String?
+    @@git_column_never : String?
 
     def self.key
       "git"
@@ -176,16 +173,6 @@ module Shards
       rescue error : Error
         raise Error.new "Invalid #{SPEC_FILENAME} for shard #{name.inspect} at commit #{commit}: #{error.message}"
       end
-    end
-
-    private def spec?(version)
-      spec(version)
-    rescue Error
-    end
-
-    def available_releases : Array(Version)
-      update_local_cache
-      versions_from_tags
     end
 
     def latest_version_for_ref(ref : GitRef?) : Version

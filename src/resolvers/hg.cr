@@ -128,10 +128,6 @@ module Shards
   end
 
   class HgResolver < Resolver
-    @@command : Bool?
-    @@version : String?
-
-    @origin_url : String?
 
     def self.key
       "hg"
@@ -179,11 +175,6 @@ module Shards
       rescue Error
         nil
       end
-    end
-
-    private def spec?(version)
-      spec(version)
-    rescue Error
     end
 
     def available_releases : Array(Version)

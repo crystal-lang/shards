@@ -6,6 +6,10 @@ require "../script"
 
 module Shards
   abstract class Resolver
+    @@command : Bool?
+    @@version : String?
+    @origin_url : String?
+
     getter name : String
     getter source : String
 
@@ -54,7 +58,10 @@ module Shards
       end
     end
 
-    abstract def available_releases : Array(Version)
+    def available_releases : Array(Version)
+      update_local_cache
+      versions_from_tags
+    end
 
     def latest_version_for_ref(ref : Ref?) : Version
       raise "Unsupported ref type for this resolver: #{ref}"
@@ -72,6 +79,12 @@ module Shards
         Spec.new(name, version, self)
       end
     end
+
+    private def spec?(version)
+      spec(version)
+    rescue Error
+    end
+
 
     private def load_spec(version)
       if spec_yaml = read_spec(version)
