@@ -58,11 +58,6 @@ module Shards
       end
     end
 
-    def available_releases : Array(Version)
-      update_local_cache
-      versions_from_tags
-    end
-
     def latest_version_for_ref(ref : Ref?) : Version
       raise "Unsupported ref type for this resolver: #{ref}"
     end
@@ -85,7 +80,6 @@ module Shards
     rescue Error
     end
 
-
     private def load_spec(version)
       if spec_yaml = read_spec(version)
         Spec.from_yaml(spec_yaml).tap do |spec|
@@ -102,6 +96,13 @@ module Shards
     abstract def report_version(version : Version) : String
 
     def update_local_cache
+    end
+
+    abstract def versions_from_tags
+
+    def available_releases : Array(Version)
+      update_local_cache
+      versions_from_tags
     end
 
     def parse_requirement(params : Hash(String, String)) : Requirement

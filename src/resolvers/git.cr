@@ -90,7 +90,6 @@ module Shards
   end
 
   class GitResolver < Resolver
-
     @@git_column_never : String?
 
     def self.key

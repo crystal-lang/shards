@@ -21,5 +21,9 @@ module Shards
     def report_version(version : Version) : String
       version.value
     end
+
+    def versions_from_tags
+      raise NotImplementedError.new("CrystalResolver#versions_from_tags")
+    end
   end
 end

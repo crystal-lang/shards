@@ -128,7 +128,6 @@ module Shards
   end
 
   class HgResolver < Resolver
-
     def self.key
       "hg"
     end

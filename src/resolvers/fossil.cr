@@ -90,13 +90,6 @@ module Shards
   end
 
   class FossilResolver < Resolver
-    @@command : Bool?
-    @@fossil_version_maj : Int8?
-    @@fossil_version_min : Int8?
-    @@fossil_version_rev : Int8?
-    @@version : String?
-
-    @origin_url : String?
     @local_fossil_file : String?
 
     def self.key
@@ -122,28 +115,8 @@ module Shards
     protected def self.version
       unless @@version
         @@version = `fossil version`[/version\s+([^\s]*)/, 1]
-        pieces = @@version.not_nil!.split('.')
-        @@fossil_version_maj = pieces[0].to_i8
-        @@fossil_version_min = pieces[1].to_i8
-        @@fossil_version_rev = (pieces[2]?.try &.to_i8 || 0i8)
       end
-
       @@version
-    end
-
-    protected def self.fossil_version_maj
-      self.version unless @@fossil_version_maj
-      @@fossil_version_maj.not_nil!
-    end
-
-    protected def self.fossil_version_min
-      self.version unless @@fossil_version_min
-      @@fossil_version_min.not_nil!
-    end
-
-    protected def self.fossil_version_rev
-      self.version unless @@fossil_version_rev
-      @@fossil_version_rev.not_nil!
     end
 
     def read_spec(version : Version) : String?
@@ -171,16 +144,6 @@ module Shards
       rescue error : Error
         raise Error.new "Invalid #{SPEC_FILENAME} for shard #{name.inspect} at commit #{commit}: #{error.message}"
       end
-    end
-
-    private def spec?(version)
-      spec(version)
-    rescue Error
-    end
-
-    def available_releases : Array(Version)
-      update_local_cache
-      versions_from_tags
     end
 
     def latest_version_for_ref(ref : FossilRef?) : Version
@@ -229,20 +192,29 @@ module Shards
 
       # The --workdir argument was introduced in version 2.12, so we have to
       # fake it
-      if FossilResolver.fossil_version_maj <= 2 &&
-         FossilResolver.fossil_version_min < 12
+      if supports_workdir_arg?
+        run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}  --nested --workdir #{install_path}"
+      else
         Log.debug { "Opening Fossil repo #{local_fossil_file} in directory #{install_path}" }
         run("fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --nested", install_path)
-      else
-        run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}  --nested --workdir #{install_path}"
       end
+    end
+
+    def supports_workdir_arg? : Bool
+      Versions.compare("2.12", FossilResolver.version.not_nil!) >= 0
+    end
+
+    def supports_format_arg? : Bool
+      Versions.compare("2.14", FossilResolver.version.not_nil!) >= 0
     end
 
     def commit_sha1_at(ref : FossilRef)
       # Fossil versions before 2.14 do not support the --format/-F for the
       # timeline command.
-      if FossilResolver.fossil_version_maj <= 2 &&
-         FossilResolver.fossil_version_min < 14
+      if supports_format_arg?
+        # Fossil v2.14 and newer support -F %H, so use that.
+        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").split('\n')[0]
+      else
         # Capture the short artifact name from the timeline using a regex.
         # -W 0  = unlimited line width
         # -n 1  = limit results to one entry
@@ -262,9 +234,6 @@ module Shards
         # name to the full artifact hash.
         whatis = capture("fossil whatis #{retLines[0]} -R #{Process.quote(local_fossil_file)}")
         /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
-      else
-        # Fossil v2.14 and newer support -F %H, so use that.
-        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").split('\n')[0]
       end
     end
 
