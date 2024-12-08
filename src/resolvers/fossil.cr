@@ -306,27 +306,14 @@ module Shards
       # on Windows.
       source = source.lchop("file://")
 
-      fossil_retry(err: "Failed to clone #{source}") do
+      vcs_retry(err: "Failed to clone #{source}") do
         run_in_current_folder "fossil clone #{Process.quote(source)} #{Process.quote(fossil_file)}"
       end
     end
 
     private def fetch_repository
-      fossil_retry(err: "Failed to update #{vcs_url}") do
+      vcs_retry(err: "Failed to update #{vcs_url}") do
         run "fossil pull -R #{Process.quote(local_fossil_file)}"
-      end
-    end
-
-    private def fossil_retry(err = "Failed to fetch repository", &)
-      retries = 0
-      loop do
-        yield
-        break
-      rescue inner_err : Error
-        retries += 1
-        next if retries < 3
-        Log.debug { inner_err }
-        raise Error.new("#{err}: #{inner_err}")
       end
     end
 
@@ -349,7 +336,7 @@ module Shards
       File.exists?(local_fossil_file)
     end
 
-    protected def origin_url
+    private def origin_url
       @origin_url ||= capture("fossil remote-url -R #{Process.quote(local_fossil_file)}").strip
     end
 

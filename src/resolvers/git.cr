@@ -238,10 +238,6 @@ module Shards
       end
     end
 
-    def vcs_url
-      source.strip
-    end
-
     def parse_requirement(params : Hash(String, String)) : Requirement
       params.each do |key, value|
         case key
@@ -288,27 +284,14 @@ module Shards
       # be used interactively.
       # This configuration can be overridden by defining the environment
       # variable `GIT_ASKPASS`.
-      git_retry(err: "Failed to clone #{vcs_url}") do
+      vcs_retry(err: "Failed to clone #{vcs_url}") do
         run_in_folder "git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- #{Process.quote(vcs_url)} #{Process.quote(local_path)}"
       end
     end
 
     private def fetch_repository
-      git_retry(err: "Failed to update #{vcs_url}") do
+      vcs_retry(err: "Failed to update #{vcs_url}") do
         run "git fetch --all --quiet"
-      end
-    end
-
-    private def git_retry(err = "Failed to fetch repository", &)
-      retries = 0
-      loop do
-        yield
-        break
-      rescue inner_err : Error
-        retries += 1
-        next if retries < 3
-        Log.debug { inner_err }
-        raise Error.new("#{err}: #{inner_err}")
       end
     end
 

@@ -176,11 +176,6 @@ module Shards
       end
     end
 
-    def available_releases : Array(Version)
-      update_local_cache
-      versions_from_tags
-    end
-
     def latest_version_for_ref(ref : HgRef?) : Version
       update_local_cache
       ref ||= HgCurrentRef.new
@@ -298,7 +293,7 @@ module Shards
       # on Windows.
       source = source.lchop("file://")
 
-      hg_retry(err: "Failed to clone #{source}") do
+      vcs_retry(err: "Failed to clone #{source}") do
         # We checkout the working directory so that "." is meaningful.
         #
         # An alternative would be to use the `@` bookmark, but only as long
@@ -308,19 +303,8 @@ module Shards
     end
 
     private def fetch_repository
-      hg_retry(err: "Failed to update #{vcs_url}") do
+      vcs_retry(err: "Failed to update #{vcs_url}") do
         run "hg pull"
-      end
-    end
-
-    private def hg_retry(err = "Failed to update repository", &)
-      retries = 0
-      loop do
-        return yield
-      rescue ex : Error
-        retries += 1
-        next if retries < 3
-        raise Error.new("#{err}: #{ex}")
       end
     end
 

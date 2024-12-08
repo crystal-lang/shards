@@ -1,4 +1,5 @@
 require "./resolver"
+require "../logger"
 
 module Shards
   abstract class VersionControlResolver < Resolver
@@ -21,6 +22,20 @@ module Shards
 
     def vcs_url
       source.strip
+    end
+
+    # Retry loop for version-control commands
+    private def vcs_retry(err = "Failed to fetch repository", &)
+      retries = 0
+      loop do
+        yield
+        break
+      rescue inner_err : Error
+        retries += 1
+        next if retries < 3
+        Log.debug { inner_err }
+        raise Error.new("#{err}: #{inner_err}")
+      end
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
