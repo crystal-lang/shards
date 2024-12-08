@@ -45,10 +45,6 @@ module Shards
       "#{version.value} at #{source}"
     end
 
-    def versions_from_tags
-      raise NotImplementedError.new("PathResolver#versions_from_tags")
-    end
-
     register_resolver "path", PathResolver
   end
 end
