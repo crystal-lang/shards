@@ -90,6 +90,7 @@ module Shards
   end
 
   class FossilResolver < VersionControlResolver
+    @@extension = ".fossil"
     @local_fossil_file : String?
 
     def self.key
@@ -307,7 +308,7 @@ module Shards
       source = source.lchop("file://")
 
       vcs_retry(err: "Failed to clone #{source}") do
-        run_in_current_folder "fossil clone #{Process.quote(source)} #{Process.quote(fossil_file)}"
+        run_in_folder "fossil clone #{Process.quote(source)} #{Process.quote(fossil_file)}"
       end
     end
 
@@ -345,47 +346,14 @@ module Shards
       !files.strip.empty?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
-    end
-
-    private def run(command, path = local_path, capture = false)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path, ".fossil")
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture)
-      end
-    end
-
-    private def run_in_current_folder(command, capture = false)
+    private def error_if_command_is_missing
       unless FossilResolver.command?
         raise Error.new("Error missing fossil command line tool. Please install Fossil first!")
       end
-
-      Log.debug { command }
-
-      STDERR.flush
-      output = capture ? IO::Memory.new : Process::Redirect::Close
-      error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error)
-
-      if status.success?
-        output.to_s if capture
-      else
-        message = error.to_s
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
-      end
     end
 
-    def report_version(version : Version) : String
-      version = parse_version(version)
-      if commit = version.commit
-        "#{version.value} at #{commit[0...7]}"
-      else
-        version.value
-      end
+    private def error_for_run_failure(command, message : String)
+      raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
     end
 
     register_resolver "fossil", FossilResolver

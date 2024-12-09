@@ -99,5 +99,49 @@ module Shards
 
       @updated_cache = true
     end
+
+    def report_version(version : Version) : String
+      version = parse_version(version)
+      if commit = version.commit
+        "#{version.value} at #{commit[0...7]}"
+      else
+        version.value
+      end
+    end
+
+    private def capture(command, path = local_path)
+      run(command, capture: true, path: path).as(String)
+    end
+
+    private def run(command, path = local_path, capture = false, raise_on_fail = true)
+      if Shards.local? && !Dir.exists?(path)
+        dependency_name = File.basename(path, @@extension)
+        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
+      end
+      run_in_folder(command, path, capture, raise_on_fail: raise_on_fail)
+    end
+
+    # Chdir to a folder and run command.
+    # Runs in current folder if `path` is nil.
+    private def run_in_folder(command, path : String? = nil, capture = false, raise_on_fail = true)
+      error_if_command_is_missing
+      Log.debug { command }
+
+      STDERR.flush # from fossil version, but presumably ok for git/hg
+      output = capture ? IO::Memory.new : Process::Redirect::Close
+      error = IO::Memory.new
+      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
+
+      if status.success?
+        # output.to_s if capture
+        if capture
+          output.to_s
+        else
+          true
+        end
+      elsif raise_on_fail
+        error_for_run_failure(command, error.to_s)
+      end
+    end
   end
 end

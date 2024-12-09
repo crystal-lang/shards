@@ -128,6 +128,8 @@ module Shards
   end
 
   class HgResolver < VersionControlResolver
+    @@extension = ""
+
     def self.key
       "hg"
     end
@@ -298,7 +300,7 @@ module Shards
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_in_current_folder "hg clone --quiet -- #{Process.quote(source)} #{Process.quote(path)}"
+        run_in_folder "hg clone --quiet -- #{Process.quote(source)} #{Process.quote(path)}"
       end
     end
 
@@ -330,54 +332,18 @@ module Shards
       run("hg files -r #{Process.quote(ref.to_hg_revset)} -- #{Process.quote(path)}", raise_on_fail: false)
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).as(String)
-    end
-
-    private def run(command, path = local_path, capture = false, raise_on_fail = true)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path)
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture, raise_on_fail: raise_on_fail)
-      end
-    end
-
-    private def run_in_current_folder(command, capture = false, raise_on_fail = true)
+    private def error_if_command_is_missing
       unless HgResolver.command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
-
-      Log.debug { command }
-
-      output = capture ? IO::Memory.new : Process::Redirect::Close
-      error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error)
-
-      if status.success?
-        if capture
-          output.to_s
-        else
-          true
-        end
-      elsif raise_on_fail
-        str = error.to_s
-        if str.starts_with?("abort: ") && (idx = str.index('\n'))
-          message = str[7...idx]
-          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
-        else
-          raise Error.new("Failed #{command}.\n#{str}")
-        end
-      end
     end
 
-    def report_version(version : Version) : String
-      version = parse_version(version)
-      if commit = version.commit
-        "#{version.value} at #{commit[0...7]}"
+    private def error_for_run_failure(command, str : String)
+      if str.starts_with?("abort: ") && (idx = str.index('\n'))
+        message = str[7...idx]
+        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
       else
-        version.value
+        raise Error.new("Failed #{command}.\n#{str}")
       end
     end
 

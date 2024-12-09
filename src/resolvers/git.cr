@@ -90,6 +90,7 @@ module Shards
   end
 
   class GitResolver < VersionControlResolver
+    @@extension = ".git"
     @@git_column_never : String?
 
     def self.key
@@ -325,50 +326,18 @@ module Shards
       !files.strip.empty?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
-    end
-
-    private def run(command, path = local_path, capture = false)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path, ".git")
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      run_in_folder(command, path, capture)
-    end
-
-    # Chdir to a folder and run command.
-    # Runs in current folder if `path` is nil.
-    private def run_in_folder(command, path : String? = nil, capture = false)
+    private def error_if_command_is_missing
       unless GitResolver.command?
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
-
-      Log.debug { command }
-
-      output = capture ? IO::Memory.new : Process::Redirect::Close
-      error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
-
-      if status.success?
-        output.to_s if capture
-      else
-        str = error.to_s
-        if str.starts_with?("error: ") && (idx = str.index('\n'))
-          message = str[7...idx]
-          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
-        else
-          raise Error.new("Failed #{command}.\n#{str}")
-        end
-      end
     end
 
-    def report_version(version : Version) : String
-      version = parse_version(version)
-      if commit = version.commit
-        "#{version.value} at #{commit[0...7]}"
+    private def error_for_run_failure(command, str : String)
+      if str.starts_with?("error: ") && (idx = str.index('\n'))
+        message = str[7...idx]
+        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       else
-        version.value
+        raise Error.new("Failed #{command}.\n#{str}")
       end
     end
 
