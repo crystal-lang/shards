@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2024-03-28
+.\"      Date: 2024-10-26
 .\"    Manual: File Formats
 .\"    Source: shards 0.18.0
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2024-03-28" "shards 0.18.0" "File Formats"
+.TH "SHARD.YML" "5" "2024-10-26" "shards 0.18.0" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -434,10 +434,18 @@ libraries:
 .sp
 \fBlicense\fP
 .RS 4
-  An \c
-.URL "http://opensource.org/" "OSI license" ""
-name or an URL to a license file
-(string, recommended).
+An \c
+.URL "https://spdx.github.io/spdx\-spec/v3.0.1/annexes/spdx\-license\-expressions/" "SPDX license expression"
+or an URL to a license file (string, recommended).
+.sp
+The OSI publishes \c
+.URL "https://opensource.org/licenses\-old/category" "a list" ""
+of open
+source licenses and their corresponding SPDX identifiers.
+.sp
+Examples: \fIApache\-2.0\fP, \fIGPL\-3.0\-or\-later\fP, \fIApache\-2.0 OR MIT\fP,
+\fIApache\-2.0 WITH Swift\-exception\fP, \fI\c
+.URL "https://example.com/LICENSE" "" "\fP."
 .RE
 .sp
 \fBrepository\fP
