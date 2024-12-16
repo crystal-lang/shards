@@ -100,7 +100,16 @@ module Shards
       "git"
     end
 
-    private KNOWN_PROVIDERS = {"www.github.com", "github.com", "www.bitbucket.com", "bitbucket.com", "www.gitlab.com", "gitlab.com"}
+    private KNOWN_PROVIDERS = {
+      "www.github.com",
+      "github.com",
+      "www.bitbucket.com",
+      "bitbucket.com",
+      "www.gitlab.com",
+      "gitlab.com",
+      "www.codeberg.org",
+      "codeberg.org",
+    }
 
     def self.normalize_key_source(key : String, source : String) : {String, String}
       case key
@@ -120,6 +129,8 @@ module Shards
         end
       when "github", "bitbucket", "gitlab"
         {"git", "https://#{key}.com/#{source.downcase}.git"}
+      when "codeberg"
+        {"git", "https://#{key}.org/#{source.downcase}.git"}
       else
         raise "Unknown resolver #{key}"
       end
@@ -351,7 +362,14 @@ module Shards
     end
 
     private def valid_repository?
-      capture("git config --get-regexp 'remote\\..+\\.mirror'").each_line.any?(&.==("true"))
+      command = "git config --get remote.origin.mirror"
+      Log.debug { command }
+
+      output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
+        process.output.gets_to_end
+      end
+
+      return $?.success? && output.chomp == "true"
     end
 
     private def origin_url
@@ -451,5 +469,6 @@ module Shards
     register_resolver "github", GitResolver
     register_resolver "gitlab", GitResolver
     register_resolver "bitbucket", GitResolver
+    register_resolver "codeberg", GitResolver
   end
 end

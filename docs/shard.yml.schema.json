@@ -57,6 +57,11 @@
             "title": "Bitbucket URL",
             "description": "Bitbucket repository URL as user/repo"
           },
+          "codeberg": {
+            "type": "string",
+            "title": "Codeberg URL",
+            "description": "Codeberg repository URL as user/repo"
+          },
           "git": {
             "type": "string",
             "title": "git URL",
@@ -129,6 +134,11 @@
             "type": "string",
             "title": "Bitbucket URL",
             "description": "Bitbucket repository URL as user/repo"
+          },
+          "codeberg": {
+            "type": "string",
+            "title": "Codeberg URL",
+            "description": "Codeberg repository URL as user/repo"
           },
           "git": {
             "type": "string",

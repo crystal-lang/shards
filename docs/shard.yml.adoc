@@ -279,7 +279,7 @@ A path to the source file to compile (string).
 == DEPENDENCY ATTRIBUTES
 
 Each dependency needs at least one attribute that defines the resolver for this
-dependency. Those can be _path_, _git_, _github_, _gitlab_, _bitbucket_.
+dependency. Those can be _path_, _git_, _github_, _gitlab_, _bitbucket_, _codeberg_.
 
 *path*::
 A local path (string).
@@ -325,6 +325,13 @@ Bitbucket repository URL as _user/repo_ (string).
 Extends the _git_ resolver, and acts exactly like it.
 +
 *Example:* _bitbucket: tom/library_
+
+*codeberg*::
+Codeberg repository URL as _user/repo_ (string).
++
+Extends the _git_ resolver, and acts exactly like it.
++
+*Example:* _codeberg: tom/library_
 
 *hg*::
 
