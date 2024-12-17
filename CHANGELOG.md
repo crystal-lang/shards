@@ -1,5 +1,63 @@
 # Changelog
 
+## [0.19.0] (2024-12-18)
+
+[0.19.0]: https://github.com/crystal-lang/shards/releases/0.19.0
+
+### Features
+
+- Forward unmodified ARGV to subcommand ([#631], thanks @luislavena)
+- Add support for Codeberg as a git resolver ([#656], thanks @miry)
+
+[#631]: https://github.com/crystal-lang/shards/pull/631
+[#656]: https://github.com/crystal-lang/shards/pull/656
+
+### Bugfixes
+
+- Fix `GitResolver#valid_repository?` ([#646], thanks @straight-shoota)
+
+[#646]: https://github.com/crystal-lang/shards/pull/646
+
+### Chores
+
+- `crystal tool format` with Crystal 1.15.0-dev ([#647], thanks @straight-shoota)
+- Replace deprecated `::sleep(Number)` ([#652], thanks @straight-shoota)
+
+[#647]: https://github.com/crystal-lang/shards/pull/647
+[#652]: https://github.com/crystal-lang/shards/pull/652
+
+### Refactor
+
+- Run `git config` instead of reading `config` file manually ([#639], thanks @straight-shoota)
+
+[#639]: https://github.com/crystal-lang/shards/pull/639
+
+### Infrastructure
+
+- Remove `Vagrantfile` ([#630], thanks @straight-shoota)
+- Add devenv configuration ([#629], thanks @straight-shoota)
+- Update GH Actions ([#621], thanks @renovate)
+- Update Analog-inc/asciidoctor-action action to v1.3.2 ([#636], thanks @renovate)
+- Update dependency ubuntu to v24 ([#643], thanks @renovate)
+- Install mercurial via OS package manager ([#645], thanks @straight-shoota)
+- Support `.exe` file extension in `Makefile` on MSYS2 ([#651], thanks @HertzDevil)
+- Update CI runners ([#654], thanks @straight-shoota)
+- `devenv update` ([#653], thanks @straight-shoota)
+- Add linuguist-vendored annotation for generated files ([#658], thanks @straight-shoota)
+- [CI] Run docs check in separate workflow with path restriction ([#657], thanks @straight-shoota)
+
+[#630]: https://github.com/crystal-lang/shards/pull/630
+[#629]: https://github.com/crystal-lang/shards/pull/629
+[#621]: https://github.com/crystal-lang/shards/pull/621
+[#636]: https://github.com/crystal-lang/shards/pull/636
+[#643]: https://github.com/crystal-lang/shards/pull/643
+[#645]: https://github.com/crystal-lang/shards/pull/645
+[#651]: https://github.com/crystal-lang/shards/pull/651
+[#654]: https://github.com/crystal-lang/shards/pull/654
+[#653]: https://github.com/crystal-lang/shards/pull/653
+[#658]: https://github.com/crystal-lang/shards/pull/658
+[#657]: https://github.com/crystal-lang/shards/pull/657
+
 ## [0.18.0] (2024-03-28)
 
 [0.18.0]: https://github.com/crystal-lang/shards/releases/0.18.0
