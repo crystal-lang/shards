@@ -1,7 +1,7 @@
 name: shards
 version: 0.18.0
 description: |
- Resolves, installs and updates dependencies projects reproducibly from source
+ Resolves, installs and updates project dependencies reproducibly from source
  repositories.
 
 authors:
