@@ -1,8 +1,14 @@
 name: shards
 version: 0.18.0
+description: |
+ Resolves, installs and updates dependencies projects reproducibly from source
+ repositories.
 
 authors:
   - Julien Portalier <julien@portalier.com>
+
+documentation: https://crystal-lang.org/reference/man/shards
+repository: https://github.com/crystal-lang/shards
 
 dependencies:
   molinillo:
