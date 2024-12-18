@@ -41,6 +41,7 @@
 ### Infrastructure
 
 - `devenv update` ([#661], thanks @straight-shoota)
+- Release 0.19.0 ([#660], thanks @straight-shoota)
 - Remove `Vagrantfile` ([#630], thanks @straight-shoota)
 - Add devenv configuration ([#629], thanks @straight-shoota)
 - Update GH Actions ([#621], thanks @renovate)
@@ -55,6 +56,7 @@
 - Add description and metdatada to `shard.yml` ([#662], thanks @straight-shoota)
 
 [#661]: https://github.com/crystal-lang/shards/pull/661
+[#660]: https://github.com/crystal-lang/shards/pull/660
 [#630]: https://github.com/crystal-lang/shards/pull/630
 [#629]: https://github.com/crystal-lang/shards/pull/629
 [#621]: https://github.com/crystal-lang/shards/pull/621
