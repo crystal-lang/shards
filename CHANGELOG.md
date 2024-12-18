@@ -32,8 +32,15 @@
 
 [#639]: https://github.com/crystal-lang/shards/pull/639
 
+### Documentation
+
+- Use SPDX license identifiers for `license` in `shard.yml` ([#641], thanks @leoheitmannruiz)
+
+[#641]: https://github.com/crystal-lang/shards/pull/641
+
 ### Infrastructure
 
+- `devenv update` ([#661], thanks @straight-shoota)
 - Remove `Vagrantfile` ([#630], thanks @straight-shoota)
 - Add devenv configuration ([#629], thanks @straight-shoota)
 - Update GH Actions ([#621], thanks @renovate)
@@ -45,7 +52,9 @@
 - `devenv update` ([#653], thanks @straight-shoota)
 - Add linuguist-vendored annotation for generated files ([#658], thanks @straight-shoota)
 - [CI] Run docs check in separate workflow with path restriction ([#657], thanks @straight-shoota)
+- Add description and metdatada to `shard.yml` ([#662], thanks @straight-shoota)
 
+[#661]: https://github.com/crystal-lang/shards/pull/661
 [#630]: https://github.com/crystal-lang/shards/pull/630
 [#629]: https://github.com/crystal-lang/shards/pull/629
 [#621]: https://github.com/crystal-lang/shards/pull/621
@@ -57,6 +66,7 @@
 [#653]: https://github.com/crystal-lang/shards/pull/653
 [#658]: https://github.com/crystal-lang/shards/pull/658
 [#657]: https://github.com/crystal-lang/shards/pull/657
+[#662]: https://github.com/crystal-lang/shards/pull/662
 
 ## [0.18.0] (2024-03-28)
 
