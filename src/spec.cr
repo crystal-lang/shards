@@ -218,7 +218,7 @@ module Shards
         if license =~ %r(https?://)
           license
         else
-          "http://opensource.org/licenses/#{license}"
+          "https://spdx.org/licenses/#{license}"
         end
       end
     end
