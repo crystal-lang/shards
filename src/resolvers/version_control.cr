@@ -15,11 +15,6 @@ module Shards
       versions_from_tags
     end
 
-    private def spec?(version)
-      spec(version)
-    rescue Error
-    end
-
     def vcs_url
       source.strip
     end
