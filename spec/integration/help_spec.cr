@@ -3,10 +3,10 @@ require "./spec_helper"
 describe "--help" do
   it "prints help and doesn't invoke the command" do
     metadata = {
-      version: "1.0.0",
+      version:      "1.0.0",
       dependencies: {
-        mock: { git: git_path("mock") }
-      }
+        mock: {git: git_path("mock")},
+      },
     }
 
     [
