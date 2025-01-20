@@ -2,6 +2,20 @@ require "option_parser"
 require "./commands/*"
 
 module Shards
+  BUILTIN_COMMANDS = %w[
+    build
+    run
+    check
+    init
+    install
+    list
+    lock
+    outdated
+    prune
+    update
+    version
+  ]
+
   def self.display_help_and_exit(opts)
     puts <<-HELP
       shards [<options>...] [<command>]
@@ -58,62 +72,62 @@ module Shards
       opts.on("-h", "--help", "Print usage synopsis.") { display_help = true }
 
       opts.unknown_args do |args, options|
-        case args[0]? || DEFAULT_COMMAND
-        when "build"
-          targets, build_options = parse_args(args[1..-1])
-          check_and_install_dependencies(path)
+        command = args[0]? || DEFAULT_COMMAND
 
-          Commands::Build.run(path, targets, build_options)
-        when "run"
-          targets, run_options = parse_args(args[1..-1])
-          check_and_install_dependencies(path)
+        if BUILTIN_COMMANDS.includes?(command)
+          if display_help
+            display_help_and_exit(opts)
+          end
 
-          Commands::Run.run(path, targets, run_options, options)
-        when "check"
-          Commands::Check.run(path)
-        when "init"
-          Commands::Init.run(path)
-        when "install"
-          Commands::Install.run(
-            path
-          )
-        when "list"
-          Commands::List.run(path, tree: args.includes?("--tree"))
-        when "lock"
-          Commands::Lock.run(
-            path,
-            args[1..-1].reject(&.starts_with?("--")),
-            print: args.includes?("--print"),
-            update: args.includes?("--update")
-          )
-        when "outdated"
-          Commands::Outdated.run(
-            path,
-            prereleases: args.includes?("--pre")
-          )
-        when "prune"
-          Commands::Prune.run(path)
-        when "update"
-          Commands::Update.run(
-            path,
-            args[1..-1].reject(&.starts_with?("--"))
-          )
-        when "version"
-          Commands::Version.run(args[1]? || path)
+          case command
+          when "build"
+            targets, build_options = parse_args(args[1..-1])
+            check_and_install_dependencies(path)
+            Commands::Build.run(path, targets, build_options)
+          when "run"
+            targets, run_options = parse_args(args[1..-1])
+            check_and_install_dependencies(path)
+            Commands::Run.run(path, targets, run_options, options)
+          when "check"
+            Commands::Check.run(path)
+          when "init"
+            Commands::Init.run(path)
+          when "install"
+            Commands::Install.run(path)
+          when "list"
+            Commands::List.run(path, tree: args.includes?("--tree"))
+          when "lock"
+            Commands::Lock.run(
+              path,
+              args[1..-1].reject(&.starts_with?("--")),
+              print: args.includes?("--print"),
+              update: args.includes?("--update")
+            )
+          when "outdated"
+            Commands::Outdated.run(
+              path,
+              prereleases: args.includes?("--pre")
+            )
+          when "prune"
+            Commands::Prune.run(path)
+          when "update"
+            Commands::Update.run(
+              path,
+              args[1..-1].reject(&.starts_with?("--"))
+            )
+          when "version"
+            Commands::Version.run(args[1]? || path)
+          else
+            raise "BUG: unknown command #{command}"
+          end
         else
-          program_name = "shards-#{args[0]}"
+          program_name = "shards-#{command}"
           if program_path = Process.find_executable(program_name)
             run_shards_subcommand(program_path, cli_options)
           else
             display_help_and_exit(opts)
           end
         end
-
-        if display_help
-          display_help_and_exit(opts)
-        end
-
-        exit
       end
     end
   end
