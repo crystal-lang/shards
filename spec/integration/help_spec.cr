@@ -21,7 +21,7 @@ describe "--help" do
         output.should contain("Commands:")
         output.should contain("General options:")
 
-        # it didn't run the default command
+        # it didn't run the command (or default command)
         output.should_not contain("Resolving dependencies")
       end
     end
