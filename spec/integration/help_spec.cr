@@ -1,14 +1,14 @@
 require "./spec_helper"
 
 describe "--help" do
-  metadata = {
-    version: "1.0.0",
-    dependencies: {
-      mock: { git: git_path("mock") }
-    }
-  }
-
   it "prints help and doesn't invoke the command" do
+    metadata = {
+      version: "1.0.0",
+      dependencies: {
+        mock: { git: git_path("mock") }
+      }
+    }
+
     [
       "shards --help",
       "shards --local --help",
