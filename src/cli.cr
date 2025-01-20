@@ -128,6 +128,8 @@ module Shards
             display_help_and_exit(opts)
           end
         end
+
+        exit
       end
     end
   end
