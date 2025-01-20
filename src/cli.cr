@@ -57,6 +57,10 @@ module Shards
       opts.on("-q", "--quiet", "Decrease the log verbosity, printing only warnings and errors.") { self.set_warning_log_level }
       opts.on("-h", "--help", "Print usage synopsis.") { display_help = true }
 
+      if cli_options[0]? == "--help"
+        display_help_and_exit(opts)
+      end
+
       opts.unknown_args do |args, options|
         case args[0]? || DEFAULT_COMMAND
         when "build"
