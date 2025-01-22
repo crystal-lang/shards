@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.19.1] (2025-01-21)
+
+[0.19.1]: https://github.com/crystal-lang/shards/releases/0.19.1
+
+### Bugfixes
+
+- Fix `--help` option ([#665], thanks @ysbaddaden)
+
+[#665]: https://github.com/crystal-lang/shards/pull/665
+
 ## [0.19.0] (2024-12-18)
 
 [0.19.0]: https://github.com/crystal-lang/shards/releases/0.19.0
