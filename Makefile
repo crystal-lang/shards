@@ -68,7 +68,7 @@ clean: ## Remove build artifacts
 clean: clean_docs
 	rm -f bin/shards$(EXE)
 
-bin/shards$(EXE): $(SOURCES) $(TEMPLATES) lib
+bin/shards$(EXE): $(SOURCES) $(TEMPLATES)
 	@mkdir -p bin
 	$(EXPORTS) $(CRYSTAL) build $(FLAGS) src/shards.cr -o "$@"
 
@@ -93,19 +93,13 @@ test: test_unit test_integration
 
 .PHONY: test_unit
 test_unit: ## Run unit tests
-test_unit: lib
+test_unit:
 	$(CRYSTAL) spec ./spec/unit/ $(if $(skip_fossil),--tag ~fossil) $(if $(skip_git),--tag ~git) $(if $(skip_hg),--tag ~hg)
 
 .PHONY: test_integration
 test_integration: ## Run integration tests
 test_integration: bin/shards$(EXE)
 	$(CRYSTAL) spec ./spec/integration/
-
-lib: shard.lock
-	$(SHARDS) install
-
-shard.lock: shard.yml
-	$(SHARDS) update
 
 man/%.gz: man/%
 	gzip -c -9 $< > $@
