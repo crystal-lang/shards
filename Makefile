@@ -83,6 +83,13 @@ install: bin/shards$(EXE) man/shards.1.gz man/shard.yml.5.gz
 	$(INSTALL) -m 0644 man/shards.1.gz "$(MANDIR)/man1"
 	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(MANDIR)/man5"
 
+ifeq ($(WINDOWS),1)
+.PHONY: install_dlls
+install_dlls: bin/shards$(EXE) ## Install the dependent DLLs at DESTDIR (Windows only)
+	$(INSTALL) -d -m 0755 "$(BINDIR)/"
+	@ldd bin/shards$(EXE) | grep -iv ' => /c/windows/system32' | sed 's/.* => //; s/ (.*//' | xargs -t -i $(INSTALL) -m 0755 '{}' "$(BINDIR)/"
+endif
+
 .PHONY: uninstall
 uninstall: ## Uninstall shards
 uninstall:
