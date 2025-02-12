@@ -67,13 +67,6 @@ These requirements are only necessary for compiling Shards.
   Please refer to <https://crystal-lang.org/install/> for
   instructions for your operating system.
 
-* `molinillo`
-
-  The shard `molinillo` needs to be in the Crystal path.
-  It is available at <https://github.com/crystal-lang/crystal-molinillo>
-  You can install it either with a pre-existing `shards` binary (running `shards install`)
-  or just check out the repository at `lib/crystal-molinillo` (`make lib`).
-
 * libyaml
 
   On Debian/Ubuntu Linux you may install the `libyaml-dev` package.
@@ -90,9 +83,7 @@ These requirements are only necessary for compiling Shards.
 ### Getting started
 
 It is strongly recommended to use `make` for building shards and developing it.
-The [`Makefile`](./Makefile) contains recipes for compiling and testing. Building
-with `make` also ensures the source dependency `molinillo` is installed. You don't
-need to take care of this yourself.
+The [`Makefile`](./Makefile) contains recipes for compiling and testing.
 
 Run `make bin/shards` to build the binary.
 * `release=1` for a release build (applies optimizations)
