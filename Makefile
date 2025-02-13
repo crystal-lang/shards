@@ -42,8 +42,8 @@ SHARDS_CONFIG_BUILD_COMMIT := $(shell git rev-parse --short HEAD 2> /dev/null)
 SHARDS_VERSION := $(shell cat VERSION)
 SOURCE_DATE_EPOCH := $(shell (git show -s --format=%ct HEAD || stat -c "%Y" Makefile || stat -f "%m" Makefile) 2> /dev/null)
 EXPORTS := SHARDS_CONFIG_BUILD_COMMIT="$(SHARDS_CONFIG_BUILD_COMMIT)" SOURCE_DATE_EPOCH="$(SOURCE_DATE_EPOCH)"
-BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
+BINDIR ?= $(PREFIX)/bin
+MANDIR ?= $(PREFIX)/share/man
 INSTALL ?= /usr/bin/install
 
 MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
@@ -78,10 +78,10 @@ bin/shards$(EXE): $(SOURCES) $(TEMPLATES) lib
 .PHONY: install
 install: ## Install shards
 install: bin/shards$(EXE) man/shards.1.gz man/shard.yml.5.gz
-	$(INSTALL) -m 0755 -d "$(BINDIR)" "$(MANDIR)/man1" "$(MANDIR)/man5"
-	$(INSTALL) -m 0755 bin/shards$(EXE) "$(BINDIR)"
-	$(INSTALL) -m 0644 man/shards.1.gz "$(MANDIR)/man1"
-	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(MANDIR)/man5"
+	$(INSTALL) -m 0755 -d "$(DESTDIR)$(BINDIR)" "$(DESTDIR)$(MANDIR)/man1" "$(DESTDIR)$(MANDIR)/man5"
+	$(INSTALL) -m 0755 bin/shards$(EXE) "$(DESTDIR)$(BINDIR)"
+	$(INSTALL) -m 0644 man/shards.1.gz "$(DESTDIR)$(MANDIR)/man1"
+	$(INSTALL) -m 0644 man/shard.yml.5.gz "$(DESTDIR)$(MANDIR)/man5"
 
 ifeq ($(WINDOWS),1)
 .PHONY: install_dlls
@@ -93,9 +93,9 @@ endif
 .PHONY: uninstall
 uninstall: ## Uninstall shards
 uninstall:
-	rm -f "$(BINDIR)/shards"
-	rm -f "$(MANDIR)/man1/shards.1.gz"
-	rm -f "$(MANDIR)/man5/shard.yml.5.gz"
+	rm -f "$(DESTDIR)$(BINDIR)/shards"
+	rm -f "$(DESTDIR)$(MANDIR)/man1/shards.1.gz"
+	rm -f "$(DESTDIR)$(MANDIR)/man5/shard.yml.5.gz"
 
 .PHONY: test
 test: ## Run all tests
