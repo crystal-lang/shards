@@ -48,9 +48,6 @@ SHARDS_CONFIG_BUILD_COMMIT := $(shell git rev-parse --short HEAD)
 SOURCE_DATE_EPOCH := $(shell git show -s --format=%ct HEAD)
 export_vars = $(eval export SHARDS_CONFIG_BUILD_COMMIT SOURCE_DATE_EPOCH)
 
-MOLINILLO_VERSION = $(shell $(CRYSTAL) eval 'require "yaml"; puts YAML.parse(File.read("shard.lock"))["shards"]["molinillo"]["version"]')
-MOLINILLO_URL = "https://github.com/crystal-lang/crystal-molinillo/archive/v$(MOLINILLO_VERSION).tar.gz"
-
 prefix ?= $(or $(ProgramW6432),$(ProgramFiles))\crystal## Install path prefix
 BINDIR ?= $(prefix)
 
@@ -65,7 +62,7 @@ clean: ## Remove build artifacts
 clean:
 	$(call RM,"bin\shards.exe")
 
-bin\shards.exe: $(SOURCES) $(TEMPLATES) lib
+bin\shards.exe: $(SOURCES) $(TEMPLATES)
 	@$(call MKDIR,"bin")
 	$(call export_vars)
 	$(CRYSTAL) build $(FLAGS) -o bin\shards.exe src\shards.cr
@@ -89,20 +86,12 @@ test: test_unit test_integration
 
 .PHONY: test_unit
 test_unit: ## Run unit tests
-test_unit: lib
 	$(CRYSTAL) spec $(if $(skip_fossil),--tag ~fossil )$(if $(skip_git),--tag ~git )$(if $(skip_hg),--tag ~hg ).\spec\unit
 
 .PHONY: test_integration
 test_integration: ## Run integration tests
 test_integration: bin\shards.exe
 	$(CRYSTAL) spec .\spec\integration
-
-lib: shard.lock
-	$(call MKDIR,"lib\molinillo")
-	$(SHARDS) install || (curl -L $(MOLINILLO_URL) | tar -xzf - -C lib\molinillo --strip-components=1)
-
-shard.lock: shard.yml
-	if not "$(SHARDS)" == "false" $(SHARDS) update
 
 .PHONY: help
 help: ## Show this help
