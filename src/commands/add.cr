@@ -1,5 +1,5 @@
 require "./command"
-require "./url"
+require "./io"
 
 module Shards
   module Commands
