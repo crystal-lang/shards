@@ -4,7 +4,7 @@ require "./commands/*"
 module Shards
   BUILTIN_COMMANDS = %w[
     add
-    remove
+    rm
     build
     run
     check
@@ -101,7 +101,7 @@ module Shards
               version = urls.pop
             end
             Commands::Add.new(path).run(urls, version)
-          when "remove"
+          when "rm"
             url = args[1]
             if url.nil?
               Log.error{"ERROR: missing dependency URL"}

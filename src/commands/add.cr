@@ -80,7 +80,7 @@ module Shards
           end
 
           File.write(spec_path, lines.join("\n"))
-          Log.info { "Added dependency #{dep[:name]} from #{dep[:provider]}: #{dep[:repo]}#{version ? " with version #{version}" : ""}." }
+          Log.info { "Added dependency #{dep[:name]} from #{dep[:provider]}: #{dep[:repo]}#{version ? " with version #{version}" : ""}" }
         end
         
         Commands::Lock.new(path).run([] of String)

@@ -6,7 +6,7 @@ module Shards
     class Remove < Command
       def run(url : String)
         dep = Commands.git_url_to_dependency(url)
-        Log.info{"Removing dependency: #{dep[:name]}..."}
+        Log.info{"Removing dependency: #{dep[:name]}"}
 
         lines = Commands.read_shard_yml
         dependencies_index = -1
@@ -19,7 +19,7 @@ module Shards
         end
 
         if dependencies_index == -1
-          Log.warn{"Dependency: #{dep[:name]} not found, nothing to remove."}
+          Log.warn{"Dependency #{dep[:name]} not found, nothing to remove."}
           return
         end
 
