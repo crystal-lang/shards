@@ -22,20 +22,18 @@ module Shards
 
       uri       = URI.parse(url)
       provider  = hosts[uri.host]?
-      
-      parts = uri.path.split("/").reject(&.empty?)
+      parts     = uri.path.split("/").reject(&.empty?)
+
       if parts.size < 2
         raise Error.new("Invalid git URL format")
       end
-      
-      name = parts.last.gsub(".git", "").downcase
-      repo = "#{parts[0]}/#{parts[1]}"
       if !provider
         provider = "github"
       end
+      
       return {
-        name: name, 
-        repo: repo, 
+        name: parts.last.gsub(".git", "").downcase, 
+        repo: "#{parts[0]}/#{parts[1]}", 
         provider: provider
       }
     end

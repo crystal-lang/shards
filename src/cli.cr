@@ -25,8 +25,8 @@ module Shards
       Commands:
           build [<targets>] [<build_options>]  - Build the specified <targets> in `bin` path, all build_options are delegated to `crystal build`.
           check                                - Verify all dependencies are installed.
-          add [<url>] [<version>]              - Add a shard to `shard.yml`, then prune and update
-          rm [<shards>]                        - Remove a shard from `shard.yml`, then prune and update
+          add [<url>] [<version>]              - Add a shard to `shard.yml`, then install it.
+          rm [<shards>]                        - Remove a shard from `shard.yml`, then prune.
           init                                 - Initialize a `shard.yml` file.
           install                              - Install dependencies, creating or using the `shard.lock` file.
           list [--tree]                        - List installed dependencies.
