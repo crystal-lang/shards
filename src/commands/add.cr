@@ -1,4 +1,5 @@
 require "./command"
+require "./url"
 
 module Shards
   module Commands
@@ -8,7 +9,7 @@ module Shards
         raise Error.new("#{SPEC_FILENAME} not found") unless File.exists?(spec_path)
       
         urls.each do |url|
-          dep = git_url_to_dependency(url)
+          dep = Commands.git_url_to_dependency(url)
           Log.info { "Adding dependency: #{dep[:name]} from #{dep[:provider]}: #{dep[:repo]}" }
           
           lines = File.read_lines(spec_path)
@@ -86,30 +87,6 @@ module Shards
         Commands::Install.new(path).run
       end
 
-      private HOSTS = {
-        "github.com"   => "github",
-        "gitlab.com"   => "gitlab",
-        "codeberg.org" => "codeberg"
-      }
-
-      private def git_url_to_dependency(url : String) : NamedTuple(name: String, repo: String, provider: String)
-        uri       = URI.parse(url)
-        provider  = HOSTS[uri.host]?
-        
-        unless provider
-          raise Error.new("Unsupported git host: #{uri.host}")
-        end
-        
-        parts = uri.path.split("/").reject(&.empty?)
-        if parts.size < 2
-          raise Error.new("Invalid git URL format")
-        end
-        
-        name = parts.last.gsub(".git", "").downcase
-        repo = "#{parts[0]}/#{parts[1]}"
-        
-        return {name: name, repo: repo, provider: provider}
-      end
     end
   end
 end

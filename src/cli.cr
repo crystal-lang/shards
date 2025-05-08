@@ -101,6 +101,13 @@ module Shards
               version = urls.pop
             end
             Commands::Add.new(path).run(urls, version)
+          when "remove"
+            url = args[1]
+            if url.nil?
+              Log.error{"ERROR: missing dependency URL"}
+              exit 1
+            end
+            Commands::Remove.new(path).run(url)
           when "init"
             Commands::Init.run(path)
           when "install"
