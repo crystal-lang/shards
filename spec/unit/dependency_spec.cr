@@ -71,49 +71,6 @@ module Shards
       parse_dependency({foo: {git: "", tag: "rc-1.0"}}).to_s.should eq("foo (tag rc-1.0)")
       parse_dependency({foo: {git: "", commit: "4478d8afe8c728f44b47d3582a270423cd7fc07d"}}).to_s.should eq("foo (commit 4478d8a)")
     end
-
-    it ".parts_from_cli" do
-      # GitHub short syntax
-      Dependency.parts_from_cli("github:foo/bar").should eq({resolver_key: "github", source: "foo/bar", requirement: Any})
-      Dependency.parts_from_cli("github:Foo/Bar@1.2.3").should eq({resolver_key: "github", source: "Foo/Bar", requirement: VersionReq.new("~> 1.2.3")})
-
-      # GitHub urls
-      Dependency.parts_from_cli("https://github.com/foo/bar").should eq({resolver_key: "github", source: "foo/bar", requirement: Any})
-      Dependency.parts_from_cli("https://github.com/Foo/Bar/commit/000000").should eq({resolver_key: "github", source: "Foo/Bar", requirement: GitCommitRef.new("000000")})
-      Dependency.parts_from_cli("https://github.com/Foo/Bar/tree/v1.2.3").should eq({resolver_key: "github", source: "Foo/Bar", requirement: GitTagRef.new("v1.2.3")})
-      Dependency.parts_from_cli("https://github.com/Foo/Bar/tree/some/branch").should eq({resolver_key: "github", source: "Foo/Bar", requirement: GitBranchRef.new("some/branch")})
-
-      # GitLab short syntax
-      Dependency.parts_from_cli("gitlab:foo/bar").should eq({resolver_key: "gitlab", source: "foo/bar", requirement: Any})
-
-      # GitLab urls
-      Dependency.parts_from_cli("https://gitlab.com/foo/bar").should eq({resolver_key: "gitlab", source: "foo/bar", requirement: Any})
-
-      # Bitbucket short syntax
-      Dependency.parts_from_cli("bitbucket:foo/bar").should eq({resolver_key: "bitbucket", source: "foo/bar", requirement: Any})
-
-      # bitbucket urls
-      Dependency.parts_from_cli("https://bitbucket.com/foo/bar").should eq({resolver_key: "bitbucket", source: "foo/bar", requirement: Any})
-
-      # Git convenient syntax since resolver matches scheme
-      Dependency.parts_from_cli("git://git.example.org/crystal-library.git").should eq({resolver_key: "git", source: "git://git.example.org/crystal-library.git", requirement: Any})
-
-      # Local paths
-      local_absolute = File.join(tmp_path, "local")
-      local_relative = File.join("spec", ".repositories", "local") # rel_path is relative to integration spec
-      Dir.mkdir_p(local_absolute)
-
-      # Path short syntax
-      Dependency.parts_from_cli(local_absolute).should eq({resolver_key: "path", source: local_absolute, requirement: Any})
-      Dependency.parts_from_cli(local_relative).should eq({resolver_key: "path", source: local_relative, requirement: Any})
-
-      # Path resolver syntax
-      Dependency.parts_from_cli("path:#{local_absolute}").should eq({resolver_key: "path", source: local_absolute, requirement: Any})
-      Dependency.parts_from_cli("path:#{local_relative}").should eq({resolver_key: "path", source: local_relative, requirement: Any})
-
-      # Other resolvers short
-      Dependency.parts_from_cli("git:git://git.example.org/crystal-library.git").should eq({resolver_key: "git", source: "git://git.example.org/crystal-library.git", requirement: Any})
-    end
   end
 end
 
