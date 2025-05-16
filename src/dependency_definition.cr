@@ -60,22 +60,10 @@ module Shards
         source = value
       end
 
-      if value.starts_with?("https://github.com")
-        resolver_key = "github"
-        uri = URI.parse(value)
+      uri = URI.parse(value)
+      if uri.scheme != "file" && uri.host &&
+         (resolver_key = GitResolver::KNOWN_PROVIDERS[uri.host]?)
         source = uri.path[1..-1].rchop(".git") # drop first "/""
-      end
-
-      if value.starts_with?("https://gitlab.com")
-        resolver_key = "gitlab"
-        uri = URI.parse(value)
-        source = uri.path[1..-1].rchop(".git") # drop first "/""
-      end
-
-      if value.starts_with?("https://bitbucket.com")
-        resolver_key = "bitbucket"
-        uri = URI.parse(value)
-        source = uri.path[1..-1] # drop first "/""
       end
 
       if value.starts_with?("git://")
