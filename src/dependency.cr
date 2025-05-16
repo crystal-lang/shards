@@ -7,8 +7,29 @@ module Shards
     property name : String
     property resolver : Resolver
     property requirement : Requirement
+    # resolver's key and source are normalized. We preserve the key and source to be used
+    # in the shard.yml file in these field. This is used to generate the shard.yml file
+    # in a more human-readable way.
+    # A Dependency can still be created without them, but it will not be possible to
+    # generate the shard.yml file.
+    property! resolver_key : String
+    property! source : String
 
-    def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
+    def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any, @resolver_key : String? = nil, @source : String? = nil)
+    end
+
+    # Parse a dependency from a CLI argument
+    def self.from_cli(value : String) : Dependency
+      parts = parts_from_cli(value)
+
+      # We need to check the actual shard name to create a dependency.
+      # This requires getting the actual spec file from some matching version.
+      resolver = Resolver.find_resolver(parts[:resolver_key], "unknown", parts[:source])
+      version = resolver.versions_for(parts[:requirement]).first || raise Shards::Error.new("No versions found for dependency: #{value}")
+      spec = resolver.spec(version)
+      name = spec.name || raise Shards::Error.new("No name found for dependency: #{value}")
+
+      Dependency.new(name, resolver, parts[:requirement], parts[:resolver_key], parts[:source])
     end
 
     # :nodoc:
@@ -120,11 +141,22 @@ module Shards
       end
     end
 
+    # Used to generate the shard.lock file.
     def to_yaml(yaml : YAML::Builder)
       yaml.scalar name
       yaml.mapping do
         yaml.scalar resolver.class.key
         yaml.scalar resolver.source
+        requirement.to_yaml(yaml)
+      end
+    end
+
+    # Used to generate the shard.yml file.
+    def to_shard_yaml(yaml : YAML::Builder)
+      yaml.scalar name
+      yaml.mapping do
+        yaml.scalar resolver_key
+        yaml.scalar source
         requirement.to_yaml(yaml)
       end
     end
