@@ -11,6 +11,82 @@ module Shards
     def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
     end
 
+    # :nodoc:
+    #
+    # Parse the dependency from a CLI argument
+    # and return the parts needed to create the proper dependency.
+    #
+    # Split to allow better unit testing.
+    def self.parts_from_cli(value : String) : {resolver_key: String, source: String, requirement: Requirement}
+      resolver_key = nil
+      source = ""
+      requirement = Any
+
+      if File.directory?(value)
+        resolver_key = "path"
+        source = value
+      end
+
+      if value.starts_with?("https://github.com")
+        resolver_key = "github"
+        uri = URI.parse(value)
+        source = uri.path[1..-1] # drop first "/""
+
+        components = source.split("/")
+        case components[2]?
+        when "commit"
+          source = "#{components[0]}/#{components[1]}"
+          requirement = GitCommitRef.new(components[3])
+        when "tree"
+          source = "#{components[0]}/#{components[1]}"
+          requirement = if components[3].starts_with?("v")
+                          GitTagRef.new(components[3])
+                        else
+                          GitBranchRef.new(components[3..-1].join("/"))
+                        end
+        end
+      end
+
+      if value.starts_with?("https://gitlab.com")
+        resolver_key = "gitlab"
+        uri = URI.parse(value)
+        source = uri.path[1..-1] # drop first "/""
+      end
+
+      if value.starts_with?("https://bitbucket.com")
+        resolver_key = "bitbucket"
+        uri = URI.parse(value)
+        source = uri.path[1..-1] # drop first "/""
+      end
+
+      if value.starts_with?("git://")
+        resolver_key = "git"
+        source = value
+      end
+
+      unless resolver_key
+        Resolver.resolver_keys.each do |key|
+          key_schema = "#{key}:"
+          if value.starts_with?(key_schema)
+            resolver_key = key
+            source = value.sub(key_schema, "")
+
+            # narrow down requirement
+            if source.includes?("@")
+              source, version = source.split("@")
+              requirement = VersionReq.new("~> #{version}")
+            end
+
+            break
+          end
+        end
+      end
+
+      raise Shards::Error.new("Invalid dependency format: #{value}") unless resolver_key
+
+      {resolver_key: resolver_key, source: source, requirement: requirement}
+    end
+
     def self.from_yaml(pull : YAML::PullParser)
       mapping_start = pull.location
       name = pull.read_scalar
