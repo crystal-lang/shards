@@ -55,9 +55,10 @@ module Shards
       end
 
       # relative paths
-      if value.starts_with?("./") || value.starts_with?("../") || value.starts_with?(".\\") || value.starts_with?("..\\")
+      path = Path[value].to_posix.to_s
+      if path.starts_with?("./") || path.starts_with?("../")
         resolver_key = "path"
-        source = value
+        source = path
       end
 
       uri = URI.parse(value)
