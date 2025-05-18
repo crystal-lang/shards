@@ -363,7 +363,10 @@ module Shards
 
     private def valid_repository?
       command = "git config --get remote.origin.mirror"
-      Log.debug { command }
+      Log.with_context do
+        Log.context.set package: name
+        Log.debug { command }
+      end
 
       output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
         process.output.gets_to_end
@@ -437,7 +440,10 @@ module Shards
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
 
-      Log.debug { command }
+      Log.with_context do
+        Log.context.set package: name
+        Log.debug { command }
+      end
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new

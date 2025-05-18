@@ -30,8 +30,9 @@ module Shards
 
   FORMATTER = ::Log::Formatter.new do |entry, io|
     message = entry.message
-
+    package_name = entry.context[:package]?
     if @@colors
+      io << "[" << package_name.colorize(:blue).to_s << "] " if package_name && entry.severity <= ::Log::Severity::Debug
       io << if color = LOGGER_COLORS[entry.severity]?
         if idx = message.index(' ')
           message[0...idx].colorize(color).to_s + message[idx..-1]
@@ -42,7 +43,9 @@ module Shards
         message
       end
     else
-      io << entry.severity.label[0] << ": " << message
+      io << entry.severity.label[0] << ": "
+      io << "[" << package_name << "] " if package_name && entry.severity <= ::Log::Severity::Debug
+      io << message
     end
   end
 end

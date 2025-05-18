@@ -441,7 +441,10 @@ module Shards
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
 
-      Log.debug { command }
+      Log.with_context do
+        Log.context.set package: name
+        Log.debug { command }
+      end
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new

@@ -58,15 +58,20 @@ module Shards
     end
 
     def install
-      cleanup_install_directory
+      Log.with_context do
+        Log.context.set package: name
+        Log.context.set version: report_version
 
-      # install the shard:
-      resolver.install_sources(version, install_path)
+        cleanup_install_directory
 
-      # link the project's lib path as the shard's lib path, so the dependency
-      # can access transitive dependencies:
-      unless resolver.is_a?(PathResolver)
-        install_lib_path
+        # install the shard:
+        resolver.install_sources(version, install_path)
+
+        # link the project's lib path as the shard's lib path, so the dependency
+        # can access transitive dependencies:
+        unless resolver.is_a?(PathResolver)
+          install_lib_path
+        end
       end
 
       Shards.info.installed[name] = self

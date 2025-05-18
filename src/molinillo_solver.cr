@@ -61,7 +61,10 @@ module Shards
         end
         spawn do
           begin
-            dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
+            Log.with_context do
+              Log.context.set package: dep.name
+              dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
+            end
             ch.send(nil)
           rescue ex : Exception
             ch.send(ex)
