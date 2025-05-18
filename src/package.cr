@@ -3,6 +3,14 @@ require "./helpers"
 
 module Shards
   class Package
+    class Error < Shards::Error
+      getter package
+
+      def initialize(message, @package : Package)
+        super message
+      end
+    end
+
     getter name : String
     getter resolver : Resolver
     getter version : Version
@@ -114,7 +122,7 @@ module Shards
       spec.executables.each do |name|
         exe_name = find_executable_file(Path[install_path], name)
         unless exe_name
-          raise Shards::Error.new("Could not find executable #{name.inspect}")
+          raise Shards::Package::Error.new("Could not find executable #{name.inspect}", package: self)
         end
         Log.debug { "Install #{exe_name}" }
         source = File.join(install_path, exe_name)
