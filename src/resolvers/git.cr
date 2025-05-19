@@ -352,7 +352,10 @@ module Shards
     end
 
     private def delete_repository
-      Log.debug { "rm -rf #{Process.quote(local_path)}'" }
+      Log.with_context do
+        Log.context.set package: name
+        Log.debug { "rm -rf #{Process.quote(local_path)}'" }
+      end
       Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
