@@ -855,7 +855,7 @@ describe "install" do
     with_shard(metadata) do
       ex = expect_raises(FailedCommand) { run "shards install --no-color" }
       ex.stdout.should contain <<-ERROR
-        E: Failed to install `executable_missing`: Could not find executable "nonexistent"
+        E: Could not find executable "nonexistent" for "executable_missing"
         ERROR
     end
   end

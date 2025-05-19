@@ -181,10 +181,6 @@ rescue ex : OptionParser::InvalidOption
 rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
-rescue ex : Shards::Package::Error
-  package = ex.package
-  Shards::Log.error(exception: ex) { "Failed to install `#{package.name}`: #{ex.message}" }
-  exit 1
 rescue ex : Shards::Error
   Shards::Log.error(exception: ex) { ex.message }
   exit 1
