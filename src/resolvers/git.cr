@@ -352,10 +352,7 @@ module Shards
     end
 
     private def delete_repository
-      Log.with_context do
-        Log.context.set package: name
-        Log.debug { "rm -rf #{Process.quote(local_path)}'" }
-      end
+      Log.debug { "rm -rf #{Process.quote(local_path)}'" }
       Shards::Helpers.rm_rf(local_path)
       @origin_url = nil
     end
@@ -366,10 +363,7 @@ module Shards
 
     private def valid_repository?
       command = "git config --get remote.origin.mirror"
-      Log.with_context do
-        Log.context.set package: name
-        Log.debug { command }
-      end
+      Log.debug { command }
 
       output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
         process.output.gets_to_end
@@ -443,10 +437,7 @@ module Shards
         raise Error.new("Error missing git command line tool. Please install Git first!")
       end
 
-      Log.with_context do
-        Log.context.set package: name
-        Log.debug { command }
-      end
+      Log.debug { command }
 
       output = capture ? IO::Memory.new : Process::Redirect::Close
       error = IO::Memory.new

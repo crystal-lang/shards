@@ -65,14 +65,11 @@ module Shards
     end
 
     def spec(version : Version) : Spec
-      Log.with_context do
-        Log.context.set package: name
-        if spec = load_spec(version)
-          spec.version = version
-          spec
-        else
-          Spec.new(name, version, self)
-        end
+      if spec = load_spec(version)
+        spec.version = version
+        spec
+      else
+        Spec.new(name, version, self)
       end
     end
 

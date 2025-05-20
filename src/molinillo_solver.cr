@@ -84,9 +84,12 @@ module Shards
       prefetch_local_caches(deps)
 
       deps.each do |dep|
-        if lock = lock_index[dep.name]?
-          next unless dep.matches?(lock.version)
-          add_lock(base, lock_index, dep)
+        Log.with_context do
+          Log.context.set package: dep.name
+          if lock = lock_index[dep.name]?
+            next unless dep.matches?(lock.version)
+            add_lock(base, lock_index, dep)
+          end
         end
       end
     end
