@@ -115,24 +115,27 @@ module Shards
 
       Dir.mkdir_p(Shards.bin_path)
 
-      spec.executables.each do |name|
-        exe_name = find_executable_file(Path[install_path], name)
-        unless exe_name
-          raise Shards::Error.new("Could not find executable #{name.inspect}")
-        end
-        Log.debug { "Install #{exe_name}" }
-        source = File.join(install_path, exe_name)
-        destination = File.join(Shards.bin_path, File.basename(exe_name))
+      Log.with_context do
+        Log.context.set package: name
+        spec.executables.each do |name|
+          exe_name = find_executable_file(Path[install_path], name)
+          unless exe_name
+            raise Shards::Error.new("Could not find executable #{name.inspect}")
+          end
+          Log.debug { "Install #{exe_name}" }
+          source = File.join(install_path, exe_name)
+          destination = File.join(Shards.bin_path, File.basename(exe_name))
 
-        if File.exists?(destination)
-          next if File.same?(destination, source)
-          File.delete(destination)
-        end
+          if File.exists?(destination)
+            next if File.same?(destination, source)
+            File.delete(destination)
+          end
 
-        begin
-          File.link(source, destination)
-        rescue File::Error
-          FileUtils.cp(source, destination)
+          begin
+            File.link(source, destination)
+          rescue File::Error
+            FileUtils.cp(source, destination)
+          end
         end
       end
     end
