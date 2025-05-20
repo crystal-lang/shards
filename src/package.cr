@@ -60,7 +60,6 @@ module Shards
     def install
       Log.with_context do
         Log.context.set package: name
-        Log.context.set version: report_version
 
         cleanup_install_directory
 
