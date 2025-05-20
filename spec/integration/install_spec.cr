@@ -925,7 +925,8 @@ describe "install" do
       with_shard(metadata) do
         stdout = run "shards install --no-color -v"
         assert_installed "noshardyml", "0.2.0"
-        stdout.should contain(%(D: Missing "shard.yml" for "noshardyml" at tag v0.1.0))
+        stdout.should contain(%(D: [noshardyml] git ls-tree -r --full-tree --name-only refs/tags/v0.1.0 -- shard.yml))
+        stdout.should contain(%(D: [noshardyml] Missing "shard.yml" for "noshardyml" at tag v0.1.0))
       end
     end
 
