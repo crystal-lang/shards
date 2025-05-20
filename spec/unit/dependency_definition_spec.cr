@@ -35,6 +35,11 @@ module Shards
       # bitbucket urls
       expect_parses("https://bitbucket.com/foo/bar", "bitbucket", "foo/bar", Any)
 
+      # unknown https urls
+      expect_raises Shards::Error, "Cannot determine resolver for HTTPS URI" do
+        Shards::DependencyDefinition.parts_from_cli("https://example.com/foo/bar")
+      end
+
       # Git convenient syntax since resolver matches scheme
       expect_parses("git://git.example.org/crystal-library.git", "git", "git://git.example.org/crystal-library.git", Any)
       expect_parses("git@example.org:foo/bar.git", "git", "git@example.org:foo/bar.git", Any)
@@ -51,13 +56,19 @@ module Shards
         expect_parses("..\\relative\\windows", "path", "../relative/windows", Any)
       {% end %}
       # Path file schema
-      expect_parses("file://#{local_relative}", "path", local_relative, Any)
+      expect_raises Shards::Error, "Invalid file URI" do
+        Shards::DependencyDefinition.parts_from_cli("file://#{local_relative}")
+      end
+      expect_parses("file:#{local_relative}", "path", local_relative, Any)
+      expect_parses("file:#{local_absolute}", "path", local_absolute, Any)
       expect_parses("file://#{local_absolute}", "path", local_absolute, Any)
       # Path resolver syntax
       expect_parses("path:#{local_absolute}", "path", local_absolute, Any)
       expect_parses("path:#{local_relative}", "path", local_relative, Any)
       # Other resolvers short
       expect_parses("git:git://git.example.org/crystal-library.git", "git", "git://git.example.org/crystal-library.git", Any)
+      expect_parses("git+https://example.org/foo/bar", "git", "https://example.org/foo/bar", Any)
+      expect_parses("git:https://example.org/foo/bar", "git", "https://example.org/foo/bar", Any)
     end
   end
 end

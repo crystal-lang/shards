@@ -2,7 +2,7 @@ require "./dependency"
 
 module Shards
   class DependencyDefinition
-    record Parts, resolver_key : String, source : String, requirement : Requirement
+    record Parts, resolver_key : String, source : String, requirement : Requirement = Any
 
     property dependency : Dependency
     # resolver's key and source are normalized. We preserve the key and source to be used
@@ -45,59 +45,51 @@ module Shards
     #
     # Split to allow better unit testing.
     def self.parts_from_cli(value : String) : Parts
-      resolver_key = nil
-      source = ""
-      requirement = Any
-
-      if value.starts_with?("file://")
-        resolver_key = "path"
-        source = value[7..-1] # drop "file://"
-      end
-
-      # relative paths
-      path = Path[value].to_posix.to_s
-      if path.starts_with?("./") || path.starts_with?("../")
-        resolver_key = "path"
-        source = path
-      end
-
       uri = URI.parse(value)
-      if uri.scheme != "file" && uri.host &&
-         (resolver_key = GitResolver::KNOWN_PROVIDERS[uri.host]?)
-        source = uri.path[1..-1].rchop(".git") # drop first "/""
-      end
 
-      if value.starts_with?("git://")
-        resolver_key = "git"
-        source = value
-      end
-
-      if value.starts_with?("git@")
-        resolver_key = "git"
-        source = value
-      end
-
-      unless resolver_key
-        Resolver.resolver_keys.each do |key|
-          key_schema = "#{key}:"
-          if value.starts_with?(key_schema)
-            resolver_key = key
-            source = value.sub(key_schema, "")
-
-            # narrow down requirement
-            if source.includes?("@")
-              source, version = source.split("@")
-              requirement = VersionReq.new("~> #{version}")
-            end
-
-            break
-          end
+      case scheme = uri.scheme
+      when Nil
+        case value
+        when .starts_with?("./"), .starts_with?("../")
+          Parts.new("path", Path[value].to_posix.to_s)
+        when .starts_with?("git@")
+          Parts.new("git", value)
+        else
+          raise Shards::Error.new("Invalid dependency format: #{value}")
         end
+      when "file"
+        raise Shards::Error.new("Invalid file URI: #{uri}") if !uri.host.in?(nil, "", "localhost") || uri.port || uri.user
+        Parts.new("path", uri.path)
+      when "https"
+        if resolver_key = GitResolver::KNOWN_PROVIDERS[uri.host]?
+          Parts.new(resolver_key, uri.path[1..-1].rchop(".git")) # drop first "/""
+        else
+          raise Shards::Error.new("Cannot determine resolver for HTTPS URI: #{value}")
+        end
+      when "git"
+        if uri.host
+          Parts.new("git", uri.to_s)
+        else
+          Parts.new("git", uri.path)
+        end
+      when "git+https"
+        uri.scheme = "https"
+        Parts.new("git", uri.to_s)
+      else
+        if resolver_class = Resolver::RESOLVER_CLASSES[scheme]?
+          uri.scheme = nil
+          source = uri.to_s
+          # narrow down requirement
+          requirement = Any
+          if source.includes?("@")
+            source, version = source.split("@")
+            requirement = VersionReq.new("~> #{version}")
+          end
+
+          return Parts.new(scheme, source, requirement)
+        end
+        raise Shards::Error.new("Invalid dependency format: #{value}")
       end
-
-      raise Shards::Error.new("Invalid dependency format: #{value}") unless resolver_key
-
-      Parts.new(resolver_key: resolver_key, source: source, requirement: requirement)
     end
   end
 end

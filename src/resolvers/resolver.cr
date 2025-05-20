@@ -100,12 +100,8 @@ module Shards
     end
 
     private record ResolverCacheKey, key : String, name : String, source : String
-    private RESOLVER_CLASSES = {} of String => Resolver.class
+    RESOLVER_CLASSES = {} of String => Resolver.class
     private RESOLVER_CACHE   = {} of ResolverCacheKey => Resolver
-
-    def self.resolver_keys
-      RESOLVER_CLASSES.keys
-    end
 
     def self.register_resolver(key, resolver)
       RESOLVER_CLASSES[key] = resolver
