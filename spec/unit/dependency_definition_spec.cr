@@ -49,11 +49,12 @@ module Shards
       local_relative = "an/relative/path"
 
       # Path short syntax
-      expect_parses("./#{local_relative}", "path", "./#{local_relative}", Any)
       expect_parses("../#{local_relative}", "path", "../#{local_relative}", Any)
       {% if flag?(:windows) %}
         expect_parses(".\\relative\\windows", "path", "./relative/windows", Any)
         expect_parses("..\\relative\\windows", "path", "../relative/windows", Any)
+      {% else %}
+        expect_parses("./#{local_relative}", "path", "./#{local_relative}", Any)
       {% end %}
       # Path file schema
       expect_raises Shards::Error, "Invalid file URI" do
