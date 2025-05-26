@@ -72,18 +72,13 @@ module Shards
         else
           raise Shards::Error.new("Cannot determine resolver for HTTPS URI: #{value}")
         end
-      when "git"
-        if uri.host
-          Parts.new("git", uri.to_s)
-        else
-          Parts.new("git", uri.path)
-        end
-      when "git+https"
-        uri.scheme = "https"
-        Parts.new("git", uri.to_s)
       else
-        if resolver_class = Resolver::RESOLVER_CLASSES[scheme]?
-          uri.scheme = nil
+        scheme, _, subscheme = scheme.partition('+')
+        subscheme = subscheme.presence
+        if Resolver.find_class(scheme)
+          if uri.host.nil? || subscheme
+            uri.scheme = subscheme
+          end
           source = uri.to_s
           # narrow down requirement
           requirement = Any
