@@ -52,6 +52,12 @@ module Shards
         case value
         when .starts_with?("./"), .starts_with?("../")
           Parts.new("path", Path[value].to_posix.to_s)
+        when .starts_with?(".\\"), .starts_with?("..\\")
+          {% if flag?(:windows) %}
+            Parts.new("path", Path[value].to_posix.to_s)
+          {% else %}
+            raise Shards::Error.new("Invalid dependency format: #{value}")
+          {% end %}
         when .starts_with?("git@")
           Parts.new("git", value)
         else
