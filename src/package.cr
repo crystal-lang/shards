@@ -114,7 +114,7 @@ module Shards
       spec.executables.each do |name|
         exe_name = find_executable_file(Path[install_path], name)
         unless exe_name
-          raise Shards::Error.new("Could not find executable #{name.inspect}")
+          raise Shards::Error.new("Could not find executable #{name.inspect} for #{@name.inspect}")
         end
         Log.debug { "Install #{exe_name}" }
         source = File.join(install_path, exe_name)

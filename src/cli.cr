@@ -176,12 +176,12 @@ end
 begin
   Shards.run
 rescue ex : OptionParser::InvalidOption
-  Shards::Log.fatal { ex.message }
+  Shards::Log.fatal(exception: ex) { ex.message }
   exit 1
 rescue ex : Shards::ParseError
   ex.to_s(STDERR)
   exit 1
 rescue ex : Shards::Error
-  Shards::Log.error { ex.message }
+  Shards::Log.error(exception: ex) { ex.message }
   exit 1
 end
