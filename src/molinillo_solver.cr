@@ -61,7 +61,10 @@ module Shards
         end
         spawn do
           begin
-            dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
+            Log.with_context do
+              Log.context.set package: dep.name
+              dep.resolver.update_local_cache if dep.resolver.is_a? GitResolver
+            end
             ch.send(nil)
           rescue ex : Exception
             ch.send(ex)
@@ -81,9 +84,12 @@ module Shards
       prefetch_local_caches(deps)
 
       deps.each do |dep|
-        if lock = lock_index[dep.name]?
-          next unless dep.matches?(lock.version)
-          add_lock(base, lock_index, dep)
+        Log.with_context do
+          Log.context.set package: dep.name
+          if lock = lock_index[dep.name]?
+            next unless dep.matches?(lock.version)
+            add_lock(base, lock_index, dep)
+          end
         end
       end
     end
@@ -170,20 +176,23 @@ module Shards
     @specs = Hash({String, Version}, Spec).new
 
     def search_for(dependency : R) : Array(S)
-      check_single_resolver_by_name dependency.resolver
+      Log.with_context do
+        Log.context.set package: dependency.name
+        check_single_resolver_by_name dependency.resolver
 
-      @search_results[{dependency.name, dependency.requirement}] ||= begin
-        resolver = dependency.resolver
-        versions = Versions.sort(versions_for(dependency, resolver)).reverse
-        result = versions.map do |version|
-          @specs[{dependency.name, version}] ||= begin
-            resolver.spec(version).tap do |spec|
-              spec.version = version
+        @search_results[{dependency.name, dependency.requirement}] ||= begin
+          resolver = dependency.resolver
+          versions = Versions.sort(versions_for(dependency, resolver)).reverse
+          result = versions.map do |version|
+            @specs[{dependency.name, version}] ||= begin
+              resolver.spec(version).tap do |spec|
+                spec.version = version
+              end
             end
           end
-        end
 
-        result
+          result
+        end
       end
     end
 
