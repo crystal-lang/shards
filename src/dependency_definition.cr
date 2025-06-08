@@ -2,7 +2,7 @@ require "./dependency"
 
 module Shards
   class DependencyDefinition
-    record Parts, resolver_key : String, source : String, requirement : Requirement = Any
+    record Parts, resolver_key : String, source : String, requirement : Requirement
 
     property dependency : Dependency
     # resolver's key and source are normalized. We preserve the key and source to be used
@@ -47,28 +47,36 @@ module Shards
     def self.parts_from_cli(value : String) : Parts
       uri = URI.parse(value)
 
+      # fragment parsing for version requirement
+      requirement = Any
+      if fragment = uri.fragment
+        uri.fragment = nil
+        value = value.rchop("##{fragment}")
+        requirement = VersionReq.new("~> #{fragment}")
+      end
+
       case scheme = uri.scheme
       when Nil
         case value
         when .starts_with?("./"), .starts_with?("../")
-          Parts.new("path", Path[value].to_posix.to_s)
+          Parts.new("path", Path[value].to_posix.to_s, Any)
         when .starts_with?(".\\"), .starts_with?("..\\")
           {% if flag?(:windows) %}
-            Parts.new("path", Path[value].to_posix.to_s)
+            Parts.new("path", Path[value].to_posix.to_s, Any)
           {% else %}
             raise Shards::Error.new("Invalid dependency format: #{value}")
           {% end %}
         when .starts_with?("git@")
-          Parts.new("git", value)
+          Parts.new("git", value, requirement)
         else
           raise Shards::Error.new("Invalid dependency format: #{value}")
         end
       when "file"
         raise Shards::Error.new("Invalid file URI: #{uri}") if !uri.host.in?(nil, "", "localhost") || uri.port || uri.user
-        Parts.new("path", uri.path)
+        Parts.new("path", uri.path, Any)
       when "https"
         if resolver_key = GitResolver::KNOWN_PROVIDERS[uri.host]?
-          Parts.new(resolver_key, uri.path[1..-1].rchop(".git")) # drop first "/""
+          Parts.new(resolver_key, uri.path[1..-1].rchop(".git"), requirement) # drop first "/""
         else
           raise Shards::Error.new("Cannot determine resolver for HTTPS URI: #{value}")
         end
@@ -78,12 +86,6 @@ module Shards
         if Resolver.find_class(scheme)
           if uri.host.nil? || subscheme
             uri.scheme = subscheme
-          end
-          # narrow down requirement
-          requirement = Any
-          if version = uri.fragment
-            uri.fragment = nil
-            requirement = VersionReq.new("~> #{version}")
           end
           return Parts.new(scheme, uri.to_s, requirement)
         end
