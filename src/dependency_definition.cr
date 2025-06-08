@@ -79,15 +79,13 @@ module Shards
           if uri.host.nil? || subscheme
             uri.scheme = subscheme
           end
-          source = uri.to_s
           # narrow down requirement
           requirement = Any
-          if source.includes?("@")
-            source, version = source.split("@")
+          if version = uri.fragment
+            uri.fragment = nil
             requirement = VersionReq.new("~> #{version}")
           end
-
-          return Parts.new(scheme, source, requirement)
+          return Parts.new(scheme, uri.to_s, requirement)
         end
         raise Shards::Error.new("Invalid dependency format: #{value}")
       end

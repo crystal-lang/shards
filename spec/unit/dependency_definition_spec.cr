@@ -10,7 +10,7 @@ module Shards
     it ".parts_from_cli" do
       # GitHub short syntax
       expect_parses("github:foo/bar", "github", "foo/bar", Any)
-      expect_parses("github:Foo/Bar@1.2.3", "github", "Foo/Bar", VersionReq.new("~> 1.2.3"))
+      expect_parses("github:Foo/Bar#1.2.3", "github", "Foo/Bar", VersionReq.new("~> 1.2.3"))
 
       # GitHub urls
       expect_parses("https://github.com/foo/bar", "github", "foo/bar", Any)
