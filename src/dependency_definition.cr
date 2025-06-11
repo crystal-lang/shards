@@ -52,7 +52,7 @@ module Shards
       if fragment = uri.fragment
         uri.fragment = nil
         value = value.rchop("##{fragment}")
-        requirement = VersionReq.new("~> #{fragment}")
+        requirement = Version.new(fragment)
       end
 
       case scheme = uri.scheme

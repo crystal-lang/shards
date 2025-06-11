@@ -10,21 +10,21 @@ module Shards
     it ".parts_from_cli" do
       # GitHub short syntax
       expect_parses("github:foo/bar", "github", "foo/bar", Any)
-      expect_parses("github:Foo/Bar#1.2.3", "github", "Foo/Bar", VersionReq.new("~> 1.2.3"))
+      expect_parses("github:Foo/Bar#1.2.3", "github", "Foo/Bar", Version.new("1.2.3"))
 
       # GitHub urls
       expect_parses("https://github.com/foo/bar", "github", "foo/bar", Any)
-      expect_parses("https://github.com/foo/bar#1.2.3", "github", "foo/bar", VersionReq.new("~> 1.2.3"))
+      expect_parses("https://github.com/foo/bar#1.2.3", "github", "foo/bar", Version.new("1.2.3"))
 
       # GitHub urls from clone popup
       expect_parses("https://github.com/foo/bar.git", "github", "foo/bar", Any)
-      expect_parses("https://github.com/foo/bar.git#1.2.3", "github", "foo/bar", VersionReq.new("~> 1.2.3"))
+      expect_parses("https://github.com/foo/bar.git#1.2.3", "github", "foo/bar", Version.new("1.2.3"))
       expect_parses("git@github.com:foo/bar.git", "git", "git@github.com:foo/bar.git", Any)
-      expect_parses("git@github.com:foo/bar.git#1.2.3", "git", "git@github.com:foo/bar.git", VersionReq.new("~> 1.2.3"))
+      expect_parses("git@github.com:foo/bar.git#1.2.3", "git", "git@github.com:foo/bar.git", Version.new("1.2.3"))
 
       # GitLab short syntax
       expect_parses("gitlab:foo/bar", "gitlab", "foo/bar", Any)
-      expect_parses("gitlab:foo/bar#1.2.3", "gitlab", "foo/bar", VersionReq.new("~> 1.2.3"))
+      expect_parses("gitlab:foo/bar#1.2.3", "gitlab", "foo/bar", Version.new("1.2.3"))
 
       # GitLab urls
       expect_parses("https://gitlab.com/foo/bar", "gitlab", "foo/bar", Any)
