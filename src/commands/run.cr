@@ -29,6 +29,10 @@ module Shards
 
           Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
 
+          # FIXME: The explicit close is necessary to flush the last log message
+          # before `exec`.
+          ::Log.builder.try(&.close)
+
           Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
         else
           raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}")
