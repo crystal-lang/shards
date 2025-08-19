@@ -31,7 +31,7 @@ module Shards
 
           # FIXME: The explicit close is necessary to flush the last log message
           # before `exec`.
-          ::Log.builder.try(&.close)
+          ::Log.builder.close
 
           Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
         else
