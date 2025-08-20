@@ -30,7 +30,7 @@ module Shards
           Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
 
           # FIXME: The explicit close is necessary to flush the last log message
-          # before `exec`.
+          # before `exec`. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
           ::Log.builder.close
 
           Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
