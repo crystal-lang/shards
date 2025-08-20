@@ -24,26 +24,26 @@ module Shards
           name = targets.first
         end
 
-        if target = spec.targets.find { |t| t.name == name }
-          Commands::Build.run(path, [target.name], options)
+        target = spec.targets.find { |t| t.name == name }
 
-          Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
+        raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}") unless target
 
-          {% if flag?(:win32) %}
-            # FIXME: Process.exec doesn't work as expected on Windows, we need to run
-            # as a child process and report the exit code afterwards. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
-            status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, input: Process::Redirect::Inherit, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
-            exit status.exit_code
-          {% else %}
-            # FIXME: The explicit close is necessary to flush the last log message
-            # before `exec`. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
-            ::Log.builder.close
+        Commands::Build.run(path, [target.name], options)
 
-            Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
-          {% end %}
-        else
-          raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}")
-        end
+        Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
+
+        {% if flag?(:win32) %}
+          # FIXME: Process.exec doesn't work as expected on Windows, we need to run
+          # as a child process and report the exit code afterwards. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
+          status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, input: Process::Redirect::Inherit, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
+          exit status.exit_code
+        {% else %}
+          # FIXME: The explicit close is necessary to flush the last log message
+          # before `exec`. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
+          ::Log.builder.close
+
+          Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
+        {% end %}
       end
     end
   end
