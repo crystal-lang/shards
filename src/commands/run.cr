@@ -36,7 +36,11 @@ module Shards
           # FIXME: Process.exec doesn't work as expected on Windows, we need to run
           # as a child process and report the exit code afterwards. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
           status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, input: Process::Redirect::Inherit, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
-          exit status.exit_code
+          {% if compare_versions(Crystal::VERSION, "1.19.0") >= 0 %}
+            exit status
+          {% else %}
+            exit status.system_exit_status.to_i32!
+          {% end %}
         {% else %}
           # FIXME: The explicit close is necessary to flush the last log message
           # before `exec`. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
