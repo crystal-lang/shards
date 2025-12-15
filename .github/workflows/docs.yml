@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Download source
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Build manpages
         uses: Analog-inc/asciidoctor-action@v1.3.2
         with:
