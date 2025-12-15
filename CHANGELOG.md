@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.20.0] (2025-12-17)
+
+[0.20.0]: https://github.com/crystal-lang/shards/releases/0.20.0
+
+### Features
+
+- Show the package name associated with shard errors ([#674], thanks @miry)
+- Add dependency name in the logs ([#676], thanks @miry)
+
+[#674]: https://github.com/crystal-lang/shards/pull/674
+[#676]: https://github.com/crystal-lang/shards/pull/676
+
+### Infrastructure
+
+- Fix make touch `shard.lock` when `SHARDS=false` ([#667], thanks @straight-shoota)
+- Add make recipe `install_dlls` ([#668], thanks @straight-shoota)
+- Expand `DESTDIR` outside of prefixed dir variables ([#669], thanks @straight-shoota)
+- Vendor `lib/molinillo` ([#663], thanks @straight-shoota)
+- Update actions/checkout action to v4 ([#670], thanks @renovate)
+- Update actions/checkout action to v5 ([#684], thanks @renovate)
+- [CI] Upgrade to macos-15 and xcode 15.4 ([#687], thanks @straight-shoota)
+- Update actions/checkout action to v6 ([#688], thanks @renovate)
+
+[#667]: https://github.com/crystal-lang/shards/pull/667
+[#668]: https://github.com/crystal-lang/shards/pull/668
+[#669]: https://github.com/crystal-lang/shards/pull/669
+[#663]: https://github.com/crystal-lang/shards/pull/663
+[#670]: https://github.com/crystal-lang/shards/pull/670
+[#684]: https://github.com/crystal-lang/shards/pull/684
+[#687]: https://github.com/crystal-lang/shards/pull/687
+[#688]: https://github.com/crystal-lang/shards/pull/688
+
 ## [0.19.1] (2025-01-23)
 
 [0.19.1]: https://github.com/crystal-lang/shards/releases/0.19.1
