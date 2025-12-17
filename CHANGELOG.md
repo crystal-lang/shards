@@ -8,12 +8,15 @@
 
 - Show the package name associated with shard errors ([#674], thanks @miry)
 - Add dependency name in the logs ([#676], thanks @miry)
+- Use `Process.exec` in `shards run` ([#686], thanks @straight-shoota)
 
 [#674]: https://github.com/crystal-lang/shards/pull/674
 [#676]: https://github.com/crystal-lang/shards/pull/676
+[#686]: https://github.com/crystal-lang/shards/pull/686
 
 ### Infrastructure
 
+- Release 0.20.0 ([#689], thanks @straight-shoota)
 - Fix make touch `shard.lock` when `SHARDS=false` ([#667], thanks @straight-shoota)
 - Add make recipe `install_dlls` ([#668], thanks @straight-shoota)
 - Expand `DESTDIR` outside of prefixed dir variables ([#669], thanks @straight-shoota)
@@ -23,6 +26,7 @@
 - [CI] Upgrade to macos-15 and xcode 15.4 ([#687], thanks @straight-shoota)
 - Update actions/checkout action to v6 ([#688], thanks @renovate)
 
+[#689]: https://github.com/crystal-lang/shards/pull/689
 [#667]: https://github.com/crystal-lang/shards/pull/667
 [#668]: https://github.com/crystal-lang/shards/pull/668
 [#669]: https://github.com/crystal-lang/shards/pull/669
