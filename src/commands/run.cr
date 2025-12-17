@@ -24,17 +24,30 @@ module Shards
           name = targets.first
         end
 
-        if target = spec.targets.find { |t| t.name == name }
-          Commands::Build.run(path, [target.name], options)
+        target = spec.targets.find { |t| t.name == name }
 
-          Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
+        raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}") unless target
+
+        Commands::Build.run(path, [target.name], options)
+
+        Log.info { "Executing: #{target.name} #{run_options.join(' ')}" }
+
+        {% if flag?(:win32) %}
+          # FIXME: Process.exec doesn't work as expected on Windows, we need to run
+          # as a child process and report the exit code afterwards. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
           status = Process.run(File.join(Shards.bin_path, target.name), args: run_options, input: Process::Redirect::Inherit, output: Process::Redirect::Inherit, error: Process::Redirect::Inherit)
-          unless status.success?
-            exit status.exit_code
-          end
-        else
-          raise Error.new("Error target #{name} was not found in #{SPEC_FILENAME}")
-        end
+          {% if compare_versions(Crystal::VERSION, "1.19.0") >= 0 %}
+            exit status
+          {% else %}
+            exit status.system_exit_status.to_i32!
+          {% end %}
+        {% else %}
+          # FIXME: The explicit close is necessary to flush the last log message
+          # before `exec`. https://github.com/crystal-lang/crystal/issues/14422#issuecomment-3204803933
+          ::Log.builder.close
+
+          Process.exec(File.join(Shards.bin_path, target.name), args: run_options)
+        {% end %}
       end
     end
   end
