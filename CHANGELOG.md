@@ -8,10 +8,14 @@
 
 - Show the package name associated with shard errors ([#674], thanks @miry)
 - Add dependency name in the logs ([#676], thanks @miry)
-- Use `Process.exec` in `shards run` ([#686], thanks @straight-shoota)
 
 [#674]: https://github.com/crystal-lang/shards/pull/674
 [#676]: https://github.com/crystal-lang/shards/pull/676
+
+### Bugfixes
+
+- Use `Process.exec` in `shards run` ([#686], thanks @straight-shoota)
+
 [#686]: https://github.com/crystal-lang/shards/pull/686
 
 ### Infrastructure
