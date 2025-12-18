@@ -29,6 +29,7 @@
 - Update actions/checkout action to v5 ([#684], thanks @renovate)
 - [CI] Upgrade to macos-15 and xcode 15.4 ([#687], thanks @straight-shoota)
 - Update actions/checkout action to v6 ([#688], thanks @renovate)
+- Update devenv ([#690], thanks @straight-shoota)
 
 [#689]: https://github.com/crystal-lang/shards/pull/689
 [#667]: https://github.com/crystal-lang/shards/pull/667
@@ -39,6 +40,7 @@
 [#684]: https://github.com/crystal-lang/shards/pull/684
 [#687]: https://github.com/crystal-lang/shards/pull/687
 [#688]: https://github.com/crystal-lang/shards/pull/688
+[#690]: https://github.com/crystal-lang/shards/pull/690
 
 ## [0.19.1] (2025-01-23)
 
