@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2025-01-23
+.\" Generator: Asciidoctor 2.0.26
+.\"      Date: 2024-10-25
 .\"    Manual: Shards Manual
-.\"    Source: shards 0.19.1
+.\"    Source: shards 0.20.0
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2025-01-23" "shards 0.19.1" "Shards Manual"
+.TH "SHARDS" "1" "2024-10-25" "shards 0.20.0" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -31,7 +31,7 @@
 shards \- dependency manager for the Crystal Language
 .SH "SYNOPSIS"
 .sp
-\fBshards\fP [\fI<general_options>\fP...] [\fI<command>\fP] [\fI<command_options>\fP...]
+\fBshards\fP [\fI<general_options>\fP.\|.\|.] [\fI<command>\fP] [\fI<command_options>\fP.\|.\|.]
 .SH "DESCRIPTION"
 .sp
 Manages dependencies for Crystal projects and libraries with reproducible
@@ -60,7 +60,7 @@ If no \fIcommand\fP is given, \fBinstall\fP command will be run by default.
 .sp
 To see the available options for a particular command, use \fI\-\-help\fP after the command.
 .sp
-\fBbuild\fP [\fI<targets>\fP] [\fI<build_options>\fP...]
+\fBbuild\fP [\fI<targets>\fP] [\fI<build_options>\fP.\|.\|.]
 .RS 4
 Builds the specified \fI<targets>\fP in \fBbin\fP path. If no targets are specified,
 all are built.
@@ -141,7 +141,7 @@ Lists the installed dependencies and their versions.
 Specifying \fI\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
 .RE
 .sp
-\fBlock\fP [\-\-update [<shards>...]]
+\fBlock\fP [\-\-update [<shards>.\|.\|.]]
 .RS 4
 Resolves dependencies and creates or updates the \fIshard.lock\fP file as per
 the \fBinstall\fP command, but never installs the dependencies.
@@ -162,7 +162,7 @@ When \fI\-\-pre\fP is specified, pre\-release versions are also considered.
 Removes unused dependencies from \fIlib\fP folder.
 .RE
 .sp
-\fBupdate\fP [<shards>...]
+\fBupdate\fP [<shards>.\|.\|.]
 .RS 4
 Resolves and updates all dependencies into the \fIlib\fP folder,
 whatever the locked versions in the \fIshard.lock\fP file.
