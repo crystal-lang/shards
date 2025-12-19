@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.20.0] (2025-12-17)
+## [0.20.0] (2025-12-19)
 
 [0.20.0]: https://github.com/crystal-lang/shards/releases/0.20.0
 
