@@ -279,7 +279,7 @@
 
 - Escape automatic ligatures in AsciiDoc ([#489](https://github.com/crystal-lang/shards/pull/489), thanks @elebow)
 - Fix links in README ([#500](https://github.com/crystal-lang/shards/pull/500), [#483](https://github.com/crystal-lang/shards/pull/483), thanks @szabgab, @kimburgess)
-- Correct list identation in shard.yml.adoc ([#492](https://github.com/crystal-lang/shards/pull/492/files), thanks @elebow)
+- Correct list indentation in shard.yml.adoc ([#492](https://github.com/crystal-lang/shards/pull/492/files), thanks @elebow)
 - Add getting started section to README ([#513](https://github.com/crystal-lang/shards/pull/513), thanks @straight-shoota)
 
 ## [0.14.1] (2021-03-10)
@@ -705,7 +705,7 @@ Breaking Change:
 
 ### Features
 
-- lock resolved versions for indempotent installs across computers, see #27
+- lock resolved versions for idempotent installs across computers, see #27
 - `--production` parameter to skip development dependencies
 - postintall hook to run a command after installing a dependency, see #19
 
