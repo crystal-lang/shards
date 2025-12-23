@@ -33,7 +33,6 @@ prefixed with a `v`. Examples: `v1.2.3`, `v2.0.0-rc1` or `v2017.04.1`.
 Please see the [SPEC](docs/shard.yml.adoc) for more details about the
 `shard.yml` format.
 
-
 ## Install
 
 Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
@@ -62,12 +61,12 @@ Happy Hacking!
 
 These requirements are only necessary for compiling Shards.
 
-* Crystal
+- Crystal
 
   Please refer to <https://crystal-lang.org/install/> for
   instructions for your operating system.
 
-* libyaml
+- libyaml
 
   On Debian/Ubuntu Linux you may install the `libyaml-dev` package.
 
@@ -76,7 +75,7 @@ These requirements are only necessary for compiling Shards.
   variable (eg: `export LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH"`).
   Please adjust the path per your Homebrew installation.
 
-* [asciidoctor](https://asciidoctor.org/)
+- [asciidoctor](https://asciidoctor.org/)
 
   Needed for building manpages.
 
@@ -86,15 +85,17 @@ It is strongly recommended to use `make` for building shards and developing it.
 The [`Makefile`](./Makefile) contains recipes for compiling and testing.
 
 Run `make bin/shards` to build the binary.
-* `release=1` for a release build (applies optimizations)
-* `static=1` for static linking (only works with musl-libc)
-* `debug=1` for full symbolic debug info
+
+- `release=1` for a release build (applies optimizations)
+- `static=1` for static linking (only works with musl-libc)
+- `debug=1` for full symbolic debug info
 
 Run `make install` to install the binary. Target path can be adjusted with `PREFIX` (default: `PREFIX=/usr/bin`).
 
 Run `make test` to run the test suites:
-* `make test_unit` runs unit tests (`./spec/unit`)
-* `make test_integration` runs integration tests (`./spec/integration`) on `bin/shards`
+
+- `make test_unit` runs unit tests (`./spec/unit`)
+- `make test_integration` runs integration tests (`./spec/integration`) on `bin/shards`
 
 Run `make docs` to build the manpages.
 

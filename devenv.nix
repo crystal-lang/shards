@@ -34,6 +34,7 @@
       files = "^Makefile(\.win)?$";
       pass_filenames = true;
     };
+    markdownlint.enable = true;
     shellcheck = {
       enable = true;
       excludes = [

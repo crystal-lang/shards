@@ -54,7 +54,7 @@
 
 ### Infrastructure
 
-* Changelog for 0.19.1 ([#666], thanks @straight-shoota)
+- Changelog for 0.19.1 ([#666], thanks @straight-shoota)
 
 [#666]: https://github.com/crystal-lang/shards/pull/666
 
@@ -194,10 +194,10 @@
 
 ### Infrastructure
 
-- *(ci)* Ensure manpages are generated with no diff ([#594](https://github.com/crystal-lang/shards/pull/594), thanks @straight-shoota)
-- *(ci)* Upgrade xcode version on circleci ([#603](https://github.com/crystal-lang/shards/pull/603), thanks @straight-shoota)
-- *(ci)* Pin GHA runner versions ([#604](https://github.com/crystal-lang/shards/pull/604), thanks @straight-shoota)
-- *(ci)* Pin `Analog-inc/asciidoctor-action` version ([#602](https://github.com/crystal-lang/shards/pull/602), thanks @straight-shoota)
+- _(ci)_ Ensure manpages are generated with no diff ([#594](https://github.com/crystal-lang/shards/pull/594), thanks @straight-shoota)
+- _(ci)_ Upgrade xcode version on circleci ([#603](https://github.com/crystal-lang/shards/pull/603), thanks @straight-shoota)
+- _(ci)_ Pin GHA runner versions ([#604](https://github.com/crystal-lang/shards/pull/604), thanks @straight-shoota)
+- _(ci)_ Pin `Analog-inc/asciidoctor-action` version ([#602](https://github.com/crystal-lang/shards/pull/602), thanks @straight-shoota)
 
 ## [0.17.3] (2023-04-07)
 
@@ -381,7 +381,7 @@
 
 ### Features
 
--  **(breaking-change)** Use `crystal:` property to filter candidates version. ([#395](https://github.com/crystal-lang/shards/pull/395), thanks @waj, @bcardiff)
+- **(breaking-change)** Use `crystal:` property to filter candidates version. ([#395](https://github.com/crystal-lang/shards/pull/395), thanks @waj, @bcardiff)
 - Introduce `shard.lock` 2.0 format, run `shards install` to migrate. ([#349](https://github.com/crystal-lang/shards/pull/349), [#400](https://github.com/crystal-lang/shards/pull/400), thanks @waj)
 - Support intersection in requirements `version: >= 1.0.0, < 2.0`. ([#394](https://github.com/crystal-lang/shards/pull/394), thanks @waj)
 - Install dependencies in reverse topological order. ([#369](https://github.com/crystal-lang/shards/pull/369), thanks @waj)
@@ -458,6 +458,7 @@
 [0.9.0.rc1]: https://github.com/crystal-lang/shards/releases/0.9.0.rc1
 
 Breaking changes:
+
 - Dependency solver was overhauled;
 - Git tag refs that match a version number are now an actual version (i.e.
   `tag: v1.0.0` is converted to `version: 1.0.0`).
@@ -468,10 +469,10 @@ Breaking changes:
   version if possible;
 - Add `--local` argument to use the cache as-is, allowing to skip git fetches
   when you know the cache is up-to-date;
-- Add the *outdated* command to list dependencies that could be updated
+- Add the _outdated_ command to list dependencies that could be updated
   (matching constraints) as well as their latest version; including pre-release
   versions on demand.
-- Add the *lock* command that behaves like the *install* and *update* commands
+- Add the _lock_ command that behaves like the _install_ and _update_ commands
   but that only creates a lockfile, and doesn't install anything.
 
 ### Fixes
@@ -485,6 +486,7 @@ Breaking changes:
 [0.9.0.beta]: https://github.com/crystal-lang/shards/releases/0.9.0.beta
 
 Breaking changes:
+
 - A `shard.yml` spec is now required in libraries.
 - Drop support for obsolete Projectfile.
 
@@ -575,6 +577,7 @@ Breaking changes:
 - Shorthand for gitlab.com dependencies
 
 Breaking Changes:
+
 - Dependencies are installed in the `lib` directory
 - Dependencies are now fully installed, instead of merely the `src` folder
 - `postinstall` scripts are now executed from the root of the dependency,
@@ -674,6 +677,7 @@ Breaking Changes:
 [0.5.0]: https://github.com/crystal-lang/shards/releases/0.5.0
 
 Breaking Change:
+
 - renamed `--no-colors` option as `--no-color` to match crystal
 
 ### Features
@@ -706,6 +710,7 @@ Breaking Change:
 - postintall hook to run a command after installing a dependency, see #19
 
 Breaking Changes:
+
 - dropped support for custom dependency groups (but kept `development_dependencies`), see #27
 
 ### Fixes
