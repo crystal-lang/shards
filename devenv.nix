@@ -22,6 +22,7 @@
   };
 
   git-hooks.hooks = {
+    actionlint.enable = true;
     check-toml.enable = true;
     check-vcs-permalinks.enable = true;
     crystal.enable = true;
@@ -38,5 +39,6 @@
         ".*\.zsh$"
       ];
     };
+    zizmor.enable = true;
   };
 }
