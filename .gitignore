@@ -1,17 +1,42 @@
+# Environment configuration
+/Makefile.local
+/Makefile.win.local
+.env
+.env.*
+.envrc
+.envrc.*
+
+# Shards cache
 /.crystal
 /.shards
-/bin/shards
-/bin/shards.dwarf
-/bin/shards.exe
-/bin/shards.pdb
+
+# Test artifacts
 /spec/.repositories
-/spec/.shards
 /spec/unit/.lib
-/tmp
+/spec/.shards
+
+# Build artifacts
+/bin/shards
+*.o
+*.ll
+*.s
+*.obj
+*.dwo
+*.dwarf
+*.pdb
+*.exe
 /docs/*.html
+/man/*.gz
+
+# CI
+/coverage/
+/tmp/
+/.junit/
+
 # Devenv
 .devenv*
 devenv.local.nix
+devenv.local.yaml
 
 # direnv
 .direnv
