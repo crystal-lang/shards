@@ -2,6 +2,10 @@
 
 *.cr text eol=lf
 
+## Sourced-in dependencies
+
+lib/** linguist-vendored
+
 ## Generated files
 
 # produced by `make manpages`
@@ -11,6 +15,10 @@ man/shard.yml.5 linguist-generated
 # produced by `make htmlpages`
 docs/shards.html linguist-generated
 docs/shard.yml.html linguist-generated
+
+# devenv
+.devenv.flake.nix -merge linguist-generated
+devenv.lock -merge linguist-generated
 
 ## Syntax highlighting
 
