@@ -682,19 +682,14 @@ describe "install" do
     end
   end
 
-  {% if flag?(:win32) %}
-    # Crystal bug in handling a failing subprocess
-    pending "prints details and removes dependency when postinstall script fails"
-  {% else %}
-    it "prints details and removes dependency when postinstall script fails" do
-      with_shard({dependencies: {fails: "*"}}) do
-        ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-        ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
-        ex.stdout.should contain("test -n ''\n")
-        Dir.exists?(install_path("fails")).should be_false
-      end
+  it "prints details and removes dependency when postinstall script fails" do
+    with_shard({dependencies: {fails: "*"}}) do
+      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
+      ex.stdout.should contain({% if flag?(:win32) %}"error message\n"{% else %}"test -n ''\n"{% end %})
+      Dir.exists?(install_path("fails")).should be_false
     end
-  {% end %}
+  end
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
