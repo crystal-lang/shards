@@ -79,7 +79,7 @@ private def setup_repositories
 
   create_git_repository "fails"
   {% if flag?(:win32) %}
-    create_executable "fails", "make", %(exit 1)
+    create_executable "fails", "make", %(STDERR.puts "error message"; exit 1)
   {% else %}
     create_file "fails", "Makefile", "all:\n\ttest -n ''\n"
   {% end %}
