@@ -216,7 +216,7 @@ module Shards
 
     protected def versions_from_tags
       capture("git tag --list #{GitResolver.git_column_never}")
-        .split('\n')
+        .lines
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 

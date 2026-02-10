@@ -214,7 +214,7 @@ module Shards
 
     protected def versions_from_tags
       capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
-        .split('\n')
+        .lines
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
 
@@ -250,7 +250,7 @@ module Shards
         shortShas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
 
         # We only want the lines with short artifact names
-        retLines = shortShas.strip.split('\n').flat_map do |line|
+        retLines = shortShas.lines.map do |line|
           /^.+ \[(.+)\].*/.match(line).try &.[1]
         end
 
@@ -264,7 +264,7 @@ module Shards
         /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
       else
         # Fossil v2.14 and newer support -F %H, so use that.
-        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").split('\n')[0]
+        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").lines[0]
       end
     end
 

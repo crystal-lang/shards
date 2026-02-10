@@ -48,7 +48,7 @@ module Shards
       io.puts "#{filename}: #{message}"
       io.puts
 
-      lines = input.split('\n')
+      lines = input.lines
       from = line_number - 3
       from = 0 if from < 0
 
