@@ -25,6 +25,7 @@
     actionlint.enable = true;
     check-toml.enable = true;
     check-vcs-permalinks.enable = true;
+    circleci.enable = true;
     crystal.enable = true;
     makefile_both = {
       enable = true;
