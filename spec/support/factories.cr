@@ -357,6 +357,12 @@ end
 private def resolve_command(command_line)
   command, *args = command_line
 
+  # Make sure we use local build for `shards` command in integration specs
+  case command
+  when "shards"
+    command = File.expand_path("../../bin/shards", __DIR__)
+  end
+
   {command, args}
 end
 
