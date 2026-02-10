@@ -278,11 +278,3 @@ end
 def install_path(*path_names)
   File.join(application_path, Shards::INSTALL_DIR, *path_names)
 end
-
-def debug(command)
-  run "#{command} --verbose"
-rescue ex : FailedCommand
-  puts
-  puts ex.stdout
-  puts ex.stderr
-end

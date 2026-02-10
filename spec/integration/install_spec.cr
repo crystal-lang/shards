@@ -175,7 +175,7 @@ describe "install" do
 
   it "install specific abbreviated commit" do
     metadata = {dependencies: {"web": {git: git_url(:web), commit: git_commits(:web)[2][0...5]}}}
-    with_shard(metadata) { debug "shards install" }
+    with_shard(metadata) { run "shards install" }
     assert_installed "web", "1.2.0", git: git_commits(:web)[2]
   end
 
