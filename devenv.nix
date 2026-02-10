@@ -12,7 +12,12 @@
     mercurial
   ];
 
-  languages.crystal.enable = true;
+  languages.crystal = {
+    enable = true;
+    # The Crystal language configuration uses `crystalline` as LSP, but the
+    # nix package seems to be temporarily broken.
+    lsp.enable = false;
+  };
 
   git-hooks.hooks = {
     shellcheck.enable = true;
