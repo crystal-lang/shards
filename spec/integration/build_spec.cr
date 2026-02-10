@@ -27,7 +27,7 @@ describe "build" do
 
   it "builds all targets" do
     Dir.cd(application_path) do
-      run "shards build --no-color"
+      capture %w[shards build --no-color]
 
       File.exists?(bin_path("app")).should be_true
       File.exists?(bin_path("alt")).should be_true
@@ -41,7 +41,7 @@ describe "build" do
 
   it "builds specified targets" do
     Dir.cd(application_path) do
-      run "shards build --no-color alt check"
+      capture %w[shards build --no-color alt check]
       File.exists?(bin_path("app")).should be_false
       File.exists?(bin_path("alt")).should be_true
       File.exists?(bin_path("check")).should be_true
@@ -51,7 +51,7 @@ describe "build" do
   it "fails to build unknown target" do
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) do
-        run "shards build --no-color app unknown check"
+        capture %w[shards build --no-color app unknown check]
       end
       ex.stdout.should contain("target unknown was not found")
       File.exists?(bin_path("app")).should be_true
@@ -64,7 +64,7 @@ describe "build" do
 
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) do
-        run "shards build --no-color app"
+        capture %w[shards build --no-color app]
       end
       ex.stdout.should contain("target app failed to compile")
       ex.stdout.should match(/unexpected token: "?.../)
@@ -81,8 +81,8 @@ describe "build" do
     CODE
 
     Dir.cd(application_path) do
-      err = run "shards build --no-color app", clear_env: true
-      err.should match(/eprecated/)
+      result = capture_result %w[shards build --no-color app], clear_env: true
+      result.stderr.should match(/eprecated/)
       File.exists?(bin_path("app")).should be_true
     end
   end
@@ -95,7 +95,7 @@ describe "build" do
 
     Dir.cd(application_path) do
       ex = expect_raises(FailedCommand) do
-        run "shards build --no-color"
+        capture %w[shards build --no-color]
       end
       ex.stdout.should contain("Targets not defined in shard.yml")
       File.exists?(bin_path("")).should be_false

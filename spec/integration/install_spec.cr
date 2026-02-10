@@ -8,7 +8,7 @@ describe "install" do
     }
 
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
 
       # it installed dependencies (recursively)
       assert_installed "web", "2.1.0"
@@ -44,14 +44,14 @@ describe "install" do
   it "resolves intersection" do
     metadata = {dependencies: {web: ">= 1.1.0, < 2.0"}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "1.2.0"
     end
   end
 
   it "fails when spec is missing" do
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("Missing #{Shards::SPEC_FILENAME}")
       ex.stdout.should contain("Please run 'shards init'")
     end
@@ -60,10 +60,10 @@ describe "install" do
   it "reinstall if info file is missing" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       File.delete "#{Shards::INSTALL_DIR}/.shards.info"
       File.touch "#{Shards::INSTALL_DIR}/web/foo.txt"
-      run "shards install"
+      capture %w[shards install]
       File.exists?("#{Shards::INSTALL_DIR}/web/foo.txt").should be_false
       assert_installed "web", "2.1.0"
     end
@@ -72,9 +72,9 @@ describe "install" do
   it "reinstall if info file is missing (path resolver)" do
     metadata = {dependencies: {web: {path: rel_path(:web)}}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       File.delete "#{Shards::INSTALL_DIR}/.shards.info"
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "2.1.0"
     end
   end
@@ -84,7 +84,7 @@ describe "install" do
     with_shard(metadata) do
       Dir.mkdir_p(Shards::INSTALL_DIR)
       File.touch("#{Shards::INSTALL_DIR}/web.sha1")
-      run "shards install"
+      capture %w[shards install]
       File.exists?("#{Shards::INSTALL_DIR}/web.sha1").should be_false
     end
   end
@@ -94,7 +94,7 @@ describe "install" do
       dependencies: {unstable: "*"},
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "unstable", "0.2.0"
       assert_locked "unstable", "0.2.0"
     end
@@ -105,7 +105,7 @@ describe "install" do
       dependencies: {unstable: "0.3.0.alpha"},
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "unstable", "0.3.0.alpha"
       assert_locked "unstable", "0.3.0.alpha"
     end
@@ -118,7 +118,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "unstable", "0.3.0.beta", git: git_commits(:unstable).first
     end
   end
@@ -131,7 +131,7 @@ describe "install" do
     lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "web", "1.0.0"
       assert_locked "web", "1.0.0"
@@ -146,7 +146,7 @@ describe "install" do
     lock = {minitest: "0.1.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "minitest", "0.1.0"
       assert_locked "minitest", "0.1.0"
     end
@@ -155,7 +155,7 @@ describe "install" do
     lock = {minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "minitest", "0.1.2"
       assert_locked "minitest", "0.1.2"
     end
@@ -163,19 +163,19 @@ describe "install" do
 
   it "resolves dependency at head when no version tags" do
     metadata = {dependencies: {"missing": "*"}}
-    with_shard(metadata) { run "shards install" }
+    with_shard(metadata) { capture %w[shards install] }
     assert_installed "missing", "0.1.0", git: git_commits(:missing).first
   end
 
   it "install specific commit" do
     metadata = {dependencies: {"web": {git: git_url(:web), commit: git_commits(:web)[2]}}}
-    with_shard(metadata) { run "shards install" }
+    with_shard(metadata) { capture %w[shards install] }
     assert_installed "web", "1.2.0", git: git_commits(:web)[2]
   end
 
   it "install specific abbreviated commit" do
     metadata = {dependencies: {"web": {git: git_url(:web), commit: git_commits(:web)[2][0...5]}}}
-    with_shard(metadata) { run "shards install" }
+    with_shard(metadata) { capture %w[shards install] }
     assert_installed "web", "1.2.0", git: git_commits(:web)[2]
   end
 
@@ -188,7 +188,7 @@ describe "install" do
     lock = {web: "1.2.0+git.commit.#{git_commits(:web)[-5]}"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
   end
@@ -200,7 +200,7 @@ describe "install" do
     lock = {web: "1.1.1+git.commit.#{git_commits(:web)[-3]}"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "1.1.1", git: git_commits(:web)[-3]
     end
   end
@@ -218,7 +218,7 @@ describe "install" do
     lock = {
       "locked": "0.1.0+git.commit.#{git_commits(:locked).last}",
     }
-    with_shard(metadata, lock) { run "shards install" }
+    with_shard(metadata, lock) { capture %w[shards install] }
 
     assert_installed "locked", "0.1.0", git: git_commits(:locked).last
     refute_installed "pg"
@@ -230,12 +230,12 @@ describe "install" do
     }
 
     with_shard(metadata, {web: "1.2.0+git.commit.#{git_commits(:web)[-5]}"}) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "1.2.0", git: git_commits(:web)[-5]
     end
 
     with_shard(metadata, {web: "2.1.0+git.commit.#{git_commits(:web)[0]}"}) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "2.1.0", git: git_commits(:web)[0]
     end
   end
@@ -250,7 +250,7 @@ describe "install" do
     expected_commit = git_commits(:web).first
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "web", "2.1.0", git: expected_commit
       assert_locked "web", "2.1.0+git.commit.#{expected_commit}"
     end
@@ -263,7 +263,7 @@ describe "install" do
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "web", "2.0.0"
       assert_locked "web", "2.0.0"
@@ -277,7 +277,7 @@ describe "install" do
     with_shard(metadata, lock) do
       assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-      output = run "shards install --no-color"
+      output = capture %w[shards install --no-color]
 
       assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
       assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
@@ -294,7 +294,7 @@ describe "install" do
       assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
       assert_locked "d", "0.1.0", source: {git: git_url(:d)}
 
-      output = run "shards install --no-color"
+      output = capture %w[shards install --no-color]
 
       assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
       assert_locked "d", "0.1.0", source: {git: git_url(:d)}
@@ -308,20 +308,20 @@ describe "install" do
   it "reinstall when resolver changes" do
     metadata = {dependencies: {web: {git: git_url(:web)}}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_locked "web", "2.1.0"
     end
 
     metadata = {dependencies: {web: {path: rel_path(:web)}}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_locked "web", "2.1.0", source: {path: rel_path(:web)}
       assert_installed "web", "2.1.0", source: {path: rel_path(:web)}
     end
 
     metadata = {dependencies: {web: {git: git_url(:web)}}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_locked "web", "2.1.0", source: {git: git_url(:web)}
       assert_installed "web", "2.1.0", source: {git: git_url(:web)}
     end
@@ -332,7 +332,7 @@ describe "install" do
     lock = {d: "0.1.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "c", "0.1.0"
       assert_installed "d", "0.1.0"
@@ -349,7 +349,7 @@ describe "install" do
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "web", "1.0.0"
       assert_locked "web", "1.0.0"
@@ -364,7 +364,7 @@ describe "install" do
     lock = {web: "1.0.0", orm: "0.5.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "web", "1.0.0"
       assert_locked "web", "1.0.0"
@@ -378,7 +378,7 @@ describe "install" do
     metadata = {dependencies: {web: {git: git_url(:web), branch: "master"}}}
 
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
   end
@@ -392,7 +392,7 @@ describe "install" do
         shards:  {web: {git: git_url(:web), commit: git_commits(:web).first}},
       })
 
-      run "shards install"
+      capture %w[shards install]
       Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
       assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
@@ -408,7 +408,7 @@ describe "install" do
         with_shard(metadata, lock) do
           assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-          ex = expect_raises(FailedCommand) { run "shards install --#{flag} --no-color" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
           ex.stderr.should be_empty
         end
@@ -418,7 +418,7 @@ describe "install" do
         metadata = {dependencies: {web: "*"}}
 
         with_shard(metadata) do
-          ex = expect_raises(FailedCommand) { run "shards install --#{flag} --no-color" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Missing shard.lock")
           ex.stderr.should be_empty
         end
@@ -431,7 +431,7 @@ describe "install" do
         with_shard(metadata, lock) do
           assert_locked "awesome", "0.1.0.git.commit.1234567890", source: {git: git_url(:awesome)}
 
-          ex = expect_raises(FailedCommand) { run "shards install --#{flag} --no-color" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Locked version 0.1.0.git.commit.1234567890 for awesome was not found in git: #{git_url(:awesome)}")
           ex.stdout.should contain("Please run `shards update`")
           ex.stderr.should be_empty
@@ -448,7 +448,7 @@ describe "install" do
         with_shard(metadata, lock) do
           assert_locked "awesome", "0.3.0", source: {git: git_url(:awesome)}
 
-          ex = expect_raises(FailedCommand) { run "shards install --#{flag} --no-color" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Locked version 0.3.0 for awesome was not found in git: #{git_url(:forked_awesome)} (locked source is git: #{git_url(:awesome)})")
           ex.stdout.should contain("Please run `shards update`")
           ex.stderr.should be_empty
@@ -460,7 +460,7 @@ describe "install" do
         lock = {web: "1.0.0"}
 
         with_shard(metadata, lock) do
-          ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock")
           ex.stderr.should be_empty
           refute_installed "web"
@@ -472,7 +472,7 @@ describe "install" do
         lock = {inprogress: "0.1.0+git.commit.#{git_commits(:inprogress).first}"}
 
         with_shard(metadata, lock) do
-          ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock")
           refute_installed "inprogress"
         end
@@ -488,7 +488,7 @@ describe "install" do
         lock = {web: "1.0.0"}
 
         with_shard(metadata, lock) do
-          ex = expect_raises(FailedCommand) { run "shards install --#{flag} --no-color" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock")
           ex.stderr.should be_empty
         end
@@ -499,7 +499,7 @@ describe "install" do
         lock = {web: "1.0.0"}
 
         with_shard(metadata, lock) do
-          run "shards install --#{flag}"
+          capture %w[shards install] << "--#{flag}"
           assert_installed "web", "1.0.0"
         end
       end
@@ -510,7 +510,7 @@ describe "install" do
         lock = {web: web_version}
 
         with_shard(metadata, lock) do
-          run "shards install --#{flag}"
+          capture %w[shards install] << "--#{flag}"
           assert_installed "web", "2.1.0", git: git_commits(:web).first
         end
       end
@@ -520,7 +520,7 @@ describe "install" do
 
         with_shard(metadata) do
           File.write "shard.lock", {version: "1.0", shards: {web: {git: git_url(:web), commit: git_commits(:web).first}}}
-          run "shards install --#{flag}"
+          capture %w[shards install] << "--#{flag}"
           assert_installed "web", "2.1.0", git: git_commits(:web).first
         end
       end
@@ -536,7 +536,7 @@ describe "install" do
         expected_commit = git_commits(:forked_awesome).first
 
         with_shard(metadata, lock, override) do
-          ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock")
           ex.stderr.should be_empty
           refute_installed "awesome"
@@ -554,7 +554,7 @@ describe "install" do
         expected_commit = git_commits(:forked_awesome).first
 
         with_shard(metadata, lock, override) do
-          ex = expect_raises(FailedCommand) { run "shards install --no-color --#{flag}" }
+          ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] << "--#{flag}" }
           ex.stdout.should contain("Outdated shard.lock")
           ex.stderr.should be_empty
           refute_installed "awesome"
@@ -572,7 +572,7 @@ describe "install" do
 
       with_shard(metadata) do
         File.exists?(File.join(application_path, "shard.lock")).should be_false
-        run "shards install --without-development"
+        capture %w[shards install --without-development]
 
         # it installed dependencies (recursively)
         assert_installed "web"
@@ -597,7 +597,7 @@ describe "install" do
       lock = {web: "1.0.0", orm: "0.3.0"}
 
       with_shard(metadata, lock) do
-        run "shards install --production"
+        capture %w[shards install --production]
 
         # it installed dependencies (recursively)
         assert_installed "web"
@@ -612,7 +612,7 @@ describe "install" do
 
   it "generates lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
-      run "shards install"
+      capture %w[shards install]
 
       lockfile = File.join(application_path, "shard.lock")
       File.exists?(lockfile).should be_true
@@ -628,10 +628,10 @@ describe "install" do
     metadata = {dependencies: {d: "*", c: "*"}}
 
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       File.touch "shard.lock", Time.utc(1901, 12, 14)
       mtime = File.info("shard.lock").modification_time
-      run "shards install"
+      capture %w[shards install]
       File.info("shard.lock").modification_time.should be >= mtime
     end
   end
@@ -641,7 +641,7 @@ describe "install" do
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
 
       refute_installed "web"
       refute_locked "web"
@@ -650,9 +650,9 @@ describe "install" do
 
   it "updates lockfile when there are no dependencies" do
     with_shard({name: "empty"}) do
-      run "shards install"
+      capture %w[shards install]
       mtime = File.info("shard.lock").modification_time
-      run "shards install"
+      capture %w[shards install]
       File.info("shard.lock").modification_time.should be >= mtime
       Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
     end
@@ -661,14 +661,14 @@ describe "install" do
   it "creates ./lib/ when there are no dependencies" do
     with_shard({name: "empty"}) do
       File.exists?("./lib/").should be_false
-      run "shards install"
+      capture %w[shards install]
       File.directory?("./lib/").should be_true
     end
   end
 
   it "runs postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
-      output = run "shards install --no-color"
+      output = capture %w[shards install --no-color]
       File.exists?(install_path("post", "made.txt")).should be_true
       output.should contain("Postinstall of post: make\n")
     end
@@ -676,7 +676,7 @@ describe "install" do
 
   it "can skip postinstall script" do
     with_shard({dependencies: {post: "*"}}) do
-      output = run "shards install --no-color --skip-postinstall"
+      output = capture %w[shards install --no-color --skip-postinstall]
       File.exists?(install_path("post", "made.txt")).should be_false
       output.should contain("Postinstall of post: make (skipped)")
     end
@@ -684,7 +684,7 @@ describe "install" do
 
   it "prints details and removes dependency when postinstall script fails" do
     with_shard({dependencies: {fails: "*"}}) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
       ex.stdout.should contain({% if flag?(:win32) %}"error message\n"{% else %}"test -n ''\n"{% end %})
       Dir.exists?(install_path("fails")).should be_false
@@ -693,7 +693,7 @@ describe "install" do
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}) do
-      run "shards install"
+      capture %w[shards install]
       binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_true
       `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
@@ -702,7 +702,7 @@ describe "install" do
 
   it "runs install and postinstall in reverse topological order" do
     with_shard({dependencies: {transitive_2: "*"}}) do
-      output = run "shards install --no-color"
+      output = capture %w[shards install --no-color]
       install_lines = output.lines.select /^\w: (Installing|Postinstall)/
       install_lines[0].should match(/Installing version /)
       install_lines[1].should match(/Installing transitive /)
@@ -719,7 +719,7 @@ describe "install" do
     create_git_release "b", "0.1.0", {dependencies: {a: {git: git_path("a")}}}
 
     with_shard({dependencies: {a: "*"}}) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("There is a circular dependency between a and b")
     end
   end
@@ -731,7 +731,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("Error shard name (mock) doesn't match dependency name (typo)")
     end
   end
@@ -743,7 +743,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      stdout = run "shards install --no-color"
+      stdout = capture %w[shards install --no-color]
       stdout.should contain("W: Shard \"version_mismatch\" version (0.1.0) doesn't match tag version (0.2.0)")
       assert_installed "version_mismatch"
     end
@@ -756,7 +756,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      stdout = run "shards install --no-color"
+      stdout = capture %w[shards install --no-color]
       stdout.should_not contain("doesn't match tag version")
       assert_installed "version_mismatch", "0.2.1"
     end
@@ -769,7 +769,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "old_name", "0.1.0"
     end
   end
@@ -781,7 +781,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "new_name", "0.2.0"
     end
   end
@@ -793,7 +793,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("Error shard name (old_name) doesn't match dependency name (new_name)")
     end
   end
@@ -805,7 +805,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("Error shard name (new_name) doesn't match dependency name (old_name)")
     end
   end
@@ -817,7 +817,7 @@ describe "install" do
       },
     }
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "another_name", "0.3.0", git: git_commits(:renamed).first
     end
   end
@@ -826,7 +826,7 @@ describe "install" do
     metadata = {
       dependencies: {binary: "0.1.0"},
     }
-    with_shard(metadata) { run("shards install --no-color") }
+    with_shard(metadata) { capture %w[shards install --no-color] }
 
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
@@ -848,7 +848,7 @@ describe "install" do
       dependencies: {"executable_missing": "*"},
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain <<-ERROR
         E: Could not find executable "nonexistent" for "executable_missing"
         ERROR
@@ -859,7 +859,7 @@ describe "install" do
     metadata = {
       dependencies: {binary: "0.1.0"},
     }
-    with_shard(metadata) { run("shards install --no-color --skip-executables") }
+    with_shard(metadata) { capture %w[shards install --no-color --skip-executables] }
 
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
@@ -876,7 +876,7 @@ describe "install" do
         binary: {git: git_url(:binary), commit: git_commits(:binary)[-1]},
       },
     }
-    with_shard(metadata) { run("shards install --no-color") }
+    with_shard(metadata) { capture %w[shards install --no-color] }
 
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
@@ -896,7 +896,7 @@ describe "install" do
     }
 
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain <<-ERROR
         E: Unable to satisfy the following requirements:
 
@@ -909,7 +909,7 @@ describe "install" do
   it "installs dependency with shard.yml created in latest version" do
     metadata = {dependencies: {noshardyml: "*"}}
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "noshardyml", "0.2.0"
     end
   end
@@ -918,7 +918,7 @@ describe "install" do
     it "git" do
       metadata = {dependencies: {noshardyml: "*"}}
       with_shard(metadata) do
-        stdout = run "shards install --no-color -v"
+        stdout = capture %w[shards install --no-color -v]
         assert_installed "noshardyml", "0.2.0"
         stdout.should contain(%(D: [noshardyml] git ls-tree -r --full-tree --name-only refs/tags/v0.1.0 -- shard.yml))
         stdout.should contain(%(D: [noshardyml] Missing "shard.yml" for "noshardyml" at tag v0.1.0))
@@ -928,7 +928,7 @@ describe "install" do
     it "path" do
       metadata = {dependencies: {reallynoshardyml: {path: rel_path("reallynoshardyml")}}}
       with_shard(metadata) do
-        ex = expect_raises(FailedCommand) { run "shards install --no-color -v" }
+        ex = expect_raises(FailedCommand) { capture %w[shards install --no-color -v] }
         ex.stdout.should contain(%(E: Missing "shard.yml" for "reallynoshardyml" at #{File.expand_path(rel_path("reallynoshardyml")).inspect}))
       end
     end
@@ -937,7 +937,7 @@ describe "install" do
   it "expands path and shows in debug info if missing" do
     metadata = {dependencies: {nonexistent: {path: "~/nonexistent-path"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color -v" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color -v] }
       ex.stdout.should contain(%(E: Failed no such path: #{Path.home.join("nonexistent-path")}))
     end
   end
@@ -945,7 +945,7 @@ describe "install" do
   it "install dependency with no shard.yml and show warning" do
     metadata = {dependencies: {noshardyml: "0.1.0"}}
     with_shard(metadata) do
-      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "0.34.0"}
+      stdout = capture %w[shards install --no-color], env: {"CRYSTAL_VERSION" => "0.34.0"}
       assert_installed "noshardyml", "0.1.0"
       stdout.should contain(%(W: Shard "noshardyml" version (0.1.0) doesn't have a shard.yml file))
     end
@@ -954,7 +954,7 @@ describe "install" do
   it "shows error when branch does not exist" do
     metadata = {dependencies: {web: {git: git_url(:web), branch: "foo"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain(%(E: Could not find branch foo for shard "web" in the repository #{git_url(:web)}))
     end
   end
@@ -962,7 +962,7 @@ describe "install" do
   it "shows error when tag does not exist" do
     metadata = {dependencies: {web: {git: git_url(:web), tag: "foo"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain(%(E: Could not find tag foo for shard "web" in the repository #{git_url(:web)}))
     end
   end
@@ -970,7 +970,7 @@ describe "install" do
   it "shows error when commit does not exist" do
     metadata = {dependencies: {web: {git: git_url(:web), commit: "f8f67cc67d6bd3479811825a49a16260a8c767a3"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain(%(E: Could not find commit f8f67cc67d6bd3479811825a49a16260a8c767a3 for shard "web" in the repository #{git_url(:web)}))
     end
   end
@@ -978,7 +978,7 @@ describe "install" do
   it "shows error when installing by ref and shard.yml doesn't exist" do
     metadata = {dependencies: {noshardyml: {git: git_url(:noshardyml), tag: "v0.1.0"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain(%(E: No shard.yml was found for shard "noshardyml" at commit #{git_commits(:noshardyml)[1]}))
     end
   end
@@ -986,7 +986,7 @@ describe "install" do
   it "shows error when installing by ref and spec is invalid" do
     metadata = {dependencies: {invalidspec: {git: git_url(:invalidspec), tag: "v0.1.0"}}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain(%(E: Invalid shard.yml for shard "invalidspec" at commit #{git_commits(:invalidspec)[0]}: Expected SCALAR but was SEQUENCE_START at line 5, column 1))
     end
   end
@@ -994,7 +994,7 @@ describe "install" do
   it "install latest version despite current crystal being older version, but warn" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "0.3.0"}
+      stdout = capture %w[shards install --no-color], env: {"CRYSTAL_VERSION" => "0.3.0"}
       assert_installed "incompatible", "1.0.0"
       stdout.should contain(%(W: Shard "incompatible" may be incompatible with Crystal 0.3.0))
     end
@@ -1003,7 +1003,7 @@ describe "install" do
   it "install latest version despite current crystal being newer version, but warn" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      stdout = run "shards install --no-color", env: {"CRYSTAL_VERSION" => "2.0.0"}
+      stdout = capture %w[shards install --no-color], env: {"CRYSTAL_VERSION" => "2.0.0"}
       assert_installed "incompatible", "1.0.0"
       stdout.should contain(%(W: Shard "incompatible" may be incompatible with Crystal 2.0.0))
     end
@@ -1012,7 +1012,7 @@ describe "install" do
   it "does match crystal prerelease" do
     metadata = {dependencies: {incompatible: "*"}}
     with_shard(metadata) do
-      run "shards install", env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
+      capture %w[shards install], env: {"CRYSTAL_VERSION" => "1.0.0-pre1"}
       assert_installed "incompatible", "1.0.0"
     end
   end
@@ -1023,7 +1023,7 @@ describe "install" do
       awesome:      {git: git_url(:forked_awesome)},
     }}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color] }
       ex.stdout.should contain("Error shard name (awesome) has ambiguous sources")
     end
   end
@@ -1036,7 +1036,7 @@ describe "install" do
       awesome: {path: git_path(:forked_awesome)},
     }}
     with_shard(metadata, nil, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
       assert_locked "awesome", "0.2.0", source: {path: git_path(:forked_awesome)}
@@ -1053,7 +1053,7 @@ describe "install" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, nil, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -1071,7 +1071,7 @@ describe "install" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -1093,7 +1093,7 @@ describe "install" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -1114,7 +1114,7 @@ describe "install" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
@@ -1131,7 +1131,7 @@ describe "install" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
@@ -1150,7 +1150,7 @@ describe "install" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -1176,7 +1176,7 @@ describe "install" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
@@ -1199,7 +1199,7 @@ describe "install" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards install"
+      capture %w[shards install]
 
       assert_installed "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{locked_commit}", source: {git: git_url(:forked_awesome)}
@@ -1219,7 +1219,7 @@ describe "install" do
     with_shard(metadata, nil, ignored_override) do
       File.write "shard.ci.yml", to_override_yaml(ci_override)
 
-      run "shards install", env: {"SHARDS_OVERRIDE" => "shard.ci.yml"}
+      capture %w[shards install], env: {"SHARDS_OVERRIDE" => "shard.ci.yml"}
 
       assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
@@ -1230,7 +1230,7 @@ describe "install" do
     with_shard({dependencies: nil}) do
       File.write "shard.override.yml", ""
 
-      run "shards install"
+      capture %w[shards install]
     end
   end
 
@@ -1243,7 +1243,7 @@ describe "install" do
     }}
     with_shard(metadata, nil, ignored_override) do
       ex = expect_raises(FailedCommand) do
-        run "shards install --no-color", env: {"SHARDS_OVERRIDE" => "shard.missing.yml"}
+        capture %w[shards install --no-color], env: {"SHARDS_OVERRIDE" => "shard.missing.yml"}
       end
       ex.stdout.should contain("Missing shard.missing.yml")
     end
@@ -1255,10 +1255,10 @@ describe "install" do
         web: "*",
       }}
       with_shard(metadata) do
-        run "shards install"
+        capture %w[shards install]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
-        run "shards install"
+        capture %w[shards install]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
@@ -1269,9 +1269,9 @@ describe "install" do
         web: "*",
       }}
       with_shard(metadata) do
-        run "shards install"
+        capture %w[shards install]
         File.touch("shard.yml")
-        run "shards install"
+        capture %w[shards install]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
@@ -1281,7 +1281,7 @@ describe "install" do
   it "fails when git is missing" do
     metadata = {dependencies: {web: "*"}}
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color", env: {"PATH" => File.expand_path("../../bin", __DIR__), "SHARDS_CACHE_PATH" => ""} }
+      ex = expect_raises(FailedCommand) { capture %w[shards install --no-color], env: {"PATH" => File.expand_path("../../bin", __DIR__), "SHARDS_CACHE_PATH" => ""} }
       ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end

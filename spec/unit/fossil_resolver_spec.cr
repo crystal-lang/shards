@@ -118,7 +118,7 @@ module Shards
 
       # Change the origin in the cache repo to https://foss.heptapod.net/foo/bar
       Dir.cd(library.local_path) do
-        run "fossil remote-url -R #{library.name}.fossil https://foss.heptapod.net/foo/bar"
+        capture %w[fossil remote-url -R] << "#{library.name}.fossil" << "https://foss.heptapod.net/foo/bar"
       end
 
       # All of these alternatives should not trigger origin as changed

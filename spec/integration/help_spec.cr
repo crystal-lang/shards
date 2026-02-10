@@ -10,12 +10,12 @@ describe "--help" do
     }
 
     [
-      "shards --help",
-      "shards --local --help",
-      "shards update --help",
+      %w[shards --help],
+      %w[shards --local --help],
+      %w[shards update --help],
     ].each do |command|
       with_shard(metadata) do
-        output = run command
+        output = capture command
 
         # it printed the help message
         output.should contain("Commands:")
