@@ -62,7 +62,7 @@ module Molinillo
       # Ensures any raised {NoSuchDependencyError} has its
       # {NoSuchDependencyError#required_by} set.
       # @yield
-      private def with_no_such_dependency_error_handling
+      private def with_no_such_dependency_error_handling(&)
         yield
       rescue error : NoSuchDependencyError
         if state
