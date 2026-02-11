@@ -151,7 +151,7 @@ module Shards
       ref = fossil_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("fossil cat -R #{Process.quote(local_fossil_file)} #{Process.quote(SPEC_FILENAME)} -r #{Process.quote(ref.to_fossil_ref)}")
+        capture(%w[fossil cat -R] << local_fossil_file << SPEC_FILENAME << "-r" << ref.to_fossil_ref)
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -161,11 +161,11 @@ module Shards
     private def spec_at_ref(ref : FossilRef, commit) : Spec
       update_local_cache
 
-      unless capture("fossil ls -R #{Process.quote(local_fossil_file)} -r #{Process.quote(ref.to_fossil_ref)} #{Process.quote(SPEC_FILENAME)}").strip == SPEC_FILENAME
+      unless capture(%w[fossil ls -R] << local_fossil_file << "-r" << ref.to_fossil_ref << SPEC_FILENAME).strip == SPEC_FILENAME
         raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
       end
 
-      spec_yaml = capture("fossil cat -R #{Process.quote(local_fossil_file)} #{Process.quote(SPEC_FILENAME)} -r #{Process.quote(ref.to_fossil_ref)}")
+      spec_yaml = capture(%w[fossil cat -R] << local_fossil_file << SPEC_FILENAME << "-r" << ref.to_fossil_ref)
       begin
         Spec.from_yaml(spec_yaml)
       rescue error : Error
@@ -213,7 +213,7 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("fossil tag list -R #{Process.quote(local_fossil_file)}")
+      capture(%w[fossil tag list -R] << local_fossil_file)
         .lines
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
@@ -232,9 +232,9 @@ module Shards
       if FossilResolver.fossil_version_maj <= 2 &&
          FossilResolver.fossil_version_min < 12
         Log.debug { "Opening Fossil repo #{local_fossil_file} in directory #{install_path}" }
-        run("fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)} --nested", install_path)
+        run(%w[fossil open] << local_fossil_file << ref.to_fossil_ref << "--nested", chdir: install_path)
       else
-        run "fossil open #{local_fossil_file} #{Process.quote(ref.to_fossil_ref)}  --nested --workdir #{install_path}"
+        run(%w[fossil open] << local_fossil_file << ref.to_fossil_ref << "--nested" << "--workdir" << install_path)
       end
     end
 
@@ -247,24 +247,22 @@ module Shards
         # -W 0  = unlimited line width
         # -n 1  = limit results to one entry
         # -t ci = Display only checkins on the timeline
-        shortShas = capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -W 0 -n 1 -R #{Process.quote(local_fossil_file)}")
+        shortShas = capture(%w[fossil timeline] << ref.to_fossil_ref << "-t" << "ci" << "-W" << "0" << "-n" << "1" << "-R" << local_fossil_file)
 
         # We only want the lines with short artifact names
-        retLines = shortShas.lines.map do |line|
+        retLines = shortShas.lines.compact_map do |line|
           /^.+ \[(.+)\].*/.match(line).try &.[1]
         end
 
-        # Remove empty results
-        retLines.reject! &.nil?
         return "" if retLines.empty?
 
         # Call the whatis command so we can properly expand the short artifact
         # name to the full artifact hash.
-        whatis = capture("fossil whatis #{retLines[0]} -R #{Process.quote(local_fossil_file)}")
+        whatis = capture(%w[fossil whatis] << retLines[0] << "-R" << local_fossil_file)
         /artifact:\s+(.+)/.match(whatis).try &.[1] || ""
       else
         # Fossil v2.14 and newer support -F %H, so use that.
-        capture("fossil timeline #{Process.quote(ref.to_fossil_ref)} -t ci -F %H -n 1 -R #{Process.quote(local_fossil_file)}").lines[0]
+        capture(%w[fossil timeline] << ref.to_fossil_ref << "-t" << "ci" << "-F" << "%H" << "-n" << "1" << "-R" << local_fossil_file).lines[0]
       end
     end
 
@@ -370,13 +368,13 @@ module Shards
       source = source.lchop("file://")
 
       fossil_retry(err: "Failed to clone #{source}") do
-        run_in_current_folder "fossil clone #{Process.quote(source)} #{Process.quote(fossil_file)}"
+        run %w[fossil clone] << source << fossil_file, chdir: nil
       end
     end
 
     private def fetch_repository
       fossil_retry(err: "Failed to update #{fossil_url}") do
-        run "fossil pull -R #{Process.quote(local_fossil_file)}"
+        run %w[fossil pull -R] << local_fossil_file
       end
     end
 
@@ -396,7 +394,7 @@ module Shards
     private def delete_repository
       Log.debug { "rm -rf #{Process.quote(local_path)}'" }
       Shards::Helpers.rm_rf(local_path)
-      Log.debug { "rm -rf #{Process.quote(local_fossil_file)}'" }
+      Log.debug { "rm -rf << local_fossil_file'" }
       Shards::Helpers.rm_rf(local_fossil_file)
       @origin_url = nil
     end
@@ -413,7 +411,7 @@ module Shards
     end
 
     protected def origin_url
-      @origin_url ||= capture("fossil remote-url -R #{Process.quote(local_fossil_file)}").strip
+      @origin_url ||= capture(%w[fossil remote-url -R] << local_fossil_file).strip
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -454,41 +452,13 @@ module Shards
     end
 
     private def file_exists?(ref : FossilRef, path)
-      files = capture("fossil ls -R #{Process.quote(local_fossil_file)} -r #{Process.quote(ref.to_fossil_ref)} #{Process.quote(path)}")
+      files = capture(%w[fossil ls -R] << local_fossil_file << "-r" << ref.to_fossil_ref << path)
       !files.strip.empty?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
-    end
-
-    private def run(command, path = local_path, capture = false)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path, ".fossil")
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture)
-      end
-    end
-
-    private def run_in_current_folder(command, capture = false)
+    private def check_command_exists
       unless FossilResolver.has_fossil_command?
         raise Error.new("Error missing fossil command line tool. Please install Fossil first!")
-      end
-
-      Log.debug { command }
-
-      STDERR.flush
-      output = capture ? IO::Memory.new : Process::Redirect::Close
-      error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error)
-
-      if status.success?
-        output.to_s if capture
-      else
-        message = error.to_s
-        raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
       end
     end
 
