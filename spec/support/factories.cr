@@ -275,7 +275,7 @@ end
 
 def git_commits(project, rev = "HEAD")
   Dir.cd(git_path(project)) do
-    run("git log --format=%H #{Process.quote(rev)}").strip.split('\n')
+    run("git log --format=%H #{Process.quote(rev)}").lines
   end
 end
 
@@ -289,7 +289,7 @@ end
 
 def hg_commits(project, rev = ".")
   Dir.cd(hg_path(project)) do
-    run("hg log --template=#{Process.quote("{node}\n")} -r #{Process.quote(rev)}").strip.split('\n')
+    run("hg log --template=#{Process.quote("{node}\n")} -r #{Process.quote(rev)}").lines
   end
 end
 
@@ -306,7 +306,7 @@ def fossil_commits(project, rev = "trunk")
   # using an old Fossil version.  See the #commit_sha1_at method in
   # src/resolvers/fossil.cr for info.
   Dir.cd(fossil_path(project)) do
-    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").strip.split('\n')
+    retStr = run("fossil timeline #{Process.quote(rev)} -t ci -W 0").lines
     retLines = retStr.flat_map do |line|
       /^.+ \[(.+)\].*/.match(line).try &.[1]
     end
