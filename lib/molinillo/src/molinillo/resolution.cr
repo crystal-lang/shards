@@ -131,10 +131,10 @@ module Molinillo
         #    non-primary unwinds
         def sub_dependencies_to_avoid
           @requirements_to_avoid ||=
-            requirement_trees.map do |tree|
+            requirement_trees.compact_map do |tree|
               index = tree.index(state_requirement)
               tree[index + 1] if index
-            end.compact
+            end
         end
 
         @all_requirements : Array(R)?
@@ -228,11 +228,16 @@ module Molinillo
 
       private def resolve_activated_specs
         activated.vertices.each do |_, vertex|
-          next unless payload = vertex.payload
+          next unless vertex.payload
 
-          latest_version = check_possibility_set(vertex).possibilities.reverse_each.find do |possibility|
-            vertex.requirements.all? { |req| requirement_satisfied_by?(req, activated, possibility) }
-          end
+          latest_version = check_possibility_set(vertex)
+            .possibilities
+            .reverse_each
+            .find do |possibility|
+              vertex.requirements.all? do |req|
+                requirement_satisfied_by?(req, activated, possibility)
+              end
+            end
 
           activated.set_payload(vertex.name, latest_version)
         end
@@ -324,7 +329,7 @@ module Molinillo
       private def raise_error_unless_state(conflicts)
         return if state
 
-        error = conflicts.values.map(&.underlying_error).compact.first?
+        error = conflicts.values.compact_map(&.underlying_error).first?
         raise error || VersionConflict(R, S).new(conflicts, specification_provider)
       end
 
@@ -498,7 +503,7 @@ module Molinillo
         unwinds_to_state = unused_unwind_options.select { |uw| uw.state_index == unwind_details.state_index }
         unwinds_to_state << unwind_details
 
-        primary_unwinds = unwinds_to_state.select(&.unwinding_to_primary_requirement?).uniq
+        primary_unwinds = unwinds_to_state.select(&.unwinding_to_primary_requirement?).uniq!
         parent_unwinds = unwinds_to_state.uniq - primary_unwinds
 
         allowed_possibility_sets = primary_unwinds.flat_map do |unwind|
@@ -523,7 +528,7 @@ module Molinillo
       private def binding_requirements_for_conflict(conflict)
         return [conflict.requirement] if conflict.possibility.nil?
 
-        possible_binding_requirements = conflict.requirements.values.flatten.uniq
+        possible_binding_requirements = conflict.requirements.values.flatten.uniq!
 
         # When there’s a `CircularDependency` error the conflicting requirement
         # (the one causing the circular) won’t be `conflict.requirement`
@@ -669,7 +674,7 @@ module Molinillo
       # @param [Integer] depth the depth of the {#states} stack
       # @param [Proc] block a block that yields a {#to_s}
       # @return [void]
-      private def debug(depth = 0)
+      private def debug(depth = 0, &)
         resolver_ui.debug(depth) { yield }
       end
 

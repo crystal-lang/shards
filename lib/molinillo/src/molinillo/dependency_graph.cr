@@ -7,7 +7,7 @@ require "./dependency_graph/vertex"
 class Molinillo::DependencyGraph(P, R)
   # Enumerates through the vertices of the graph.
   # @return [Array<Vertex>] The graph's vertices.
-  def each
+  def each(&)
     # return vertices.values.each unless block_given?
     vertices.values.each { |v| yield v }
   end

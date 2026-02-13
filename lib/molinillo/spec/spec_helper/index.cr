@@ -18,7 +18,7 @@ module Molinillo
         lines = File.read_lines(FIXTURE_INDEX_DIR / (fixture_name + ".json"))
         lines = lines.map { |line| line.partition("//")[0] }
         Hash(String, Array(TestSpecification)).from_json(lines.join '\n').tap do |all_specs|
-          all_specs.each do |name, specs|
+          all_specs.each do |_name, specs|
             specs.sort! { |a, b| Shards::Versions.compare(b.version, a.version) }
           end
         end

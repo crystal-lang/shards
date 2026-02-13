@@ -24,7 +24,7 @@ end
 
 describe Molinillo::DependencyGraph::Log do
   describe "with empty log" do
-    shared_examples_for_replay ->(g : DG) {}
+    shared_examples_for_replay ->(_g : DG) { }
   end
 
   describe "with some graph" do

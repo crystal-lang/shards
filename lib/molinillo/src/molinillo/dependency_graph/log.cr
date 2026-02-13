@@ -50,7 +50,7 @@ class Molinillo::DependencyGraph::Log(P, R)
 
   # Enumerates each action in the log
   # @yield [Action]
-  def each
+  def each(&)
     action = @first_action
     loop do
       break unless action
