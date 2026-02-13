@@ -149,6 +149,9 @@ module Shards
         if stderr.starts_with?("error: ") && (idx = stderr.index('\n'))
           message = stderr[7...idx]
           raise Error.new("Failed #{command.join(" ")} (#{message}). Maybe a commit, branch or file doesn't exist?")
+        elsif stderr.starts_with?("abort: ") && (idx = stderr.index('\n'))
+          message = stderr[7...idx]
+          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
         else
           raise Error.new("Failed #{command.join(" ")}.\n#{stderr}")
         end
