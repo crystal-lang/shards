@@ -1,14 +1,5 @@
 require "../../src/ext/capture"
 
-class FailedCommand < Exception
-  getter stdout : String
-  getter stderr : String
-
-  def initialize(message, @stdout, @stderr)
-    super "#{message}: #{stdout} -- #{stderr}"
-  end
-end
-
 def create_path_repository(project, version = nil)
   Dir.mkdir_p(File.join(git_path(project), "src"))
   File.write(File.join(git_path(project), "src", "#{project}.cr"), "module #{project.capitalize}\nend")
@@ -373,10 +364,5 @@ def capture_result(command_line : Enumerable(String), *, env = nil, clear_env = 
 end
 
 def capture(command_line : Enumerable(String), *, env = nil, clear_env = false, input = Process::Redirect::Close)
-  result = capture_result(command_line, env: env, clear_env: clear_env, input: input)
-  if result.status.success?
-    result.stdout
-  else
-    raise FailedCommand.new("command failed: #{command_line.join(" ").inspect}", result.stdout, result.stderr || "")
-  end
+  Process.capture(*resolve_command(command_line), env: env, clear_env: clear_env, input: input).gsub("\r\n", "\n")
 end

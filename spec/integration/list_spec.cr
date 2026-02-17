@@ -75,8 +75,8 @@ describe "list" do
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { capture %w[shards list --no-color] }
-      ex.stdout.should contain("Dependencies aren't satisfied. Install them with 'shards install'")
+      result = expect_failure(capture_result %w[shards list --no-color])
+      result.stdout.should contain("Dependencies aren't satisfied. Install them with 'shards install'")
     end
   end
 

@@ -28,9 +28,7 @@ describe "version" do
   end
 
   it "fails version" do
-    expect_raises(FailedCommand) do
-      root = File.expand_path("/", Dir.current)
-      capture ["shards", "version", root]
-    end
+    root = File.expand_path("/", Dir.current)
+    result = expect_failure(capture_result ["shards", "version", root])
   end
 end

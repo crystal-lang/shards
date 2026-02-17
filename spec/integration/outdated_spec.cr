@@ -77,8 +77,8 @@ describe "outdated" do
     end
 
     with_shard({dependencies: {awesome: {git: git_url(:forked_awesome)}}}) do
-      ex = expect_raises(FailedCommand) { capture %w[shards outdated --no-color] }
-      ex.stdout.should contain("Outdated shard.lock (awesome source changed)")
+      result = expect_failure(capture_result %w[shards outdated --no-color])
+      result.stdout.should contain("Outdated shard.lock (awesome source changed)")
     end
   end
 
@@ -88,8 +88,8 @@ describe "outdated" do
     end
 
     with_shard({dependencies: {awesome: "0.2.0"}}) do
-      ex = expect_raises(FailedCommand) { capture %w[shards outdated --no-color] }
-      ex.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
+      result = expect_failure(capture_result %w[shards outdated --no-color])
+      result.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
     end
   end
 
@@ -103,8 +103,8 @@ describe "outdated" do
     override = {dependencies: {awesome: "0.2.0"}}
 
     with_shard(metadata, nil, override) do
-      ex = expect_raises(FailedCommand) { capture %w[shards outdated --no-color] }
-      ex.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
+      result = expect_failure(capture_result %w[shards outdated --no-color])
+      result.stdout.should contain("Outdated shard.lock (awesome requirements changed)")
     end
   end
 

@@ -67,3 +67,13 @@ class Process
     result.stdout
   end
 end
+
+def expect_failure(result : Process::Result)
+  result.status.success?.should be_false, failure_message: "Expected process status to be failure: #{result}"
+  result
+end
+
+def expect_success(result : Process::Result)
+  result.status.success?.should be_true, failure_message: "Expected process status to be success: #{result}"
+  result
+end
