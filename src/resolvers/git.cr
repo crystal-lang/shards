@@ -138,13 +138,13 @@ module Shards
 
     protected def self.has_git_command?
       if @@has_git_command.nil?
-        @@has_git_command = (Process.run("git", ["--version"]).success? rescue false)
+        @@has_git_command = Process.run("git", %w[--version]).success? rescue nil
       end
       @@has_git_command
     end
 
     protected def self.git_version
-      @@git_version ||= `git --version`.strip[12..-1]
+      @@git_version ||= Process.capture("git", %w[--version]).strip[12..-1]
     end
 
     protected def self.git_column_never
@@ -156,7 +156,7 @@ module Shards
       ref = git_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
+        capture %w[git show] << "#{ref.to_git_ref}:#{SPEC_FILENAME}"
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -170,7 +170,7 @@ module Shards
         raise Error.new "No #{SPEC_FILENAME} was found for shard #{name.inspect} at commit #{commit}"
       end
 
-      spec_yaml = capture("git show #{Process.quote("#{ref.to_git_ref}:#{SPEC_FILENAME}")}")
+      spec_yaml = capture %w[git show] << "#{ref.to_git_ref}:#{SPEC_FILENAME}"
       begin
         Spec.from_yaml(spec_yaml)
       rescue error : Error
@@ -215,7 +215,7 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("git tag --list #{GitResolver.git_column_never}")
+      capture(%w[git tag --list] << GitResolver.git_column_never)
         .lines
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
     end
@@ -225,11 +225,11 @@ module Shards
       ref = git_ref(version)
 
       Dir.mkdir_p(install_path)
-      run "git --work-tree=#{Process.quote(install_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
+      run %w[git] << "--work-tree=#{install_path}" << "checkout" << ref.to_git_ref << "--" << "."
     end
 
     def commit_sha1_at(ref : GitRef)
-      capture("git log -n 1 --pretty=%H #{Process.quote(ref.to_git_ref)}").strip
+      capture(%w[git log -n 1 --pretty=%H] << "#{Process.quote(ref.to_git_ref)}").strip
     end
 
     def local_path
@@ -328,13 +328,13 @@ module Shards
       # This configuration can be overridden by defining the environment
       # variable `GIT_ASKPASS`.
       git_retry(err: "Failed to clone #{git_url}") do
-        run_in_folder "git clone -c core.askPass=true -c init.templateDir= --mirror --quiet -- #{Process.quote(git_url)} #{Process.quote(local_path)}"
+        run %w[git clone -c core.askPass=true -c init.templateDir= --mirror --quiet --] << git_url << local_path, chdir: nil
       end
     end
 
     private def fetch_repository
       git_retry(err: "Failed to update #{git_url}") do
-        run "git fetch --all --quiet"
+        run %w[git fetch --all --quiet]
       end
     end
 
@@ -362,18 +362,13 @@ module Shards
     end
 
     private def valid_repository?
-      command = "git config --get remote.origin.mirror"
-      Log.debug { command }
+      result = capture_result(%w[git config --get remote.origin.mirror], chdir: local_path)
 
-      output = Process.run(command, shell: true, output: :pipe, chdir: local_path) do |process|
-        process.output.gets_to_end
-      end
-
-      return $?.success? && output.chomp == "true"
+      return result.status.success? && result.stdout.chomp == "true"
     end
 
     private def origin_url
-      @origin_url ||= capture("git ls-remote --get-url origin").strip
+      @origin_url ||= capture(%w[git ls-remote --get-url origin]).strip
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -414,45 +409,13 @@ module Shards
     end
 
     private def file_exists?(ref : GitRef, path)
-      files = capture("git ls-tree -r --full-tree --name-only #{Process.quote(ref.to_git_ref)} -- #{Process.quote(path)}")
+      files = capture(%w[git ls-tree -r --full-tree --name-only] << ref.to_git_ref << "--" << path)
       !files.strip.empty?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).not_nil!
-    end
-
-    private def run(command, path = local_path, capture = false)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path, ".git")
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      run_in_folder(command, path, capture)
-    end
-
-    # Chdir to a folder and run command.
-    # Runs in current folder if `path` is nil.
-    private def run_in_folder(command, path : String? = nil, capture = false)
+    private def check_command_exists
       unless GitResolver.has_git_command?
         raise Error.new("Error missing git command line tool. Please install Git first!")
-      end
-
-      Log.debug { command }
-
-      output = capture ? IO::Memory.new : Process::Redirect::Close
-      error = IO::Memory.new
-      status = Process.run(command, shell: true, output: output, error: error, chdir: path)
-
-      if status.success?
-        output.to_s if capture
-      else
-        str = error.to_s
-        if str.starts_with?("error: ") && (idx = str.index('\n'))
-          message = str[7...idx]
-          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch or file doesn't exist?")
-        else
-          raise Error.new("Failed #{command}.\n#{str}")
-        end
       end
     end
 
