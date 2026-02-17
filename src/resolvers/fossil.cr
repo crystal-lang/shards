@@ -394,7 +394,7 @@ module Shards
     private def delete_repository
       Log.debug { "rm -rf #{Process.quote(local_path)}'" }
       Shards::Helpers.rm_rf(local_path)
-      Log.debug { "rm -rf << local_fossil_file'" }
+      Log.debug { "rm -rf #{Process.quote(local_fossil_file)}" }
       Shards::Helpers.rm_rf(local_fossil_file)
       @origin_url = nil
     end
