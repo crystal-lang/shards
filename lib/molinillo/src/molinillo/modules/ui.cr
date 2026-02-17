@@ -43,7 +43,7 @@ module Molinillo
     #
     # @param [Integer] depth the current depth of the resolution process.
     # @return [void]
-    def debug(depth = 0)
+    def debug(depth = 0, &)
       if debug?
         debug_info = yield
         debug_info = debug_info.inspect unless debug_info.is_a?(String)

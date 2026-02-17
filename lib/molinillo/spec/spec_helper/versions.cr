@@ -63,7 +63,7 @@ module Shards
         end
       end
 
-      def only_zeroes?
+      def only_zeroes?(&)
         return if empty?
         yield unless to_i? == 0
 

@@ -25,7 +25,7 @@ module Molinillo
     # The error message for the missing dependency, including the specifications
     # that had this dependency.
     def message
-      sources = required_by.map { |r| "`#{r}`" }.join(" and ")
+      sources = required_by.join(" and ") { |r| "`#{r}`" }
       message = "Unable to find a specification for `#{dependency}`"
       message += " depended upon by #{sources}" unless sources.empty?
       message
@@ -45,7 +45,7 @@ module Molinillo
     # @param [Array<DependencyGraph::Vertex>] vertices the vertices in the dependency
     #   that caused the error
     def initialize(@vertices)
-      super "There is a circular dependency between #{vertices.map(&.name).join(" and ")}"
+      super "There is a circular dependency between #{vertices.join(" and ", &.name)}"
       # @dependencies = vertices.map { |vertex| vertex.payload.possibilities.last }.to_set
     end
   end
@@ -74,69 +74,12 @@ module Molinillo
       end
 
       super "Unable to satisfy the following requirements:\n\n" \
-            "#{pairs.map { |r, d| "- `#{r}` required by `#{d}`" }.join("\n")}"
+            "#{pairs.join('\n') { |r, d| "- `#{r}` required by `#{d}`" }}"
 
       @conflicts = conflicts
       @specification_provider = specification_provider
     end
 
     include Delegates::SpecificationProvider
-
-    # @return [String] An error message that includes requirement trees,
-    #   which is much more detailed & customizable than the default message
-    # @param [Hash] opts the options to create a message with.
-    # @option opts [String] :solver_name The user-facing name of the solver
-    # @option opts [String] :possibility_type The generic name of a possibility
-    # @option opts [Proc] :reduce_trees A proc that reduced the list of requirement trees
-    # @option opts [Proc] :printable_requirement A proc that pretty-prints requirements
-    # @option opts [Proc] :additional_message_for_conflict A proc that appends additional
-    #   messages for each conflict
-    # @option opts [Proc] :version_for_spec A proc that returns the version number for a
-    #   possibility
-    def message_with_trees(opts = {} of Symbol => String)
-      solver_name = opts.delete(:solver_name) { self.class.name.split("::").first }
-      possibility_type = opts.delete(:possibility_type) { "possibility named" }
-      reduce_trees = opts.delete(:reduce_trees) { proc { |trees| trees.uniq.sort_by(&:to_s) } }
-      printable_requirement = opts.delete(:printable_requirement) { proc { |req| req.to_s } }
-      additional_message_for_conflict = opts.delete(:additional_message_for_conflict) { proc { } }
-      version_for_spec = opts.delete(:version_for_spec) { proc(&:to_s) }
-      incompatible_version_message_for_conflict = opts.delete(:incompatible_version_message_for_conflict) do
-        proc do |name, _conflict|
-          %(#{solver_name} could not find compatible versions for #{possibility_type} "#{name}":)
-        end
-      end
-
-      conflicts.sort.reduce("".dup) do |o, (name, conflict)|
-        o << "\n" << incompatible_version_message_for_conflict.call(name, conflict) << "\n"
-        if conflict.locked_requirement
-          o << %(  In snapshot (#{name_for_locking_dependency_source}):\n)
-          o << %(    #{printable_requirement.call(conflict.locked_requirement)}\n)
-          o << %(\n)
-        end
-        o << %(  In #{name_for_explicit_dependency_source}:\n)
-        trees = reduce_trees.call(conflict.requirement_trees)
-
-        o << trees.map do |tree|
-          t = "".dup
-          depth = 2
-          tree.each do |req|
-            t << "  " * depth << req.to_s
-            unless tree.last == req
-              if spec = conflict.activated_by_name[name_for(req)]
-                t << %( was resolved to #{version_for_spec.call(spec)}, which)
-              end
-              t << %( depends on)
-            end
-            t << %(\n)
-            depth += 1
-          end
-          t
-        end.join("\n")
-
-        additional_message_for_conflict.call(o, name, conflict)
-
-        o
-      end.strip
-    end
   end
 end

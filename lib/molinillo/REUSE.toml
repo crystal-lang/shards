@@ -1,0 +1,7 @@
+version = 1
+
+# All original code in this repository is licensed under MIT.
+[[annotations]]
+path = ["**"]
+SPDX-FileCopyrightText = "Copyright 2020 Manas Technology Solutions."
+SPDX-License-Identifier = "MIT"
