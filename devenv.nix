@@ -44,4 +44,15 @@
     typos.enable = true;
     zizmor.enable = true;
   };
+
+  profiles = {
+    lint.module = {
+      # More expensive hooks that we don't want to execute on every commit all the time
+      git-hooks.hooks = {
+        # reuse always runs on all files in the repo which takes some time.
+        # Violations are very rare, so a longer feedback loop doesn't matter much.
+        reuse.enable = true;
+      };
+    };
+  };
 }
