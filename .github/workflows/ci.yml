@@ -6,6 +6,8 @@ on:
   schedule:
     - cron: "0 6 * * 1" # Every monday 6 AM
 
+permissions: {}
+
 jobs:
   test:
     strategy:
@@ -29,7 +31,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Install Crystal
-        uses: oprypin/install-crystal@v1
+        uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
 
@@ -51,6 +53,8 @@ jobs:
 
       - name: Download source
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Build
         run: make -f ${{ runner.os == 'Windows' && 'Makefile.win' || 'Makefile' }}

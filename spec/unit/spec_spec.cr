@@ -260,7 +260,7 @@ module Shards
     end
 
     it "raises on unknown attributes if validating" do
-      expect_raises(ParseError, "unknown attribute: anme") { Spec.from_yaml("anme:", validate: true) }
+      expect_raises(ParseError, "unknown attribute: mane") { Spec.from_yaml("mane:", validate: true) }
     end
 
     it "raises when required attributes are missing" do
