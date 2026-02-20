@@ -11,7 +11,7 @@ describe "subcommand" do
     {% end %}
 
     with_path(git_path("dummy/bin")) do
-      output = run("shards dummy --no-color --verbose --unknown other argument")
+      output = capture %w[shards dummy --no-color --verbose --unknown other argument]
       output.should contain(%(--no-color --verbose --unknown other argument))
     end
   end
@@ -26,7 +26,7 @@ describe "subcommand" do
     {% end %}
 
     with_path(git_path("dummy/bin")) do
-      output = run("shards dummy --help")
+      output = capture %w[shards dummy --help]
       output.should contain(%(--help))
     end
   end

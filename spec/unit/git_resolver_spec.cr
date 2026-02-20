@@ -126,7 +126,7 @@ module Shards
 
       # Change the origin in the cache repo to https://github.com/foo/bar
       Dir.cd(library.local_path) do
-        run "git remote set-url origin https://github.com/foo/bar"
+        capture %w[git remote set-url origin https://github.com/foo/bar]
       end
       #
       # All of these alternatives should not trigger origin as changed
