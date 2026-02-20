@@ -9,7 +9,7 @@ module Shards
       main = nil
 
       pull.each_in_mapping do
-        case key = pull.read_scalar
+        case pull.read_scalar
         when "main"
           main = pull.read_scalar
         else

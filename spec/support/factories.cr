@@ -312,7 +312,7 @@ def fossil_commits(project, rev = "trunk")
     end
 
     retLines.reject! &.nil?
-    [/artifact:\s+(.+)/.match(run("fossil whatis #{retLines[0]}")).not_nil!.[1]]
+    [/artifact:\s+(.+)/.match!(run("fossil whatis #{retLines[0]}")).[1]]
   end
 end
 
@@ -321,7 +321,7 @@ def fossil_url(project)
 end
 
 def fossil_path(project)
-  File.join(tmp_path, "#{project.to_s}")
+  File.join(tmp_path, "#{project}")
 end
 
 def rel_path(project)
