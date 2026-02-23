@@ -3,6 +3,8 @@ require "./commands/*"
 
 module Shards
   BUILTIN_COMMANDS = %w[
+    add
+    rm
     build
     run
     check
@@ -23,6 +25,8 @@ module Shards
       Commands:
           build [<targets>] [<build_options>]  - Build the specified <targets> in `bin` path, all build_options are delegated to `crystal build`.
           check                                - Verify all dependencies are installed.
+          add [<url>] [<version>]              - Add a shard to `shard.yml`, then install it.
+          rm [<shards>]                        - Remove a shard from `shard.yml`, then prune.
           init                                 - Initialize a `shard.yml` file.
           install                              - Install dependencies, creating or using the `shard.lock` file.
           list [--tree]                        - List installed dependencies.
@@ -90,6 +94,20 @@ module Shards
             Commands::Run.run(path, targets, run_options, options)
           when "check"
             Commands::Check.run(path)
+          when "add"
+            urls = args[1..-1]
+            version = nil
+            if urls.size > 1 && !urls.last.includes?("://") && !urls.last.includes?('@')
+              version = urls.pop
+            end
+            Commands::Add.new(path).run(urls, version)
+          when "rm"
+            url = args[1]
+            if url.nil?
+              Log.error{"ERROR: missing dependency URL"}
+              exit 1
+            end
+            Commands::Remove.new(path).run(url)
           when "init"
             Commands::Init.run(path)
           when "install"
