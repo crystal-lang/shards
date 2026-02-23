@@ -6,7 +6,7 @@ describe "version" do
       version: "1.33.7",
     }
     with_shard(metadata) do
-      stdout = run "shards version"
+      stdout = capture %w[shards version]
       stdout.should contain("1.33.7")
     end
   end
@@ -21,16 +21,14 @@ describe "version" do
 
       outer_path = File.expand_path("..", application_path)
       Dir.cd(outer_path) do
-        stdout = run "shards version #{Process.quote(inner_path)}"
+        stdout = capture ["shards", "version", inner_path]
         stdout.should contain("0.0.42")
       end
     end
   end
 
   it "fails version" do
-    expect_raises(FailedCommand) do
-      root = File.expand_path("/", Dir.current)
-      run "shards version #{Process.quote(root)}"
-    end
+    root = File.expand_path("/", Dir.current)
+    result = expect_failure(capture_result ["shards", "version", root])
   end
 end

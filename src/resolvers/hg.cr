@@ -162,7 +162,7 @@ module Shards
       ref = hg_ref(version)
 
       if file_exists?(ref, SPEC_FILENAME)
-        capture("hg cat -r #{Process.quote(ref.to_hg_revset)} #{Process.quote(SPEC_FILENAME)}")
+        capture(%w[hg cat -r] << ref.to_hg_revset << SPEC_FILENAME)
       else
         Log.debug { "Missing \"#{SPEC_FILENAME}\" for #{name.inspect} at #{ref}" }
         nil
@@ -173,7 +173,7 @@ module Shards
       update_local_cache
       begin
         if file_exists?(ref, SPEC_FILENAME)
-          spec_yaml = capture("hg cat -r #{Process.quote(ref.to_hg_revset)} #{Process.quote(SPEC_FILENAME)}")
+          spec_yaml = capture(%w[hg cat -r] << ref.to_hg_revset << SPEC_FILENAME)
           Spec.from_yaml(spec_yaml)
         end
       rescue Error
@@ -221,7 +221,7 @@ module Shards
     end
 
     protected def versions_from_tags
-      capture("hg tags --template #{Process.quote("{tag}\n")}")
+      capture(%w[hg tags --template] << "{tag}\n")
         .lines
         .sort!
         .compact_map { |tag| Version.new($1) if tag =~ VERSION_TAG }
@@ -233,11 +233,11 @@ module Shards
 
       FileUtils.rm_r(install_path) if File.exists?(install_path)
       Dir.mkdir_p(install_path)
-      run "hg clone --quiet -u #{Process.quote(ref.to_hg_ref)} -- #{Process.quote(local_path)} #{Process.quote(install_path)}"
+      run %w[hg clone --quiet -u] << ref.to_hg_ref << "--" << local_path << install_path
     end
 
     def commit_sha1_at(ref : HgRef)
-      capture("hg log -r #{Process.quote(ref.to_hg_revset)} --template #{Process.quote("{node}\n")}").strip
+      capture(%w[hg log -r] << ref.to_hg_revset << "--template" << "{node}\n").strip
     end
 
     def local_path
@@ -342,13 +342,13 @@ module Shards
         #
         # An alternative would be to use the `@` bookmark, but only as long
         # as nothing new is committed.
-        run_in_current_folder "hg clone --quiet -- #{Process.quote(source)} #{Process.quote(path)}"
+        run %w[hg clone --quiet --] << source << path, chdir: nil
       end
     end
 
     private def fetch_repository
       hg_retry(err: "Failed to update #{hg_url}") do
-        run "hg pull"
+        run %w[hg pull]
       end
     end
 
@@ -378,7 +378,7 @@ module Shards
     end
 
     private def origin_url
-      @origin_url ||= capture("hg paths default").strip
+      @origin_url ||= capture(%w[hg paths default]).strip
     end
 
     # Returns whether origin URLs have differing hosts and/or paths.
@@ -419,24 +419,16 @@ module Shards
     end
 
     private def file_exists?(ref : HgRef, path)
-      run("hg files -r #{Process.quote(ref.to_hg_revset)} -- #{Process.quote(path)}", raise_on_fail: false)
+      capture_result(%w[hg files -r] << ref.to_hg_revset << "--" << path).status.success?
     end
 
-    private def capture(command, path = local_path)
-      run(command, capture: true, path: path).as(String)
-    end
-
-    private def run(command, path = local_path, capture = false, raise_on_fail = true)
-      if Shards.local? && !Dir.exists?(path)
-        dependency_name = File.basename(path)
-        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
-      end
-      Dir.cd(path) do
-        run_in_current_folder(command, capture, raise_on_fail: raise_on_fail)
+    private def check_command_exists
+      unless HgResolver.has_hg_command?
+        raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end
     end
 
-    private def run_in_current_folder(command, capture = false, raise_on_fail = true)
+    private def run_in_current_folder(command, *, capture = false, raise_on_fail = true)
       unless HgResolver.has_hg_command?
         raise Error.new("Error missing hg command line tool. Please install Mercurial first!")
       end

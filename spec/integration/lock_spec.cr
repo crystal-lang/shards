@@ -3,15 +3,15 @@ require "./spec_helper"
 describe "lock" do
   it "fails when spec is missing" do
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) { run "shards lock --no-color" }
-      ex.stdout.should contain("Missing #{Shards::SPEC_FILENAME}")
-      ex.stdout.should contain("Please run 'shards init'")
+      result = expect_failure(capture_result %w[shards lock --no-color])
+      result.stdout.should contain("Missing #{Shards::SPEC_FILENAME}")
+      result.stdout.should contain("Please run 'shards init'")
     end
   end
 
   it "doesn't generate lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
-      run "shards lock"
+      capture %w[shards lock]
       File.exists?(File.join(application_path, "shard.lock")).should be_false
     end
   end
@@ -23,7 +23,7 @@ describe "lock" do
     }
 
     with_shard(metadata) do
-      run "shards lock"
+      capture %w[shards lock]
 
       # it locked dependencies (recursively):
       assert_locked "web", "2.1.0"
@@ -52,7 +52,7 @@ describe "lock" do
     lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards lock"
+      capture %w[shards lock]
 
       assert_locked "web", "1.0.0"
       assert_locked "minitest", "0.1.2"
@@ -64,7 +64,7 @@ describe "lock" do
     lock = {web: "1.0.0"}
 
     with_shard(metadata, lock) do
-      run "shards lock"
+      capture %w[shards lock]
 
       assert_locked "web", "1.0.0"
       assert_locked "orm", "0.5.0"
@@ -77,7 +77,7 @@ describe "lock" do
     lock = {web: "1.0.0", orm: "0.5.0", pg: "0.2.1"}
 
     with_shard(metadata, lock) do
-      run "shards lock"
+      capture %w[shards lock]
 
       assert_locked "web", "1.0.0"
       refute_locked "orm", "0.5.0"
@@ -93,7 +93,7 @@ describe "lock" do
     lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards lock --update"
+      capture %w[shards lock --update]
 
       assert_locked "web", "1.2.0"
       assert_locked "minitest", "0.1.3"

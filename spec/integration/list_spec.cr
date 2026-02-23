@@ -7,8 +7,8 @@ describe "list" do
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
-      run "shards install"
-      stdout = run "shards list"
+      capture %w[shards install]
+      stdout = capture %w[shards list]
 
       stdout.should contain("web (2.1.0)")
       stdout.should contain("orm (0.5.0)")
@@ -25,8 +25,8 @@ describe "list" do
     }
 
     with_shard(metadata) do
-      run "shards install --without-development"
-      stdout = run "shards list --without-development"
+      capture %w[shards install --without-development]
+      stdout = capture %w[shards list --without-development]
       stdout.should contain("web (2.1.0)")
       stdout.should contain("orm (0.5.0)")
       stdout.should contain("pg (0.2.1)")
@@ -44,8 +44,8 @@ describe "list" do
     lock = {web: "1.0.0", orm: "0.3.0"}
 
     with_shard(metadata, lock) do
-      run "shards install --production"
-      stdout = run "shards list --production"
+      capture %w[shards install --production]
+      stdout = capture %w[shards list --production]
       stdout.should contain("web (1.0.0)")
       stdout.should contain("orm (0.3.0)")
       stdout.should_not contain("mock")
@@ -59,8 +59,8 @@ describe "list" do
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
-      run "shards install"
-      stdout = run "shards list --tree"
+      capture %w[shards install]
+      stdout = capture %w[shards list --tree]
       stdout.should contain("  * web (2.1.0)")
       stdout.should contain("  * orm (0.5.0)")
       stdout.should contain("    * pg (0.2.1)")
@@ -75,18 +75,18 @@ describe "list" do
       development_dependencies: {mock: "*"},
     }
     with_shard(metadata) do
-      ex = expect_raises(FailedCommand) { run "shards list --no-color" }
-      ex.stdout.should contain("Dependencies aren't satisfied. Install them with 'shards install'")
+      result = expect_failure(capture_result %w[shards list --no-color])
+      result.stdout.should contain("Dependencies aren't satisfied. Install them with 'shards install'")
     end
   end
 
   it "show previous installed dependency when source has changed" do
     with_shard({dependencies: {awesome: "0.1.0"}}) do
-      run "shards install"
+      capture %w[shards install]
     end
 
     with_shard({dependencies: {awesome: {version: "0.2.0", git: git_url(:forked_awesome)}}}) do
-      stdout = run "shards list --tree"
+      stdout = capture %w[shards list --tree]
       stdout.should contain("  * awesome (0.1.0)")
       stdout.should contain("    * d (0.2.0)")
     end
@@ -96,13 +96,13 @@ describe "list" do
     metadata = {dependencies: {awesome: "0.1.0"}}
 
     with_shard(metadata) do
-      run "shards install"
+      capture %w[shards install]
     end
 
     override = {dependencies: {awesome: "0.2.0"}}
 
     with_shard(metadata, nil, override) do
-      stdout = run "shards list --tree"
+      stdout = capture %w[shards list --tree]
       stdout.should contain("  * awesome (0.1.0)")
       stdout.should contain("    * d (0.2.0)")
     end

@@ -21,10 +21,8 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) do
-        run "shards run --no-color"
-      end
-      ex.stdout.should contain("Targets not defined in shard.yml")
+      result = expect_failure(capture_result %w[shards run --no-color])
+      result.stdout.should contain("Targets not defined in shard.yml")
     end
   end
 
@@ -40,10 +38,8 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) do
-        run "shards run --no-color app alt"
-      end
-      ex.stdout.should contain("Error please specify only one target. If you meant to pass arguments you may use 'shards run target -- args'")
+      result = expect_failure(capture_result %w[shards run --no-color app alt])
+      result.stdout.should contain("Error please specify only one target. If you meant to pass arguments you may use 'shards run target -- args'")
     end
   end
 
@@ -59,10 +55,8 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) do
-        run "shards run --no-color"
-      end
-      ex.stdout.should contain("Error please specify the target with 'shards run target'")
+      result = expect_failure(capture_result %w[shards run --no-color])
+      result.stdout.should contain("Error please specify the target with 'shards run target'")
     end
   end
 
@@ -76,7 +70,7 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      output = run("shards run --no-color")
+      output = capture(%w[shards run --no-color])
 
       File.exists?(bin_path("app")).should be_true
 
@@ -97,7 +91,7 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      output = run("shards run --no-color app")
+      output = capture(%w[shards run --no-color app])
 
       File.exists?(bin_path("app")).should be_true
       File.exists?(bin_path("alt")).should be_false
@@ -122,10 +116,8 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      ex = expect_raises(FailedCommand) do
-        run "shards run --no-color"
-      end
-      ex.stdout.should contain("This command fails")
+      result = expect_failure(capture_result %w[shards run --no-color])
+      result.stdout.should contain("This command fails")
     end
   end
 
@@ -143,7 +135,7 @@ describe "run" do
       YAML
 
     Dir.cd(application_path) do
-      output = run("shards run --no-color -- foo bar baz")
+      output = capture(%w[shards run --no-color -- foo bar baz])
       output.should contain("Executing: app foo bar baz")
       output.should contain("args: foo,bar,baz")
     end
@@ -164,7 +156,7 @@ describe "run" do
 
     Dir.cd(application_path) do
       input = IO::Memory.new("hello from stdin")
-      output = run("shards run --no-color", input: input)
+      output = capture(%w[shards run --no-color], input: input)
       output.should contain("Executing: app")
       output.should contain(%(input: "hello from stdin"))
     end

@@ -3,6 +3,7 @@ require "../spec"
 require "../dependency"
 require "../errors"
 require "../script"
+require "../ext/capture"
 
 module Shards
   abstract class Resolver
@@ -129,6 +130,49 @@ module Shards
       RESOLVER_CACHE[ResolverCacheKey.new(key, name, source)] ||= begin
         resolver_class.build(key, name, source)
       end
+    end
+
+    private def check_chdir_exists(path)
+      if path && Shards.local? && !Dir.exists?(path)
+        dependency_name = File.basename(path, ".git")
+        raise Error.new("Missing repository cache for #{dependency_name.inspect}. Please run without --local to fetch it.")
+      end
+    end
+
+    private def capture(command : Enumerable, *, chdir = local_path) : String
+      result = capture_result(command, chdir: chdir)
+
+      if result.status.success?
+        result.stdout
+      else
+        stderr = result.stderr || ""
+        if stderr.starts_with?("error: ") && (idx = stderr.index('\n'))
+          message = stderr[7...idx]
+          raise Error.new("Failed #{command.join(" ")} (#{message}). Maybe a commit, branch or file doesn't exist?")
+        elsif stderr.starts_with?("abort: ") && (idx = stderr.index('\n'))
+          message = stderr[7...idx]
+          raise Error.new("Failed #{command} (#{message}). Maybe a commit, branch, bookmark or file doesn't exist?")
+        else
+          raise Error.new("Failed #{command.join(" ")}.\n#{stderr}")
+        end
+      end
+    end
+
+    private def capture_result(command : Enumerable, *, output : Process::Stdio = Process::Redirect::Pipe, chdir = local_path) : Process::Result
+      check_chdir_exists(chdir)
+      check_command_exists
+
+      Log.debug { command.join(" ") }
+
+      cmd, *args = command
+
+      Process.capture_result(cmd, args, output: output, chdir: chdir)
+    end
+
+    private def run(command : Enumerable, *, chdir = local_path)
+      capture(command, chdir: chdir)
+
+      true
     end
   end
 end

@@ -8,7 +8,7 @@ describe "update" do
     }
 
     with_shard(metadata) do
-      run "shards update"
+      capture %w[shards update]
 
       # it installed dependencies (recursively)
       assert_installed "web", "2.1.0"
@@ -44,7 +44,7 @@ describe "update" do
     lock = {web: "1.0.0", minitest: "0.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "web", "2.0.0"
       assert_locked "web", "2.0.0"
@@ -59,7 +59,7 @@ describe "update" do
     lock = {c: "0.1.0", d: "0.1.0"}
 
     with_shard(metadata, lock) do
-      run "shards update c"
+      capture %w[shards update c]
 
       assert_installed "c", "0.2.0"
       assert_installed "d", "0.2.0"
@@ -71,7 +71,7 @@ describe "update" do
     lock = {web: "1.0.0", orm: "0.4.0", optional: "0.2.0"}
 
     with_shard(metadata, lock) do
-      run "shards update orm optional"
+      capture %w[shards update orm optional]
 
       # keeps unspecified dependencies:
       assert_installed "web", "1.0.0"
@@ -94,7 +94,7 @@ describe "update" do
     lock = {unstable: "0.1.0"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "unstable", "0.2.0"
       assert_locked "unstable", "0.2.0"
     end
@@ -105,7 +105,7 @@ describe "update" do
     lock = {unstable: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "unstable", "0.3.0.beta"
       assert_locked "unstable", "0.3.0.beta"
     end
@@ -116,7 +116,7 @@ describe "update" do
     lock = {unstable: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "unstable", "0.3.0.beta"
       assert_locked "unstable", "0.3.0.beta"
     end
@@ -127,7 +127,7 @@ describe "update" do
     lock = {preview: "0.3.0.alpha"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "preview", "0.3.0"
       assert_locked "preview", "0.3.0"
     end
@@ -139,7 +139,7 @@ describe "update" do
     lock = {preview: "0.3.0.a"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "preview", "0.4.0.a"
       assert_locked "preview", "0.4.0.a"
     end
@@ -152,7 +152,7 @@ describe "update" do
     lock = {web: git_commits(:web)[-5]}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "web", "2.1.0", git: git_commits(:web).first
       assert_locked "web", "2.1.0", git: git_commits(:web).first
     end
@@ -168,7 +168,7 @@ describe "update" do
     lock = {web: "1.1.2"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "web", "1.1.2"
       assert_locked "web", "1.1.2"
@@ -183,7 +183,7 @@ describe "update" do
     lock = {web: "1.0.0", orm: "0.5.0"}
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "web", "1.1.2"
       assert_locked "web", "1.1.2"
@@ -200,14 +200,14 @@ describe "update" do
     lock = {oopsie: "1.1.0"}
 
     with_shard(metadata, lock) do
-      run "shards install"
+      capture %w[shards install]
       assert_installed "oopsie", "1.1.0"
     end
 
     create_git_release "oopsie", "1.1.1"
 
     with_shard(metadata, lock) do
-      run "shards update"
+      capture %w[shards update]
       assert_installed "oopsie", "1.1.1"
     end
   end
@@ -215,7 +215,7 @@ describe "update" do
   it "generates lockfile for empty dependencies" do
     metadata = {dependencies: {} of Symbol => String}
     with_shard(metadata) do
-      run "shards update"
+      capture %w[shards update]
       path = File.join(application_path, "shard.lock")
       File.exists?(path).should be_true
       File.read(path).should eq <<-YAML
@@ -228,7 +228,7 @@ describe "update" do
 
   it "runs postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
-      run "shards update"
+      capture %w[shards update]
       binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_true
       `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
@@ -237,7 +237,7 @@ describe "update" do
 
   it "skips postinstall with transitive dependencies" do
     with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
-      output = run "shards update --no-color --skip-postinstall"
+      output = capture %w[shards update --no-color --skip-postinstall]
       binary = install_path("transitive", Shards::Helpers.exe("version"))
       File.exists?(binary).should be_false
       output.should contain("Postinstall of transitive: #{{{ flag?(:win32) ? "crystal" : "${CRYSTAL:-crystal}" }}} build src/version.cr (skipped)")
@@ -247,7 +247,7 @@ describe "update" do
   it "installs new executables" do
     metadata = {dependencies: {binary: "0.2.0"}}
     lock = {binary: "0.1.0"}
-    with_shard(metadata, lock) { run("shards update --no-color") }
+    with_shard(metadata, lock) { capture(%w[shards update --no-color]) }
 
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
@@ -265,7 +265,7 @@ describe "update" do
   it "skips installing new executables" do
     metadata = {dependencies: {binary: "0.2.0"}}
     lock = {binary: "0.1.0"}
-    with_shard(metadata, lock) { run("shards update --no-color --skip-executables") }
+    with_shard(metadata, lock) { capture(%w[shards update --no-color --skip-executables]) }
 
     foobar = File.join(application_path, "bin", Shards::Helpers.exe("foobar"))
     baz = File.join(application_path, "bin", Shards::Helpers.exe("baz"))
@@ -283,24 +283,24 @@ describe "update" do
 
     with_shard(metadata) do
       # error: dependency isn't in local cache
-      ex = expect_raises(FailedCommand) { run("shards install --local --no-color") }
-      ex.stdout.should contain(%(E: Missing repository cache for "local_cache".))
+      result = expect_failure(capture_result %w[shards install --local --no-color])
+      result.stdout.should contain(%(E: Missing repository cache for "local_cache".))
     end
 
-    # re-run without --local to install the dependency:
+    # re-capture without --local to install the dependency:
     create_git_repository "local_cache", "1.0", "2.0"
-    with_shard(metadata) { run("shards install") }
+    with_shard(metadata) { capture(%w[shards install]) }
     assert_locked "local_cache", "2.0"
 
     # create a new release:
     create_git_release "local_cache", "3.0"
 
-    # re-run with --local, which won't find the new release:
-    with_shard(metadata) { run("shards update --local") }
+    # re-capture with --local, which won't find the new release:
+    with_shard(metadata) { capture(%w[shards update --local]) }
     assert_locked "local_cache", "2.0"
 
-    # run again without --local, which will find & install the new release:
-    with_shard(metadata) { run("shards update") }
+    # capture again without --local, which will find & install the new release:
+    with_shard(metadata) { capture(%w[shards update]) }
     assert_locked "local_cache", "3.0"
   end
 
@@ -311,7 +311,7 @@ describe "update" do
     with_shard(metadata, lock) do
       assert_locked "web", "2.1.0", source: {git: git_url(:web)}
 
-      run "shards update"
+      capture %w[shards update]
 
       assert_locked "web", "2.1.0", source: {path: git_path(:web)}
       assert_installed "web", "2.1.0", source: {path: git_path(:web)}
@@ -326,7 +326,7 @@ describe "update" do
     with_shard(metadata, lock) do
       assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-      run "shards update"
+      capture %w[shards update]
 
       assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
       assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
@@ -342,7 +342,7 @@ describe "update" do
       assert_locked "d", "0.1.0", source: {git: git_url(:d)}
 
       # d is not a top dependency, so it is bumped since it's required only by awesome
-      run "shards update awesome"
+      capture %w[shards update awesome]
 
       assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
       assert_locked "d", "0.2.0", source: {git: git_url(:d)}
@@ -358,7 +358,7 @@ describe "update" do
     with_shard(metadata, lock) do
       assert_locked "awesome", "0.1.0", source: {git: git_url(:awesome)}
 
-      run "shards update"
+      capture %w[shards update]
 
       assert_locked "awesome", "0.2.0", git: git_commits(:forked_awesome).first
       assert_installed "awesome", "0.2.0", git: git_commits(:forked_awesome).first
@@ -376,7 +376,7 @@ describe "update" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -393,7 +393,7 @@ describe "update" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
@@ -411,7 +411,7 @@ describe "update" do
     expected_commit = git_commits(:forked_awesome).first
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0+git.commit.#{expected_commit}", source: {git: git_url(:forked_awesome)}
@@ -428,7 +428,7 @@ describe "update" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.1.0", source: {git: git_url(:forked_awesome)}
@@ -445,7 +445,7 @@ describe "update" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
       assert_locked "awesome", "0.2.0", source: {git: git_url(:forked_awesome)}
@@ -462,7 +462,7 @@ describe "update" do
     }}
 
     with_shard(metadata, lock, override) do
-      run "shards update"
+      capture %w[shards update]
 
       assert_installed "d", "0.2.0"
       assert_locked "d", "0.2.0"
@@ -475,10 +475,10 @@ describe "update" do
         web: "*",
       }}
       with_shard(metadata) do
-        run "shards update"
+        capture %w[shards update]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
-        run "shards update"
+        capture %w[shards update]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
@@ -489,9 +489,9 @@ describe "update" do
         web: "*",
       }}
       with_shard(metadata) do
-        run "shards update"
+        capture %w[shards update]
         File.touch("shard.yml")
-        run "shards update"
+        capture %w[shards update]
         File.info("shard.lock").modification_time.should be <= File.info("lib").modification_time
         File.info("shard.yml").modification_time.should be <= File.info("shard.lock").modification_time
       end
@@ -500,9 +500,9 @@ describe "update" do
 
   it "updates lockfile when there are no dependencies" do
     with_shard({name: "empty"}) do
-      run "shards update"
+      capture %w[shards update]
       mtime = File.info("shard.lock").modification_time
-      run "shards update"
+      capture %w[shards update]
       File.info("shard.lock").modification_time.should be >= mtime
       Shards::Lock.from_file("shard.lock").version.should eq(Shards::Lock::CURRENT_VERSION)
     end
@@ -511,7 +511,7 @@ describe "update" do
   it "creates ./lib/ when there are no dependencies" do
     with_shard({name: "empty"}) do
       File.exists?("./lib/").should be_false
-      run "shards update"
+      capture %w[shards update]
       File.directory?("./lib/").should be_true
     end
   end
