@@ -37,6 +37,11 @@ Lint/Formatting:
 Lint/NotNil:
   Enabled: false
 
+Lint/NotNilAfterNoBang:
+  Excluded:
+    # autofix applies despite local `ameba:disable` (https://github.com/crystal-ameba/ameba/issues/781)
+    - spec/support/factories.cr
+
 # FIXME: Resolve shadowing.
 Lint/ShadowingOuterLocalVar:
   Enabled: false
