@@ -312,7 +312,7 @@ def fossil_commits(project, rev = "trunk")
     end
 
     retLines.reject! &.nil?
-    [/artifact:\s+(.+)/.match!(run("fossil whatis #{retLines[0]}")).[1]]
+    [/artifact:\s+(.+)/.match(run("fossil whatis #{retLines[0]}")).not_nil![1]] # ameba:disable Lint/NotNilAfterNoBang (1.0 compatibility)
   end
 end
 
