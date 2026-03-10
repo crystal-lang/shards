@@ -1,4 +1,7 @@
 # Changelog
+## [Unreleased]
+### Removed
+- Postinstall scripts are now no-op. The functionality is deprecated. Cli tool retains the `--skip-postinstall` flag for backward compatibility, but it no longer has any effect.
 
 ## [0.20.0] (2025-12-19)
 

@@ -92,13 +92,6 @@ module Shards
       Shards::Helpers.rm_rf(install_path)
     end
 
-    def postinstall
-      run_script("postinstall", Shards.skip_postinstall?)
-    rescue ex : Script::Error
-      cleanup_install_directory
-      raise ex
-    end
-
     def run_script(name, skip)
       if installed? && (command = spec.scripts[name]?)
         if !skip

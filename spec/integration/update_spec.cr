@@ -226,24 +226,6 @@ describe "update" do
     end
   end
 
-  it "runs postinstall with transitive dependencies" do
-    with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
-      run "shards update"
-      binary = install_path("transitive", Shards::Helpers.exe("version"))
-      File.exists?(binary).should be_true
-      `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
-    end
-  end
-
-  it "skips postinstall with transitive dependencies" do
-    with_shard({dependencies: {transitive: "*"}}, {transitive: "0.1.0"}) do
-      output = run "shards update --no-color --skip-postinstall"
-      binary = install_path("transitive", Shards::Helpers.exe("version"))
-      File.exists?(binary).should be_false
-      output.should contain("Postinstall of transitive: #{{{ flag?(:win32) ? "crystal" : "${CRYSTAL:-crystal}" }}} build src/version.cr (skipped)")
-    end
-  end
-
   it "installs new executables" do
     metadata = {dependencies: {binary: "0.2.0"}}
     lock = {binary: "0.1.0"}

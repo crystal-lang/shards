@@ -664,49 +664,13 @@ describe "install" do
     end
   end
 
-  it "runs postinstall script" do
-    with_shard({dependencies: {post: "*"}}) do
-      output = run "shards install --no-color"
-      File.exists?(install_path("post", "made.txt")).should be_true
-      output.should contain("Postinstall of post: make\n")
-    end
-  end
-
-  it "can skip postinstall script" do
-    with_shard({dependencies: {post: "*"}}) do
-      output = run "shards install --no-color --skip-postinstall"
-      File.exists?(install_path("post", "made.txt")).should be_false
-      output.should contain("Postinstall of post: make (skipped)")
-    end
-  end
-
-  it "prints details and removes dependency when postinstall script fails" do
-    with_shard({dependencies: {fails: "*"}}) do
-      ex = expect_raises(FailedCommand) { run "shards install --no-color" }
-      ex.stdout.should contain("E: Failed postinstall of fails on make:\n")
-      ex.stdout.should contain({% if flag?(:win32) %}"error message\n"{% else %}"test -n ''\n"{% end %})
-      Dir.exists?(install_path("fails")).should be_false
-    end
-  end
-
-  it "runs postinstall with transitive dependencies" do
-    with_shard({dependencies: {transitive: "*"}}) do
-      run "shards install"
-      binary = install_path("transitive", Shards::Helpers.exe("version"))
-      File.exists?(binary).should be_true
-      `#{Process.quote(binary)}`.chomp.should eq("version @ 0.1.0")
-    end
-  end
-
-  it "runs install and postinstall in reverse topological order" do
+  it "runs install in reverse topological order" do
     with_shard({dependencies: {transitive_2: "*"}}) do
       output = run "shards install --no-color"
-      install_lines = output.lines.select /^\w: (Installing|Postinstall)/
+      install_lines = output.lines.select /^\w: Installing/
       install_lines[0].should match(/Installing version /)
       install_lines[1].should match(/Installing transitive /)
-      install_lines[2].should match(/Postinstall of transitive:/)
       install_lines[3].should match(/Installing transitive_2 /)
-      install_lines[4].should match(/Postinstall of transitive_2:/)
     end
   end
 

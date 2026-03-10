@@ -157,9 +157,9 @@ exist in the _bin_ folder of the Shard, and have the executable bit set (on
 POSIX platforms). When installed as a dependency for another project the
 executables will be copied to the _bin_ folder of that project.
 +
-Executables are always installed last, after the _postinstall_ script is run, so
-libraries can build the executables when they are installed by Shards. Installation
-can be disabled by passing the flag _--skip-executables_.
+Executables are always installed last, so libraries can build the executables
+when they are installed by Shards. Installation can be disabled by passing the
+flag _--skip-executables_.
 +
 *Example:*
 +
@@ -228,28 +228,6 @@ canonical repository address, even if hosted at different locations.
 [source,yaml]
 ----
 repository: "https://github.com/crystal-lang/shards"
-----
-
-*scripts*::
-  Script hooks to run. Only _postinstall_ is supported.
-+
-Shards may run scripts automatically after certain actions. The scripts
-themselves are mere shell commands.
-
-*postinstall*:::
-The _postinstall_ hook of a dependency will be run whenever that dependency is
-installed or upgraded in a project that requires it. This may be used to compile
-a C library, to build tools to help working on the project, or anything else.
-+
-The script will be run from the dependency's installation directory, for example
-_lib/foo_ for a Shard named _foo_.
-+
-*Example:*
-+
-[source,yaml]
-----
-scripts:
-  postinstall: cd src/libfoo && make
 ----
 
 *targets*::
@@ -436,9 +414,6 @@ development_dependencies:
 
 libraries:
   libgit2: ~> 0.24
-
-scripts:
-  postinstall: make ext
 
 targets:
   shards:

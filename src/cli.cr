@@ -57,8 +57,8 @@ module Shards
         self.frozen = true
         self.with_development = false
       end
-      opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
-        self.skip_postinstall = true
+      opts.on("--skip-postinstall", "Deprecated. No-op retained for compatibility until Crystal 2.0") do
+        Log.warn { "--skip-postinstall is deprecated: postinstall scripts are no longer supported" }
       end
       opts.on("--skip-executables", "Does not install executables") do
         self.skip_executables = true

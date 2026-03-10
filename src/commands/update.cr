@@ -39,10 +39,6 @@ module Shards
         # first install all dependencies:
         installed = packages.compact_map { |package| install(package) }
 
-        # then execute the postinstall script of installed dependencies (with
-        # access to all transitive dependencies):
-        installed.each(&.postinstall)
-
         # always install executables because the path resolver never actually
         # installs dependencies:
         packages.each(&.install_executables)
