@@ -92,17 +92,6 @@ module Shards
       Shards::Helpers.rm_rf(install_path)
     end
 
-    def run_script(name, skip)
-      if installed? && (command = spec.scripts[name]?)
-        if !skip
-          Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
-          Script.run(install_path, command, name, self.name)
-        else
-          Log.info { "#{name.capitalize} of #{self.name}: #{command} (skipped)" }
-        end
-      end
-    end
-
     def to_yaml(builder)
       Dependency.new(name, resolver, version).to_yaml(builder)
     end

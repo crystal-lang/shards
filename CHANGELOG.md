@@ -1,8 +1,8 @@
 # Changelog
 ## [Unreleased]
 ### Removed
-- Postinstall scripts in shard.yml are now no-op. The functionality is deprecated. `shards` retains the `--skip-postinstall` flag for backward compatibility, but it no longer has any effect.
-- Executables listing in shard.yml is now a no-op. The functionality is deprecated. `shards` retains the `--skip-executables` flag for backward compatibility, but it no longer has any effect.
+- Postinstall scripts in shard.yml are removed. The functionality is deprecated. `shards` retains the `--skip-postinstall` flag for backward compatibility, but it no longer has any effect.
+- The executables listing in shard.yml is removed. The functionality is deprecated. `shards` retains the `--skip-executables` flag for backward compatibility, but it no longer has any effect.
 
 ## [0.20.0] (2025-12-19)
 
