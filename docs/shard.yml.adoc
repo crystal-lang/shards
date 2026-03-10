@@ -149,27 +149,6 @@ development_dependencies:
 *documentation*::
 The URL to a website providing the project's documentation for online browsing (string).
 
-*executables*::
-A list of executables to be installed (sequence).
-+
-The executables can be of any type or language (e.g., shell, binary, ruby), must
-exist in the _bin_ folder of the Shard, and have the executable bit set (on
-POSIX platforms). When installed as a dependency for another project the
-executables will be copied to the _bin_ folder of that project.
-+
-Executables are always installed last, so libraries can build the executables
-when they are installed by Shards. Installation can be disabled by passing the
-flag _--skip-executables_.
-+
-*Example:*
-+
-[source,yaml]
-----
-executables:
-- micrate
-- icr
-----
-
 *homepage*::
 The URL of the project's homepage (string).
 
