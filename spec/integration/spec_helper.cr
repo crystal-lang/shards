@@ -68,24 +68,6 @@ private def setup_repositories
   create_git_repository "invalidspec"
   create_git_release "invalidspec", "0.1.0", {crystal: [""]}
 
-  # dependencies with postinstall scripts:
-  create_git_repository "post"
-  {% if flag?(:win32) %}
-    create_executable "post", "make", %(File.touch("made.txt"))
-  {% else %}
-    create_file "post", "Makefile", "all:\n\ttouch made.txt\n"
-  {% end %}
-  create_git_release "post", "0.1.0", {scripts: {postinstall: "make"}}
-
-  create_git_repository "fails"
-  {% if flag?(:win32) %}
-    create_executable "fails", "make", %(STDERR.puts "error message"; exit 1)
-  {% else %}
-    create_file "fails", "Makefile", "all:\n\ttest -n ''\n"
-  {% end %}
-  create_git_release "fails", "0.1.0", {scripts: {postinstall: "make"}}
-
-  # transitive dependencies in postinstall scripts:
   create_git_repository "version"
   create_file "version", "src/version.cr", %(module Version; STRING = "version @ 0.1.0"; end)
   create_git_release "version", "0.1.0"
@@ -108,32 +90,15 @@ private def setup_repositories
   create_file "transitive", "src/version.cr", %(require "version"; puts Version::STRING)
   create_git_release "transitive", "0.2.0", {
     dependencies: {version: {git: git_url(:version)}},
-    scripts:      {
-      postinstall: %(#{{{ flag?(:win32) ? "crystal" : "${CRYSTAL:-crystal}" }}} build src/version.cr),
-    },
   }
 
   create_git_repository "transitive_2"
   create_git_release "transitive_2", "0.1.0", {
     dependencies: {
       transitive: {git: git_url(:transitive)},
-    },
-    scripts: {
-      postinstall: "../transitive/version",
-    },
+    }
   }
 
-  # dependencies with executables:
-  create_git_repository "binary"
-  create_executable "binary", "bin/foobar", %(print "OK")
-  create_executable "binary", "bin/baz", %(print "KO")
-  create_file "binary", "bin/crystal.cr", %(puts "crystal")
-  create_git_release "binary", "0.1.0", {executables: ["foobar", "baz", "crystal.cr"]}
-  create_executable "binary", "bin/foo", %(print "FOO")
-  create_git_release "binary", "0.2.0", {executables: ["foobar", "baz", "foo"]}
-
-  create_git_repository "executable_missing"
-  create_git_release "executable_missing", "0.1.0", {executables: ["nonexistent"]}
 
   create_git_repository "c"
   create_git_release "c", "0.1.0", {dependencies: {d: {git: git_url(:d), version: "0.1.0"}}}
