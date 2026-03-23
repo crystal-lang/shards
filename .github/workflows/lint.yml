@@ -15,8 +15,8 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - uses: cachix/install-nix-action@2126ae7fc54c9df00dd18f7f18754393182c73cd # v31
-      - uses: cachix/cachix-action@3ba601ff5bbb07c7220846facfa2cd81eeee15a1 # v16
+      - uses: cachix/install-nix-action@51f3067b56fe8ae331890c77d4e454f6d60615ff # v31
+      - uses: cachix/cachix-action@1eb2ef646ac0255473d23a5907ad7b04ce94065c # v17
         with:
           name: devenv
       - name: Install devenv.sh
