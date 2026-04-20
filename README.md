@@ -39,7 +39,7 @@ Shards is usually distributed with Crystal itself (e.g. Homebrew and Debian
 packages). Alternatively, a `shards` package may be available for your system.
 
 You can download a source tarball from the same page (or clone the repository)
-then run `make release=1`and copy `bin/shards` into your `PATH`. For
+then run `make release=1` and copy `bin/shards` into your `PATH`. For
 example `/usr/local/bin`.
 
 You are now ready to create a `shard.yml` for your projects (see details in
@@ -90,7 +90,8 @@ Run `make bin/shards` to build the binary.
 - `static=1` for static linking (only works with musl-libc)
 - `debug=1` for full symbolic debug info
 
-Run `make install` to install the binary. Target path can be adjusted with `PREFIX` (default: `PREFIX=/usr/bin`).
+Run `make install` to install the binary. Install prefix can be adjusted with
+`PREFIX` (default: `PREFIX=/usr/local`).
 
 Run `make test` to run the test suites:
 
