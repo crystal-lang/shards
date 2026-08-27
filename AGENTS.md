@@ -131,38 +131,11 @@ crystal spec spec/integration/install_spec.cr
 
 ---
 
-## 🔄 Skill Maintenance Lifecycle
+## 🔄 In-Tree Skill Maintenance & Evolution
 
-To ensure AI agent skills stay synchronized with upstream Shards evolution, maintenance follows a strict 6-stage lifecycle:
+Because the AI agent skills live directly in-tree inside `.agents/skills/`, they are first-class source artifacts that evolve commit-by-commit alongside Shards:
 
-```
-                         6-Stage Skill Maintenance Lifecycle
-  ┌───────────────────────┐
-  │ 1. Upstream Sync      │  Fetch official `crystal-lang/shards` tags and master.
-  └──────────┬────────────┘
-             │
-             ▼
-  ┌───────────────────────┐
-  │ 2. Forensic Analysis  │  Audit `shard.yml` schema, `YAML::PullParser` invariants,
-  └──────────┬────────────┘  resolvers (Git/Fossil/Hg/Path), Molinillo solver & CLI.
-             │
-             ▼
-  ┌───────────────────────┐
-  │ 3. Empirical Testing  │  Run full `crystal spec` suite on metal before documenting.
-  └──────────┬────────────┘
-             │
-             ▼
-  ┌───────────────────────┐
-  │ 4. Skill Mapping      │  Update `.agents/skills/` adhering to the 7-section skeleton.
-  └──────────┬────────────┘
-             │
-             ▼
-  ┌───────────────────────┐
-  │ 5. Quality Audit      │  Echelon Verification: nil safety, safe process args
-  └──────────┬────────────┘  (`Process.parse_arguments`), path traversal guards.
-             │
-             ▼
-  ┌───────────────────────┐
-  │ 6. SemVer Revision    │  4-component scheme: `v<Major>.<Minor>.<Patch>.<Revision>`
-  └───────────────────────┘  (e.g., `v0.20.0.0` tracks upstream + skill revision).
-```
+1. **Atomic PR Updates**: Whenever a pull request adds or modifies a manifest attribute (`src/spec.cr`), resolver engine (`src/resolvers/`), solver heuristic (`src/molinillo_solver.cr`), or CLI command (`src/commands/`), the author or agent should update the corresponding domain skill in `.agents/skills/` within the same pull request.
+2. **Empirical Spec Verification**: Code snippets and patterns documented in `.agents/skills/` must always be verified by running the test suite (`crystal spec`).
+3. **No Standalone Versioning**: The skills share the repository's native version and release tags. When Shards cuts a new release, the skills are automatically included and synchronized.
+
