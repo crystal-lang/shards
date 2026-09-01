@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2025-01-13
+.\"      Date: 2026-08-30
 .\"    Manual: File Formats
-.\"    Source: shards 0.20.0
+.\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2025-01-13" "shards 0.20.0" "File Formats"
+.TH "SHARD.YML" "5" "2026-08-30" "shards 0.21.0\-dev" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -552,7 +552,9 @@ The URL may be \c
 supported by Git, which includes SSH, GIT and HTTPS.
 .sp
 The Git repository will be cloned, the list of versions (and associated
-\fIshard.yml\fP) will be extracted from Git tags (e.g., \fIv1.2.3\fP).
+\fIshard.yml\fP) will be extracted from Git tags matching the release pattern
+\f(CRv<version>\fP (e.g., \fIv1.2.3\fP). Release tags without a leading \f(CRv\fP are ignored
+for version resolution.
 .sp
 One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP or \fIcommit\fP) is
 required. When missing, Shards will install the HEAD refs.
@@ -608,7 +610,9 @@ The URL may be \c
 supported by Mercurial, which includes SSH and HTTPS.
 .sp
 The Mercurial repository will be cloned, the list of versions (and associated
-\fIshard.yml\fP) will be extracted from Mercurial tags (e.g., \fIv1.2.3\fP).
+\fIshard.yml\fP) will be extracted from Mercurial tags matching the release pattern
+\f(CRv<version>\fP (e.g., \fIv1.2.3\fP). Release tags without a leading \f(CRv\fP are ignored
+for version resolution.
 .sp
 One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP, \fIbookmark\fP or \fIcommit\fP) is
 required. When missing, Shards will install the \fI@\fP bookmark or \fItip\fP.
@@ -628,7 +632,9 @@ The URL may be \c
 supported by Fossil, which includes SSH and HTTPS.
 .sp
 The Fossil repository will be cloned, the list of versions (and associated
-\fIshard.yml\fP) will be extracted from Fossil tags (e.g., \fIv1.2.3\fP).
+\fIshard.yml\fP) will be extracted from Fossil tags matching the release pattern
+\f(CRv<version>\fP (e.g., \fIv1.2.3\fP). Release tags without a leading \f(CRv\fP are ignored
+for version resolution.
 .sp
 One of the other attributes (\fIversion\fP, \fItag\fP, \fIbranch\fP, or \fIcommit\fP) is
 required. When missing, Shards will install \fItrunk\fP.

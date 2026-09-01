@@ -295,7 +295,9 @@ The URL may be https://git-scm.com/docs/git-clone#_git_urls[any protocol]
 supported by Git, which includes SSH, GIT and HTTPS.
 +
 The Git repository will be cloned, the list of versions (and associated
-_shard.yml_) will be extracted from Git tags (e.g., _v1.2.3_).
+_shard.yml_) will be extracted from Git tags matching the release pattern
+`v<version>` (e.g., _v1.2.3_). Release tags without a leading `v` are ignored
+for version resolution.
 +
 One of the other attributes (_version_, _tag_, _branch_ or _commit_) is
 required. When missing, Shards will install the HEAD refs.
@@ -341,7 +343,9 @@ The URL may be https://www.mercurial-scm.org/repo/hg/help/clone[any protocol]
 supported by Mercurial, which includes SSH and HTTPS.
 +
 The Mercurial repository will be cloned, the list of versions (and associated
-_shard.yml_) will be extracted from Mercurial tags (e.g., _v1.2.3_).
+_shard.yml_) will be extracted from Mercurial tags matching the release pattern
+`v<version>` (e.g., _v1.2.3_). Release tags without a leading `v` are ignored
+for version resolution.
 +
 One of the other attributes (_version_, _tag_, _branch_, _bookmark_ or _commit_) is
 required. When missing, Shards will install the _@_ bookmark or _tip_.
@@ -356,7 +360,9 @@ The URL may be https://fossil-scm.org/home/help/clone[any protocol]
 supported by Fossil, which includes SSH and HTTPS.
 +
 The Fossil repository will be cloned, the list of versions (and associated
-_shard.yml_) will be extracted from Fossil tags (e.g., _v1.2.3_).
+_shard.yml_) will be extracted from Fossil tags matching the release pattern
+`v<version>` (e.g., _v1.2.3_). Release tags without a leading `v` are ignored
+for version resolution.
 +
 One of the other attributes (_version_, _tag_, _branch_, or _commit_) is
 required. When missing, Shards will install _trunk_.
