@@ -97,6 +97,14 @@ When _--pre_ is specified, pre-release versions are also considered.
 *prune*::
 Removes unused dependencies from _lib_ folder.
 
+*run* [_<target>_] [-- _<options>_...]::
+Builds and runs the specified _<target>_. If no target is specified and
+_shard.yml_ defines only one target, that target is run.
+This command ensures all dependencies are installed, so it is not necessary
+to run *shards install* before.
++
+Arguments following _--_ are passed directly to the target executable.
+
 *update* [<shards>...]::
 Resolves and updates all dependencies into the _lib_ folder,
 whatever the locked versions in the _shard.lock_ file.
