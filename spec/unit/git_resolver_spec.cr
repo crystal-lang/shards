@@ -44,7 +44,6 @@ module Shards
       GitResolver.normalize_key_source("tangled", "rEpo/pAth").should eq({"git", "https://tangled.org/repo/path.git"})
       GitResolver.normalize_key_source("tangled", "REPO/PATH").should eq({"git", "https://tangled.org/repo/path.git"})
 
-
       # normalise full git paths
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Github.com/Repo/Path.git?Shallow=true")[1].should eq "https://User:Pass@github.com/repo/path.git?Shallow=true"
       GitResolver.normalize_key_source("git", "HTTPS://User:Pass@Bitbucket.com/Repo/Path.Git?Shallow=true")[1].should eq "https://User:Pass@bitbucket.com/repo/path.git?Shallow=true"
