@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2024-10-25
+.\"      Date: 2026-09-02
 .\"    Manual: Shards Manual
-.\"    Source: shards 0.20.0
+.\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2024-10-25" "shards 0.20.0" "Shards Manual"
+.TH "SHARDS" "1" "2026-09-02" "shards 0.21.0\-dev" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -141,10 +141,13 @@ Lists the installed dependencies and their versions.
 Specifying \fI\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
 .RE
 .sp
-\fBlock\fP [\-\-update [<shards>.\|.\|.]]
+\fBlock\fP [\-\-print] [\-\-update [<shards>.\|.\|.]]
 .RS 4
 Resolves dependencies and creates or updates the \fIshard.lock\fP file as per
 the \fBinstall\fP command, but never installs the dependencies.
+.sp
+When \fI\-\-print\fP is specified, outputs the generated lockfile to standard
+output instead of writing it to \fIshard.lock\fP.
 .sp
 Specifying \fI\-\-update\fP follows the same semantics as the \fBupdate\fP
 command.
@@ -303,7 +306,7 @@ Crystal Language home page: \c
 .URL "https://crystal\-lang.org" "" ""
 .SH "COPYRIGHT"
 .sp
-Copyright © 2025 Julien Portalier.
+Copyright © 2026 Julien Portalier.
 .sp
 .URL "http://www.apache.org/licenses/LICENSE\-2.0" "License Apache 2.0" ""
 .sp
