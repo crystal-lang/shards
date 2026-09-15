@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-08-30
+.\"      Date: 2026-09-02
 .\"    Manual: File Formats
 .\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2026-08-30" "shards 0.21.0\-dev" "File Formats"
+.TH "SHARD.YML" "5" "2026-09-02" "shards 0.21.0\-dev" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -485,6 +485,23 @@ a C library, to build tools to help working on the project, or anything else.
 .sp
 The script will be run from the dependency\(cqs installation directory, for example
 \fIlib/foo\fP for a Shard named \fIfoo\fP.
+.if n .sp
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+.B Warning
+.ps -1
+.br
+.sp
+A \fIpostinstall\fP script should never run nested \fIshards\fP commands
+(such as \f(CRshards install\fP, \f(CRshards build\fP, or \f(CRshards check\fP). Nested invocations
+can overwrite dependencies in the parent project\(cqs \fIlib\fP folder and cause lockfile
+mismatches.
+.sp .5v
+.RE
 .sp
 \fBExample:\fP
 .sp
@@ -532,7 +549,8 @@ A path to the source file to compile (string).
 .SH "DEPENDENCY ATTRIBUTES"
 .sp
 Each dependency needs at least one attribute that defines the resolver for this
-dependency. Those can be \fIpath\fP, \fIgit\fP, \fIgithub\fP, \fIgitlab\fP, \fIbitbucket\fP, \fIcodeberg\fP.
+dependency. Those can be \fIpath\fP, \fIgit\fP, \fIgithub\fP, \fIgitlab\fP, \fIbitbucket\fP, \fIcodeberg\fP,
+\fIhg\fP, \fIfossil\fP.
 .sp
 \fBpath\fP
 .RS 4

@@ -244,6 +244,11 @@ a C library, to build tools to help working on the project, or anything else.
 The script will be run from the dependency's installation directory, for example
 _lib/foo_ for a Shard named _foo_.
 +
+WARNING: A _postinstall_ script should never run nested _shards_ commands
+(such as `shards install`, `shards build`, or `shards check`). Nested invocations
+can overwrite dependencies in the parent project's _lib_ folder and cause lockfile
+mismatches.
++
 *Example:*
 +
 [source,yaml]
@@ -279,7 +284,8 @@ A path to the source file to compile (string).
 == DEPENDENCY ATTRIBUTES
 
 Each dependency needs at least one attribute that defines the resolver for this
-dependency. Those can be _path_, _git_, _github_, _gitlab_, _bitbucket_, _codeberg_.
+dependency. Those can be _path_, _git_, _github_, _gitlab_, _bitbucket_, _codeberg_,
+_hg_, _fossil_.
 
 *path*::
 A local path (string).
