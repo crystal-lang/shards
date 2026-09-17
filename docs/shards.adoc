@@ -110,6 +110,12 @@ in the _shard.lock_ file.
 Prints the current version of the shard located at _path_ (defaults to current
 directory).
 
+=== Custom commands
+If an unrecognized command is invoked, _shards_ searches for an executable named
+*shards-_<command>_* in the system *PATH*. If found, execution is delegated to it,
+forwarding all remaining arguments and options. If no such executable exists,
+_shards_ prints the usage synopsis and exits.
+
 To see the available options for a particular command, use *--help*
 after a command.
 
