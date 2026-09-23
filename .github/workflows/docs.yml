@@ -18,7 +18,7 @@ permissions: {}
 
 jobs:
   docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Download source
         uses: actions/checkout@v7
