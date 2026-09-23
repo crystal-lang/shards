@@ -141,10 +141,13 @@ Lists the installed dependencies and their versions.
 Specifying \fI\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
 .RE
 .sp
-\fBlock\fP [\-\-update [<shards>.\|.\|.]]
+\fBlock\fP [\-\-print] [\-\-update [<shards>.\|.\|.]]
 .RS 4
 Resolves dependencies and creates or updates the \fIshard.lock\fP file as per
 the \fBinstall\fP command, but never installs the dependencies.
+.sp
+When \fI\-\-print\fP is specified, outputs the generated lockfile to standard
+output instead of writing it to \fIshard.lock\fP.
 .sp
 Specifying \fI\-\-update\fP follows the same semantics as the \fBupdate\fP
 command.

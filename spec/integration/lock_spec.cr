@@ -99,4 +99,19 @@ describe "lock" do
       assert_locked "minitest", "0.1.3"
     end
   end
+
+  it "prints lockfile with --print" do
+    metadata = {
+      dependencies: {web: "*"},
+    }
+
+    with_shard(metadata) do
+      output = run "shards lock --print"
+      output.should contain("version: 2.0")
+      output.should contain("shards:")
+      output.should contain("web:")
+      output.should contain("version: 2.1.0")
+      File.exists?(File.join(application_path, "shard.lock")).should be_false
+    end
+  end
 end

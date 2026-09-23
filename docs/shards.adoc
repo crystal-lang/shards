@@ -82,9 +82,12 @@ Lists the installed dependencies and their versions.
 +
 Specifying _--tree_ arranges nested dependencies in a tree, instead of a flattened list.
 
-*lock* [--update [<shards>...]]::
+*lock* [--print] [--update [<shards>...]]::
 Resolves dependencies and creates or updates the _shard.lock_ file as per
 the *install* command, but never installs the dependencies.
++
+When _--print_ is specified, outputs the generated lockfile to standard
+output instead of writing it to _shard.lock_.
 +
 Specifying _--update_ follows the same semantics as the *update*
 command.
