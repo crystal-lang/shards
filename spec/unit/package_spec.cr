@@ -81,5 +81,39 @@ module Shards
 
       File.symlink?(install_path("library")).should be_true
     end
+
+    it "computes checksum after git install" do
+      package = Package.new("repo", git_resolver("repo"), version("0.1.2"))
+      package.checksum.should be_nil
+      package.install
+      package.checksum.should_not be_nil
+      package.checksum.should match(/^[0-9a-f]{64}$/)
+    end
+
+    it "does not compute checksum for path resolver" do
+      package = Package.new("library", resolver("library"), version("1.2.3"))
+      package.install
+      package.checksum.should be_nil
+    end
+
+    it "verifies checksum on reinstall" do
+      package = Package.new("repo", git_resolver("repo"), version("0.1.2"))
+      package.install
+      checksum = package.checksum
+
+      Shards::Helpers.rm_rf(install_path("repo"))
+      Shards.info.reload
+
+      package2 = Package.new("repo", git_resolver("repo"), version("0.1.2"), checksum: checksum)
+      package2.install
+      package2.checksum.should eq(checksum)
+    end
+
+    it "raises on checksum mismatch" do
+      package = Package.new("repo", git_resolver("repo"), version("0.1.2"), checksum: "0" * 64)
+      expect_raises(Shards::Error, /Checksum mismatch/) do
+        package.install
+      end
+    end
   end
 end

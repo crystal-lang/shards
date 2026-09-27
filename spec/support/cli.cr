@@ -91,11 +91,15 @@ def to_lock_yaml(lock)
       if data.is_a?(NamedTuple)
         git = data[:git]
         version = data[:version]
+        checksum = data[:checksum]?
       else
         git = git_url(name)
         version = data
+        checksum = nil
       end
-      {name, {git: git, version: version}}
+      entry = {git: git, version: version}
+      entry = entry.merge({checksum: checksum}) if checksum
+      {name, entry}
     end,
   })
 end

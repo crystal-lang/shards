@@ -81,6 +81,9 @@ module Shards
           io << "  " << package.name << ":#{package.is_override ? " # Overridden" : nil}\n"
           io << "    " << key << ": " << package.resolver.source << '\n'
           io << "    version: " << package.version.value << '\n'
+          if checksum = package.checksum
+            io << "    checksum: " << checksum << '\n'
+          end
           io << '\n'
         end
       end

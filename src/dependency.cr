@@ -7,8 +7,9 @@ module Shards
     property name : String
     property resolver : Resolver
     property requirement : Requirement
+    property checksum : String?
 
-    def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any)
+    def initialize(@name : String, @resolver : Resolver, @requirement : Requirement = Any, @checksum : String? = nil)
     end
 
     def self.from_yaml(pull : YAML::PullParser)
@@ -39,8 +40,9 @@ module Shards
 
         resolver = resolver_data[:type].find_resolver(resolver_data[:key], name, resolver_data[:source])
 
+        checksum = params.delete("checksum")
         requirement = resolver.parse_requirement(params)
-        Dependency.new(name, resolver, requirement)
+        Dependency.new(name, resolver, requirement, checksum)
       end
     end
 
@@ -50,6 +52,10 @@ module Shards
         yaml.scalar resolver.class.key
         yaml.scalar resolver.source
         requirement.to_yaml(yaml)
+        if checksum = @checksum
+          yaml.scalar "checksum"
+          yaml.scalar checksum
+        end
       end
     end
 
@@ -67,7 +73,7 @@ module Shards
           versions.first
         end
 
-      Package.new(@name, @resolver, version)
+      Package.new(@name, @resolver, version, checksum: @checksum)
     end
 
     def_equals @name, @resolver, @requirement

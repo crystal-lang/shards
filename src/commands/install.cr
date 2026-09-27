@@ -23,6 +23,8 @@ module Shards
 
         packages = handle_resolver_errors { solver.solve }
 
+        propagate_checksums(packages)
+
         if Shards.frozen?
           validate(packages)
         end
@@ -61,6 +63,17 @@ module Shards
         raise LockConflict.new("#{package.name} requirements changed")
       end
 
+      private def propagate_checksums(packages)
+        return unless lockfile?
+
+        lock_index = locks.shards.index_by(&.name)
+        packages.each do |package|
+          if lock = lock_index[package.name]?
+            package.checksum = lock.checksum
+          end
+        end
+      end
+
       private def install(packages : Array(Package))
         # packages are returned by the solver in reverse topological order,
         # so transitive dependencies are installed first
@@ -81,6 +94,7 @@ module Shards
       private def install(package : Package)
         if package.installed?
           Log.info { "Using #{package.name} (#{package.report_version})" }
+          package.verify_checksum
           return
         end
 
@@ -97,7 +111,10 @@ module Shards
         return true if locks.version != Shards::Lock::CURRENT_VERSION
         return true if packages.size != locks.shards.size
 
-        packages.index_by(&.name) != locks.shards.index_by(&.name)
+        return true if packages.index_by(&.name) != locks.shards.index_by(&.name)
+
+        lock_index = locks.shards.index_by(&.name)
+        packages.any? { |pkg| lock_index[pkg.name]?.try &.checksum != pkg.checksum }
       end
     end
   end

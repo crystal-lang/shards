@@ -1283,4 +1283,66 @@ describe "install" do
       ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end
+
+  describe "checksum" do
+    it "writes checksum to lockfile on fresh install" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      with_shard(metadata) do
+        run "shards install"
+
+        Shards::Resolver.clear_resolver_cache
+        locks = Shards::Lock.from_file(File.join(application_path, "shard.lock"))
+        lock = locks.shards.find { |d| d.name == "web" }.not_nil!
+        lock.checksum.should_not be_nil
+        lock.checksum.should match(/^[0-9a-f]{64}$/)
+      end
+    end
+
+    it "does not write checksum for path dependencies" do
+      metadata = {dependencies: {web: {path: rel_path(:web)}}}
+      with_shard(metadata) do
+        run "shards install"
+
+        Shards::Resolver.clear_resolver_cache
+        locks = Shards::Lock.from_file(File.join(application_path, "shard.lock"))
+        lock = locks.shards.find { |d| d.name == "web" }.not_nil!
+        lock.checksum.should be_nil
+      end
+    end
+
+    it "verifies checksum on subsequent install" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      with_shard(metadata) do
+        run "shards install"
+
+        # reinstall should pass (same checksum)
+        Shards::Helpers.rm_rf_children(Shards.install_path)
+        Shards.info.reload
+        run "shards install"
+        assert_installed "web", "1.0.0"
+      end
+    end
+
+    it "fails on checksum mismatch" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      lock = {web: {git: git_url(:web), version: "1.0.0", checksum: "0" * 64}}
+      with_shard(metadata, lock) do
+        ex = expect_raises(FailedCommand) { run "shards install --no-color" }
+        ex.stdout.should contain "Checksum mismatch"
+      end
+    end
+
+    it "omits checksum for old lockfiles without one" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      lock = {web: "1.0.0"}
+      with_shard(metadata, lock) do
+        run "shards install"
+
+        Shards::Resolver.clear_resolver_cache
+        locks = Shards::Lock.from_file(File.join(application_path, "shard.lock"))
+        lock_entry = locks.shards.find { |d| d.name == "web" }.not_nil!
+        lock_entry.checksum.should_not be_nil
+      end
+    end
+  end
 end

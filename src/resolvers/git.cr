@@ -1,4 +1,5 @@
 require "uri"
+require "digest"
 require "./resolver"
 require "../versions"
 require "../logger"
@@ -226,6 +227,24 @@ module Shards
 
       Dir.mkdir_p(install_path)
       run "git --work-tree=#{Process.quote(install_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
+    end
+
+    def checksum(version : Version) : String?
+      update_local_cache
+      ref = git_ref(version)
+
+      output = IO::Memory.new
+      error = IO::Memory.new
+      status = Process.run(
+        "git", ["archive", "--format=tar", ref.to_git_ref],
+        chdir: local_path, output: output, error: error,
+      )
+
+      unless status.success?
+        raise Error.new("Failed to compute checksum for #{name.inspect}: #{error}")
+      end
+
+      Digest::SHA256.hexdigest(output.to_slice)
     end
 
     def commit_sha1_at(ref : GitRef)

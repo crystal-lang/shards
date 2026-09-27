@@ -7,9 +7,10 @@ module Shards
     getter resolver : Resolver
     getter version : Version
     getter is_override : Bool
+    property checksum : String?
     @spec : Spec?
 
-    def initialize(@name, @resolver, @version, @is_override = false)
+    def initialize(@name, @resolver, @version, @is_override = false, @checksum : String? = nil)
     end
 
     def_equals @name, @resolver, @version
@@ -70,11 +71,25 @@ module Shards
         # can access transitive dependencies:
         unless resolver.is_a?(PathResolver)
           install_lib_path
+          verify_checksum
         end
       end
 
       Shards.info.installed[name] = self
       Shards.info.save
+    end
+
+    def verify_checksum
+      computed = resolver.checksum(version)
+      return unless computed
+
+      if locked = @checksum
+        unless computed == locked
+          raise Error.new("Checksum mismatch for #{name.inspect}: expected #{computed}, got #{locked}. This may indicate the repository was tampered with. Run `shards update` to accept the new checksum.")
+        end
+      else
+        @checksum = computed
+      end
     end
 
     private def install_lib_path
@@ -153,7 +168,7 @@ module Shards
     end
 
     def to_yaml(builder)
-      Dependency.new(name, resolver, version).to_yaml(builder)
+      Dependency.new(name, resolver, version, checksum).to_yaml(builder)
     end
 
     def to_s(io)

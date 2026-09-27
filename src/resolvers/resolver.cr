@@ -88,6 +88,10 @@ module Shards
     abstract def install_sources(version : Version, install_path : String)
     abstract def report_version(version : Version) : String
 
+    def checksum(version : Version) : String?
+      nil
+    end
+
     def update_local_cache
     end
 

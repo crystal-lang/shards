@@ -68,5 +68,57 @@ module Shards
         YAML
       lock.shards.empty?.should be_true
     end
+
+    it "parses checksum" do
+      create_git_repository "library", "0.1.0"
+
+      lock = Lock.from_yaml <<-YAML
+      version: 2.0
+      shards:
+        example:
+          git: #{git_url(:library)}
+          version: 0.1.0
+          checksum: abc123def4567890abc123def4567890abc123def4567890abc123def4567890
+      YAML
+
+      lock.version.should eq("2.0")
+      shards = lock.shards
+      shards.size.should eq(1)
+      shards[0].name.should eq("example")
+      shards[0].checksum.should eq("abc123def4567890abc123def4567890abc123def4567890abc123def4567890")
+    end
+
+    it "writes checksum" do
+      create_git_repository "library", "0.1.0"
+
+      package = Package.new(
+        "example",
+        GitResolver.new("example", git_url(:library)),
+        version("0.1.0"),
+        checksum: "abc123def4567890abc123def4567890abc123def4567890abc123def4567890",
+      )
+
+      output = String.build do |io|
+        Lock.write([package], nil, io)
+      end
+
+      output.should contain("checksum: abc123def4567890abc123def4567890abc123def4567890abc123def4567890")
+    end
+
+    it "omits checksum when not set" do
+      create_git_repository "library", "0.1.0"
+
+      package = Package.new(
+        "example",
+        GitResolver.new("example", git_url(:library)),
+        version("0.1.0"),
+      )
+
+      output = String.build do |io|
+        Lock.write([package], nil, io)
+      end
+
+      output.should_not contain("checksum")
+    end
   end
 end
