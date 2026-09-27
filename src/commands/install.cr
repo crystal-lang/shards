@@ -66,15 +66,7 @@ module Shards
         # so transitive dependencies are installed first
         packages.each do |package|
           # first install the dependency:
-          next unless install(package)
-
-          # then execute the postinstall script
-          # (with access to all transitive dependencies):
-          package.postinstall
-
-          # always install executables because the path resolver never actually
-          # installs dependencies:
-          package.install_executables
+          install(package)
         end
       end
 
