@@ -16,7 +16,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * orm (installed: 0.3.1, available: 0.5.0)")
+      stdout.should contain("  * orm (installed: 0.3.1 at #{git_commits("orm", "v0.3.1").first[0..6]}, available: 0.5.0 at #{git_commits("orm", "v0.5.0").first[0..6]})")
     end
   end
 
@@ -36,7 +36,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * orm (installed: 0.3.1, available: 0.3.2, latest: 0.5.0)")
+      stdout.should contain("  * orm (installed: 0.3.1 at #{git_commits("orm", "v0.3.1").first[0..6]}, available: 0.3.2 at #{git_commits("orm", "v0.3.2").first[0..6]}, latest: 0.5.0)")
     end
   end
 
@@ -47,7 +47,7 @@ describe "outdated" do
     with_shard({dependencies: {unstable: "~> 0.3.0.alpha"}}) do
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * unstable (installed: 0.3.0.alpha, available: 0.3.0.beta)")
+      stdout.should contain("  * unstable (installed: 0.3.0.alpha at #{git_commits("unstable", "v0.3.0.alpha").first[0..6]}, available: 0.3.0.beta at #{git_commits("unstable", "v0.3.0.beta").first[0..6]})")
     end
   end
 
@@ -57,7 +57,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * preview (installed: 0.2.0, available: 0.3.0)")
+      stdout.should contain("  * preview (installed: 0.2.0 at #{git_commits("preview", "v0.2.0").first[0..6]}, available: 0.3.0 at #{git_commits("preview", "v0.3.0").first[0..6]})")
     end
   end
 
@@ -67,7 +67,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --pre --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * preview (installed: 0.2.0, available: 0.4.0.a)")
+      stdout.should contain("  * preview (installed: 0.2.0 at #{git_commits("preview", "v0.2.0").first[0..6]}, available: 0.4.0.a at #{git_commits("preview", "v0.4.0.a").first[0..6]})")
     end
   end
 
@@ -118,7 +118,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * awesome (installed: 0.1.0, available: 0.3.0)")
+      stdout.should contain("  * awesome (installed: 0.1.0 at #{git_commits("awesome", "v0.1.0").first[0..6]}, available: 0.3.0 at #{git_commits("awesome", "v0.3.0").first[0..6]})")
     end
   end
 
@@ -132,7 +132,7 @@ describe "outdated" do
 
       stdout = run "shards outdated --no-color"
       stdout.should contain("W: Outdated dependencies:")
-      stdout.should contain("  * awesome (installed: 0.1.0, available: 0.2.0)")
+      stdout.should contain("  * awesome (installed: 0.1.0 at #{git_commits("forked_awesome", "v0.1.0").first[0..6]}, available: 0.2.0 at #{git_commits("forked_awesome", "v0.2.0").first[0..6]})")
     end
   end
 
@@ -222,7 +222,7 @@ describe "outdated" do
 
           stdout = run "shards outdated --no-color"
           stdout.should contain("W: Outdated dependencies:")
-          stdout.should contain("  * heading (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0)")
+          stdout.should contain("  * heading (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{git_commits("heading", "v0.1.0").first[0..6]})")
           # TODO: stdout.should contain("  * heading (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.1.0 at #{commits.first[0..6]})")
         end
       end
@@ -255,7 +255,7 @@ describe "outdated" do
 
         stdout = run "shards outdated --no-color"
         stdout.should contain("W: Outdated dependencies:")
-        stdout.should contain("  * release_hist (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.2.0)")
+        stdout.should contain("  * release_hist (installed: 0.1.0 at #{commits[1][0..6]}, available: 0.2.0 at #{git_commits("release_hist", "v0.2.0").first[0..6]})")
       end
     end
 

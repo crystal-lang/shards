@@ -1283,4 +1283,87 @@ describe "install" do
       ex.stdout.should contain "Error missing git command line tool. Please install Git first!"
     end
   end
+
+  describe "commit pinning" do
+    it "writes pinned version to lockfile on fresh install" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      with_shard(metadata) do
+        run "shards install"
+
+        assert_locked "web", "1.0.0", git: git_commits("web", "v1.0.0").first
+      end
+    end
+
+    it "keeps locked commit on subsequent install" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      with_shard(metadata) do
+        run "shards install"
+        lockfile = File.read(File.join(application_path, "shard.lock"))
+
+        Shards::Helpers.rm_rf_children(Shards.install_path)
+        Shards.info.reload
+        run "shards install"
+
+        File.read(File.join(application_path, "shard.lock")).should eq(lockfile)
+      end
+    end
+
+    it "installs the locked commit when the tag moved" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      with_shard(metadata) do
+        run "shards install"
+        locked_commit = git_commits("web", "v1.0.0").first
+
+        # Simulate a tampered remote: move the tag to a different commit
+        # with different content.
+        Dir.cd(git_path("web")) do
+          run "git checkout master --quiet"
+          File.write("src/web_tamper.cr", "module WebTamper\nend")
+          run "git add src/web_tamper.cr"
+          run "git commit --no-gpg-sign -m tamper"
+          run "git tag -f v1.0.0"
+        end
+
+        begin
+          Shards::Helpers.rm_rf_children(Shards.install_path)
+          Shards.info.reload
+          run "shards install"
+
+          assert_locked "web", "1.0.0", git: locked_commit
+
+          # the tampered content must not have been installed:
+          File.exists?(File.join(application_path, "lib", "web", "src", "web_tamper.cr")).should be_false
+        ensure
+          # restore the pristine repository state for subsequent tests:
+          Dir.cd(git_path("web")) do
+            run "git checkout master --quiet"
+            run "git reset --hard #{Process.quote(locked_commit)} --quiet"
+            run "git tag -f v1.0.0 #{Process.quote(locked_commit)}"
+          end
+        end
+      end
+    end
+
+    it "upgrades an unpinned lockfile entry" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      lock = {web: {git: git_url(:web), version: "1.0.0"}}
+      with_shard(metadata, lock) do
+        run "shards install"
+
+        assert_locked "web", "1.0.0", git: git_commits("web", "v1.0.0").first
+      end
+    end
+
+    it "installs with an unpinned lockfile in frozen mode" do
+      metadata = {dependencies: {web: "1.0.0"}}
+      lock = {web: {git: git_url(:web), version: "1.0.0"}}
+      with_shard(metadata, lock) do
+        run "shards install --frozen"
+
+        # frozen mode must not rewrite the lockfile:
+        assert_locked "web", "1.0.0"
+        assert_installed "web", "1.0.0"
+      end
+    end
+  end
 end
