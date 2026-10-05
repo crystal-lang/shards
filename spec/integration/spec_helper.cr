@@ -214,7 +214,12 @@ def assert_installed(name, version = nil, file = __FILE__, line = __LINE__, *, g
 
   if dependency && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
-    dependency.version.should eq(version expected_version), file: file, line: line
+    actual_version = dependency.version.value
+    # ignore the commit pin unless the test expects a specific commit:
+    unless git || expected_version.includes?('+')
+      actual_version = actual_version.split('+', 2).first
+    end
+    assert expected_version == actual_version, "expected #{name} dependency to have been installed at version #{expected_version} instead of #{actual_version}", file, line
   end
 
   if dependency && source
@@ -250,6 +255,10 @@ def assert_locked(name, version = nil, file = __FILE__, line = __LINE__, *, git 
   if lock && version
     expected_version = git ? "#{version}+git.commit.#{git}" : version
     actual_value = lock.version.value
+    # ignore the commit pin unless the test expects a specific commit:
+    unless git || expected_version.includes?('+')
+      actual_value = actual_value.split('+', 2).first
+    end
     assert expected_version == actual_value, "expected #{name} dependency to have been locked at version #{version} instead of #{actual_value}", file, line
   end
 

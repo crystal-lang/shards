@@ -89,8 +89,12 @@ module Shards
         when GitTagRef, GitCommitRef
           # TODO: Check if pinned commit is an ancestor of HEAD
         else
-          # already the latest version?
-          return if latest_release == installed
+          # already the latest version? Compare the latest release pinned
+          # to the commit its tag points to, so a moved tag isn't mistaken
+          # for the installed version
+          if latest_release && (pinned_release = resolver.pinned_version(latest_release)) == installed
+            return
+          end
         end
 
         @up_to_date = false

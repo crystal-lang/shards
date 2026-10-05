@@ -228,6 +228,18 @@ module Shards
       run "git --work-tree=#{Process.quote(install_path)} checkout #{Process.quote(ref.to_git_ref)} -- ."
     end
 
+    # Returns the version enriched with the commit that the version tag
+    # currently resolves to (e.g. `1.0.0+git.commit.<sha1>`), so subsequent
+    # installs resolve this exact commit instead of the mutable tag.
+    def pinned_version(version : Version) : Version
+      git_version = parse_git_version(version)
+      return version if git_version.commit
+
+      update_local_cache
+      ref = GitTagRef.new "v#{git_version.value}"
+      Version.new "#{git_version.value}+git.commit.#{commit_sha1_at(ref)}"
+    end
+
     def commit_sha1_at(ref : GitRef)
       capture("git log -n 1 --pretty=%H #{Process.quote(ref.to_git_ref)}").strip
     end

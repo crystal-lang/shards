@@ -236,6 +236,18 @@ module Shards
       run "hg clone --quiet -u #{Process.quote(ref.to_hg_ref)} -- #{Process.quote(local_path)} #{Process.quote(install_path)}"
     end
 
+    # Returns the version enriched with the commit that the version tag
+    # currently resolves to (e.g. `1.0.0+hg.commit.<sha1>`), so subsequent
+    # installs resolve this exact commit instead of the mutable tag.
+    def pinned_version(version : Version) : Version
+      hg_version = parse_hg_version(version)
+      return version if hg_version.commit
+
+      update_local_cache
+      ref = HgTagRef.new "v#{hg_version.value}"
+      Version.new "#{hg_version.value}+hg.commit.#{commit_sha1_at(ref)}"
+    end
+
     def commit_sha1_at(ref : HgRef)
       capture("hg log -r #{Process.quote(ref.to_hg_revset)} --template #{Process.quote("{node}\n")}").strip
     end

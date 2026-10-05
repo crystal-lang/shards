@@ -76,10 +76,26 @@ module Shards
     it "cleanups target before installing" do
       Dir.mkdir_p(install_path)
       File.touch(install_path("library"))
-      package = Package.new("library", resolver("library"), version "1.2.3")
+      package = Package.new("library", resolver("library"), version("1.2.3"))
       package.install
 
       File.symlink?(install_path("library")).should be_true
+    end
+
+    it "pins tag version to the tag's commit" do
+      commit = git_commits("repo", "v0.1.2").first
+      pinned = git_resolver("repo").pinned_version(version("0.1.2"))
+      pinned.value.should eq("0.1.2+git.commit.#{commit}")
+    end
+
+    it "keeps an already pinned version" do
+      pinned = git_resolver("repo").pinned_version(version("0.1.2+git.commit.abc123def4567890abc123def4567890abc123de"))
+      pinned.value.should eq("0.1.2+git.commit.abc123def4567890abc123def4567890abc123de")
+    end
+
+    it "does not pin path resolver versions" do
+      pinned = resolver("library").pinned_version(version("1.2.3"))
+      pinned.value.should eq("1.2.3")
     end
   end
 end

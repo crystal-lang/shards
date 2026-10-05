@@ -68,5 +68,21 @@ module Shards
         YAML
       lock.shards.empty?.should be_true
     end
+
+    it "writes pinned version" do
+      create_git_repository "library", "0.1.0"
+
+      package = Package.new(
+        "example",
+        GitResolver.new("example", git_url(:library)),
+        version("0.1.0+git.commit.abc123def4567890abc123def4567890abc123def4567890"),
+      )
+
+      output = String.build do |io|
+        Lock.write([package], nil, io)
+      end
+
+      output.should contain("version: 0.1.0+git.commit.abc123def4567890abc123def4567890abc123def4567890")
+    end
   end
 end
