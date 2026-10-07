@@ -191,6 +191,12 @@ in the \fIshard.lock\fP file.
 Prints the current version of the shard located at \fIpath\fP (defaults to current
 directory).
 .RE
+.SS "Custom commands"
+.sp
+If an unrecognized command is invoked, \fIshards\fP searches for an executable named
+\fBshards\-\fI<command>\fP\fP in the system \fBPATH\fP. If found, execution is delegated to it,
+forwarding all remaining arguments and options. If no such executable exists,
+\fIshards\fP prints the usage synopsis and exits.
 .sp
 To see the available options for a particular command, use \fB\-\-help\fP
 after a command.
