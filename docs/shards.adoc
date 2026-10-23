@@ -175,6 +175,11 @@ SHARDS_BIN_PATH::
 Defines the location where executables are installed.
 Defaults to _bin_.
 
+CRYSTAL::
+Defines the path to the Crystal compiler binary used for compiling targets
+and determining the compiler version.
+Defaults to _crystal_.
+
 CRYSTAL_VERSION::
 Defines the crystal version that dependencies should be resolved against.
 Defaults to the output of _crystal env CRYSTAL_VERSION_.
