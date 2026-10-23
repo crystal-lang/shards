@@ -37,8 +37,21 @@ module Shards
     def install_sources(version, install_path)
       path = expanded_local_path
 
-      Dir.mkdir_p(File.dirname(install_path))
-      File.symlink(path, install_path)
+      install_dir = File.dirname(install_path)
+      Dir.mkdir_p(install_dir)
+      # The link is created from its own directory so that a relative target
+      # is resolved against it on Windows when picking the directory flag.
+      Dir.cd(install_dir) do
+        File.symlink(symlink_target(path, install_dir), File.basename(install_path))
+      end
+    end
+
+    # A relative path reference is linked relatively so the link keeps working
+    # when the project is moved or shared between systems.
+    private def symlink_target(path, install_dir)
+      return path if Path[local_path].absolute? || local_path.starts_with?("~")
+
+      Path[path].relative_to(File.expand_path(install_dir)).to_s
     end
 
     def report_version(version : Version) : String
