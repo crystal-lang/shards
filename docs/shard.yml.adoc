@@ -386,6 +386,7 @@ Examples: _1.2.3_, _>= 1.0.0_, _>= 1.0.0, < 2.0_ or _~> 2.0_.
 Most of the version operators, like _>= 1.0.0_, are self-explanatory, but
 the _~>_ operator has a special meaning.
 It specifies a minimum version, but allows the last digit specified to go up, excluding the major release number:
++
 --
 - _~> 0.3.5_ is identical to _>= 0.3.5 and < 0.4.0_.
 - _~> 2.0.3_ is identical to _>= 2.0.3 and < 2.1_.
@@ -393,9 +394,14 @@ It specifies a minimum version, but allows the last digit specified to go up, ex
 - _~> 0.3_ is identical to _>= 0.3 and < 1.0_.
 - _~> 1_ is identical to _>= 1.0 and < 2.0_.
 --
-
++
 NOTE: Even though _2.1.0-dev_ is strictly before _2.1.0_, a version constraint like _~> 2.0.3_
 would not install it since only the _.3_ can change but the _2.0_ part is fixed.
++
+Prerelease versions, which contain a letter such as _1.0.0.alpha_ or _2.0.0-rc1_,
+are ignored by standard version requirements like _*_ or _~> 1.0_. To install a
+prerelease version, a requirement for the dependency must explicitly specify a
+prerelease, such as _1.0.0.alpha_ or _~> 1.0.0.alpha_.
 
 *branch*::
   Install the specified branch of a git dependency, or the named branch
