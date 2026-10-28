@@ -1,3 +1,5 @@
+require "colorize"
+
 module Shards
   class Error < ::Exception
   end
@@ -61,7 +63,7 @@ module Shards
         (column_number - 1).times { s << ' ' }
         s << '^'
       end
-      io.puts arrow.colorize(:green).bold
+      io.puts arrow.colorize(:green).bold.toggle(Shards.colors?)
       io.puts
 
       io.flush

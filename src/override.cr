@@ -1,4 +1,3 @@
-require "colorize"
 require "./ext/yaml"
 require "./config"
 require "./dependency"
