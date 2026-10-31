@@ -134,7 +134,11 @@ module Shards
           end
         end
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
-        version = spec.version
+
+        # Pin VCS-resolved versions to the commit the tag resolves to, so
+        # the lockfile records an immutable reference and installs stay
+        # reproducible even if the tag moves on the remote:
+        version = resolver.pinned_version(spec.version)
 
         packages << Package.new(spec.name, resolver, version, !on_override(spec).nil?)
       end

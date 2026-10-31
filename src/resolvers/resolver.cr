@@ -88,6 +88,13 @@ module Shards
     abstract def install_sources(version : Version, install_path : String)
     abstract def report_version(version : Version) : String
 
+    # Returns the version pinned to the resolved VCS commit, so installs
+    # are reproducible even if the tag or branch moves on the remote.
+    # The default implementation returns the version unchanged.
+    def pinned_version(version : Version) : Version
+      version
+    end
+
     def update_local_cache
     end
 
