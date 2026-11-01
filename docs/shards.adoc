@@ -46,8 +46,9 @@ to run *shards install* before.
 +
 All _<build_options>_ following the command are delegated to *crystal build*.
 
-*check*::
+*check* [--without-development]::
 Verifies that all dependencies are installed and requirements are satisfied.
+When _--without-development_ is specified, development dependencies are ignored.
 +
 Exit status:
 +
@@ -77,12 +78,13 @@ doesn't generate a conflict, thus generating a new _shard.lock_ file.
 --jobs:: Number of repository downloads to perform in parallel (default: 8). Currently only for git.
 --
 
-*list* [--tree]::
+*list* [--tree] [--without-development]::
 Lists the installed dependencies and their versions.
 +
 Specifying _--tree_ arranges nested dependencies in a tree, instead of a flattened list.
+When _--without-development_ is specified, development dependencies are excluded.
 
-*lock* [--print] [--update [<shards>...]]::
+*lock* [--print] [--update [<shards>...]] [--without-development] [--jobs=N]::
 Resolves dependencies and creates or updates the _shard.lock_ file as per
 the *install* command, but never installs the dependencies.
 +
@@ -91,11 +93,15 @@ output instead of writing it to _shard.lock_.
 +
 Specifying _--update_ follows the same semantics as the *update*
 command.
++
+The _--without-development_ and _--jobs_ options behave the same as for *install*.
 
-*outdated* [--pre]::
+*outdated* [--pre] [--without-development] [--jobs=N]::
 Lists dependencies that are outdated.
 +
 When _--pre_ is specified, pre-release versions are also considered.
++
+The _--without-development_ and _--jobs_ options behave the same as for *install*.
 
 *prune*::
 Removes unused dependencies from _lib_ folder.
@@ -108,7 +114,7 @@ to run *shards install* before.
 +
 Arguments following _--_ are passed directly to the target process.
 
-*update* [<shards>...]::
+*update* [<shards>...] [--without-development] [--skip-postinstall] [--skip-executables] [--jobs=N]::
 Resolves and updates all dependencies into the _lib_ folder,
 whatever the locked versions in the _shard.lock_ file.
 Eventually generates a new _shard.lock_ file.
@@ -116,6 +122,9 @@ Eventually generates a new _shard.lock_ file.
 Specifying _shards_ will update these dependencies only, trying to be as
 conservative as possible with other dependencies, respecting the locked versions
 in the _shard.lock_ file.
++
+The _--without-development_, _--skip-postinstall_, _--skip-executables_, and
+_--jobs_ options behave the same as for *install*.
 
 *version* [_<path>_]::
 Prints the current version of the shard located at _path_ (defaults to current
