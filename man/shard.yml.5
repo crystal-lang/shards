@@ -2,12 +2,12 @@
 .\"     Title: shard.yml
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-08-30
+.\"      Date: 2026-10-21
 .\"    Manual: File Formats
 .\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARD.YML" "5" "2026-08-30" "shards 0.21.0\-dev" "File Formats"
+.TH "SHARD.YML" "5" "2026-10-21" "shards 0.21.0\-dev" "File Formats"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -698,7 +698,6 @@ Examples: \fI1.2.3\fP, \fI>= 1.0.0\fP, \fI>= 1.0.0, < 2.0\fP or \fI~> 2.0\fP.
 Most of the version operators, like \fI>= 1.0.0\fP, are self\-explanatory, but
 the \fI~>\fP operator has a special meaning.
 It specifies a minimum version, but allows the last digit specified to go up, excluding the major release number:
-.RE
 .sp
 .RS 4
 .ie n \{\
@@ -768,6 +767,12 @@ It specifies a minimum version, but allows the last digit specified to go up, ex
 Even though \fI2.1.0\-dev\fP is strictly before \fI2.1.0\fP, a version constraint like \fI~> 2.0.3\fP
 would not install it since only the \fI.3\fP can change but the \fI2.0\fP part is fixed.
 .sp .5v
+.RE
+.sp
+Prerelease versions, which contain a letter such as \fI1.0.0.alpha\fP or \fI2.0.0\-rc1\fP,
+are ignored by standard version requirements like \fI*\fP or \fI~> 1.0\fP. To install a
+prerelease version, a requirement for the dependency must explicitly specify a
+prerelease, such as \fI1.0.0.alpha\fP or \fI~> 1.0.0.alpha\fP.
 .RE
 .sp
 \fBbranch\fP
