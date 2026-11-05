@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-10-05
+.\"      Date: 2026-10-28
 .\"    Manual: Shards Manual
 .\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2026-10-05" "shards 0.21.0\-dev" "Shards Manual"
+.TH "SHARDS" "1" "2026-10-28" "shards 0.21.0\-dev" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -70,9 +70,10 @@ to run \fBshards install\fP before.
 All \fI<build_options>\fP following the command are delegated to \fBcrystal build\fP.
 .RE
 .sp
-\fBcheck\fP
+\fBcheck\fP [\-\-without\-development]
 .RS 4
 Verifies that all dependencies are installed and requirements are satisfied.
+When \fI\-\-without\-development\fP is specified, development dependencies are ignored.
 .sp
 Exit status:
 .sp
@@ -134,14 +135,15 @@ Number of repository downloads to perform in parallel (default: 8). Currently on
 .RE
 .RE
 .sp
-\fBlist\fP [\-\-tree]
+\fBlist\fP [\-\-tree] [\-\-without\-development]
 .RS 4
 Lists the installed dependencies and their versions.
 .sp
 Specifying \fI\-\-tree\fP arranges nested dependencies in a tree, instead of a flattened list.
+When \fI\-\-without\-development\fP is specified, development dependencies are excluded.
 .RE
 .sp
-\fBlock\fP [\-\-print] [\-\-update [<shards>.\|.\|.]]
+\fBlock\fP [\-\-print] [\-\-update [<shards>.\|.\|.]] [\-\-without\-development] [\-\-jobs=N]
 .RS 4
 Resolves dependencies and creates or updates the \fIshard.lock\fP file as per
 the \fBinstall\fP command, but never installs the dependencies.
@@ -151,13 +153,17 @@ output instead of writing it to \fIshard.lock\fP.
 .sp
 Specifying \fI\-\-update\fP follows the same semantics as the \fBupdate\fP
 command.
+.sp
+The \fI\-\-without\-development\fP and \fI\-\-jobs\fP options behave the same as for \fBinstall\fP.
 .RE
 .sp
-\fBoutdated\fP [\-\-pre]
+\fBoutdated\fP [\-\-pre] [\-\-without\-development] [\-\-jobs=N]
 .RS 4
 Lists dependencies that are outdated.
 .sp
 When \fI\-\-pre\fP is specified, pre\-release versions are also considered.
+.sp
+The \fI\-\-without\-development\fP and \fI\-\-jobs\fP options behave the same as for \fBinstall\fP.
 .RE
 .sp
 \fBprune\fP
@@ -175,7 +181,7 @@ to run \fBshards install\fP before.
 Arguments following \fI\-\-\fP are passed directly to the target process.
 .RE
 .sp
-\fBupdate\fP [<shards>.\|.\|.]
+\fBupdate\fP [<shards>.\|.\|.] [\-\-without\-development] [\-\-skip\-postinstall] [\-\-skip\-executables] [\-\-jobs=N]
 .RS 4
 Resolves and updates all dependencies into the \fIlib\fP folder,
 whatever the locked versions in the \fIshard.lock\fP file.
@@ -184,6 +190,9 @@ Eventually generates a new \fIshard.lock\fP file.
 Specifying \fIshards\fP will update these dependencies only, trying to be as
 conservative as possible with other dependencies, respecting the locked versions
 in the \fIshard.lock\fP file.
+.sp
+The \fI\-\-without\-development\fP, \fI\-\-skip\-postinstall\fP, \fI\-\-skip\-executables\fP, and
+\fI\-\-jobs\fP options behave the same as for \fBinstall\fP.
 .RE
 .sp
 \fBversion\fP [\fI<path>\fP]
