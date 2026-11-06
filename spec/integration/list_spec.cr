@@ -10,11 +10,11 @@ describe "list" do
       run "shards install"
       stdout = run "shards list"
 
-      stdout.should contain("web (2.1.0)")
-      stdout.should contain("orm (0.5.0)")
-      stdout.should contain("pg (0.2.1)")
-      stdout.should contain("mock (0.1.0)")
-      stdout.should contain("shoulda (0.1.0)")
+      stdout.should contain("web (2.1.0 at #{git_commits("web", "v2.1.0").first[0..6]})")
+      stdout.should contain("orm (0.5.0 at #{git_commits("orm", "v0.5.0").first[0..6]})")
+      stdout.should contain("pg (0.2.1 at #{git_commits("pg", "v0.2.1").first[0..6]})")
+      stdout.should contain("mock (0.1.0 at #{git_commits("mock", "v0.1.0").first[0..6]})")
+      stdout.should contain("shoulda (0.1.0 at #{git_commits("shoulda", "v0.1.0").first[0..6]})")
     end
   end
 
@@ -27,9 +27,9 @@ describe "list" do
     with_shard(metadata) do
       run "shards install --without-development"
       stdout = run "shards list --without-development"
-      stdout.should contain("web (2.1.0)")
-      stdout.should contain("orm (0.5.0)")
-      stdout.should contain("pg (0.2.1)")
+      stdout.should contain("web (2.1.0 at #{git_commits("web", "v2.1.0").first[0..6]})")
+      stdout.should contain("orm (0.5.0 at #{git_commits("orm", "v0.5.0").first[0..6]})")
+      stdout.should contain("pg (0.2.1 at #{git_commits("pg", "v0.2.1").first[0..6]})")
       stdout.should_not contain("mock")
       stdout.should_not contain("shoulda")
     end
@@ -46,8 +46,8 @@ describe "list" do
     with_shard(metadata, lock) do
       run "shards install --production"
       stdout = run "shards list --production"
-      stdout.should contain("web (1.0.0)")
-      stdout.should contain("orm (0.3.0)")
+      stdout.should contain("web (1.0.0 at #{git_commits("web", "v1.0.0").first[0..6]})")
+      stdout.should contain("orm (0.3.0 at #{git_commits("orm", "v0.3.0").first[0..6]})")
       stdout.should_not contain("mock")
       stdout.should_not contain("shoulda")
     end
@@ -61,11 +61,11 @@ describe "list" do
     with_shard(metadata) do
       run "shards install"
       stdout = run "shards list --tree"
-      stdout.should contain("  * web (2.1.0)")
-      stdout.should contain("  * orm (0.5.0)")
-      stdout.should contain("    * pg (0.2.1)")
-      stdout.should contain("  * mock (0.1.0)")
-      stdout.should contain("    * shoulda (0.1.0)")
+      stdout.should contain("  * web (2.1.0 at #{git_commits("web", "v2.1.0").first[0..6]})")
+      stdout.should contain("  * orm (0.5.0 at #{git_commits("orm", "v0.5.0").first[0..6]})")
+      stdout.should contain("    * pg (0.2.1 at #{git_commits("pg", "v0.2.1").first[0..6]})")
+      stdout.should contain("  * mock (0.1.0 at #{git_commits("mock", "v0.1.0").first[0..6]})")
+      stdout.should contain("    * shoulda (0.1.0 at #{git_commits("shoulda", "v0.1.0").first[0..6]})")
     end
   end
 
@@ -87,8 +87,8 @@ describe "list" do
 
     with_shard({dependencies: {awesome: {version: "0.2.0", git: git_url(:forked_awesome)}}}) do
       stdout = run "shards list --tree"
-      stdout.should contain("  * awesome (0.1.0)")
-      stdout.should contain("    * d (0.2.0)")
+      stdout.should contain("  * awesome (0.1.0 at #{git_commits("awesome", "v0.1.0").first[0..6]})")
+      stdout.should contain("    * d (0.2.0 at #{git_commits("d", "v0.2.0").first[0..6]})")
     end
   end
 
@@ -103,8 +103,8 @@ describe "list" do
 
     with_shard(metadata, nil, override) do
       stdout = run "shards list --tree"
-      stdout.should contain("  * awesome (0.1.0)")
-      stdout.should contain("    * d (0.2.0)")
+      stdout.should contain("  * awesome (0.1.0 at #{git_commits("awesome", "v0.1.0").first[0..6]})")
+      stdout.should contain("    * d (0.2.0 at #{git_commits("d", "v0.2.0").first[0..6]})")
     end
   end
 end

@@ -58,6 +58,10 @@ module Shards
 
       private def validate_locked_version(package, version)
         return if package.version == version
+        # Accept a locked version without commit pin as equal to its
+        # pinned resolution, so lockfiles written before commit pinning
+        # keep working in frozen mode:
+        return if !version.has_metadata? && Versions.compare(package.version, version) == 0
         raise LockConflict.new("#{package.name} requirements changed")
       end
 
