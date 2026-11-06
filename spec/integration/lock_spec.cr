@@ -9,10 +9,24 @@ describe "lock" do
     end
   end
 
-  it "doesn't generate lockfile when project has no dependencies" do
+  it "generates lockfile when project has no dependencies" do
     with_shard({name: "test"}) do
       run "shards lock"
-      File.exists?(File.join(application_path, "shard.lock")).should be_false
+
+      lockfile = File.join(application_path, "shard.lock")
+      File.exists?(lockfile).should be_true
+      File.read(lockfile).should contain("shards: {}")
+    end
+  end
+
+  it "updates lockfile on completely removed dependencies" do
+    metadata = NamedTuple.new
+    lock = {web: "1.0.0"}
+
+    with_shard(metadata, lock) do
+      run "shards lock"
+
+      refute_locked "web"
     end
   end
 

@@ -27,7 +27,6 @@ module Shards
         solver.prepare(development: Shards.with_development?)
 
         packages = handle_resolver_errors { solver.solve }
-        return if packages.empty?
 
         if print
           Shards::Lock.write(packages, @override_path, STDOUT)
