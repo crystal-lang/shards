@@ -232,12 +232,12 @@
     "scripts": {
       "type": "object",
       "title": "scripts",
-      "description": "Script hooks to run",
+      "description": "Script hooks (deprecated, no-op).",
       "properties": {
         "postinstall": {
           "type": "string",
           "title": "postinstall script",
-          "description": "Will be run whenever the dependency is installed or upgraded in a project that requires it"
+          "description": "Deprecated: postinstall scripts are no longer executed."
         }
       },
       "additionalProperties": false
