@@ -37,8 +37,10 @@ module Shards
         when "dependencies"
           check_duplicate(dependencies, "dependencies", line, column)
           dependencies = [] of Dependency
-          pull.each_in_mapping do
-            dependencies << Dependency.from_yaml(pull)
+          pull.read_empty_or do
+            pull.each_in_mapping do
+              dependencies << Dependency.from_yaml(pull)
+            end
           end
         else
           if validate
