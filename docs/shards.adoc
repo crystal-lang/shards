@@ -161,7 +161,7 @@ separate _shards_ package may be available for your system.
 
 To install from source, download or clone
 https://github.com/crystal-lang/shards[the repository] and run
-*make CRFLAGS=--release*. The compiled binary is in _bin/shards_ and
+*make release=1*. The compiled binary is in _bin/shards_ and
 should be added to *PATH*.
 
 == Environment variables
@@ -173,8 +173,26 @@ Allows general options to be passed in as environment variable.
 SHARDS_CACHE_PATH::
 Defines the cache location. In this folder, shards stores local copies of remote
 repositories.
-Defaults to _.cache/shards_ in the home directory (_$XDG_CACHE_HOME_ or _$HOME_)
-or the current directory.
++
+Defaults to the first directory that exists or can be created.
++
+On POSIX systems:
++
+--
+* _$XDG_CACHE_HOME/shards_
+* _$HOME/.cache/shards_
+* _$HOME/.cache/.shards_
+* _./.shards_
+--
++
+On Windows:
++
+--
+* _%LOCALAPPDATA%\shards\cache_
+* _%USERPROFILE%\.cache\shards_
+* _%USERPROFILE%\.shards_
+* _.\.shards_
+--
 
 SHARDS_INSTALL_PATH::
 Defines the location where dependencies are installed.
