@@ -44,6 +44,7 @@ module Shards
       end
     end
 
+    # Used to generate the shard.lock file.
     def to_yaml(yaml : YAML::Builder)
       yaml.scalar name
       yaml.mapping do
