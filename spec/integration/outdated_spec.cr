@@ -149,6 +149,28 @@ describe "outdated" do
     end
   end
 
+  it "up to date with path dependency" do
+    with_shard({dependencies: {foo: {path: rel_path(:foo)}}}) do
+      run "shards install"
+
+      stdout = run "shards outdated --no-color"
+      stdout.should contain("I: Dependencies are up to date!")
+    end
+  end
+
+  it "not latest version with path dependency" do
+    create_path_repository "bumped", "0.1.0"
+
+    with_shard({dependencies: {bumped: {path: rel_path(:bumped)}}}) do
+      run "shards install"
+      create_shard "bumped", "0.2.0"
+
+      stdout = run "shards outdated --no-color"
+      stdout.should contain("W: Outdated dependencies:")
+      stdout.should contain("  * bumped (installed: 0.1.0 at #{rel_path(:bumped)}, available: 0.2.0 at #{rel_path(:bumped)})")
+    end
+  end
+
   describe "non-release" do
     describe "without releases" do
       it "latest any" do

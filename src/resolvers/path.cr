@@ -24,6 +24,13 @@ module Shards
       [spec(nil).version]
     end
 
+    # A path resolver has no branches, so we can only serve the latest version for the default ref (i.e. `nil`).
+    def latest_version_for_ref(ref : Ref?) : Version
+      return super if ref
+
+      spec(nil).version
+    end
+
     def local_path
       source
     end
