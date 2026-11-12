@@ -98,5 +98,11 @@ module Shards
       override = Override.from_yaml("dependencies: {}\n")
       override.dependencies.should be_empty
     end
+
+    it "parses empty scalar dependencies" do
+      Override.from_yaml("dependencies:\n").dependencies.should be_empty
+      Override.from_yaml("dependencies: ~\n").dependencies.should be_empty
+      Override.from_yaml("dependencies:\n  # foo:\n  #   github: user/foo\n").dependencies.should be_empty
+    end
   end
 end
