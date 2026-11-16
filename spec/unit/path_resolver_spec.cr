@@ -27,6 +27,15 @@ module Shards
       end
     end
 
+    it "install links a relative path relatively" do
+      Dir.cd(tmp_path) do
+        PathResolver.new("library", "library").install_sources(version("1.2.3"), install_path("library"))
+      end
+
+      Path[File.readlink(install_path("library"))].absolute?.should be_false
+      File.exists?(install_path("library", "shard.yml")).should be_true
+    end
+
     it "install fails when path doesnt exist" do
       expect_raises(Error) do
         resolver("unknown").install_sources(version("1.0.0"), install_path("unknown"))
