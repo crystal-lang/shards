@@ -92,66 +92,6 @@ module Shards
       Shards::Helpers.rm_rf(install_path)
     end
 
-    def postinstall
-      run_script("postinstall", Shards.skip_postinstall?)
-    rescue ex : Script::Error
-      cleanup_install_directory
-      raise ex
-    end
-
-    def run_script(name, skip)
-      if installed? && (command = spec.scripts[name]?)
-        if !skip
-          Log.info { "#{name.capitalize} of #{self.name}: #{command}" }
-          Script.run(install_path, command, name, self.name)
-        else
-          Log.info { "#{name.capitalize} of #{self.name}: #{command} (skipped)" }
-        end
-      end
-    end
-
-    def install_executables
-      return if !installed? || spec.executables.empty? || Shards.skip_executables?
-
-      Dir.mkdir_p(Shards.bin_path)
-
-      Log.with_context do
-        Log.context.set package: name
-        spec.executables.each do |name|
-          exe_name = find_executable_file(Path[install_path], name)
-          unless exe_name
-            raise Shards::Error.new("Could not find executable #{name.inspect} for #{@name.inspect}")
-          end
-          Log.debug { "Install #{exe_name}" }
-          source = File.join(install_path, exe_name)
-          destination = File.join(Shards.bin_path, File.basename(exe_name))
-
-          if File.exists?(destination)
-            next if File.same?(destination, source)
-            File.delete(destination)
-          end
-
-          begin
-            File.link(source, destination)
-          rescue File::Error
-            FileUtils.cp(source, destination)
-          end
-        end
-      end
-    end
-
-    def find_executable_file(install_path, name)
-      each_executable_path(name) do |path|
-        return path if File.exists?(install_path.join(path))
-      end
-    end
-
-    private def each_executable_path(name, &)
-      exe = Shards::Helpers.exe(name)
-      yield Path["bin", exe]
-      yield Path["bin", name] unless name == exe
-    end
-
     def to_yaml(builder)
       Dependency.new(name, resolver, version).to_yaml(builder)
     end
