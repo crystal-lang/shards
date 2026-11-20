@@ -238,6 +238,18 @@ module Shards
       end
     end
 
+    # Returns the version enriched with the commit that the version tag
+    # currently resolves to (e.g. `1.0.0+fossil.commit.<sha1>`), so subsequent
+    # installs resolve this exact commit instead of the mutable tag.
+    def pinned_version(version : Version) : Version
+      fossil_version = parse_fossil_version(version)
+      return version if fossil_version.commit
+
+      update_local_cache
+      ref = FossilTagRef.new "v#{fossil_version.value}"
+      Version.new "#{fossil_version.value}+fossil.commit.#{commit_sha1_at(ref)}"
+    end
+
     def commit_sha1_at(ref : FossilRef)
       # Fossil versions before 2.14 do not support the --format/-F for the
       # timeline command.

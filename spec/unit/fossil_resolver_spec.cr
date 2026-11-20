@@ -67,6 +67,16 @@ module Shards
       end
     end
 
+    it "pins tag version to the tag's commit" do
+      commit = fossil_commits("library", "v0.1.0").first
+      resolver("library.fossil").pinned_version(version "0.1.0").should eq(version "0.1.0+fossil.commit.#{commit}")
+    end
+
+    it "keeps an already pinned version" do
+      pinned = version "0.1.0+fossil.commit.#{fossil_commits("library", "v0.1.0").first}"
+      resolver("library.fossil").pinned_version(pinned).should eq(pinned)
+    end
+
     it "versions for" do
       expect_raises(Shards::Error, "No shard.yml was found for shard \"empty.fossil\" at commit #{fossil_commits(:empty)[0]}") do
         resolver("empty.fossil").versions_for(Any)
