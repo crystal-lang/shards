@@ -116,7 +116,7 @@ module Shards
           .new(self, self)
           .resolve(deps, base)
 
-      packages = [] of Package
+      packages = {} of String => Package
       tsort(result).each do |v|
         next unless v.payload
         spec = v.payload.as?(Spec) || raise "BUG: returned graph payload was not a Spec"
@@ -136,10 +136,15 @@ module Shards
         resolver = spec.resolver || raise "BUG: returned Spec has no resolver"
         version = spec.version
 
-        packages << Package.new(spec.name, resolver, version, !on_override(spec).nil?)
+        package = Package.new(spec.name, resolver, version, !on_override(spec).nil?)
+        v.successors.each do |successor|
+          next if successor.name == "crystal"
+          package.dependencies << packages[successor.name]
+        end
+        packages[spec.name] = package
       end
 
-      packages
+      packages.values
     end
 
     private def tsort(graph)
