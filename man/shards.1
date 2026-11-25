@@ -2,12 +2,12 @@
 .\"     Title: shards
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-10-28
+.\"      Date: 2026-11-23
 .\"    Manual: Shards Manual
 .\"    Source: shards 0.21.0-dev
 .\"  Language: English
 .\"
-.TH "SHARDS" "1" "2026-10-28" "shards 0.21.0\-dev" "Shards Manual"
+.TH "SHARDS" "1" "2026-11-23" "shards 0.21.0\-dev" "Shards Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -244,7 +244,7 @@ separate \fIshards\fP package may be available for your system.
 To install from source, download or clone
 .URL "https://github.com/crystal\-lang/shards" "the repository" ""
 and run
-\fBmake CRFLAGS=\-\-release\fP. The compiled binary is in \fIbin/shards\fP and
+\fBmake release=1\fP. The compiled binary is in \fIbin/shards\fP and
 should be added to \fBPATH\fP.
 .SH "ENVIRONMENT VARIABLES"
 .sp
@@ -258,8 +258,100 @@ SHARDS_CACHE_PATH
 .RS 4
 Defines the cache location. In this folder, shards stores local copies of remote
 repositories.
-Defaults to \fI.cache/shards\fP in the home directory (\fI$XDG_CACHE_HOME\fP or \fI$HOME\fP)
-or the current directory.
+.sp
+Defaults to the first directory that exists or can be created.
+.sp
+On POSIX systems:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI$XDG_CACHE_HOME/shards\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI$HOME/.cache/shards\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI$HOME/.cache/.shards\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI./.shards\fP
+.RE
+.sp
+On Windows:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI%LOCALAPPDATA%\(rsshards\(rscache\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI%USERPROFILE%\(rs.cache\(rsshards\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI%USERPROFILE%\(rs.shards\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fI.\(rs.shards\fP
+.RE
 .RE
 .sp
 SHARDS_INSTALL_PATH
