@@ -57,12 +57,6 @@ module Shards
         self.frozen = true
         self.with_development = false
       end
-      opts.on("--skip-postinstall", "Does not run postinstall of dependencies") do
-        self.skip_postinstall = true
-      end
-      opts.on("--skip-executables", "Does not install executables") do
-        self.skip_executables = true
-      end
       opts.on("--local", "Don't update remote repositories, use the local cache only.") { self.local = true }
       opts.on("--jobs=N", "Number of repository downloads to perform in parallel (default: 8). Currently only for git.") { |n| self.jobs = n.to_i }
       # TODO: remove in the future
