@@ -1,4 +1,5 @@
 require "file_utils"
+require "set"
 require "./helpers"
 
 module Shards
@@ -7,6 +8,7 @@ module Shards
     getter resolver : Resolver
     getter version : Version
     getter is_override : Bool
+    getter dependencies = [] of Package
     @spec : Spec?
 
     def initialize(@name, @resolver, @version, @is_override = false)
@@ -66,25 +68,57 @@ module Shards
         # install the shard:
         resolver.install_sources(version, install_path)
 
-        # link the project's lib path as the shard's lib path, so the dependency
-        # can access transitive dependencies:
-        unless resolver.is_a?(PathResolver)
-          install_lib_path
-        end
+        sync_dependency_links
       end
 
       Shards.info.installed[name] = self
       Shards.info.save
     end
 
-    private def install_lib_path
-      lib_path = File.join(install_path, Shards::INSTALL_DIR)
-      return if File.exists?(lib_path)
+    # Only maintain directories created by Shards. Existing lib directories and
+    # legacy lib -> .. links may belong to the dependency or the user.
+    def sync_dependency_links
+      return if resolver.is_a?(PathResolver)
 
-      Log.debug { "Link #{Shards.install_path} to #{lib_path}" }
-      Dir.mkdir_p(File.dirname(lib_path))
-      target = File.join(Path.new(Shards::INSTALL_DIR).parts.map { ".." })
-      File.symlink(target, lib_path)
+      lib_path = File.join(install_path, Shards::INSTALL_DIR)
+      return if File.symlink?(lib_path)
+
+      marker = File.join(lib_path, ".shards")
+      unless File.file?(marker)
+        return if File.exists?(lib_path) || dependencies.empty?
+        Dir.mkdir_p(lib_path)
+        File.touch(marker)
+      end
+
+      # Crystal resolves all requires against the current working directory's
+      # lib, so direct dependencies alone are not enough.
+      reachable = Set(Package).new
+      pending = dependencies.dup
+      until pending.empty?
+        dependency = pending.pop
+        next unless reachable.add?(dependency)
+        pending.concat(dependency.dependencies)
+      end
+      names = reachable.map(&.name).to_set
+      target_path = Path.new(Shards.install_path).relative_to(lib_path)
+
+      # Remove obsolete generated links, leaving files and other link targets alone.
+      Dir.each_child(lib_path) do |name|
+        next if names.includes?(name)
+        link = File.join(lib_path, name)
+        if File.symlink?(link) && File.readlink(link) == target_path.join(name).to_s
+          File.delete(link)
+        end
+      end
+
+      Dir.cd(lib_path) do
+        names.each do |name|
+          next if File.exists?(name) || File.symlink?(name)
+          target = target_path.join(name).to_s
+          Log.debug { "Link #{target} to #{File.join(lib_path, name)}" }
+          File.symlink(target, name)
+        end
+      end
     end
 
     protected def cleanup_install_directory

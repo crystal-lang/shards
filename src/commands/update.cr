@@ -50,6 +50,7 @@ module Shards
 
       private def install(package : Package)
         if package.installed?
+          package.sync_dependency_links
           Log.info { "Using #{package.name} (#{package.report_version})" }
           return
         end
